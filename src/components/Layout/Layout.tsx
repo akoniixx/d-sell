@@ -1,4 +1,13 @@
-import { MenuProps, Menu, Breadcrumb, Row, Col, Button, Space} from "antd";
+import {
+  MenuProps,
+  Menu,
+  Breadcrumb,
+  Row,
+  Col,
+  Button,
+  Space,
+  Image,
+} from "antd";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
 import React, { Children, useState } from "react";
@@ -16,6 +25,7 @@ import HomePage from "../../pages/HomePage/HomePage";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import { Link } from "react-router-dom";
 import { AuthPage } from "../../pages/AuthPage/AuthPage";
+import icon from "../../resource/icon";
 
 const Layouts: React.FC<any> = ({ children }) => {
   const [size, setSize] = useState<SizeType>("large");
@@ -36,23 +46,23 @@ const Layouts: React.FC<any> = ({ children }) => {
         <Row justify="start">
           <Col span={18}>
             <Link to="/">
-              <img src="/src/resource/media/logos/logo.png" height={45} width={45}/>
+              <Image src={icon.logoHeader} width={140} />
             </Link>
           </Col>
           <Space>
-          <Col>
-            <span>
-              <b>ถามพัฒน์ วราเจริษภิวัฒน์</b> (ICP Ladda)
-            </span>
+            <Col>
+              <span>
+                <b>ถามพัฒน์ วราเจริษภิวัฒน์</b> (ICP Ladda)
+              </span>
             </Col>
-           <Col span={2}>
-           <Button
-              onClick={() => logout()}
-              icon={<LogoutOutlined />}
-              size={size}
-            />
-           </Col>
-           </Space>
+            <Col span={2}>
+              <Button
+                onClick={() => logout()}
+                icon={<LogoutOutlined />}
+                size={size}
+              />
+            </Col>
+          </Space>
         </Row>
       </Header>
 
