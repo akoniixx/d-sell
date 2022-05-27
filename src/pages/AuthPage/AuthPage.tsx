@@ -3,6 +3,9 @@ import React from 'react'
 import { Col, Container, Row } from 'react-bootstrap'
 import MicrosoftLogin from 'react-microsoft-login'
 import { useNavigate, useLocation } from 'react-router-dom'
+import color from '../../resource/color'
+import icon from '../../resource/icon'
+import image from '../../resource/image'
 
 
 
@@ -15,15 +18,15 @@ export const AuthPage:React.FC = () => {
   };
 
   return (
-    <Container fluid className="px-0 vh-100 overflow-auto " >
+    <Container fluid className="px-0 vh-100 overflow-hidden " >
       <Row xs={1} md={1} lg={2} className="h-100">
         <Col  lg={{span:5}} className="height-res d-flex align-item-between">
-          <div className="d-flex flex-column bg-gradient-blue h-100 justify-content-center">
+          <div className="d-flex flex-column h-100 justify-content-center" style={{background:color.primary}}>
             <div className="d-flex justify-content-center ">
-              <img src="media/logos/logoSellcoda-1.png" width={'30%'} />
+              <img src={icon.logoSellcoda} width={'30%'} />
             </div>
             <div className="d-flex justify-content-center">
-              <img src="media/images/bgLoginSellcoda.png" width={'80%'} />
+              <img src={image.login}  width={'80%'} />
             </div>
           </div>
         </Col>
@@ -41,12 +44,12 @@ export const AuthPage:React.FC = () => {
                   </h5>
                 </div>
                 <div className="text-center">
-                 {/*  <MicrosoftLogin
+                  <MicrosoftLogin
                     clientId="87575c83-d0d9-4544-93e5-7cd61636b45c"
                     authCallback={authHandler}
                     withUserData={true}
                     buttonTheme="dark"
-                  /> */}
+                  />
                 </div>
               </div>
             </div>
