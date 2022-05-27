@@ -42,6 +42,7 @@ function Navbar() {
     mode="inline"
     items={items}
   />
+  
   )
 }
 
