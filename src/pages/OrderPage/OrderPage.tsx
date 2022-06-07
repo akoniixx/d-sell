@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Navbar } from "react-bootstrap";
+import { Container, Navbar } from "react-bootstrap";
 import { CalendarOutlined } from "@ant-design/icons";
-import { Col, Row, Space } from "antd";
+import { Col, Input, Row, Space } from "antd";
 import Layouts from "../../components/Layout/Layout";
 
 export function OrderPage() {
@@ -76,20 +76,25 @@ export function OrderPage() {
             </span>
           </Col>
           <Col span={4}></Col>
-          <Col span={4}>
-            {" "}
-            <label className="checkbox checkbox-lg checkbox-inline">
-              <input type="checkbox" name="waiting_payment" />
-              <span></span> คำสั่งซื้อรอชำระเงิน
-            </label>
+        </Row>
+
+        <Row>
+          <Col span={6}>
+            <Input placeholder="SPO NO." />
           </Col>
-          <Col span={4}>
-            {" "}
-            <label className="checkbox checkbox-lg checkbox-inline">
-              <input type="checkbox" name="waiting_approval" />
-              <span></span> คำสั่งซื้อรออนุมัติวงเงิน
-            </label>
-          </Col>
+          {/* <Col span={12} offset={6}> <Select
+              defaultValue="แสดงข้อมูลทั้งหมด"
+              style={style}
+              onChange={handleChange}
+            >
+              <Option value="แสดงข้อมูลของวันนี้">แสดงข้อมูลของวันนี้</Option>
+              <Option value="แสดงข้อมูลของสัปดาห์นี้">
+                แสดงข้อมูลของสัปดาห์นี้
+              </Option>
+              <Option value="แสดงข้อมูลของเดือนนี้">
+                แสดงข้อมูลของเดือนนี้
+              </Option>
+            </Select></Col> */}
         </Row>
         <div className="card card-custom">
           <div className="card-body py-0">

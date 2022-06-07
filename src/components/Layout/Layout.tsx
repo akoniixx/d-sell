@@ -71,7 +71,6 @@ const Layouts: React.FC<any> = ({ children }) => {
           </Space>
         </Row>
       </Header>
-
       <Layout>
         <Sider width={200} className="site-layout-background">
           <Menu
