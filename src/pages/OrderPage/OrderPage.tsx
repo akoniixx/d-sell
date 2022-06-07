@@ -2,16 +2,23 @@ import React, { useEffect, useState } from "react";
 import { Navbar } from "react-bootstrap";
 import { CalendarOutlined } from "@ant-design/icons";
 import { Col, Row, Space } from "antd";
+import Layouts from "../../components/Layout/Layout";
 
 export function OrderPage() {
+  let token = localStorage.getItem('token')
   const mystyle = {
     color: "black",
     backgroundColor: "white",
     padding: "10px",
     fontFamily: "Arial",
   };
+
+  useEffect(()=>{
+    console.log(token,'token')
+  })
+  
   return (
-    <>
+    <Layouts>
       <Navbar />
       <div className="container" style={mystyle}>
         <div className="col-xl-12">
@@ -105,6 +112,6 @@ export function OrderPage() {
           </div>
         </div>
       </div>
-    </>
+      </Layouts>
   );
 }
