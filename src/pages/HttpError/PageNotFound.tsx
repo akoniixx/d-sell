@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
+import image from "../../resource/image";
 
 const PageNotFound: React.FC = () => {
   const NoMatch = () => {
@@ -17,7 +18,7 @@ const PageNotFound: React.FC = () => {
   return (
     <div className="container">
       <div className="d-flex justify-content-center align-items-center">
-        <img src="/media/images/404.png" width="264px" height="164px" />
+        <img src={image.error404} width="264px" height="164px" />
         <h3 className="card-title  mt-5 ">
           <span className="card-label font-weight-bolder text-dark">
             ขออภัย ไม่พบหน้าที่ท่านต้องการ

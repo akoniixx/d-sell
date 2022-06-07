@@ -1,28 +1,53 @@
+import { Button } from "antd";
+import React, { useEffect } from "react";
+import { Col, Container, Row } from "react-bootstrap";
+import MicrosoftLogin from "react-microsoft-login";
 
-import React from 'react'
-import { Col, Container, Row } from 'react-bootstrap'
-import MicrosoftLogin from 'react-microsoft-login'
-import { useNavigate, useLocation } from 'react-router-dom'
-import color from '../../resource/color'
-import icon from '../../resource/icon'
-import image from '../../resource/image'
+import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { msal } from "../../atom/Msal";
+import { profileAtom } from "../../atom/ProfileAtom";
+import { AuthDatasource } from "../../datasource/AuthDatasource";
 
+import color from "../../resource/color";
+import icon from "../../resource/icon";
+import image from "../../resource/image";
 
-export const AuthPage:React.FC = () => {
+export const AuthPage: React.FC = () => {
+  const [profile, setProfile] = useRecoilState(profileAtom);
+
+  let navigate = useNavigate();
+  let token = localStorage.getItem("token");
   const authHandler = (err: any, data: any) => {
-    console.log(err, data);
+    /* localStorage.setItem('token','usertoken')
+    setProfile('tokenxxx');
+    navigate("OrderPage"); */
+    AuthDatasource.login(data.mail).then((res: any) => {
+      if (res) {
+        setProfile(res.user_detail);
+        localStorage.setItem("token", JSON.stringify(res.token_bearer));
+        return navigate("OrderPage");
+      } else {
+        return navigate("ErrorLoginPage");
+      }
+    });
   };
 
+  
+
   return (
-    <Container fluid className="px-0 vh-100 overflow-hidden " >
+    <Container fluid className="px-0 vh-100 overflow-hidden ">
       <Row xs={1} md={1} lg={2} className="h-100">
-        <Col  lg={{span:5}} className="height-res d-flex align-item-between">
-          <div className="d-flex flex-column h-100 justify-content-center" style={{background:color.primary}}>
+        <Col lg={{ span: 5 }} className="height-res d-flex align-item-between">
+          <div
+            className="d-flex flex-column h-100 justify-content-center"
+            style={{ background: color.primary }}
+          >
             <div className="d-flex justify-content-center ">
-              <img src={icon.logoSellcoda} width={'30%'} />
+              <img alt="logo" src={icon.logoSellcoda} width={"30%"} />
             </div>
             <div className="d-flex justify-content-center">
-              <img src={image.login}  width={'80%'} />
+              <img alt="imageLogin" src={image.login} width={"80%"} />
             </div>
           </div>
         </Col>
@@ -40,10 +65,11 @@ export const AuthPage:React.FC = () => {
                   </h5>
                 </div>
                 <div className="text-center">
+                 {/*  <Button onClick={()=>authHandler()}> login </Button> */}
                   <MicrosoftLogin
                     clientId="87575c83-d0d9-4544-93e5-7cd61636b45c"
                     authCallback={authHandler}
-                    withUserData={true}
+                    
                     buttonTheme="dark"
                   />
                 </div>
@@ -53,5 +79,5 @@ export const AuthPage:React.FC = () => {
         </Col>
       </Row>
     </Container>
-  )
-}
+  );
+};

@@ -1,13 +1,4 @@
-import {
-  MenuProps,
-  Menu,
-  Breadcrumb,
-  Row,
-  Col,
-  Button,
-  Space,
-  Image,
-} from "antd";
+import { MenuProps, Menu, Breadcrumb, Row, Col, Button, Space } from "antd";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
 import React, { Children, useState } from "react";
@@ -23,36 +14,51 @@ import {
 } from "@ant-design/icons";
 import HomePage from "../../pages/HomePage/HomePage";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthPage } from "../../pages/AuthPage/AuthPage";
 import icon from "../../resource/icon";
+import { useRecoilValue } from "recoil";
+import { msal } from "../../atom/Msal";
+import { profileAtom } from "../../atom/ProfileAtom";
 
 const Layouts: React.FC<any> = ({ children }) => {
   const [size, setSize] = useState<SizeType>("large");
-
+  const profile = useRecoilValue<any>(profileAtom)
+  
+  let navigate = useNavigate();
+ 
   const logout = () => {
-    localStorage.clear();
-    var url = window.location.href;
-    var arr = url.split("/");
-    var resultUrlHost = arr[0] + "//" + arr[2];
+    localStorage.clear()
+    sessionStorage.clear();
+    var url = window.location.href
+    var arr = url.split('/')
+    var resultUrlHost = arr[0] + '//' + arr[2]
     window.location.href =
-      "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
-      resultUrlHost;
-  };
+      'https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=' + resultUrlHost
+  }
+
 
   return (
     <Layout style={{ height: "100vh" }}>
-      <Header className="brand" style={{ backgroundColor: "#FFFFFF" }}>
-        <Row justify="start">
+      <Header
+        className="brand"
+        style={{
+          backgroundColor: "#FFFFFF",
+          borderBottom: "0.1px",
+          borderBottomColor: "#E0E0E0",
+          borderBottomStyle: "solid",
+        }}
+      >
+        <Row>
           <Col span={18}>
             <Link to="/">
-              <Image src={icon.logoHeader} width={140} />
+              <img src={icon.logoHeader} width={140} />
             </Link>
           </Col>
           <Space>
             <Col>
               <span>
-                <b>ถามพัฒน์ วราเจริษภิวัฒน์</b> (ICP Ladda)
+                <b> {profile.firstname + ' ' + profile.firstname + ' ' + '(' + profile.firstname + ')' } </b>
               </span>
             </Col>
             <Col span={2}>
@@ -69,9 +75,10 @@ const Layouts: React.FC<any> = ({ children }) => {
         <Sider width={200} className="site-layout-background">
           <Menu
             mode="inline"
-            style={{ height: "100%", borderRight: 0 }}
+            defaultOpenKeys={["order"]}
+            style={{ height: "100%", borderRight: 0, paddingTop: 30 }}
           >
-            <Menu.Item icon={<ShoppingCartOutlined />}>
+            <Menu.Item key={"order"} icon={<ShoppingCartOutlined />}>
               <Link to="/OrderPage">
                 <span>Order</span>
               </Link>
@@ -81,7 +88,7 @@ const Layouts: React.FC<any> = ({ children }) => {
               title={<span>Approve Order</span>}
               key={"sub1"}
             >
-              <Menu.Item>
+              <Menu.Item style={{}}>
                 <Link to="/SpecialRequestPage">
                   <span>Special Request</span>
                 </Link>
