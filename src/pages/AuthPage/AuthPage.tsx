@@ -8,10 +8,6 @@ import icon from '../../resource/icon'
 import image from '../../resource/image'
 
 
-
-
-
-
 export const AuthPage:React.FC = () => {
   const authHandler = (err: any, data: any) => {
     console.log(err, data);
