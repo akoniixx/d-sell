@@ -9,15 +9,17 @@ import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage"
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
 import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
 import { AuthPage } from "./pages/AuthPage/AuthPage";
-import DiscountCOPage from "./pages/DiscountPage/DiscountCOPage";
-import DiscountListPage from "./pages/DiscountPage/DiscountListPage";
+import { AddDiscountCOPage } from "./pages/DiscountPage/AddDiscountCOPage";
+import { DiscountCOPage } from "./pages/DiscountPage/DiscountCOPage";
+import { DiscountListPage } from "./pages/DiscountPage/DiscountListPage";
 import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import HomePage from "./pages/HomePage/HomePage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
 import { OrderPage } from "./pages/OrderPage/OrderPage";
-import DistributionPage from "./pages/PriceListPage/DistributionPage";
+import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
 import ShopPage from "./pages/PriceListPage/ShopPage";
 import { AddNewSale } from "./pages/UserPage/AddNewSale";
+import { AddRoleManage } from "./pages/UserPage/AddRoleManage";
 import RoleManagementPage from "./pages/UserPage/RoleManagementPage";
 import SaleManagementPage from "./pages/UserPage/SaleManagementPage";
 
@@ -40,8 +42,8 @@ const WebRoutes: React.FC<any> = () => {
             <Route path="/SaleManagementPage" element={<SaleManagementPage/>} />
             <Route path="/RoleManagementPage" element={<RoleManagementPage/>} />
             <Route path="/AddNewSale" element={<AddNewSale/>} />
-
-
+            <Route path="/AddDiscountCOPage" element={<AddDiscountCOPage/>} />
+            <Route path="/AddRoleManage" element={<AddRoleManage/>} />
             <Route path="*" element={<PageNotFound />} />
            
           </Routes>
