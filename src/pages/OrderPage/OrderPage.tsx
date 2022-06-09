@@ -13,9 +13,7 @@ export function OrderPage() {
     fontFamily: "Arial",
   };
 
-  useEffect(()=>{
-    console.log(token,'token')
-  })
+ 
   
   return (
     <Layouts>

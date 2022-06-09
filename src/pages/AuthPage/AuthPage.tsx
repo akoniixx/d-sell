@@ -1,39 +1,37 @@
-import { Button } from "antd";
-import React, { useEffect } from "react";
+import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import MicrosoftLogin from "react-microsoft-login";
 
 import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { msal } from "../../atom/Msal";
-import { profileAtom } from "../../atom/ProfileAtom";
+
 import { AuthDatasource } from "../../datasource/AuthDatasource";
 
 import color from "../../resource/color";
 import icon from "../../resource/icon";
 import image from "../../resource/image";
+import { useLocalStorage } from "../../hook/useLocalStorage";
 
 export const AuthPage: React.FC = () => {
-  const [profile, setProfile] = useRecoilState(profileAtom);
+  const [persistedProfile, setPersistedProfile] = useLocalStorage(
+    "profile",
+    []
+  );
+  const [token, setToken] = useLocalStorage("token", []);
 
   let navigate = useNavigate();
-  let token = localStorage.getItem("token");
   const authHandler = (err: any, data: any) => {
-    /* localStorage.setItem('token','usertoken')
-    setProfile('tokenxxx');
-    navigate("OrderPage"); */
-    AuthDatasource.login(data.mail).then((res: any) => {
+    AuthDatasource.login(data.account.userName).then((res: any) => {
       if (res) {
-        setProfile(res.user_detail);
-        localStorage.setItem("token", JSON.stringify(res.token_bearer));
+        setPersistedProfile(res.user_detail);
+
+        setToken(res.token_bearer);
         return navigate("OrderPage");
       } else {
         return navigate("ErrorLoginPage");
       }
     });
   };
-
-  
 
   return (
     <Container fluid className="px-0 vh-100 overflow-hidden ">
@@ -65,11 +63,10 @@ export const AuthPage: React.FC = () => {
                   </h5>
                 </div>
                 <div className="text-center">
-                 {/*  <Button onClick={()=>authHandler()}> login </Button> */}
+                  {/*  <Button onClick={()=>authHandler()}> login </Button> */}
                   <MicrosoftLogin
                     clientId="87575c83-d0d9-4544-93e5-7cd61636b45c"
                     authCallback={authHandler}
-                    
                     buttonTheme="dark"
                   />
                 </div>
