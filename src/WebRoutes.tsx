@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { profileAtom } from "./atom/ProfileAtom";
+import { profileAtom } from "./store/ProfileAtom";
 import Layouts from "./components/Layout/Layout";
 import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";

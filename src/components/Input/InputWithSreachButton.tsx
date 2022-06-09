@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import {
+  SearchOutlined,
+} from "@ant-design/icons";
+
 interface InputWithSerachButtonProp {
   sizeInput: string
   changeTextSearch: (text: string) => void
 }
-import {
-    SearchOutlined,
-  } from "@ant-design/icons";
 
 export const InputWithSerachButton: React.FC<InputWithSerachButtonProp> = ({ sizeInput, changeTextSearch }) => {
   const [text, setText] = useState<string>('')

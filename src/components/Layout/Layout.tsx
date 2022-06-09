@@ -18,25 +18,30 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthPage } from "../../pages/AuthPage/AuthPage";
 import icon from "../../resource/icon";
 import { useRecoilValue } from "recoil";
-import { msal } from "../../atom/Msal";
-import { profileAtom } from "../../atom/ProfileAtom";
+import { msal } from "../../store/Msal";
+import { profileAtom } from "../../store/ProfileAtom";
+import { useLocalStorage } from "../../hook/useLocalStorage";
+import { getCompanyName } from "../../utility/CompanyName";
 
 const Layouts: React.FC<any> = ({ children }) => {
   const [size, setSize] = useState<SizeType>("large");
-  const profile = useRecoilValue<any>(profileAtom)
-  
+  const profile = useRecoilValue<any>(profileAtom);
+  const [persistedProfile, setPersistedProfile] = useLocalStorage(
+    "profile",
+    []
+  );
   let navigate = useNavigate();
- 
-  const logout = () => {
-    localStorage.clear()
-    sessionStorage.clear();
-    var url = window.location.href
-    var arr = url.split('/')
-    var resultUrlHost = arr[0] + '//' + arr[2]
-    window.location.href =
-      'https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=' + resultUrlHost
-  }
 
+  const logout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    var url = window.location.href;
+    var arr = url.split("/");
+    var resultUrlHost = arr[0] + "//" + arr[2];
+    window.location.href =
+      "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
+      resultUrlHost;
+  };
 
   return (
     <Layout style={{ height: "100vh" }}>
@@ -58,7 +63,8 @@ const Layouts: React.FC<any> = ({ children }) => {
           <Space>
             <Col>
               <span>
-                <b> {profile.firstname + ' ' + profile.firstname + ' ' + '(' + profile.firstname + ')' } </b>
+                {/*  <b> {profile.firstname + ' ' + profile.firstname + ' ' + '(' + profile.firstname + ')' } </b> */}
+                <b> {persistedProfile.firstname + ' ' + persistedProfile.lastname + ' ' + '(' + getCompanyName(persistedProfile.companyId) + ')' } </b> 
               </span>
             </Col>
             <Col span={2}>

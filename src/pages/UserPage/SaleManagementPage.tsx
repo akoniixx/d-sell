@@ -3,14 +3,13 @@ import {
   Button,
   Col,
   Input,
-  Layout,
   Pagination,
   Row,
   Switch,
   Table,
   Tabs,
 } from "antd";
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   UnorderedListOutlined,
@@ -19,6 +18,18 @@ import {
 } from "@ant-design/icons";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { Container } from "react-bootstrap";
+import { SaleListDatasource } from "../../datasource/SaleListDatasource";
+import { profileAtom } from "../../store/ProfileAtom";
+import { useRecoilValue } from "recoil";
+import Layout from "../../components/Layout/Layout";
+import { ProfileEntity } from "../../entities/ProfileEntity";
+import { useLocalStorage } from "../../hook/useLocalStorage";
+
+const style: React.CSSProperties = {
+  width: "180px",
+};
+
+
 
 const { TabPane } = Tabs;
 const TabFilter = memo(({ staffOnClick, all, active, inactive }: any) => {
@@ -35,11 +46,24 @@ function SaleManagementPage() {
   const { Search } = Input;
   const onSearch = (value: string) => console.log(value);
   const [saleList, setSaleList] = useState([]);
-  const [keyword, setKeyword] = useState("");
+  const [meta,setMeta] = useState();
+  const [keyword, setKeyword] = useState<string>("");
 
-  const style: React.CSSProperties = {
-    width: "180px",
-  };
+  const [persistedProfile, setPersistedProfile] = useLocalStorage(
+    "profile",
+    []
+  );
+  const fetchSaleList = async (pageNum:number,pageSize:number,companyId:number,status:string,search?:string) => {
+    await SaleListDatasource.getSaleList(pageNum,pageSize,companyId,status,search)
+    .then((res)=>{
+     setSaleList(res.data)
+    })
+  }
+
+   useEffect(() => {
+    fetchSaleList(1,10,persistedProfile.companyId,'all')
+    
+   },[])
 
   const sorter = (a: any, b: any) => {
     if (a === b) return 0;
@@ -88,7 +112,7 @@ function SaleManagementPage() {
     {
       title: "ลำดับ",
       dataIndex: "index",
-      key: "index",
+      key: "rowNum",
       width: "8%",
       sorter: (a: any, b: any) => a.name.localeCompare(b.name),
       render: (value: any, row: any, index: number) => {
@@ -113,7 +137,7 @@ function SaleManagementPage() {
         return {
           children: (
             <div className="d-flex flex-row align-items-baseline">
-              <div className="mr-4">
+              <div className="me-4">
                 {row.image ? (
                   <Avatar size={42} src={row.image} />
                 ) : (
@@ -121,12 +145,12 @@ function SaleManagementPage() {
                     size={42}
                     style={{ color: "#0068F4", backgroundColor: "#EFF2F9" }}
                   >
-                    {row.name.charAt(0)}
+                    {row.firstname.charAt(0)}
                   </Avatar>
                 )}
               </div>
               <div>
-                <p>{row.name}</p>
+                <p>{row.firstname + ' ' + row.lastname}</p>
               </div>
             </div>
           ),
@@ -155,8 +179,8 @@ function SaleManagementPage() {
     },
     {
       title: "อัปเดทโดย",
-      dataIndex: "updated",
-      key: "updated",
+      dataIndex: "updateBy",
+      key: "updateBy",
       width: "18%",
       sorter: (a: any, b: any) => a.updated.localeCompare(b.updated),
       render: (value: any, row: any, index: number) => {
@@ -164,10 +188,10 @@ function SaleManagementPage() {
           children: (
             <div className="test">
               <span className="text-dark-75  d-block font-size-lg">
-                {row.updated}
+                {row.updateDate}
               </span>
               <span className="text-muted ">
-                {row.updated_by ? row.updated_by.name : null}
+                {row.updateBy}
               </span>
             </div>
           ),
@@ -181,7 +205,7 @@ function SaleManagementPage() {
       width: "10%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Switch checked={row.is_active} />,
+          children: <Switch checked={row.isActive} />,
         };
       },
     },
@@ -218,10 +242,10 @@ function SaleManagementPage() {
     },
   ];
   return (
-    <div>
+    <Layout>
       <CardContainer>
         <PageTitle />
-        <TabFilter />
+       {/*  <TabFilter /> */}
         <Table
           className="rounded-lg"
           columns={colunm}
@@ -231,17 +255,17 @@ function SaleManagementPage() {
           tableLayout="fixed"
         />
         <br />
-        <div className="d-flex justify-content-end pt-10">
+       {/*  <div className="d-flex justify-content-center pt-10">
           <Pagination
             defaultCurrent={1}
-            // total={meta?.totalItem}
+             total={50}
 
-            // current={Number(meta?.currentPage)}
-            // onChange={(p) => fetchCreditMemoList(p)}
+           current={Number(meta?.currentPage)}
+             onChange={(p) => fetchCreditMemoList(p)}
           />
-        </div>
+        </div> */}
       </CardContainer>
-    </div>
+    </Layout>
   );
 }
 export default SaleManagementPage;
