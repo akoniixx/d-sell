@@ -1,54 +1,95 @@
-import React, { useEffect, useState, memo } from "react";
-import {
-  Table,
-  Tabs,
-  Modal,
-  DatePicker,
-  Switch,
-  Row,
-  Col,
-  Input,
-  Button,
-  Select,
-  Pagination,
-} from "antd";
-import { ReactComponent as MoreDetailIcon } from "../../icons/more-detail.svg";
-import { ReactComponent as EditIcon } from "../../icons/edit.svg";
-import Navbar from "../../components/Navbar/Navbar";
-import { CardContainer } from "../../components/Card/CardContainer";
-import AddButton from "../../components/Button/AddButton";
-import { FormOutlined } from "@ant-design/icons";
+import { Avatar, Col, Row, Select, Table } from "antd";
+import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { Option } from "antd/lib/mentions";
+import { CardContainer } from "../../components/Card/CardContainer";
+import { Dropdown } from "../../components/Dropdown/Dropdown";
 import { InputWithSerachButton } from "../../components/Input/InputWithSreachButton";
-const { RangePicker } = DatePicker;
-const moment = require("moment");
-const SLASH_DMY = "DD/MM/YYYY";
-const { TabPane } = Tabs;
+import { FormOutlined, ShopOutlined } from "@ant-design/icons";
+import Layouts from "../../components/Layout/Layout";
+import { ProductListDatasource } from "../../datasource/ProductListDatasource";
+import { useLocalStorage } from "../../hook/useLocalStorage";
+import { formatDate, numberWithCommas } from "../../utilities/TextFormatter";
+import { LADDA_STRATEGY_GROUP } from "../../definitions/strategyGroup";
+import { LADDA_PRODUCT_GROUP } from "../../definitions/productGroup";
 
 export const DistributionPage: React.FC = () => {
   const style: React.CSSProperties = {
     width: "180px",
+    marginRight: "5px",
   };
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
+  const { Option } = Select;
   const _ = require("lodash");
   const [optionalTextSearch, setTextSearch] = useState<string>();
-  const [memoList, setMemoList] = useState([]);
+  const [productList, setProductList] = useState([]);
+  const [productGroup, setProductGroup] = useState<string>();
+  const [productStrategy, setProductStrategy] = useState<string>();
   const [keyword, setKeyword] = useState("");
-  const [isModalDeleteVisible, setIsModalDeleteVisible] = useState<boolean>(
-    false
-  );
+  const [isModalDeleteVisible, setIsModalDeleteVisible] =
+    useState<boolean>(false);
   const changeTextSearch = (text?: string) => {
     setTextSearch(text);
+  };
+  const [persistedProfile, setPersistedProfile] = useLocalStorage(
+    "profile",
+    []
+  );
+
+  const fetchProductList = async (
+    pageNum: number,
+    pageSize: number,
+    companyId: number,
+    search?: string
+  ) => {
+    await ProductListDatasource.getProductList(
+      pageNum,
+      pageSize,
+      companyId,
+      search
+    ).then((res) => {
+      setProductList(res.data);
+      console.log(res);
+    });
+  };
+
+  const fetchProductGroup = async (companyId: number) => {
+    await ProductListDatasource.getProductGroup(companyId).then((res) => {
+      setProductGroup(res);
+      console.log(res);
+    });
+  };
+
+  const fecthProductStrategy = async () => {
+    await ProductListDatasource.getProductStrategy().then((res) => {
+      setProductStrategy(res);
+      console.log(res);
+    });
+  };
+
+  useEffect(() => {
+    fetchProductList(1, 10, persistedProfile.companyId);
+    fetchProductGroup(persistedProfile.companyId);
+    fecthProductStrategy();
+  }, []);
+
+  const colorStrategyGroup = (group: string) => {
+    if (group == "EXPAND") {
+      return "text-warning font-weight-bold d-block";
+    } else if (group == "NATURAL") {
+      return "text-success font-weight-bold d-block";
+    } else if (group == "SKYROCKET") {
+      return "text-primary font-weight-bold d-block";
+    } else if (group == "STANDARD") {
+      return "text-danger font-weight-bold d-block";
+    } else {
+      return "text-muted font-weight-bold d-block";
+    }
   };
 
   const PageTitle = () => {
     return (
       <Container>
         <Row>
-          <Col className="gutter-row" span={12}>
+          <Col className="gutter-row" span={10}>
             <div>
               <span
                 className="card-label font-weight-bolder text-dark"
@@ -58,64 +99,48 @@ export const DistributionPage: React.FC = () => {
               </span>
             </div>
           </Col>
-          <Col className="gutter-row" span={4}>
-            <InputWithSerachButton
-              sizeInput="12"
-              changeTextSearch={changeTextSearch}
-            />
-
-            {/* <div style={style}>
-              <Input
-                placeholder="ค้นหาชื่อสินค้า"
-                prefix={<SearchOutlined style={{ color: "grey" }} />}
-                value={keyword}
+          <div className="row align-items-center">
+            <div className="col-md-4 my-2 my-md-0">
+              <InputWithSerachButton
+                sizeInput="12"
+                changeTextSearch={changeTextSearch}
               />
-            </div> */}
-          </Col>
-          <Col className="gutter-row" span={4}>
-            <div>
+            </div>
+            <div className="col-md-4 my-2 my-md-0">
               <Select
-                defaultValue="เลือกกลุ่มสินค้า"
-                style={style}
-                onChange={handleChange}
+                placeholder={"เลือกกลุ่มสินค้า"}
+                style={{ width: 170 }}
+                onChange={fetchProductGroup}
               >
-                <Option value="Fert">Fert</Option>
-                <Option value="Inter">Inter</Option>
-                <Option value="Ladda">Ladda</Option>
+                {/* {productGroup?.map((items) => {
+                <Option value="1">{items.}</Option>
+                })} */}
+
+                <Option value="1">{}</Option>
+                <Option value="1">{}</Option>
               </Select>
             </div>
-          </Col>
-          <Col className="gutter-row" span={4}>
-            <div>
-              <Select
-                defaultValue="เลือก Strategy Group"
-                style={style}
-                onChange={handleChange}
-              >
-                {/* <Option value="รายการคำสั่งซื้อทั้งหมด">
-                  รายการคำสั่งซื้อทั้งหมด
-                </Option>
-                <Option value="รอการอนุมัติคำสั่งซื้อ">
-                  รอการอนุมัติคำสั่งซื้อ
-                </Option>
-                <Option value="รอยืนยันคำสั่งซื้อ">รอยืนยันคำสั่งซื้อ</Option>
-                <Option value="ยืนยันคำสั่งซื้อแล้ว">
-                  ยืนยันคำสั่งซื้อแล้ว
-                </Option>
-                <Option value="เปิดรายการคำสั่งซื้อ">
-                  เปิดรายการคำสั่งซื้อ
-                </Option>
-                <Option value="กำลังจัดส่ง">กำลังจัดส่ง</Option>
-                <Option value="ลูกค้ารับสินค้าแล้ว">ลูกค้ารับสินค้าแล้ว</Option>
-                <Option value="ยกเลิกคำสั่งซื้อโดยร้านค้า">
-                  ยกเลิกคำสั่งซื้อโดยร้านค้า
-                </Option>
-                <Option value="ไม่อนุมัติคำสั่งซื้อ">
-                  ไม่อนุมัติคำสั่งซื้อ
-                </Option> */}
-              </Select>
-            </div>
-          </Col>
+            <Select
+              placeholder={"เลือก Strategy Group"}
+              style={{ width: 170 }}
+              onChange={fecthProductStrategy}
+            >
+              <Option value="0">{}</Option>
+              <Option value="1">{}</Option>
+              <Option value="2">{}</Option>
+              <Option value="3">{}</Option>
+            </Select>
+            {/* <Dropdown
+              items={LADDA_STRATEGY_GROUP}
+              sizeInput="4"
+              onChange={changeProductStrategy}
+            />
+            <Dropdown
+              items={LADDA_PRODUCT_GROUP}
+              sizeInput="4"
+              onChange={changeProductGroup}
+            /> */}
+          </div>
         </Row>
       </Container>
     );
@@ -130,96 +155,212 @@ export const DistributionPage: React.FC = () => {
 
   const columns = [
     {
-      title: "อัพเดตล่าสุด",
-      dataIndex: "date",
-      key: "date",
-      width: "12%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      title: "ชื่อสินค้า",
+      dataIndex: "productName",
+      key: "productName",
+      width: "20%",
+      sorter: (a: any, b: any) => sorter(a.productName, b.productName),
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <div className="test">
-              <span className="text-dark-75 font-size-lg">
-                {moment(row.start_datetime).format(SLASH_DMY)} -{" "}
-              </span>
-              <span className="text-dark-75 font-size-lg ">
-                {moment(row.end_datetime).format(SLASH_DMY)}
-              </span>
+            <div className="d-flex flex-row align-items-baseline">
+              <div className="me-4">
+                {row.productImage ? (
+                  <Avatar shape="square" size={40} src={row.productImage} />
+                ) : (
+                  <Avatar
+                    size={42}
+                    style={{ color: "#0068F4", backgroundColor: "#EFF2F9" }}
+                  >
+                    {row.productImage.charAt(0)}
+                  </Avatar>
+                )}
+              </div>
+              <div>
+                <span className="text-dark-75 d-block font-size-lg">
+                  {row.productName}
+                </span>
+                <span style={{ color: "GrayText", fontSize: "12px" }}>
+                  {row.commonName}
+                </span>
+              </div>
             </div>
           ),
         };
       },
     },
     {
-      title: "ชื่อสินค้า",
-      dataIndex: "title",
-      key: "title",
-      width: "18%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
-    },
-    {
       title: "ขนาด",
-      dataIndex: "number",
-      key: "number",
+      dataIndex: "packSize",
+      key: "packSize",
+      width: "12%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <div className="d-flex flex-row align-items-baseline">
+              <div>
+                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                  {row.packSize}
+                </span>
+                <span className="text-muted font-weight-bold text-muted d-block">
+                  {row.productNoNAV}
+                </span>
+              </div>
+            </div>
+          ),
+        };
+      },
     },
     {
       title: " กลุ่มสินค้า",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      dataIndex: "productGroup",
+      key: "productGroup",
+      width: "12%",
+      sorter: (a: any, b: any) => sorter(a.productGroup, b.productGroup),
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <div className="d-flex flex-row align-items-baseline">
+              <div>
+                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                  {row.productGroup}
+                </span>
+                <span className={colorStrategyGroup(row.productStrategy)}>
+                  {row.productStrategy}
+                </span>
+              </div>
+            </div>
+          ),
+        };
+      },
     },
     {
       title: "Strategy Group",
-      dataIndex: "title",
-      key: "title",
+      dataIndex: "productStrategy",
+      key: "productStrategy",
       width: "15%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      sorter: (a: any, b: any) => sorter(a.productStrategy, b.productStrategy),
     },
     {
       title: "ราคาต่อหน่วย",
-      dataIndex: "title",
-      key: "title",
-      width: "13%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      dataIndex: "unitPrice",
+      key: "unitPrice",
+      width: "10%",
+      sorter: (a: any, b: any) => sorter(a.unitPrice, b.unitPrice),
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <div className="d-flex flex-row align-items-baseline">
+              <div>
+                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                  {numberWithCommas(row.unitPrice) + "฿"}
+                </span>
+                <span className="text-muted font-weight-bold text-muted d-block">
+                  {row.saleUOM}
+                </span>
+              </div>
+            </div>
+          ),
+        };
+      },
     },
     {
       title: "ราคาตลาด",
-      dataIndex: "title",
-      key: "title",
+      dataIndex: "marketPrice",
+      key: "marketPrice",
       width: "10%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      sorter: (a: any, b: any) => sorter(a.marketPrice, b.marketPrice),
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <div className="d-flex flex-row align-items-baseline">
+              <div>
+                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                  {numberWithCommas(row.marketPrice) + "฿"}
+                </span>
+                <span className="text-muted font-weight-bold text-muted d-block">
+                  {row.saleUOM}
+                </span>
+              </div>
+            </div>
+          ),
+        };
+      },
     },
     {
       title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
-      width: "10%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      dataIndex: "isActive",
+      key: "isActive",
+      width: "7%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Switch checked={row.is_active} />,
+          children: (
+            <div className="d-flex flex-row align-items-baseline">
+              <div>
+                <span className="text-dark-75 d-block font-size-lg">
+                  {row.isActive === "Active" ? (
+                    <span style={{ color: "green" }}>ใช้งาน</span>
+                  ) : row.isActive === "inActive" ? (
+                    <span style={{ color: "red" }}>ปิดการใช้งาน</span>
+                  ) : (
+                    <span style={{ color: "Gray" }}>
+                      อยู่ระหว่างการดำเนินงาน
+                    </span>
+                  )}
+                </span>
+              </div>
+            </div>
+          ),
+        };
+      },
+    },
+    {
+      title: "อัพเดตล่าสุด",
+      dataIndex: "updateDate",
+      key: "updateDate",
+      width: "15%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <>
+              <Row>
+                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                  {formatDate(row.updateDate)}
+                </span>
+              </Row>
+            </>
+          ),
         };
       },
     },
     {
       title: "",
-      dataIndex: "action",
-      key: "action",
-      width: "5%",
+      dataIndex: "Action",
+      key: "Action",
+      width: "7%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <>
-              <div className="d-flex flex-row justify-content-between">
-                <div
-                  className="btn btn-icon btn-light btn-hover-primary btn-sm"
-                  onClick={() =>
-                    (window.location.href = "/EditCreditMemoPage?id=" + row.id)
-                  }
-                >
-                  <span className="svg-icon svg-icon-primary svg-icon-2x">
+              <div className="d-flex flex-row ">
+                <div>
+                  <span
+                    onClick={() =>
+                      (window.location.href =
+                        "/EditDistributionPage?" + row.productId)
+                    }
+                    style={{
+                      fontSize: "20px",
+                      marginRight: "15px",
+                      color: "#0068F4",
+                    }}
+                  >
                     <FormOutlined />
+                  </span>
+                </div>
+                <div onClick={() => (window.location.href = "" + row.id)}>
+                  <span style={{ fontSize: "20px", color: "#0068F4" }}>
+                    <ShopOutlined />
                   </span>
                 </div>
               </div>
@@ -231,7 +372,7 @@ export const DistributionPage: React.FC = () => {
   ];
 
   return (
-    <>
+    <Layouts>
       <div className="container ">
         <PageTitle />
         <br />
@@ -239,25 +380,15 @@ export const DistributionPage: React.FC = () => {
           <Table
             className="rounded-lg"
             columns={columns}
-            dataSource={memoList}
+            dataSource={productList}
             pagination={{ position: ["bottomCenter"] }}
             size="large"
             tableLayout="fixed"
           />
-          <br />
-          <div className="d-flex justify-content-end pt-10">
-            <Pagination
-              defaultCurrent={1}
-              // total={meta?.totalItem}
-
-              // current={Number(meta?.currentPage)}
-              // onChange={(p) => fetchCreditMemoList(p)}
-            />
-          </div>
         </CardContainer>
       </div>
 
-      <Modal
+      {/* <Modal
         visible={isModalDeleteVisible}
         onCancel={() => setIsModalDeleteVisible(false)}
       >
@@ -267,7 +398,7 @@ export const DistributionPage: React.FC = () => {
         <p style={{ color: "#BABCBE", fontSize: 16 }}>
           โปรดยืนยันการลบข้อมูลรายการ Credit Memo
         </p>
-      </Modal>
-    </>
+      </Modal> */}
+    </Layouts>
   );
 };

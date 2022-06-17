@@ -12,6 +12,7 @@ import {
 import React, { useEffect } from "react";
 import { Col, Navbar, Row } from "react-bootstrap";
 import { CardContainer } from "../../components/Card/CardContainer";
+import Layouts from "../../components/Layout/Layout";
 const moment = require("moment");
 
 export const AddDiscountCOPage = () => {
@@ -42,7 +43,7 @@ export const AddDiscountCOPage = () => {
   };
 
   return (
-    <>
+    <Layouts>
       <Navbar />
       <div className="container">
         <CardContainer>
@@ -181,6 +182,6 @@ export const AddDiscountCOPage = () => {
           </Form>
         </CardContainer>
       </div>
-    </>
+    </Layouts>
   );
 };

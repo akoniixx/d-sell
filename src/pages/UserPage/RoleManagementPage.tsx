@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { UnorderedListOutlined, EditOutlined } from "@ant-design/icons";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { AddRoleManage } from "./AddRoleManage";
+import Layouts from "../../components/Layout/Layout";
 const { TabPane } = Tabs;
 const TabFilter = memo(({ staffOnClick, all, active, inactive }: any) => {
   return (
@@ -143,8 +144,8 @@ function RoleManagementPage() {
     },
   ];
   return (
-    <div>
-      <Layout style={{ height: "100vh" }}>
+ 
+      <Layouts>
         <div className="container">
           <CardContainer>
             <Row>
@@ -176,8 +177,8 @@ function RoleManagementPage() {
             />
           </CardContainer>
         </div>
-      </Layout>
-    </div>
+      </Layouts>
+ 
   );
 }
 

@@ -1,7 +1,5 @@
 import { intanceAuth } from "../config/develop-config"
 
-
-  
 export class AuthDatasource {
      static login (email: any) {
        const app_key = '15782536645_sellcoda_bo'

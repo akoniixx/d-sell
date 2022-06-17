@@ -21,6 +21,7 @@ import {
 import { SaveButton } from "../../components/Button/SaveButton";
 import { Link } from "react-router-dom";
 import { CardContainer } from "../../components/Card/CardContainer";
+import Layouts from "../../components/Layout/Layout";
 
 export function AddRoleManage() {
   
@@ -30,7 +31,7 @@ export function AddRoleManage() {
   });
 
   return (
-    <>
+    <Layouts>
       <div className="container">
         <CardContainer>
           <Row>
@@ -94,6 +95,6 @@ export function AddRoleManage() {
         
         </CardContainer>
       </div>
-    </>
+    </Layouts>
   );
 }

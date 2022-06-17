@@ -13,7 +13,6 @@ import { DiscountListPage } from "./pages/DiscountPage/DiscountListPage";
 import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
 import { OrderPage } from "./pages/OrderPage/OrderPage";
-import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
 import ShopPage from "./pages/PriceListPage/ShopPage";
 import { AddNewSale } from "./pages/UserPage/AddNewSale";
 import { AddRoleManage } from "./pages/UserPage/AddRoleManage";
@@ -21,6 +20,8 @@ import RoleManagementPage from "./pages/UserPage/RoleManagementPage";
 import SaleManagementPage from "./pages/UserPage/SaleManagementPage";
 import ProtectRoute from "./ProtectRoute";
 import PublicRoute from "./PublicRoute";
+import { EditDistributionPage } from "./pages/PriceListPage/EditDistributionPage";
+import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
 
 const WebRoutes: React.FC<any> = () => {
   const token = useRecoilValue(profileAtom);
@@ -36,6 +37,7 @@ const WebRoutes: React.FC<any> = () => {
             element={<SpecialPromotionPage />}
           />
           <Route path="/DiscountListPage" element={<DiscountListPage />} />
+          <Route path="/EditDistributionPage" element={<EditDistributionPage />} />
           <Route path="/DiscountCOPage" element={<DiscountCOPage />} />
           <Route path="/DistributionPage" element={<DistributionPage />} />
           <Route

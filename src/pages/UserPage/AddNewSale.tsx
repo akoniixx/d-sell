@@ -22,6 +22,7 @@ import { CardContainer } from "../../components/Card/CardContainer";
 import { SaveButton } from "../../components/Button/SaveButton";
 
 import Swal from "sweetalert2";
+import Layouts from "../../components/Layout/Layout";
 
 const DemoBox: React.FC<{ children: React.ReactNode; value: number }> = (
   props
@@ -72,7 +73,7 @@ export function AddNewSale() {
   };
 
   return (
-    <>
+    <Layouts>
       <div>
         <CardContainer>
           <Row>
@@ -237,6 +238,6 @@ export function AddNewSale() {
           </Modal>
         </CardContainer>
       </div>
-    </>
+    </Layouts>
   );
 }

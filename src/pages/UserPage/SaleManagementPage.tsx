@@ -24,6 +24,7 @@ import { useRecoilValue } from "recoil";
 import Layout from "../../components/Layout/Layout";
 import { ProfileEntity } from "../../entities/ProfileEntity";
 import { useLocalStorage } from "../../hook/useLocalStorage";
+import Layouts from "../../components/Layout/Layout";
 
 const style: React.CSSProperties = {
   width: "180px",
@@ -242,7 +243,7 @@ function SaleManagementPage() {
     },
   ];
   return (
-    <Layout>
+    <Layouts>
       <CardContainer>
         <PageTitle />
        {/*  <TabFilter /> */}
@@ -265,7 +266,7 @@ function SaleManagementPage() {
           />
         </div> */}
       </CardContainer>
-    </Layout>
+    </Layouts>
   );
 }
 export default SaleManagementPage;

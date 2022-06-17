@@ -19,6 +19,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { Container } from "react-bootstrap";
+import Layouts from "../../components/Layout/Layout";
 
 const { RangePicker } = DatePicker;
 const moment = require("moment");
@@ -151,7 +152,7 @@ export const DiscountListPage: React.FC = () => {
   ];
 
   return (
-    <>
+    <Layouts>
       <div className="container ">
         <PageTitle />
         <br />
@@ -187,6 +188,6 @@ export const DiscountListPage: React.FC = () => {
           โปรดยืนยันการลบข้อมูลรายการ Credit Memo
         </p>
       </Modal>
-    </>
+    </Layouts>
   );
 };

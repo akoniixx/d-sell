@@ -5,6 +5,9 @@ import { Col, Input, Pagination, Row, Select, Switch, Table } from "antd";
 import moment from "moment";
 import { FormOutlined } from "@ant-design/icons";
 import { CardContainer } from "../../components/Card/CardContainer";
+import Layouts from "../../components/Layout/Layout";
+import { useLocalStorage } from "../../hook/useLocalStorage";
+import { CustomerDatasource } from "../../datasource/CustomerDatasource";
 
 const SLASH_DMY = "DD/MM/YYYY";
 const KEYWORD_TYPES: KeywordType[] = [
@@ -13,27 +16,9 @@ const KEYWORD_TYPES: KeywordType[] = [
   { id: "territory", value: "เขตร้านค้า" },
 ];
 
-type ShopListItem = {
-  shopId: string;
-  shopImage: string;
-  shopName: string;
-  shopAddress: string;
-  memberNo: string;
-  shopType: string;
-  territory: string;
-  discountBalance: number;
-};
-
 type KeywordType = {
   id: string;
   value: string;
-};
-
-type Query = {
-  limit: number;
-  offset: number;
-  keywordType?: KeywordType;
-  keyword?: string;
 };
 
 const ShopPage: React.FC = () => {
@@ -42,18 +27,22 @@ const ShopPage: React.FC = () => {
     width: "200px",
   };
   const [keyword, setKeyword] = useState("");
+  const [customerList, setCustomerList] = useState([]);
   const [keywordType, setKeywordType] = useState<KeywordType>(KEYWORD_TYPES[0]);
-
-  const handleKeywordChange = (text: string) => {
-    setKeyword(text);
+  const [persistedProfile, setPersistedProfile] = useLocalStorage(
+    "profile",
+    []
+  );
+  const fetchCustomerList = async (companyId: number) => {
+    await CustomerDatasource.getCustomer(companyId).then((res) => {
+      setCustomerList(res);
+      console.log(res)
+    });
   };
 
-  const handleKeywordTypeChange = (id: string) => {
-    let Select = KEYWORD_TYPES.find((i) => i.id === id);
-    let defaultValue = KEYWORD_TYPES[0];
-    setKeywordType(Select ? Select : defaultValue);
-  };
-
+  useEffect(() => {
+    fetchCustomerList(persistedProfile.companyId);
+  }, []);
   const PageTitle = () => {
     return (
       <Row>
@@ -91,48 +80,56 @@ const ShopPage: React.FC = () => {
 
   const columns = [
     {
-      title: "อัพเดตล่าสุด",
-      dataIndex: "date",
-      key: "date",
+      title: "รหัสสมาชิก",
+      dataIndex: "customerNoNav",
+      key: "customerNoNav",
       width: "15%",
       sorter: (a: any, b: any) => sorter(a.name, b.name),
+    },
+    {
+      title: "ชื่อร้านค้า",
+      dataIndex: "customerName",
+      key: "customerName",
+      width: "25%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <div className="test">
-              <span className="text-dark-75 font-size-lg">
-                {moment(row.start_datetime).format(SLASH_DMY)} -{" "}
-              </span>
-              <span className="text-dark-75 font-size-lg ">
-                {moment(row.end_datetime).format(SLASH_DMY)}
-              </span>
+            <div className="d-flex flex-row align-items-baseline">
+              <div>
+                <span className="text-dark-75 d-block font-size-lg">
+                  {row.customerName}
+                </span>
+                <span style={{ color: "GrayText", fontSize: "12px" }}>
+                {"จ." + row.province}
+                </span>
+              </div>
             </div>
           ),
         };
       },
     },
     {
-      title: "ชื่อร้านค้า",
-      dataIndex: "title",
-      key: "title",
-      width: "25%",
-    },
-    {
-      title: "รหัสบริษัท",
+      title: "รายชื่อสมาชิก",
       dataIndex: "number",
       key: "number",
     },
     {
-      title: " เขต",
+      title: " ICPL",
       dataIndex: "title",
       key: "title",
       width: "10%",
     },
     {
-      title: "ประเภทราคา",
+      title: "ICPF",
       dataIndex: "title",
       key: "title",
-      width: "15%",
+      width: "10%",
+    },
+    {
+      title: "ICPI",
+      dataIndex: "title",
+      key: "title",
+      width: "10%",
     },
     {
       title: "",
@@ -163,7 +160,7 @@ const ShopPage: React.FC = () => {
   ];
 
   return (
-    <>
+    <Layouts>
       <div style={{ display: "flex", marginTop: 12, marginBottom: 24 }}>
         <CardContainer>
           <PageTitle />
@@ -171,13 +168,14 @@ const ShopPage: React.FC = () => {
           <Table
             className="rounded-lg"
             columns={columns}
+            dataSource={customerList}
             pagination={{ position: ["bottomCenter"] }}
             size="large"
             tableLayout="fixed"
           />
         </CardContainer>
       </div>
-    </>
+    </Layouts>
   );
 };
 

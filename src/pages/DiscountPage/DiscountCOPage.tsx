@@ -10,6 +10,7 @@ import {
   FormOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
+import Layouts from "../../components/Layout/Layout";
 
 const { RangePicker } = DatePicker;
 const moment = require("moment");
@@ -197,7 +198,7 @@ export const DiscountCOPage: React.FC = () => {
   ];
 
   return (
-    <>
+    <Layouts>
       <div className="container ">
         <CardContainer>
           <PageTitle />
@@ -253,6 +254,6 @@ export const DiscountCOPage: React.FC = () => {
           โปรดยืนยันการลบข้อมูลรายการ Credit Memo
         </p>
       </Modal>
-    </>
+    </Layouts>
   );
 };

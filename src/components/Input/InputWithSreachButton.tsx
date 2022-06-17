@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import {
   SearchOutlined,
 } from "@ant-design/icons";
+import { Button } from 'antd';
 
 interface InputWithSerachButtonProp {
   sizeInput: string
@@ -20,10 +21,8 @@ export const InputWithSerachButton: React.FC<InputWithSerachButtonProp> = ({ siz
     <div className={'col-md-' + sizeInput}>
       <form className="input-group">
         <input type="text" className="form-control" placeholder="ค้นหาสินค้า" onChange={changeText} />
-        <div className="input-group-append">
           <button
             className="btn btn-primary"
-            type="submit"
             onClick={(e) => {
               e.preventDefault()
               changeTextSearch(text)
@@ -31,7 +30,6 @@ export const InputWithSerachButton: React.FC<InputWithSerachButtonProp> = ({ siz
           >
             <SearchOutlined/> 
           </button>
-        </div>
       </form>
     </div>
   )
