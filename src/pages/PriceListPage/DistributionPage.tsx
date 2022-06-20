@@ -21,7 +21,8 @@ export const DistributionPage: React.FC = () => {
   const _ = require("lodash");
   const [optionalTextSearch, setTextSearch] = useState<string>();
   const [productList, setProductList] = useState([]);
-  const [productGroup, setProductGroup] = useState<string>();
+  const [productGroup, setProductGroup] = useState<any>([]);
+  const [selectProductGroup,setSelectProductGroup] = useState<string>('');
   const [productStrategy, setProductStrategy] = useState<string>();
   const [keyword, setKeyword] = useState("");
   const [isModalDeleteVisible, setIsModalDeleteVisible] =
@@ -47,21 +48,18 @@ export const DistributionPage: React.FC = () => {
       search
     ).then((res) => {
       setProductList(res.data);
-      console.log(res);
     });
   };
 
   const fetchProductGroup = async (companyId: number) => {
     await ProductListDatasource.getProductGroup(companyId).then((res) => {
       setProductGroup(res);
-      console.log(res);
     });
   };
 
   const fecthProductStrategy = async () => {
     await ProductListDatasource.getProductStrategy().then((res) => {
       setProductStrategy(res);
-      console.log(res);
     });
   };
 
@@ -106,29 +104,25 @@ export const DistributionPage: React.FC = () => {
                 changeTextSearch={changeTextSearch}
               />
             </div>
-            <div className="col-md-4 my-2 my-md-0">
-              <Select
-                placeholder={"เลือกกลุ่มสินค้า"}
-                style={{ width: 170 }}
-                onChange={fetchProductGroup}
-              >
-                {/* {productGroup?.map((items) => {
-                <Option value="1">{items.}</Option>
-                })} */}
 
-                <Option value="1">{}</Option>
-                <Option value="1">{}</Option>
+            <div className="col-md-4 my-2 my-md-0">
+              <Select placeholder={"เลือกกลุ่มสินค้า"} style={{ width: 170 }}>
+                {productGroup?.map((items: any,index: number) => (
+                   <Option key={index} value={items}>{items}</Option>
+                ))}
               </Select>
             </div>
+
             <Select
               placeholder={"เลือก Strategy Group"}
               style={{ width: 170 }}
-              onChange={fecthProductStrategy}
+              
             >
-              <Option value="0">{}</Option>
-              <Option value="1">{}</Option>
-              <Option value="2">{}</Option>
-              <Option value="3">{}</Option>
+              {productGroup?.map((value: any, index: number) => (
+                <Option key={index} value={value}>
+                  {value}
+                </Option>
+              ))}
             </Select>
             {/* <Dropdown
               items={LADDA_STRATEGY_GROUP}
