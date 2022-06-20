@@ -1,4 +1,4 @@
-import { Avatar, Col, Row, Select, Table } from "antd";
+import { Avatar, Button, Col, Row, Select, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { CardContainer } from "../../components/Card/CardContainer";
@@ -9,13 +9,14 @@ import Layouts from "../../components/Layout/Layout";
 import { ProductListDatasource } from "../../datasource/ProductListDatasource";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import { formatDate, numberWithCommas } from "../../utilities/TextFormatter";
-import { LADDA_STRATEGY_GROUP } from "../../definitions/strategyGroup";
-import { LADDA_PRODUCT_GROUP } from "../../definitions/productGroup";
+
+const { Map } = require('immutable');
+
 
 export const DistributionPage: React.FC = () => {
   const style: React.CSSProperties = {
-    width: "180px",
-    marginRight: "5px",
+    marginRight: "10px",
+    fontFamily: "Sukhumvit set"
   };
   const { Option } = Select;
   const _ = require("lodash");
@@ -25,6 +26,7 @@ export const DistributionPage: React.FC = () => {
   const [selectProductGroup,setSelectProductGroup] = useState<string>('');
   const [productStrategy, setProductStrategy] = useState<string>();
   const [keyword, setKeyword] = useState("");
+  const [imageUrl, setImageUrl] = useState<string>('');
   const [isModalDeleteVisible, setIsModalDeleteVisible] =
     useState<boolean>(false);
   const changeTextSearch = (text?: string) => {
@@ -67,7 +69,21 @@ export const DistributionPage: React.FC = () => {
     fetchProductList(1, 10, persistedProfile.companyId);
     fetchProductGroup(persistedProfile.companyId);
     fecthProductStrategy();
+   
   }, []);
+
+  const handleFileChange = (e: any) => {
+    const m = Map(productList).set('image', e.target.files[0])
+    setImageUrl('')
+    setProductList(m.toJS())
+}
+
+const handleCancelFileChange = (e: any) => {
+    const m = Map(productList).set('image', '')
+    setImageUrl('')
+    setProductList(m.toJS())
+}
+
 
   const colorStrategyGroup = (group: string) => {
     if (group == "EXPAND") {
@@ -91,19 +107,19 @@ export const DistributionPage: React.FC = () => {
             <div>
               <span
                 className="card-label font-weight-bolder text-dark"
-                style={{ fontSize: 20, fontWeight: "bold" }}
+                style={{ fontSize: 20, fontWeight: "bold", fontFamily: "Sukhumvit set", }}
               >
                 Distribution (DIS) Price List-ราคาสินค้า
               </span>
             </div>
           </Col>
-          <div className="row align-items-center">
-            <div className="col-md-4 my-2 my-md-0">
+          <Row justify="center">
+            <Col span={8} style={style}>
               <InputWithSerachButton
                 sizeInput="12"
                 changeTextSearch={changeTextSearch}
               />
-            </div>
+            </Col>
 
             <div className="col-md-4 my-2 my-md-0">
               <Select placeholder={"เลือกกลุ่มสินค้า"} style={{ width: 170 }}>
@@ -124,17 +140,20 @@ export const DistributionPage: React.FC = () => {
                 </Option>
               ))}
             </Select>
-            {/* <Dropdown
+            
+           
+
+             {/* <Dropdown
               items={LADDA_STRATEGY_GROUP}
               sizeInput="4"
-              onChange={changeProductStrategy}
+              //onChange={changeProductStrategy}
             />
             <Dropdown
               items={LADDA_PRODUCT_GROUP}
               sizeInput="4"
-              onChange={changeProductGroup}
-            /> */}
-          </div>
+              //onChange={changeProductGroup}
+            />  */}
+          </Row>
         </Row>
       </Container>
     );
@@ -171,9 +190,9 @@ export const DistributionPage: React.FC = () => {
                 )}
               </div>
               <div>
-                <span className="text-dark-75 d-block font-size-lg">
+                <span style={{fontWeight: "bold"}}>
                   {row.productName}
-                </span>
+                </span><br/>
                 <span style={{ color: "GrayText", fontSize: "12px" }}>
                   {row.commonName}
                 </span>
@@ -193,7 +212,7 @@ export const DistributionPage: React.FC = () => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                <span style={{fontWeight: "bold"}}>
                   {row.packSize}
                 </span>
                 <span className="text-muted font-weight-bold text-muted d-block">
@@ -216,7 +235,7 @@ export const DistributionPage: React.FC = () => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                <span style={{fontWeight: "bold"}}>
                   {row.productGroup}
                 </span>
                 <span className={colorStrategyGroup(row.productStrategy)}>
@@ -234,7 +253,17 @@ export const DistributionPage: React.FC = () => {
       key: "productStrategy",
       width: "15%",
       sorter: (a: any, b: any) => sorter(a.productStrategy, b.productStrategy),
-    },
+      render: (value: any, row: any, index: number) => {
+        return {
+        children : (
+          <span style={{fontWeight: "bold"}}>
+          {numberWithCommas(row.productStrategy)}
+        </span>
+         
+        )
+      }
+    }
+  },
     {
       title: "ราคาต่อหน่วย",
       dataIndex: "unitPrice",
@@ -246,7 +275,7 @@ export const DistributionPage: React.FC = () => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                <span  style={{fontWeight: "bold"}}>
                   {numberWithCommas(row.unitPrice) + "฿"}
                 </span>
                 <span className="text-muted font-weight-bold text-muted d-block">
@@ -269,7 +298,7 @@ export const DistributionPage: React.FC = () => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                <span  style={{fontWeight: "bold"}}>
                   {numberWithCommas(row.marketPrice) + "฿"}
                 </span>
                 <span className="text-muted font-weight-bold text-muted d-block">
@@ -291,7 +320,7 @@ export const DistributionPage: React.FC = () => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span className="text-dark-75 d-block font-size-lg">
+                <span  style={{fontWeight: "bold"}}>
                   {row.isActive === "Active" ? (
                     <span style={{ color: "green" }}>ใช้งาน</span>
                   ) : row.isActive === "inActive" ? (
@@ -340,8 +369,9 @@ export const DistributionPage: React.FC = () => {
                 <div>
                   <span
                     onClick={() =>
+                        
                       (window.location.href =
-                        "/EditDistributionPage?" + row.productId)
+                        "/EditDistributionPage?=" + row.productId)
                     }
                     style={{
                       fontSize: "20px",
@@ -367,7 +397,7 @@ export const DistributionPage: React.FC = () => {
 
   return (
     <Layouts>
-      <div className="container ">
+      <Container style={style}>
         <PageTitle />
         <br />
         <CardContainer>
@@ -380,7 +410,7 @@ export const DistributionPage: React.FC = () => {
             tableLayout="fixed"
           />
         </CardContainer>
-      </div>
+      </Container>
 
       {/* <Modal
         visible={isModalDeleteVisible}

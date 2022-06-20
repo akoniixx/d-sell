@@ -25,6 +25,7 @@ const ShopPage: React.FC = () => {
   const style: React.CSSProperties = {
     marginRight: "10px",
     width: "200px",
+    fontFamily: "Sukhumvit set",
   };
   const [keyword, setKeyword] = useState("");
   const [customerList, setCustomerList] = useState([]);
@@ -33,15 +34,21 @@ const ShopPage: React.FC = () => {
     "profile",
     []
   );
-  const fetchCustomerList = async (companyId: number) => {
-    await CustomerDatasource.getCustomer(companyId).then((res) => {
-      setCustomerList(res);
-      console.log(res)
-    });
+  const fetchCustomerList = async (
+    pageNum: number,
+    pageSize: number,
+    customerId: number
+  ) => {
+    await CustomerDatasource.getCustomer(pageNum, pageSize, customerId).then(
+      (res) => {
+        setCustomerList(res);
+        console.log(res);
+      }
+    );
   };
 
   useEffect(() => {
-    fetchCustomerList(persistedProfile.companyId);
+    fetchCustomerList(1, 10, persistedProfile.customerId);
   }, []);
   const PageTitle = () => {
     return (
@@ -80,13 +87,6 @@ const ShopPage: React.FC = () => {
 
   const columns = [
     {
-      title: "รหัสสมาชิก",
-      dataIndex: "customerNoNav",
-      key: "customerNoNav",
-      width: "15%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
-    },
-    {
       title: "ชื่อร้านค้า",
       dataIndex: "customerName",
       key: "customerName",
@@ -100,7 +100,7 @@ const ShopPage: React.FC = () => {
                   {row.customerName}
                 </span>
                 <span style={{ color: "GrayText", fontSize: "12px" }}>
-                {"จ." + row.province}
+                  {"จ." + row.province}
                 </span>
               </div>
             </div>
@@ -109,24 +109,26 @@ const ShopPage: React.FC = () => {
       },
     },
     {
-      title: "รายชื่อสมาชิก",
-      dataIndex: "number",
-      key: "number",
+      title: "รหัสสมาชิก",
+      dataIndex: "customerNoNav",
+      key: "customerNoNav",
+      width: "15%",
+      sorter: (a: any, b: any) => sorter(a.name, b.name),
     },
     {
-      title: " ICPL",
+      title: " เขต",
+      dataIndex: "saleZone",
+      key: "saleZone",
+      width: "10%",
+    },
+    {
+      title: "ประเภทราคา",
       dataIndex: "title",
       key: "title",
       width: "10%",
     },
     {
-      title: "ICPF",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
-    },
-    {
-      title: "ICPI",
+      title: "อัพเดตล่าสุด",
       dataIndex: "title",
       key: "title",
       width: "10%",
@@ -161,7 +163,14 @@ const ShopPage: React.FC = () => {
 
   return (
     <Layouts>
-      <div style={{ display: "flex", marginTop: 12, marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          marginTop: 12,
+          marginBottom: 24,
+          fontFamily: "Sukhumvit set",
+        }}
+      >
         <CardContainer>
           <PageTitle />
           <br />

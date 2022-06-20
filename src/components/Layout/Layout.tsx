@@ -24,6 +24,10 @@ import { useLocalStorage } from "../../hook/useLocalStorage";
 import { getCompanyName } from "../../utility/CompanyName";
 
 const Layouts: React.FC<any> = ({ children }) => {
+  const style: React.CSSProperties = {
+    marginRight: "10px",
+    fontFamily: "Sukhumvit set"
+  };
   const [size, setSize] = useState<SizeType>("large");
   const profile = useRecoilValue<any>(profileAtom);
   const [persistedProfile, setPersistedProfile] = useLocalStorage(
@@ -52,6 +56,7 @@ const Layouts: React.FC<any> = ({ children }) => {
           borderBottom: "0.1px",
           borderBottomColor: "#E0E0E0",
           borderBottomStyle: "solid",
+          fontFamily: "Sukhumvit set"
         }}
       >
         <Row>
@@ -62,7 +67,7 @@ const Layouts: React.FC<any> = ({ children }) => {
           </Col>
           <Space>
             <Col>
-              <span>
+              <span style={style}>
                 {/*  <b> {profile.firstname + ' ' + profile.firstname + ' ' + '(' + profile.firstname + ')' } </b> */}
                 <b> {persistedProfile.firstname + ' ' + persistedProfile.lastname + ' ' + '(' + getCompanyName(persistedProfile.companyId) + ')' } </b> 
               </span>
@@ -82,7 +87,7 @@ const Layouts: React.FC<any> = ({ children }) => {
           <Menu
             mode="inline"
             defaultOpenKeys={["order"]}
-            style={{ height: "100%", borderRight: 0, paddingTop: 30 }}
+            style={{ height: "100%", borderRight: 0, paddingTop: 30 , fontFamily: "Sukhumvit set", fontSize: "16px"}}
           >
             <Menu.Item key={"order"} icon={<ShoppingCartOutlined />}>
               <Link to="/OrderPage">

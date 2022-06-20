@@ -1,5 +1,6 @@
 import { BASE_URL, httpClient } from "../config/develop-config";
 import { ProductListItemEntity } from "../entities/ProductListItemEntity";
+import { UpdateProductListEntity } from "../entities/UpdateProductListEntity";
 
 export class ProductListDatasource {
   static getProductList(
@@ -28,7 +29,7 @@ export class ProductListDatasource {
       });
   }
 
-  static getProductListByID(productId: number): Promise<ProductListItemEntity> {
+  static getProductListByID(productId: number): Promise<any> {
     return httpClient
       .get(`${BASE_URL}/product/getByProductId/${productId}`  )
       .then((res) => {
@@ -37,6 +38,16 @@ export class ProductListDatasource {
       .catch((err) => {
         console.log(err, "err getProductListById");
       });
+  }
+  static updateProductListById(data: any, productId: number): Promise<ProductListItemEntity> {
+    return httpClient
+      .put(`${BASE_URL}/product/updateProductByProductId/${productId}` + data)
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 
   static getProductGroup(companyId: number): Promise<any>{
@@ -62,14 +73,4 @@ export class ProductListDatasource {
 
   }
 
-  // static updateProductListById(data: UpdateProductListEntity, productId: number): Promise<ProductListItemEntity> {
-  //   return httpClient
-  //     .put(BASE_URL + '/product/getByGroupProduct/1' + productId, data)
-  //     .then((response) => {
-  //       return response.data
-  //     })
-  //     .catch((error) => {
-  //       console.log(error)
-  //     })
-  // }
 }
