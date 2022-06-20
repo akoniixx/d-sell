@@ -41,7 +41,7 @@ export class ProductListDatasource {
   }
   static updateProductListById(data: any, productId: number): Promise<ProductListItemEntity> {
     return httpClient
-      .put(`${BASE_URL}/product/updateProductByProductId/${productId}` + data)
+      .post(`${BASE_URL}/product/updateProductByProductId/${productId}`)
       .then((response) => {
         return response.data
       })

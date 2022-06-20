@@ -2,7 +2,6 @@ import { Avatar, Button, Col, Row, Select, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { Dropdown } from "../../components/Dropdown/Dropdown";
 import { InputWithSerachButton } from "../../components/Input/InputWithSreachButton";
 import { FormOutlined, ShopOutlined } from "@ant-design/icons";
 import Layouts from "../../components/Layout/Layout";

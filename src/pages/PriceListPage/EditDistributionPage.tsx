@@ -13,13 +13,12 @@ import {
 import React, { useState, useEffect } from "react";
 import { CardContainer } from "../../components/Card/CardContainer";
 import Layouts from "../../components/Layout/Layout";
-import { TabCardButton } from "../../components/TabCardButton/TabCardButton";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Container } from "react-bootstrap";
 import TextArea from "antd/lib/input/TextArea";
 import { ProductListDatasource } from "../../datasource/ProductListDatasource";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import {
+  UpdatePriceListModelUtil,
   UpdatePriceListModel_INIT,
   UpdateProductListModel,
 } from "../../components/Models/UpdateProductListModel";
@@ -43,6 +42,7 @@ export const EditDistributionPage: React.FC = () => {
       return "media/images/product_no_img.png";
     }
   };
+  const data = UpdatePriceListModelUtil
   const imageProduct = String;
   const [value, setValue] = useState(1);
   const onChange = (e: RadioChangeEvent) => {
@@ -68,9 +68,10 @@ export const EditDistributionPage: React.FC = () => {
       console.log(res);
     });
   };
+  debugger;
 
-  const UpdateProductList = (productId: number, data: UpdateProductListModel) => {
-    ProductListDatasource.updateProductListById(data, productId)
+  const UpdateProductList = (productId: number) => {
+    ProductListDatasource.updateProductListById(data, productId )
       .then((res) => {
         if (res != null) {
           Swal.fire({
@@ -222,7 +223,7 @@ export const EditDistributionPage: React.FC = () => {
             <Modal
               title="ยืนยันการบันทึก"
               visible={isModalVisible}
-              onOk={() => (window.location.href = "/DistributionPage")}
+              onOk={() => (UpdateProductList(productId))}
               onCancel={handleCancel}
             >
               <p>
