@@ -4,14 +4,14 @@ export class CustomerDatasource {
   static getCustomer(
     pageNum: number,
     pageSize: number,
-    customerId: number
+    companyId: number
   ): Promise<any> {
     const params = {
         page_number: pageNum,
         page_size: pageSize,
     };
     return httpClient
-      .get(`${BASE_URL}/customerpricelist/getByComId/${customerId}`, { params })
+      .get(`${BASE_URL}/customerpricelist/getByComId/${companyId}`, { params })
       .then((res) => {
         return res.data;
       })

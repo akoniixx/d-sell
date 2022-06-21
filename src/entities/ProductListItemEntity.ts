@@ -17,7 +17,7 @@ export interface ProductListItemEntity {
   productStrategy: string;
   marketPrice: number;
   unitPrice: number;
-  isActive: boolean;
+  isActive: string;
   createDate: string;
   updateDate: string;
   vatStatus: string;
@@ -46,7 +46,7 @@ export const ProductListItemEntity_INIT: ProductListItemEntity = {
   productStrategy: "",
   marketPrice: 0,
   unitPrice: 0,
-  isActive: true,
+  isActive: "",
   createDate: "",
   updateDate: "",
   vatStatus: "",

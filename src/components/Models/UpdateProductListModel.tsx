@@ -18,7 +18,7 @@ export interface UpdateProductListModel {
     productStrategy: string;
     marketPrice: number;
     unitPrice: number;
-    isActive: boolean;
+    isActive: string;
     createDate: string;
     updateDate: string;
     vatStatus: string;
@@ -28,7 +28,7 @@ export interface UpdateProductListModel {
     productCategoryName: string;
 }
 
-export const UpdatePriceListModel_INIT: UpdateProductListModel = {
+export const UpdateProductListModel_INIT: UpdateProductListModel = {
     "productId": 0,
       "companyId": 0,
       "locationId": 0,
@@ -47,7 +47,7 @@ export const UpdatePriceListModel_INIT: UpdateProductListModel = {
       "productStrategy": "",
       "marketPrice": 0,
       "unitPrice": 0,
-      "isActive": true,
+      "isActive": "",
       "createDate": "",
       "updateDate": "",
       "vatStatus": "",
@@ -57,7 +57,7 @@ export const UpdatePriceListModel_INIT: UpdateProductListModel = {
       "productCategoryName": ""
 }
 
-export class UpdatePriceListModelUtil {
+export class UpdateProductListModelUtil {
     fromEntity(data: ProductListItemEntity): UpdateProductListModel {
         const productListEntity = {
             "productId": data.productId,

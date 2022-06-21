@@ -1,4 +1,4 @@
-import { Avatar, Button, Col, Row, Select, Table } from "antd";
+import { Avatar, Button, Col, Image, Row, Select, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { CardContainer } from "../../components/Card/CardContainer";
@@ -9,23 +9,22 @@ import { ProductListDatasource } from "../../datasource/ProductListDatasource";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import { formatDate, numberWithCommas } from "../../utilities/TextFormatter";
 
-const { Map } = require('immutable');
-
+const { Map } = require("immutable");
 
 export const DistributionPage: React.FC = () => {
   const style: React.CSSProperties = {
     marginRight: "10px",
-    fontFamily: "Sukhumvit set"
+    fontFamily: "Sukhumvit set",
   };
   const { Option } = Select;
   const _ = require("lodash");
   const [optionalTextSearch, setTextSearch] = useState<string>();
   const [productList, setProductList] = useState([]);
   const [productGroup, setProductGroup] = useState<any>([]);
-  const [selectProductGroup,setSelectProductGroup] = useState<string>('');
-  const [productStrategy, setProductStrategy] = useState<string>();
+  const [selectProductGroup, setSelectProductGroup] = useState<string>("");
+  const [productStrategy, setProductStrategy] = useState<any>();
   const [keyword, setKeyword] = useState("");
-  const [imageUrl, setImageUrl] = useState<string>('');
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [isModalDeleteVisible, setIsModalDeleteVisible] =
     useState<boolean>(false);
   const changeTextSearch = (text?: string) => {
@@ -35,6 +34,11 @@ export const DistributionPage: React.FC = () => {
     "profile",
     []
   );
+
+  useEffect(() => {
+    fetchProductList(1, 10, persistedProfile.companyId);
+    console.log(productList)
+  }, []);
 
   const fetchProductList = async (
     pageNum: number,
@@ -50,6 +54,10 @@ export const DistributionPage: React.FC = () => {
     ).then((res) => {
       setProductList(res.data);
     });
+  };
+
+  const handleGroupProduct = (value: string) => {
+    console.log(value, "select");
   };
 
   const fetchProductGroup = async (companyId: number) => {
@@ -68,21 +76,19 @@ export const DistributionPage: React.FC = () => {
     fetchProductList(1, 10, persistedProfile.companyId);
     fetchProductGroup(persistedProfile.companyId);
     fecthProductStrategy();
-   
   }, []);
 
   const handleFileChange = (e: any) => {
-    const m = Map(productList).set('image', e.target.files[0])
-    setImageUrl('')
-    setProductList(m.toJS())
-}
+    const m = Map(productList).set("image", e.target.files[0]);
+    setImageUrl("");
+    setProductList(m.toJS());
+  };
 
-const handleCancelFileChange = (e: any) => {
-    const m = Map(productList).set('image', '')
-    setImageUrl('')
-    setProductList(m.toJS())
-}
-
+  const handleCancelFileChange = (e: any) => {
+    const m = Map(productList).set("image", "");
+    setImageUrl("");
+    setProductList(m.toJS());
+  };
 
   const colorStrategyGroup = (group: string) => {
     if (group == "EXPAND") {
@@ -106,7 +112,11 @@ const handleCancelFileChange = (e: any) => {
             <div>
               <span
                 className="card-label font-weight-bolder text-dark"
-                style={{ fontSize: 20, fontWeight: "bold", fontFamily: "Sukhumvit set", }}
+                style={{
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  fontFamily: "Sukhumvit set",
+                }}
               >
                 Distribution (DIS) Price List-ราคาสินค้า
               </span>
@@ -119,39 +129,23 @@ const handleCancelFileChange = (e: any) => {
                 changeTextSearch={changeTextSearch}
               />
             </Col>
-
             <div className="col-md-4 my-2 my-md-0">
               <Select placeholder={"เลือกกลุ่มสินค้า"} style={{ width: 170 }}>
-                {productGroup?.map((items: any,index: number) => (
-                   <Option key={index} value={items}>{items}</Option>
+                {productGroup?.map((items: any, index: number) => (
+                  <Option key={index} value={items}>
+                    {items}
+                  </Option>
                 ))}
               </Select>
             </div>
 
-            <Select
-              placeholder={"เลือก Strategy Group"}
-              style={{ width: 170 }}
-              
-            >
-              {productGroup?.map((value: any, index: number) => (
+            <Select placeholder={"เลือก Strategy Group"} style={{ width: 170 }}>
+              {productStrategy?.map((value: any, index: number) => (
                 <Option key={index} value={value}>
                   {value}
                 </Option>
               ))}
             </Select>
-            
-           
-
-             {/* <Dropdown
-              items={LADDA_STRATEGY_GROUP}
-              sizeInput="4"
-              //onChange={changeProductStrategy}
-            />
-            <Dropdown
-              items={LADDA_PRODUCT_GROUP}
-              sizeInput="4"
-              //onChange={changeProductGroup}
-            />  */}
           </Row>
         </Row>
       </Container>
@@ -171,27 +165,26 @@ const handleCancelFileChange = (e: any) => {
       dataIndex: "productName",
       key: "productName",
       width: "20%",
-      sorter: (a: any, b: any) => sorter(a.productName, b.productName),
+      sorter: (a: any, b: any) => a.productName.localCompare(b.productName) ,
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div className="me-4">
-                {row.productImage ? (
-                  <Avatar shape="square" size={40} src={row.productImage} />
+                {row.productImage && row.productImage != 'https://system.icpladda.com/ProductImage/No' ?(
+                  <Image width={30} src={row.productImage} />
                 ) : (
                   <Avatar
-                    size={42}
+                    size={45}
                     style={{ color: "#0068F4", backgroundColor: "#EFF2F9" }}
                   >
-                    {row.productImage.charAt(0)}
+                    {row.productName.charAt(0)}
                   </Avatar>
                 )}
               </div>
               <div>
-                <span style={{fontWeight: "bold"}}>
-                  {row.productName}
-                </span><br/>
+                <span style={{ fontWeight: "bold" }}>{row.productName}</span>
+                <br />
                 <span style={{ color: "GrayText", fontSize: "12px" }}>
                   {row.commonName}
                 </span>
@@ -211,9 +204,7 @@ const handleCancelFileChange = (e: any) => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span style={{fontWeight: "bold"}}>
-                  {row.packSize}
-                </span>
+                <span style={{ fontWeight: "bold" }}>{row.packSize}</span>
                 <span className="text-muted font-weight-bold text-muted d-block">
                   {row.productNoNAV}
                 </span>
@@ -234,9 +225,7 @@ const handleCancelFileChange = (e: any) => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span style={{fontWeight: "bold"}}>
-                  {row.productGroup}
-                </span>
+                <span style={{ fontWeight: "bold" }}>{row.productGroup}</span>
                 <span className={colorStrategyGroup(row.productStrategy)}>
                   {row.productStrategy}
                 </span>
@@ -254,15 +243,14 @@ const handleCancelFileChange = (e: any) => {
       sorter: (a: any, b: any) => sorter(a.productStrategy, b.productStrategy),
       render: (value: any, row: any, index: number) => {
         return {
-        children : (
-          <span style={{fontWeight: "bold"}}>
-          {numberWithCommas(row.productStrategy)}
-        </span>
-         
-        )
-      }
-    }
-  },
+          children: (
+            <span style={{ fontWeight: "bold" }}>
+              {numberWithCommas(row.productStrategy)}
+            </span>
+          ),
+        };
+      },
+    },
     {
       title: "ราคาต่อหน่วย",
       dataIndex: "unitPrice",
@@ -274,7 +262,7 @@ const handleCancelFileChange = (e: any) => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span  style={{fontWeight: "bold"}}>
+                <span style={{ fontWeight: "bold" }}>
                   {numberWithCommas(row.unitPrice) + "฿"}
                 </span>
                 <span className="text-muted font-weight-bold text-muted d-block">
@@ -297,7 +285,7 @@ const handleCancelFileChange = (e: any) => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span  style={{fontWeight: "bold"}}>
+                <span style={{ fontWeight: "bold" }}>
                   {numberWithCommas(row.marketPrice) + "฿"}
                 </span>
                 <span className="text-muted font-weight-bold text-muted d-block">
@@ -319,7 +307,7 @@ const handleCancelFileChange = (e: any) => {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span  style={{fontWeight: "bold"}}>
+                <span style={{ fontWeight: "bold" }}>
                   {row.isActive === "Active" ? (
                     <span style={{ color: "green" }}>ใช้งาน</span>
                   ) : row.isActive === "inActive" ? (
@@ -368,7 +356,6 @@ const handleCancelFileChange = (e: any) => {
                 <div>
                   <span
                     onClick={() =>
-                        
                       (window.location.href =
                         "/EditDistributionPage?=" + row.productId)
                     }

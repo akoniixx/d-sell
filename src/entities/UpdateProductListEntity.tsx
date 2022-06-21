@@ -19,7 +19,7 @@ export interface UpdateProductListEntity{
     productStrategy: string;
     marketPrice: number;
     unitPrice: number;
-    isActive: boolean;
+    isActive: string;
     createDate: string;
     updateDate: string;
     vatStatus: string;

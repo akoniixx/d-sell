@@ -1,5 +1,4 @@
 import { BASE_URL, httpClient } from "../config/develop-config";
-import { ProductListItemEntity } from "../entities/ProductListItemEntity";
 import { UpdateProductListEntity } from "../entities/UpdateProductListEntity";
 
 export class ProductListDatasource {
@@ -39,14 +38,14 @@ export class ProductListDatasource {
         console.log(err, "err getProductListById");
       });
   }
-  static updateProductListById(data: any, productId: number): Promise<ProductListItemEntity> {
+  static updateProductListById(data: UpdateProductListEntity, productId: number): Promise<any> {
     return httpClient
-      .post(`${BASE_URL}/product/updateProductByProductId/${productId}`)
-      .then((response) => {
-        return response.data
+      .post(`${BASE_URL}/product/updateProductByProductId/${productId}` ,data)
+      .then((res) => {
+        return res.data
       })
-      .catch((error) => {
-        console.log(error)
+      .catch((err) => {
+        console.log(err, 'err UpdateProductById')
       })
   }
 

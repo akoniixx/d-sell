@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Button,
   Col,
   Form,
@@ -8,6 +9,7 @@ import {
   Radio,
   RadioChangeEvent,
   Row,
+  Select,
   Space,
 } from "antd";
 import React, { useState, useEffect } from "react";
@@ -16,14 +18,11 @@ import Layouts from "../../components/Layout/Layout";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import TextArea from "antd/lib/input/TextArea";
 import { ProductListDatasource } from "../../datasource/ProductListDatasource";
-import { useLocalStorage } from "../../hook/useLocalStorage";
-import {
-  UpdatePriceListModelUtil,
-  UpdatePriceListModel_INIT,
-  UpdateProductListModel,
-} from "../../components/Models/UpdateProductListModel";
-import { UpdateProductListEntityUtil } from "../../entities/UpdateProductListEntity";
 import Swal from "sweetalert2";
+import {
+  UpdateProductListModel,
+  UpdateProductListModel_INIT,
+} from "../../components/Models/UpdateProductListModel";
 
 const _ = require("lodash");
 let queryString = _.split(window.location.search, "=");
@@ -42,8 +41,7 @@ export const EditDistributionPage: React.FC = () => {
       return "media/images/product_no_img.png";
     }
   };
-  const data = UpdatePriceListModelUtil
-  const imageProduct = String;
+  const image = String("");
   const [value, setValue] = useState(1);
   const onChange = (e: RadioChangeEvent) => {
     console.log("radio checked", e.target.value);
@@ -52,7 +50,7 @@ export const EditDistributionPage: React.FC = () => {
   const productId = queryString[1];
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [productInfo, setProductInfo] = useState<UpdateProductListModel>(
-    UpdatePriceListModel_INIT
+    UpdateProductListModel_INIT
   );
 
   const showModal = () => {
@@ -65,13 +63,11 @@ export const EditDistributionPage: React.FC = () => {
   const fetchProductById = async (productId: number) => {
     await ProductListDatasource.getProductListByID(productId).then((res) => {
       setProductInfo(res);
-      console.log(res);
     });
   };
-  debugger;
 
   const UpdateProductList = (productId: number) => {
-    ProductListDatasource.updateProductListById(data, productId )
+    ProductListDatasource.updateProductListById(productInfo, productId)
       .then((res) => {
         if (res != null) {
           Swal.fire({
@@ -112,11 +108,20 @@ export const EditDistributionPage: React.FC = () => {
           </span>
         </Row>
         <Row justify="center">
-          <Col span={6} style={{ margin: "10px" }}>
-            <Image
-              width={100}
-              src="https://system.icpladda.com/ProductImage/กล่องม่วง.jpeg"
-            />
+          <Col style={{ margin: "50px" }}>
+            {productInfo.productImage ? (
+              <Image
+                width={100}
+                src={productInfo.productImage}
+              />
+            ) : (
+              <Image
+                width={100}
+                style={{ color: "#0068F4", backgroundColor: "#7B7B7B" }}
+              >
+                {productInfo.productImage.charAt(0)}
+              </Image>
+            )}
           </Col>
         </Row>
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={style}>
@@ -130,41 +135,45 @@ export const EditDistributionPage: React.FC = () => {
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={style}>
           <Col className="gutter-row" span={6}>
             <label>Product ID NAV</label>
-            <Input placeholder="" value={productId.productNoNAV} disabled />
+            <Input placeholder="" value={productInfo.productNoNAV} disabled />
           </Col>
           <Col className="gutter-row" span={6}></Col>
           <Col className="gutter-row" span={6}>
             <label>ปริมาณสินค้า (หน่วย)</label>
-            <Input placeholder="" value={productId.packSize} disabled />
+            <Input placeholder="" value={productInfo.packSize} disabled />
           </Col>
         </Row>
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={style}>
           <Col className="gutter-row" span={6}>
             <label>ชื่อสินค้า</label>
-            <Input placeholder="" value={productId.productName} disabled />
+            <Input placeholder="" value={productInfo.productName} disabled />
           </Col>
           <Col className="gutter-row" span={6}>
             <label>ชื่อสามัญ</label>
-            <Input placeholder="" value={productId.commonName} disabled />
+            <Input placeholder="" value={productInfo.commonName} disabled />
           </Col>
           <Col className="gutter-row" span={6}>
             <label>ราคาสินค้า</label>
-            <Input placeholder="" value={productId.qtySaleUnit} disabled />
+            <Input placeholder="" value={productInfo.unitPrice} disabled />
           </Col>
           <Col className="gutter-row" span={6}>
             <label>หน่วยสินค้า</label>
-            <Input placeholder="" value={productId.unitPrice} disabled />
+            <Input placeholder="" value={productInfo.baseUOM} disabled />
           </Col>
           {/* <hr  style={{width: "1px",height:"500px"}}></hr> */}
         </Row>
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={style}>
           <Col className="gutter-row" span={6}>
             <label>กลุ่มสินค้า</label>
-            <Input placeholder="" value={productId.productGroup} disabled />
+            <Input placeholder="" value={productInfo.productGroup} disabled />
           </Col>
           <Col className="gutter-row" span={6}>
             <label>Strategy Group</label>
-            <Input placeholder="" value={productId.productStrategy} disabled />
+            <Input
+              placeholder=""
+              value={productInfo.productStrategy}
+              disabled
+            />
           </Col>
           <Col className="gutter-row" span={6}>
             <span style={{ fontWeight: "bold" }}>ราคาตลาด</span>
@@ -173,16 +182,24 @@ export const EditDistributionPage: React.FC = () => {
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={style}>
           <Col className="gutter-row" span={6}>
             <label>ประเภทสินค้า</label>
-            <Input placeholder="" value={productId.productStrategy} disabled />
+            <br />
+            <Select
+              style={{ width: "100%" }}
+              placeholder=""
+              value={productInfo.productStrategy}
+              //   {productInfo.productGroup?.map((items: any,index: number) => (
+              //     <Option key={index} value={items}>{items}</Option>
+              //  ))}
+            />
           </Col>
           <Col className="gutter-row" span={6}></Col>
           <Col className="gutter-row" span={6}>
             <label>ราคากลาง</label>
-            <Input placeholder="" value={productId.marketPrice} disabled />
+            <Input placeholder="" value={productInfo.marketPrice} disabled />
           </Col>
           <Col className="gutter-row" span={6}>
             <label>หน่วยสินค้า</label>
-            <Input placeholder="" value={productId.saleUOM} disabled />
+            <Input placeholder="" value={productInfo.saleUOM} disabled />
           </Col>
         </Row>
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={style}>
@@ -197,11 +214,26 @@ export const EditDistributionPage: React.FC = () => {
           <Col className="gutter-row" span={12}>
             <label>สถานะสินค้า</label>
             <br />
-            <Radio.Group onChange={onChange} value={value}>
+            <Radio.Group onChange={onChange} value={productInfo.isActive}>
               <Space direction="vertical">
-                <Radio value="active">ใช้งาน</Radio>
-                <Radio value="inactive">ปิดการใช้งาน</Radio>
-                <Radio value="hold">อยู่ระหว่างดำเนินการ</Radio>
+                <Radio
+                  value="Active"
+                  checked={productInfo.isActive == "Active" ? true : false}
+                >
+                  ใช้งาน
+                </Radio>
+                <Radio
+                  value="inActive"
+                  checked={productInfo.isActive == "inActive" ? true : false}
+                >
+                  ปิดการใช้งาน
+                </Radio>
+                <Radio
+                  value="hold"
+                  checked={productInfo.isActive == "hold" ? true : false}
+                >
+                  อยู่ระหว่างดำเนินการ
+                </Radio>
               </Space>
             </Radio.Group>
           </Col>
@@ -217,13 +249,17 @@ export const EditDistributionPage: React.FC = () => {
             </Button>
           </Col>
           <Col>
-            <Button type="primary" className="btn mr-2 " onClick={showModal}>
+            <Button
+              type="primary"
+              className="btn mr-2 "
+              onClick={() => UpdateProductList(productId)}
+            >
               บันทึก
             </Button>
             <Modal
               title="ยืนยันการบันทึก"
               visible={isModalVisible}
-              onOk={() => (UpdateProductList(productId))}
+              //onOk={() => UpdateProductList(productId)} 
               onCancel={handleCancel}
             >
               <p>
