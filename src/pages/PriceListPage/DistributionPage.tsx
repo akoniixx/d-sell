@@ -18,7 +18,7 @@ export const DistributionPage: React.FC = () => {
   };
   const { Option } = Select;
   const _ = require("lodash");
-  const [optionalTextSearch, setTextSearch] = useState<string>();
+  const [optionalTextSearch, setTextSearch] = useState<string|undefined>('');
   const [productList, setProductList] = useState([]);
   const [productGroup, setProductGroup] = useState<any>([]);
   const [selectProductGroup, setSelectProductGroup] = useState<string>("");
@@ -37,27 +37,32 @@ export const DistributionPage: React.FC = () => {
 
   useEffect(() => {
     fetchProductList(1, 10, persistedProfile.companyId);
-    console.log(productList)
   }, []);
+
+  useEffect(() => {
+    fetchProductList(1, 10, persistedProfile.companyId,optionalTextSearch,selectProductGroup);
+  }, [optionalTextSearch,selectProductGroup]);
 
   const fetchProductList = async (
     pageNum: number,
     pageSize: number,
     companyId: number,
-    search?: string
+    search?: string,
+    productGroup?:string
   ) => {
     await ProductListDatasource.getProductList(
       pageNum,
       pageSize,
       companyId,
-      search
+      search,
+      productGroup
     ).then((res) => {
       setProductList(res.data);
     });
   };
 
   const handleGroupProduct = (value: string) => {
-    console.log(value, "select");
+   setSelectProductGroup(value)
   };
 
   const fetchProductGroup = async (companyId: number) => {
@@ -130,7 +135,10 @@ export const DistributionPage: React.FC = () => {
               />
             </Col>
             <div className="col-md-4 my-2 my-md-0">
-              <Select placeholder={"เลือกกลุ่มสินค้า"} style={{ width: 170 }}>
+              <Select placeholder={"เลือกกลุ่มสินค้า"} style={{ width: 170 }} onChange={handleGroupProduct} value={selectProductGroup} >
+              <Option  value=''>
+                 ALL
+                </Option>
                 {productGroup?.map((items: any, index: number) => (
                   <Option key={index} value={items}>
                     {items}
@@ -140,6 +148,9 @@ export const DistributionPage: React.FC = () => {
             </div>
 
             <Select placeholder={"เลือก Strategy Group"} style={{ width: 170 }}>
+            <Option  value=''>
+                 all
+                </Option>
               {productStrategy?.map((value: any, index: number) => (
                 <Option key={index} value={value}>
                   {value}
