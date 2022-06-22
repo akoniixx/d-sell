@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import {
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button } from 'antd';
 
 interface InputWithSerachButtonProp {
   sizeInput: string
@@ -10,7 +9,7 @@ interface InputWithSerachButtonProp {
 }
 
 export const InputWithSerachButton: React.FC<InputWithSerachButtonProp> = ({ sizeInput, changeTextSearch }) => {
-  const [text, setText] = useState<string>('')
+  const [text, setText] = useState('');
 
   const changeText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value
@@ -23,6 +22,7 @@ export const InputWithSerachButton: React.FC<InputWithSerachButtonProp> = ({ siz
         <input type="text" className="form-control" placeholder="ค้นหาสินค้า" onChange={changeText} />
           <button
             className="btn btn-primary"
+            type='submit'
             onClick={(e) => {
               e.preventDefault()
               changeTextSearch(text)
@@ -34,3 +34,4 @@ export const InputWithSerachButton: React.FC<InputWithSerachButtonProp> = ({ siz
     </div>
   )
 }
+

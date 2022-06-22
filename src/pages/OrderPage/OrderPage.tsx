@@ -13,8 +13,6 @@ export function OrderPage() {
     fontFamily: "Arial",
   };
 
- 
-  
   return (
     <Layouts>
       <Navbar />

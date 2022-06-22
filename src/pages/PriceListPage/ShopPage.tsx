@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
-import { Col, Input, Pagination, Row, Select, Switch, Table } from "antd";
+import {
+  Button,
+  Col,
+  Input,
+  Pagination,
+  Row,
+  Select,
+  Space,
+  Switch,
+  Table,
+} from "antd";
 import moment from "moment";
-import { FormOutlined } from "@ant-design/icons";
+import { FormOutlined, ShopOutlined } from "@ant-design/icons";
 import { CardContainer } from "../../components/Card/CardContainer";
 import Layouts from "../../components/Layout/Layout";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import { CustomerDatasource } from "../../datasource/CustomerDatasource";
+import { formatDate } from "../../utilities/TextFormatter";
+import TextArea from "antd/lib/input/TextArea";
 
 const SLASH_DMY = "DD/MM/YYYY";
 const KEYWORD_TYPES: KeywordType[] = [
@@ -24,8 +36,9 @@ type KeywordType = {
 const ShopPage: React.FC = () => {
   const style: React.CSSProperties = {
     marginRight: "10px",
-    width: "200px",
     fontFamily: "Sukhumvit set",
+    fontSize: "14px",
+    fontWeight: "bold",
   };
   const [keyword, setKeyword] = useState("");
   const [customerList, setCustomerList] = useState([]);
@@ -34,22 +47,23 @@ const ShopPage: React.FC = () => {
     "profile",
     []
   );
+  useEffect(() => {
+    fetchCustomerList(1, 10, persistedProfile.companyId);
+  }, []);
+
   const fetchCustomerList = async (
     pageNum: number,
     pageSize: number,
-    customerId: number
+    companyId: number
   ) => {
-    await CustomerDatasource.getCustomer(pageNum, pageSize, customerId).then(
+    await CustomerDatasource.getCustomer(pageNum, pageSize, companyId).then(
       (res) => {
-        setCustomerList(res);
+        setCustomerList(res.data);
         console.log(res);
       }
     );
   };
 
-  useEffect(() => {
-    fetchCustomerList(1, 10, persistedProfile.customerId);
-  }, []);
   const PageTitle = () => {
     return (
       <Row>
@@ -90,18 +104,23 @@ const ShopPage: React.FC = () => {
       title: "ชื่อร้านค้า",
       dataIndex: "customerName",
       key: "customerName",
-      width: "25%",
+      width: "30%",
+      sorter: (a: any, b: any) => sorter(a.customerName, b.customerName),
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <div className="d-flex flex-row align-items-baseline">
               <div>
-                <span className="text-dark-75 d-block font-size-lg">
-                  {row.customerName}
+                <span style={{ fontSize: "20px", marginRight: "10px" }}>
+                  <ShopOutlined />
                 </span>
-                <span style={{ color: "GrayText", fontSize: "12px" }}>
+                <span style={{ fontWeight: "bold" }}>{row.customerName}</span>
+                <p style={{ fontSize: "12px", color: "#7B7B7B" }}>
+                  {row.address + " "}
+                  {row.district + " "}
+                  {row.subdistrict + " "}
                   {"จ." + row.province}
-                </span>
+                </p>
               </div>
             </div>
           ),
@@ -110,10 +129,10 @@ const ShopPage: React.FC = () => {
     },
     {
       title: "รหัสสมาชิก",
-      dataIndex: "customerNoNav",
-      key: "customerNoNav",
+      dataIndex: "customerNoNAV",
+      key: "customerNoNAV",
       width: "15%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      sorter: (a: any, b: any) => sorter(a.customerNoNAV, b.customerNoNAV),
     },
     {
       title: " เขต",
@@ -123,21 +142,43 @@ const ShopPage: React.FC = () => {
     },
     {
       title: "ประเภทราคา",
-      dataIndex: "title",
-      key: "title",
+      dataIndex: "statusCusPrice",
+      key: "statusCusPrice",
       width: "10%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <div>
+              <Button type="primary" ghost>
+                {row.statusCusPrice}
+              </Button>
+            </div>
+          ),
+        };
+      },
     },
     {
       title: "อัพเดตล่าสุด",
-      dataIndex: "title",
-      key: "title",
+      dataIndex: "updateDate",
+      key: "updateDate",
       width: "10%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <>
+              <span className="text-dark-75  text-hover-primary mb-1 font-size-lg">
+                {formatDate(row.updateDate)}
+              </span>
+            </>
+          ),
+        };
+      },
     },
     {
       title: "",
       dataIndex: "action",
       key: "action",
-      width: "10%",
+      width: "5%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (

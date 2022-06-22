@@ -9,9 +9,11 @@ export class CustomerDatasource {
     const params = {
         page_number: pageNum,
         page_size: pageSize,
+        comp_id: companyId
+
     };
     return httpClient
-      .get(`${BASE_URL}/customerpricelist/getByComId/${companyId}`, { params })
+      .get(`${BASE_URL}/customerpricelist/getByComId/`, { params })
       .then((res) => {
         return res.data;
       })
