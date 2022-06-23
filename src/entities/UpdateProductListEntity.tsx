@@ -1,4 +1,4 @@
-import { UpdateProductListModel } from "../components/Models/UpdateProductListModel"
+import { UpdateProductListModel } from "./UpdateProductListModel";
 
 export interface UpdateProductListEntity{
     productId: number;

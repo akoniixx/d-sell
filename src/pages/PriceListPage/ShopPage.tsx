@@ -17,9 +17,9 @@ import { FormOutlined, ShopOutlined } from "@ant-design/icons";
 import { CardContainer } from "../../components/Card/CardContainer";
 import Layouts from "../../components/Layout/Layout";
 import { useLocalStorage } from "../../hook/useLocalStorage";
-import { CustomerDatasource } from "../../datasource/CustomerDatasource";
 import { formatDate } from "../../utilities/TextFormatter";
 import TextArea from "antd/lib/input/TextArea";
+import { ShopDatasource } from "../../datasource/ShopDatasource";
 
 const SLASH_DMY = "DD/MM/YYYY";
 const KEYWORD_TYPES: KeywordType[] = [
@@ -56,7 +56,7 @@ const ShopPage: React.FC = () => {
     pageSize: number,
     companyId: number
   ) => {
-    await CustomerDatasource.getCustomer(pageNum, pageSize, companyId).then(
+    await ShopDatasource.getCustomer(pageNum, pageSize, companyId).then(
       (res) => {
         setCustomerList(res.data);
         console.log(res);
@@ -187,7 +187,7 @@ const ShopPage: React.FC = () => {
                 <div
                   className="btn btn-icon btn-light btn-hover-primary btn-sm"
                   onClick={() =>
-                    (window.location.href = "/EditCreditMemoPage?id=" + row.id)
+                    (window.location.href = "/ShopDetailPage?=" + row.customerId)
                   }
                 >
                   <span className="svg-icon svg-icon-primary svg-icon-2x">

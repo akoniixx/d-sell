@@ -22,6 +22,7 @@ import ProtectRoute from "./ProtectRoute";
 import PublicRoute from "./PublicRoute";
 import { EditDistributionPage } from "./pages/PriceListPage/EditDistributionPage";
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
+import { ShopDetailPage } from "./pages/PriceListPage/ShopDetailPage";
 
 const WebRoutes: React.FC<any> = () => {
   const token = useRecoilValue(profileAtom);
@@ -45,6 +46,7 @@ const WebRoutes: React.FC<any> = () => {
             element={<AdvancePromotionPage />}
           />
           <Route path="/ShopPage" element={<ShopPage />} />
+          <Route path="/ShopDetailPage" element={<ShopDetailPage />} />
           <Route path="/SaleManagementPage" element={<SaleManagementPage />} />
           <Route path="/RoleManagementPage" element={<RoleManagementPage />} />
           <Route path="/AddNewSale" element={<AddNewSale />} />

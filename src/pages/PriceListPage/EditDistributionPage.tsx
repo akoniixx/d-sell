@@ -19,10 +19,7 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import TextArea from "antd/lib/input/TextArea";
 import { ProductListDatasource } from "../../datasource/ProductListDatasource";
 import Swal from "sweetalert2";
-import {
-  UpdateProductListModel,
-  UpdateProductListModel_INIT,
-} from "../../components/Models/UpdateProductListModel";
+import { UpdateProductListModel, UpdateProductListModel_INIT } from "../../entities/UpdateProductListModel";
 
 const _ = require("lodash");
 let queryString = _.split(window.location.search, "=");

@@ -1,4 +1,4 @@
-import { ProductListItemEntity } from "../../entities/ProductListItemEntity"
+import { ProductListItemEntity } from "./ProductListItemEntity"
 export interface UpdateProductListModel {
     productId: number;
     companyId: number;
