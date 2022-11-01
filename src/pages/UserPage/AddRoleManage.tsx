@@ -11,22 +11,22 @@ import {
   Space,
   Typography,
   Upload,
-} from "antd";
-import React, { useState } from "react";
+} from 'antd';
+import React, { useState } from 'react';
 import {
   UserOutlined,
   ArrowLeftOutlined,
   UploadOutlined,
-} from "@ant-design/icons";
-import { SaveButton } from "../../components/Button/SaveButton";
-import { Link } from "react-router-dom";
-import { CardContainer } from "../../components/Card/CardContainer";
+} from '@ant-design/icons';
+import { SaveButton } from '../../components/Button/SaveButton';
+import { Link } from 'react-router-dom';
+import { CardContainer } from '../../components/Card/CardContainer';
 
 export function AddRoleManage() {
   
   const [name, setname] = useState<{ show: boolean; massage?: string }>({
     show: false,
-    massage: "",
+    massage: '',
   });
 
   return (
@@ -79,7 +79,7 @@ export function AddRoleManage() {
             <div className="col-lg-12 col-xl-12 py-4 row">
               <div className="d-flex flex-row align-items-center justify-content-between">
                 <div>
-                  <p style={{ fontSize: 14, color: "#BABCBE" }}>
+                  <p style={{ fontSize: 14, color: '#BABCBE' }}>
                     โปรดตรวจสอบข้อมูลพนักงานก่อนบันทึก
                   </p>
                 </div>

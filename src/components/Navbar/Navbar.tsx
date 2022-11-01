@@ -1,6 +1,6 @@
-import { Menu, MenuProps } from 'antd'
-import React from 'react'
-import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
+import { Menu, MenuProps } from 'antd';
+import React from 'react';
+import { SettingOutlined } from '@ant-design/icons';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -30,20 +30,18 @@ const items: MenuProps['items'] = [
 ];
 
 function Navbar() {
-    const onClick: MenuProps['onClick'] = e => {
-        console.log('click ', e);
-      };
+  const onClick: MenuProps['onClick'] = (e) => {
+    console.log('click ', e);
+  };
   return (
     <Menu
-    onClick={onClick}
-  
-    defaultSelectedKeys={['1']}
-    defaultOpenKeys={['sub1']}
-    mode="inline"
-    items={items}
-  />
-  
-  )
+      onClick={onClick}
+      defaultSelectedKeys={['1']}
+      defaultOpenKeys={['sub1']}
+      mode='inline'
+      items={items}
+    />
+  );
 }
 
-export default Navbar
+export default Navbar;

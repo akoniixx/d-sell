@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Spinner } from "react-bootstrap";
-import { Col, Input, Pagination, Row, Select, Switch, Table } from "antd";
-import moment from "moment";
-import { FormOutlined } from "@ant-design/icons";
-import { CardContainer } from "../../components/Card/CardContainer";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Spinner } from 'react-bootstrap';
+import { Col, Input, Pagination, Row, Select, Switch, Table } from 'antd';
+import moment from 'moment';
+import { FormOutlined } from '@ant-design/icons';
+import { CardContainer } from '../../components/Card/CardContainer';
 
-const SLASH_DMY = "DD/MM/YYYY";
+const SLASH_DMY = 'DD/MM/YYYY';
 const KEYWORD_TYPES: KeywordType[] = [
-  { id: "customerName", value: "ชื่อร้านค้า" },
-  { id: "customerId", value: "รหัสสมาชิก" },
-  { id: "territory", value: "เขตร้านค้า" },
+  { id: 'customerName', value: 'ชื่อร้านค้า' },
+  { id: 'customerId', value: 'รหัสสมาชิก' },
+  { id: 'territory', value: 'เขตร้านค้า' },
 ];
 
 type ShopListItem = {
@@ -38,10 +38,10 @@ type Query = {
 
 const ShopPage: React.FC = () => {
   const style: React.CSSProperties = {
-    marginRight: "10px",
-    width: "200px",
+    marginRight: '10px',
+    width: '200px',
   };
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState('');
   const [keywordType, setKeywordType] = useState<KeywordType>(KEYWORD_TYPES[0]);
 
   const handleKeywordChange = (text: string) => {
@@ -49,8 +49,8 @@ const ShopPage: React.FC = () => {
   };
 
   const handleKeywordTypeChange = (id: string) => {
-    let Select = KEYWORD_TYPES.find((i) => i.id === id);
-    let defaultValue = KEYWORD_TYPES[0];
+    const Select = KEYWORD_TYPES.find((i) => i.id === id);
+    const defaultValue = KEYWORD_TYPES[0];
     setKeywordType(Select ? Select : defaultValue);
   };
 
@@ -58,7 +58,7 @@ const ShopPage: React.FC = () => {
     return (
       <Row>
         <Col span={14}>
-          <span style={{ fontSize: 20, fontWeight: "bold" }}>
+          <span style={{ fontSize: 20, fontWeight: 'bold' }}>
             Shop Price List - ราคาพิเศษจากร้านค้า
           </span>
         </Col>
@@ -74,7 +74,9 @@ const ShopPage: React.FC = () => {
             // onChange={(e: any) => handleKeywordTypeChange(e.target.value)}
           >
             {KEYWORD_TYPES.map((k) => (
-              <option value={k.id}>{k.value}</option>
+              <option key={k.id} value={k.id}>
+                {k.value}
+              </option>
             ))}
           </Select>
         </Col>
@@ -91,19 +93,19 @@ const ShopPage: React.FC = () => {
 
   const columns = [
     {
-      title: "อัพเดตล่าสุด",
-      dataIndex: "date",
-      key: "date",
-      width: "15%",
+      title: 'อัพเดตล่าสุด',
+      dataIndex: 'date',
+      key: 'date',
+      width: '15%',
       sorter: (a: any, b: any) => sorter(a.name, b.name),
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <div className="test">
-              <span className="text-dark-75 font-size-lg">
-                {moment(row.start_datetime).format(SLASH_DMY)} -{" "}
+            <div className='test'>
+              <span className='text-dark-75 font-size-lg'>
+                {moment(row.start_datetime).format(SLASH_DMY)} -{' '}
               </span>
-              <span className="text-dark-75 font-size-lg ">
+              <span className='text-dark-75 font-size-lg '>
                 {moment(row.end_datetime).format(SLASH_DMY)}
               </span>
             </div>
@@ -112,45 +114,43 @@ const ShopPage: React.FC = () => {
       },
     },
     {
-      title: "ชื่อร้านค้า",
-      dataIndex: "title",
-      key: "title",
-      width: "25%",
+      title: 'ชื่อร้านค้า',
+      dataIndex: 'title',
+      key: 'title',
+      width: '25%',
     },
     {
-      title: "รหัสบริษัท",
-      dataIndex: "number",
-      key: "number",
+      title: 'รหัสบริษัท',
+      dataIndex: 'number',
+      key: 'number',
     },
     {
-      title: " เขต",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
+      title: ' เขต',
+      dataIndex: 'title',
+      key: 'title',
+      width: '10%',
     },
     {
-      title: "ประเภทราคา",
-      dataIndex: "title",
-      key: "title",
-      width: "15%",
+      title: 'ประเภทราคา',
+      dataIndex: 'title',
+      key: 'title',
+      width: '15%',
     },
     {
-      title: "",
-      dataIndex: "action",
-      key: "action",
-      width: "10%",
+      title: '',
+      dataIndex: 'action',
+      key: 'action',
+      width: '10%',
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <>
-              <div className="d-flex flex-row justify-content-between">
+              <div className='d-flex flex-row justify-content-between'>
                 <div
-                  className="btn btn-icon btn-light btn-hover-primary btn-sm"
-                  onClick={() =>
-                    (window.location.href = "/EditCreditMemoPage?id=" + row.id)
-                  }
+                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                  onClick={() => (window.location.href = '/EditCreditMemoPage?id=' + row.id)}
                 >
-                  <span className="svg-icon svg-icon-primary svg-icon-2x">
+                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <FormOutlined />
                   </span>
                 </div>
@@ -164,16 +164,16 @@ const ShopPage: React.FC = () => {
 
   return (
     <>
-      <div style={{ display: "flex", marginTop: 12, marginBottom: 24 }}>
+      <div style={{ display: 'flex', marginTop: 12, marginBottom: 24 }}>
         <CardContainer>
           <PageTitle />
           <br />
           <Table
-            className="rounded-lg"
+            className='rounded-lg'
             columns={columns}
-            pagination={{ position: ["bottomCenter"] }}
-            size="large"
-            tableLayout="fixed"
+            pagination={{ position: ['bottomCenter'] }}
+            size='large'
+            tableLayout='fixed'
           />
         </CardContainer>
       </div>

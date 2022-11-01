@@ -1,34 +1,34 @@
-import React from "react";
-import { Col, Container, Row } from "react-bootstrap";
-import MicrosoftLogin from "react-microsoft-login";
+import React from 'react';
+import { Col, Container, Row } from 'react-bootstrap';
+import MicrosoftLogin from 'react-microsoft-login';
 
-import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 
-import { AuthDatasource } from "../../datasource/AuthDatasource";
+import { AuthDatasource } from '../../datasource/AuthDatasource';
 
-import color from "../../resource/color";
-import icon from "../../resource/icon";
-import image from "../../resource/image";
-import { useLocalStorage } from "../../hook/useLocalStorage";
+import color from '../../resource/color';
+import icon from '../../resource/icon';
+import image from '../../resource/image';
+import { useLocalStorage } from '../../hook/useLocalStorage';
 
 export const AuthPage: React.FC = () => {
   const [persistedProfile, setPersistedProfile] = useLocalStorage(
-    "profile",
+    'profile',
     []
   );
-  const [token, setToken] = useLocalStorage("token", []);
+  const [token, setToken] = useLocalStorage('token', []);
 
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const authHandler = (err: any, data: any) => {
     AuthDatasource.login(data.account.userName).then((res: any) => {
       if (res) {
         setPersistedProfile(res.user_detail);
 
         setToken(res.token_bearer);
-        return navigate("OrderPage");
+        return navigate('OrderPage');
       } else {
-        return navigate("ErrorLoginPage");
+        return navigate('ErrorLoginPage');
       }
     });
   };
@@ -42,10 +42,10 @@ export const AuthPage: React.FC = () => {
             style={{ background: color.primary }}
           >
             <div className="d-flex justify-content-center ">
-              <img alt="logo" src={icon.logoSellcoda} width={"30%"} />
+              <img alt="logo" src={icon.logoSellcoda} width={'30%'} />
             </div>
             <div className="d-flex justify-content-center">
-              <img alt="imageLogin" src={image.login} width={"80%"} />
+              <img alt="imageLogin" src={image.login} width={'80%'} />
             </div>
           </div>
         </Col>

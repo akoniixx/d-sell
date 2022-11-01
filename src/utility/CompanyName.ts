@@ -1,12 +1,12 @@
 export const getCompanyName = (companyId: number) => {
   switch (companyId) {
     case 1:
-      return "icpl";
+      return 'icpl';
     case 2:
-      return "icpi";
+      return 'icpi';
     case 3:
-      return "icpf";
+      return 'icpf';
     case 4:
-      return "ick";
+      return 'ick';
   }
 };

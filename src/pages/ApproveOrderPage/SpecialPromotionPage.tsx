@@ -1,9 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 function SpecialPromotionPage() {
-  return (
-    <div>SpecialPromotionPage</div>
-  )
+  return <div>SpecialPromotionPage</div>;
 }
 
-export default SpecialPromotionPage
+export default SpecialPromotionPage;

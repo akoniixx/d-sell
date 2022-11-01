@@ -1,4 +1,4 @@
-import { intanceAuth } from "../config/develop-config"
+import { intanceAuth } from '../config/develop-config'
 
 
   
