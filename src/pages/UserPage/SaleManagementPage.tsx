@@ -1,28 +1,28 @@
-import { Avatar, Button, Col, Input, Pagination, Row, Switch, Table, Tabs } from 'antd';
-import React, { memo, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { UnorderedListOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
-import { CardContainer } from '../../components/Card/CardContainer';
-import { Container } from 'react-bootstrap';
-import { SaleListDatasource } from '../../datasource/SaleListDatasource';
-import { profileAtom } from '../../store/ProfileAtom';
-import { useRecoilValue } from 'recoil';
-import Layout from '../../components/Layout/Layout';
-import { ProfileEntity } from '../../entities/ProfileEntity';
-import { useLocalStorage } from '../../hook/useLocalStorage';
-import Text from '../../components/Text/Text';
+import { Avatar, Button, Col, Input, Pagination, Row, Switch, Table, Tabs } from "antd";
+import React, { memo, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { UnorderedListOutlined, EditOutlined, SearchOutlined } from "@ant-design/icons";
+import { CardContainer } from "../../components/Card/CardContainer";
+import { Container } from "react-bootstrap";
+import { SaleListDatasource } from "../../datasource/SaleListDatasource";
+import { profileAtom } from "../../store/ProfileAtom";
+import { useRecoilValue } from "recoil";
+import Layout from "../../components/Layout/Layout";
+import { ProfileEntity } from "../../entities/ProfileEntity";
+import { useLocalStorage } from "../../hook/useLocalStorage";
+import Text from "../../components/Text/Text";
 
 const style: React.CSSProperties = {
-  width: '180px',
+  width: "180px",
 };
 
 const { TabPane } = Tabs;
 const TabFilter = memo(({ staffOnClick, all, active, inactive }: any) => {
   return (
     <Tabs onChange={staffOnClick}>
-      <TabPane tab={'ทั้งหมด (' + all + ')'} key=''></TabPane>
-      <TabPane tab={'Active (' + active + ')'} key='active'></TabPane>
-      <TabPane tab={'Inctive (' + inactive + ')'} key='inactive'></TabPane>
+      <TabPane tab={"ทั้งหมด (" + all + ")"} key=''></TabPane>
+      <TabPane tab={"Active (" + active + ")"} key='active'></TabPane>
+      <TabPane tab={"Inctive (" + inactive + ")"} key='inactive'></TabPane>
     </Tabs>
   );
 });
@@ -32,9 +32,9 @@ function SaleManagementPage() {
   const onSearch = (value: string) => console.log(value);
   const [saleList, setSaleList] = useState([]);
   const [meta, setMeta] = useState();
-  const [keyword, setKeyword] = useState<string>('');
+  const [keyword, setKeyword] = useState<string>("");
 
-  const [persistedProfile, setPersistedProfile] = useLocalStorage('profile', []);
+  const [persistedProfile, setPersistedProfile] = useLocalStorage("profile", []);
   const fetchSaleList = async (
     pageNum: number,
     pageSize: number,
@@ -50,7 +50,7 @@ function SaleManagementPage() {
   };
 
   useEffect(() => {
-    fetchSaleList(1, 10, persistedProfile.companyId, 'all');
+    fetchSaleList(1, 10, persistedProfile.companyId, "all");
   }, []);
 
   const sorter = (a: any, b: any) => {
@@ -75,7 +75,7 @@ function SaleManagementPage() {
           </Col>
           <Col className='gutter-row' span={4}>
             <div>
-              <Button type='primary' onClick={() => (window.location.href = '/AddNewSale')}>
+              <Button type='primary' onClick={() => (window.location.href = "/AddNewSale")}>
                 + เพิ่มพนักงาน
               </Button>
             </div>
@@ -86,10 +86,10 @@ function SaleManagementPage() {
   };
   const colunm = [
     {
-      title: 'ลำดับ',
-      dataIndex: 'index',
-      key: 'rowNum',
-      width: '8%',
+      title: "ลำดับ",
+      dataIndex: "index",
+      key: "rowNum",
+      width: "8%",
       sorter: (a: any, b: any) => a.name.localeCompare(b.name),
       render: (value: any, row: any, index: number) => {
         return {
@@ -102,10 +102,10 @@ function SaleManagementPage() {
       },
     },
     {
-      title: 'ชื่อ - นามสกุล',
-      dataIndex: 'name',
-      key: 'name',
-      width: '25%',
+      title: "ชื่อ - นามสกุล",
+      dataIndex: "name",
+      key: "name",
+      width: "25%",
       sorter: (a: any, b: any) => a.name.localeCompare(b.name),
       render: (value: any, row: any, index: number) => {
         return {
@@ -115,13 +115,13 @@ function SaleManagementPage() {
                 {row.image ? (
                   <Avatar size={42} src={row.image} />
                 ) : (
-                  <Avatar size={42} style={{ color: '#0068F4', backgroundColor: '#EFF2F9' }}>
+                  <Avatar size={42} style={{ color: "#0068F4", backgroundColor: "#EFF2F9" }}>
                     {row.firstname.charAt(0)}
                   </Avatar>
                 )}
               </div>
               <div>
-                <p>{row.firstname + ' ' + row.lastname}</p>
+                <p>{row.firstname + " " + row.lastname}</p>
               </div>
             </div>
           ),
@@ -129,30 +129,30 @@ function SaleManagementPage() {
       },
     },
     {
-      title: 'เขต',
-      dataIndex: 'territory',
-      key: 'territory',
-      width: '10%',
+      title: "เขต",
+      dataIndex: "territory",
+      key: "territory",
+      width: "10%",
       sorter: (a: any, b: any) => sorter(a.territory, b.territory),
     },
     {
-      title: 'ตำแหน่ง',
-      dataIndex: 'position',
-      key: 'position',
-      width: '12%',
+      title: "ตำแหน่ง",
+      dataIndex: "position",
+      key: "position",
+      width: "12%",
       sorter: (a: any, b: any) => sorter(a.position, b.position),
     },
     {
-      title: 'ข้อมูลติดต่อ',
-      dataIndex: 'telephone',
-      key: 'telephone',
-      width: '12%',
+      title: "ข้อมูลติดต่อ",
+      dataIndex: "telephone",
+      key: "telephone",
+      width: "12%",
     },
     {
-      title: 'อัปเดทโดย',
-      dataIndex: 'updateBy',
-      key: 'updateBy',
-      width: '18%',
+      title: "อัปเดทโดย",
+      dataIndex: "updateBy",
+      key: "updateBy",
+      width: "18%",
       sorter: (a: any, b: any) => a.updated.localeCompare(b.updated),
       render: (value: any, row: any, index: number) => {
         return {
@@ -166,10 +166,10 @@ function SaleManagementPage() {
       },
     },
     {
-      title: 'สถานะ',
-      dataIndex: 'status',
-      key: 'status',
-      width: '10%',
+      title: "สถานะ",
+      dataIndex: "status",
+      key: "status",
+      width: "10%",
       render: (value: any, row: any, index: number) => {
         return {
           children: <Switch checked={row.isActive} />,
@@ -177,10 +177,10 @@ function SaleManagementPage() {
       },
     },
     {
-      title: 'จัดการ',
-      dataIndex: 'action',
-      key: 'action',
-      width: '10%',
+      title: "จัดการ",
+      dataIndex: "action",
+      key: "action",
+      width: "10%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -193,7 +193,7 @@ function SaleManagementPage() {
                 </div>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => (window.location.href = '/EditSalePage?id=' + row.id)}
+                  onClick={() => (window.location.href = "/EditSalePage?id=" + row.id)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <EditOutlined />
@@ -215,11 +215,11 @@ function SaleManagementPage() {
           className='rounded-lg'
           columns={colunm}
           dataSource={saleList}
-          pagination={{ position: ['bottomCenter'] }}
+          pagination={{ position: ["bottomCenter"] }}
           size='large'
           tableLayout='fixed'
           style={{
-            marginTop: '16px',
+            marginTop: "16px",
           }}
         />
         <br />
