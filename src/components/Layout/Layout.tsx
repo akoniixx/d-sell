@@ -12,7 +12,6 @@ import {
   ContainerOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
-import HomePage from '../../pages/HomePage/HomePage';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { Link, useNavigate } from 'react-router-dom';
 import icon from '../../resource/icon';
@@ -21,6 +20,8 @@ import { profileAtom } from '../../store/ProfileAtom';
 import { useLocalStorage } from '../../hook/useLocalStorage';
 import { getCompanyName } from '../../utility/CompanyName';
 import styled, { css } from 'styled-components';
+import MenuItem from 'antd/lib/menu/MenuItem';
+import MenuSider from '../MenuSider/MenuSider';
 
 const ImageStyled = styled.img<{ isOpen: boolean }>`
   ${(props) =>
@@ -34,10 +35,7 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
           transform: rotate(0deg);
         `}
 `;
-const ImageCollpased = styled.img`
-  width: 40px;
-  height: 40px;
-`;
+
 const Layouts: React.FC<any> = ({ children }) => {
   const [size, setSize] = useState<SizeType>('large');
   const profile = useRecoilValue<any>(profileAtom);
@@ -45,57 +43,12 @@ const Layouts: React.FC<any> = ({ children }) => {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
   const [persistedProfile, setPersistedProfile] = useLocalStorage('profile', []);
-  const navigate = useNavigate();
 
-  const iconsInActive = {
-    order: (
-      <ShoppingCartOutlined
-        style={{
-          fontSize: '20px',
-        }}
-      />
-    ),
-    approveOrder: (
-      <ContainerOutlined
-        style={{
-          fontSize: '20px',
-        }}
-      />
-    ),
-    promotion: (
-      <GiftOutlined
-        style={{
-          fontSize: '20px',
-        }}
-      />
-    ),
-    discountList: (
-      <TagOutlined
-        style={{
-          fontSize: '20px',
-        }}
-      />
-    ),
-    priceList: (
-      <FundOutlined
-        style={{
-          fontSize: '20px',
-        }}
-      />
-    ),
-    user: (
-      <UserOutlined
-        style={{
-          fontSize: '20px',
-        }}
-      />
-    ),
-  };
   const pathLists = [
     {
       path: '/OrderPage',
       name: 'order',
-      title: 'Order',
+      title: 'Order Management',
       subMenu: [],
     },
     {
@@ -123,7 +76,7 @@ const Layouts: React.FC<any> = ({ children }) => {
     {
       path: '/PromotionPage',
       name: 'promotion',
-      title: 'Promotion',
+      title: 'Promotion Setting',
       subMenu: [],
     },
     {
@@ -173,6 +126,7 @@ const Layouts: React.FC<any> = ({ children }) => {
       ],
     },
   ];
+
   const logout = () => {
     localStorage.clear();
     sessionStorage.clear();
@@ -186,13 +140,7 @@ const Layouts: React.FC<any> = ({ children }) => {
   const toggleButton = () => {
     setIsOpenSidebar(!isOpenSidebar);
   };
-  const menus = pathLists.map((el) => {
-    return {
-      label: el.title,
-      icon: iconsInActive[el.name as keyof typeof iconsInActive],
-      path: el.path,
-    };
-  });
+
   return (
     <Layout style={{ height: '100vh' }}>
       <Header
@@ -251,14 +199,7 @@ const Layouts: React.FC<any> = ({ children }) => {
               isOpen={isOpenSidebar}
             />
           </div>
-          <Menu
-            mode='inline'
-            onClick={(e) => setCurrent(e.key)}
-            selectedKeys={[current]}
-            inlineCollapsed={!isOpenSidebar}
-            items={[]}
-            style={{ height: '100%', borderRight: 0, paddingTop: 56 }}
-          />
+          <MenuSider lists={pathLists} isOpenSidebar={isOpenSidebar} />
         </Sider>
         <Layout>
           <Content

@@ -10,6 +10,7 @@ import { useRecoilValue } from 'recoil';
 import Layout from '../../components/Layout/Layout';
 import { ProfileEntity } from '../../entities/ProfileEntity';
 import { useLocalStorage } from '../../hook/useLocalStorage';
+import Text from '../../components/Text/Text';
 
 const style: React.CSSProperties = {
   width: '180px',
@@ -64,9 +65,7 @@ function SaleManagementPage() {
         <Row>
           <Col className='gutter-row' span={16}>
             <div>
-              <span className='card-label font-weight-bolder text-dark' style={{ fontSize: 18 }}>
-                รายชื่อพนักงาน{' '}
-              </span>
+              <Text strong>รายชื่อพนักงาน</Text>
             </div>
           </Col>
           <Col className='gutter-row' span={4}>
@@ -219,17 +218,11 @@ function SaleManagementPage() {
           pagination={{ position: ['bottomCenter'] }}
           size='large'
           tableLayout='fixed'
+          style={{
+            marginTop: '16px',
+          }}
         />
         <br />
-        {/*  <div className="d-flex justify-content-center pt-10">
-          <Pagination
-            defaultCurrent={1}
-             total={50}
-
-           current={Number(meta?.currentPage)}
-             onChange={(p) => fetchCreditMemoList(p)}
-          />
-        </div> */}
       </CardContainer>
     </>
   );
