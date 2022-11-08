@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from "react";
+import React, { useEffect, useState, memo } from 'react';
 import {
   Table,
   Tabs,
@@ -10,28 +10,27 @@ import {
   Col,
   Button,
   Pagination,
-} from "antd";
-import { CardContainer } from "../../components/Card/CardContainer";
+} from 'antd';
+import { CardContainer } from '../../components/Card/CardContainer';
 import {
   DeleteOutlined,
   FormOutlined,
   UnorderedListOutlined,
   SearchOutlined,
-} from "@ant-design/icons";
-import { Container } from "react-bootstrap";
+} from '@ant-design/icons';
+import { Container } from 'react-bootstrap';
 
 const { RangePicker } = DatePicker;
-const moment = require("moment");
-const SLASH_DMY = "DD/MM/YYYY";
+
+const SLASH_DMY = 'DD/MM/YYYY';
 
 export const DiscountListPage: React.FC = () => {
   const style: React.CSSProperties = {
-    width: "180px",
+    width: '180px',
   };
-  const _ = require("lodash");
   const [memoList, setMemoList] = useState([]);
   const [meta, setMeta] = useState();
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState('');
   const [isModalDeleteVisible, setIsModalDeleteVisible] =
     useState<boolean>(false);
 
@@ -69,7 +68,7 @@ export const DiscountListPage: React.FC = () => {
             <div>
               <Button
                 type="primary"
-                onClick={() => (window.location.href = "/")}
+                onClick={() => (window.location.href = '/')}
               >
                 เพิ่มไฟล์ Credit Memo
               </Button>
@@ -89,59 +88,59 @@ export const DiscountListPage: React.FC = () => {
 
   const columns = [
     {
-      title: "อัพเดตล่าสุด",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
+      title: 'อัพเดตล่าสุด',
+      dataIndex: 'title',
+      key: 'title',
+      width: '10%',
       sorter: (a: any, b: any) => sorter(a.name, b.name),
     },
     {
-      title: "ชื่อสินค้า",
-      dataIndex: "title",
-      key: "title",
-      width: "15%",
+      title: 'ชื่อสินค้า',
+      dataIndex: 'title',
+      key: 'title',
+      width: '15%',
       sorter: (a: any, b: any) => sorter(a.name, b.name),
     },
     {
-      title: "ขนาด",
-      dataIndex: "title",
-      key: "title",
-      width: "5%",
+      title: 'ขนาด',
+      dataIndex: 'title',
+      key: 'title',
+      width: '5%',
     },
     {
-      title: "กลุ่มสินค้า",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
+      title: 'กลุ่มสินค้า',
+      dataIndex: 'title',
+      key: 'title',
+      width: '10%',
       sorter: (a: any, b: any) => sorter(a.name, b.name),
     },
     {
-      title: "Strategy Group",
-      dataIndex: "title",
-      key: "title",
-      width: "15%",
+      title: 'Strategy Group',
+      dataIndex: 'title',
+      key: 'title',
+      width: '15%',
       sorter: (a: any, b: any) => sorter(a.name, b.name),
     },
     {
-      title: "ราคาต่อหน่วย",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
+      title: 'ราคาต่อหน่วย',
+      dataIndex: 'title',
+      key: 'title',
+      width: '10%',
       sorter: (a: any, b: any) => sorter(a.name, b.name),
     },
     {
-      title: "ราคาตลาด",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
+      title: 'ราคาตลาด',
+      dataIndex: 'title',
+      key: 'title',
+      width: '10%',
       sorter: (a: any, b: any) => sorter(a.name, b.name),
     },
 
     {
-      title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
-      width: "10%",
+      title: 'สถานะ',
+      dataIndex: 'status',
+      key: 'status',
+      width: '10%',
       render: (value: any, row: any, index: number) => {
         return {
           children: <Switch checked={row.is_active} />,
@@ -160,7 +159,7 @@ export const DiscountListPage: React.FC = () => {
             className="rounded-lg"
             columns={columns}
             dataSource={memoList}
-            pagination={{ position: ["bottomCenter"] }}
+            pagination={{ position: ['bottomCenter'] }}
             size="large"
             tableLayout="fixed"
           />
@@ -180,10 +179,10 @@ export const DiscountListPage: React.FC = () => {
         visible={isModalDeleteVisible}
         onCancel={() => setIsModalDeleteVisible(false)}
       >
-        <p style={{ color: "#464E5F", fontSize: 24 }}>
+        <p style={{ color: '#464E5F', fontSize: 24 }}>
           ต้องการลบข้อมูลตำแหน่งผู้ใช้งานนี้
         </p>
-        <p style={{ color: "#BABCBE", fontSize: 16 }}>
+        <p style={{ color: '#BABCBE', fontSize: 16 }}>
           โปรดยืนยันการลบข้อมูลรายการ Credit Memo
         </p>
       </Modal>

@@ -1,21 +1,7 @@
-import {
-  Avatar,
-  Button,
-  Col,
-  Input,
-  Pagination,
-  Row,
-  Switch,
-  Table,
-  Tabs,
-} from "antd";
+import { Avatar, Button, Col, Input, Pagination, Row, Switch, Table, Tabs } from "antd";
 import React, { memo, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  UnorderedListOutlined,
-  EditOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { UnorderedListOutlined, EditOutlined, SearchOutlined } from "@ant-design/icons";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { Container } from "react-bootstrap";
 import { SaleListDatasource } from "../../datasource/SaleListDatasource";
@@ -24,20 +10,19 @@ import { useRecoilValue } from "recoil";
 import Layout from "../../components/Layout/Layout";
 import { ProfileEntity } from "../../entities/ProfileEntity";
 import { useLocalStorage } from "../../hook/useLocalStorage";
+import Text from "../../components/Text/Text";
 
 const style: React.CSSProperties = {
   width: "180px",
 };
 
-
-
 const { TabPane } = Tabs;
 const TabFilter = memo(({ staffOnClick, all, active, inactive }: any) => {
   return (
     <Tabs onChange={staffOnClick}>
-      <TabPane tab={"ทั้งหมด (" + all + ")"} key=""></TabPane>
-      <TabPane tab={"Active (" + active + ")"} key="active"></TabPane>
-      <TabPane tab={"Inctive (" + inactive + ")"} key="inactive"></TabPane>
+      <TabPane tab={"ทั้งหมด (" + all + ")"} key=''></TabPane>
+      <TabPane tab={"Active (" + active + ")"} key='active'></TabPane>
+      <TabPane tab={"Inctive (" + inactive + ")"} key='inactive'></TabPane>
     </Tabs>
   );
 });
@@ -46,24 +31,27 @@ function SaleManagementPage() {
   const { Search } = Input;
   const onSearch = (value: string) => console.log(value);
   const [saleList, setSaleList] = useState([]);
-  const [meta,setMeta] = useState();
+  const [meta, setMeta] = useState();
   const [keyword, setKeyword] = useState<string>("");
 
-  const [persistedProfile, setPersistedProfile] = useLocalStorage(
-    "profile",
-    []
-  );
-  const fetchSaleList = async (pageNum:number,pageSize:number,companyId:number,status:string,search?:string) => {
-    await SaleListDatasource.getSaleList(pageNum,pageSize,companyId,status,search)
-    .then((res)=>{
-     setSaleList(res.data)
-    })
-  }
+  const [persistedProfile, setPersistedProfile] = useLocalStorage("profile", []);
+  const fetchSaleList = async (
+    pageNum: number,
+    pageSize: number,
+    companyId: number,
+    status: string,
+    search?: string,
+  ) => {
+    await SaleListDatasource.getSaleList(pageNum, pageSize, companyId, status, search).then(
+      (res) => {
+        setSaleList(res.data);
+      },
+    );
+  };
 
-   useEffect(() => {
-    fetchSaleList(1,10,persistedProfile.companyId,'all')
-    
-   },[])
+  useEffect(() => {
+    fetchSaleList(1, 10, persistedProfile.companyId, "all");
+  }, []);
 
   const sorter = (a: any, b: any) => {
     if (a === b) return 0;
@@ -75,31 +63,19 @@ function SaleManagementPage() {
     return (
       <Container>
         <Row>
-          <Col className="gutter-row" span={16}>
+          <Col className='gutter-row' span={16}>
             <div>
-              <span
-                className="card-label font-weight-bolder text-dark"
-                style={{ fontSize: 18 }}
-              >
-                รายชื่อพนักงาน{" "}
-              </span>
+              <Text strong>รายชื่อพนักงาน</Text>
             </div>
           </Col>
-          <Col className="gutter-row" span={4}>
+          <Col className='gutter-row' span={4}>
             <div style={style}>
-              <Input
-                placeholder="ค้นหาพนักงาน"
-                prefix={<SearchOutlined />}
-                value={keyword}
-              />
+              <Input placeholder='ค้นหาพนักงาน' prefix={<SearchOutlined />} value={keyword} />
             </div>
           </Col>
-          <Col className="gutter-row" span={4}>
+          <Col className='gutter-row' span={4}>
             <div>
-              <Button
-                type="primary"
-                onClick={() => (window.location.href = "/AddNewSale")}
-              >
+              <Button type='primary' onClick={() => (window.location.href = "/AddNewSale")}>
                 + เพิ่มพนักงาน
               </Button>
             </div>
@@ -118,10 +94,8 @@ function SaleManagementPage() {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <div className="test">
-              <span className="text-dark-75  d-block font-size-lg">
-                {index + 1}
-              </span>
+            <div className='test'>
+              <span className='text-dark-75  d-block font-size-lg'>{index + 1}</span>
             </div>
           ),
         };
@@ -136,21 +110,18 @@ function SaleManagementPage() {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <div className="d-flex flex-row align-items-baseline">
-              <div className="me-4">
+            <div className='d-flex flex-row align-items-baseline'>
+              <div className='me-4'>
                 {row.image ? (
                   <Avatar size={42} src={row.image} />
                 ) : (
-                  <Avatar
-                    size={42}
-                    style={{ color: "#0068F4", backgroundColor: "#EFF2F9" }}
-                  >
+                  <Avatar size={42} style={{ color: "#0068F4", backgroundColor: "#EFF2F9" }}>
                     {row.firstname.charAt(0)}
                   </Avatar>
                 )}
               </div>
               <div>
-                <p>{row.firstname + ' ' + row.lastname}</p>
+                <p>{row.firstname + " " + row.lastname}</p>
               </div>
             </div>
           ),
@@ -186,13 +157,9 @@ function SaleManagementPage() {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <div className="test">
-              <span className="text-dark-75  d-block font-size-lg">
-                {row.updateDate}
-              </span>
-              <span className="text-muted ">
-                {row.updateBy}
-              </span>
+            <div className='test'>
+              <span className='text-dark-75  d-block font-size-lg'>{row.updateDate}</span>
+              <span className='text-muted '>{row.updateBy}</span>
             </div>
           ),
         };
@@ -218,19 +185,17 @@ function SaleManagementPage() {
         return {
           children: (
             <>
-              <div className="d-flex flex-row justify-content-between">
-                <div className="btn btn-icon btn-light btn-hover-primary btn-sm">
-                  <span className="svg-icon svg-icon-primary svg-icon-2x">
+              <div className='d-flex flex-row justify-content-between'>
+                <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
+                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined />
                   </span>
                 </div>
                 <div
-                  className="btn btn-icon btn-light btn-hover-primary btn-sm"
-                  onClick={() =>
-                    (window.location.href = "/EditSalePage?id=" + row.id)
-                  }
+                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                  onClick={() => (window.location.href = "/EditSalePage?id=" + row.id)}
                 >
-                  <span className="svg-icon svg-icon-primary svg-icon-2x">
+                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <EditOutlined />
                   </span>
                 </div>
@@ -242,30 +207,26 @@ function SaleManagementPage() {
     },
   ];
   return (
-    <Layout>
+    <>
       <CardContainer>
         <PageTitle />
-       {/*  <TabFilter /> */}
+        {/*  <TabFilter /> */}
         <Table
-          className="rounded-lg"
+          className='rounded-lg'
           columns={colunm}
           dataSource={saleList}
           pagination={{ position: ["bottomCenter"] }}
-          size="large"
-          tableLayout="fixed"
+          size='large'
+          tableLayout='fixed'
+          style={{
+            marginTop: "16px",
+          }}
         />
         <br />
-       {/*  <div className="d-flex justify-content-center pt-10">
-          <Pagination
-            defaultCurrent={1}
-             total={50}
-
-           current={Number(meta?.currentPage)}
-             onChange={(p) => fetchCreditMemoList(p)}
-          />
-        </div> */}
       </CardContainer>
-    </Layout>
+    </>
   );
 }
+
+TabFilter.displayName;
 export default SaleManagementPage;

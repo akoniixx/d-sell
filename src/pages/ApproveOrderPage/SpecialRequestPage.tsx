@@ -1,9 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 function SpecialRequestPage() {
-  return (
-    <div>SpecialRequestPage</div>
-  )
+  return <div>SpecialRequestPage</div>;
 }
 
-export default SpecialRequestPage
+export default SpecialRequestPage;

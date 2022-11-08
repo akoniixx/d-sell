@@ -1,7 +1,8 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet } from 'react-router-dom';
+import Layouts from './components/Layout/Layout';
 
 const useAuth = () => {
-  const user = localStorage.getItem("token");
+  const user = localStorage.getItem('token');
   if (user) {
     return true;
   } else {
@@ -11,7 +12,13 @@ const useAuth = () => {
 
 const ProtectRoute = () => {
   const auth = useAuth();
-  return auth ? <Outlet /> : <Navigate to="" />;
+  return auth ? (
+    <Layouts>
+      <Outlet />
+    </Layouts>
+  ) : (
+    <Navigate to='' />
+  );
 };
 
 export default ProtectRoute;
