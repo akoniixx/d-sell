@@ -5,10 +5,7 @@ import { UnorderedListOutlined, EditOutlined, SearchOutlined } from "@ant-design
 import { CardContainer } from "../../components/Card/CardContainer";
 import { Container } from "react-bootstrap";
 import { SaleListDatasource } from "../../datasource/SaleListDatasource";
-import { profileAtom } from "../../store/ProfileAtom";
-import { useRecoilValue } from "recoil";
-import Layout from "../../components/Layout/Layout";
-import { ProfileEntity } from "../../entities/ProfileEntity";
+
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import Text from "../../components/Text/Text";
 
@@ -65,7 +62,7 @@ function SaleManagementPage() {
         <Row>
           <Col className='gutter-row' span={16}>
             <div>
-              <Text strong>รายชื่อพนักงาน</Text>
+              <Text fontWeight={700}>รายชื่อพนักงาน</Text>
             </div>
           </Col>
           <Col className='gutter-row' span={4}>
