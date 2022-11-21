@@ -1,21 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Navbar } from 'react-bootstrap';
-import { CalendarOutlined } from '@ant-design/icons';
-import { Col, Input, Row, Space } from 'antd';
-import Layouts from '../../components/Layout/Layout';
+import React, { useEffect, useState } from "react";
+import { CalendarOutlined } from "@ant-design/icons";
+import { Col, Input, Row, Space } from "antd";
+import Layouts from "../../components/Layout/Layout";
 
 export function OrderPage() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   const mystyle = {
-    color: 'black',
-    backgroundColor: 'white',
-    padding: '10px',
-    fontFamily: 'Arial',
+    color: "black",
+    backgroundColor: "white",
+    padding: "10px",
+    fontFamily: "Arial",
   };
 
   return (
     <>
-      <Navbar />
       <div className='container' style={mystyle}>
         <div className='col-xl-12'>
           <h2>Dash Board</h2>
@@ -57,7 +55,7 @@ export function OrderPage() {
         <br />
         <Row justify='space-between'>
           <Col span={12}>
-            {' '}
+            {" "}
             <span className='card-label font-weight-bolder text-dark'>จัดการคำสั่งซื้อ</span>
           </Col>
           <Col span={4}></Col>

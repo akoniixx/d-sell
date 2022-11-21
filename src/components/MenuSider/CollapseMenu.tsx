@@ -1,11 +1,11 @@
-import React from 'react';
-import styled, { css } from 'styled-components';
-import color from '../../resource/color';
-import { TextStyled } from './MenuSider';
-import iconImport from '../../resource/icon';
-import Text from '../Text/Text';
-import { useNavigate } from 'react-router-dom';
-import { Dropdown, MenuProps } from 'antd';
+import React from "react";
+import styled, { css } from "styled-components";
+import color from "../../resource/color";
+import { TextStyled } from "./MenuSider";
+import iconImport from "../../resource/icon";
+import Text from "../Text/Text";
+import { useNavigate } from "react-router-dom";
+import { Dropdown, MenuProps } from "antd";
 
 interface Props {
   isOpenSidebar?: boolean;
@@ -17,8 +17,17 @@ interface Props {
   icon?: JSX.Element;
   name: string;
   title?: string;
-  current?: string;
-  setCurrent: React.Dispatch<React.SetStateAction<string>>;
+  current?: {
+    path: string;
+    subPath: string;
+  };
+  setCurrent: React.Dispatch<
+    React.SetStateAction<{
+      path: string;
+      subPath: string;
+    }>
+  >;
+  frontPath?: string;
 }
 const ImageCollapseStyled = styled.img<{ isOpen?: boolean }>`
   ${(props) =>
@@ -57,13 +66,13 @@ const ListCollapseStyled = styled.div<{ isOpen?: boolean; isFocus?: boolean }>`
         background-color: ${color.secondary};
         color: white;
         border-radius: 8px;
-        margin-left: ${isOpen ? '8px' : '16px'};
-        margin-right: ${isOpen ? '8px' : '16px'};
+        margin-left: ${isOpen ? "8px" : "16px"};
+        margin-right: ${isOpen ? "8px" : "16px"};
       `;
     } else {
       return css`
         background-color: white;
-        color: black;
+        color: ${color.Text1};
       `;
     }
   }}
@@ -74,13 +83,13 @@ const ListCollapseStyled = styled.div<{ isOpen?: boolean; isFocus?: boolean }>`
   align-items: center;
   cursor: pointer;
   &:hover {
-    color: ${(props) => (props.isFocus ? 'white' : color.secondary)};
+    color: ${(props) => (props.isFocus ? "white" : color.secondary)};
   }
 `;
 const SubListItem = styled.div<{ isFocus?: boolean }>`
   padding: 8px;
   cursor: pointer;
-  background-color: ${(props) => (props.isFocus ? color.BG : 'transparent')};
+  background-color: ${(props) => (props.isFocus ? color.background1 : "transparent")};
   border-radius: 8px;
   width: 100%;
 `;
@@ -92,11 +101,13 @@ const TextSubStyled = styled(Text)<{ isFocus?: boolean }>`
       `;
     } else {
       return css`
-        color: black;
+        color: ${color.Text1};
       `;
     }
   }}
   margin-left: 24px;
+  font-family: Helvetica, IBM Plex Sans Thai !important;
+
   &:hover {
     color: ${(props) => (props.isFocus ? color.primary : color.Text1)};
   }
@@ -109,12 +120,11 @@ function CollapseMenu({
   title,
   current,
   setCurrent,
+  frontPath,
 }: Props): JSX.Element {
   const [isCollapse, setIsCollapse] = React.useState(true);
   const navigate = useNavigate();
-  const [currentSub, setCurrentSub] = React.useState('');
-
-  const menus: MenuProps['items'] = subLists.map((item) => {
+  const menus: MenuProps["items"] = subLists.map((item) => {
     return {
       label: (
         <div>
@@ -122,15 +132,20 @@ function CollapseMenu({
             style={{
               marginLeft: 0,
             }}
-            isFocus={currentSub === item.path}
+            isFocus={current?.subPath === item.name}
           >
             {item.title}
           </TextSubStyled>
         </div>
       ),
       onClick: () => {
-        navigate(item.path);
-        setCurrentSub(item.path);
+        navigate(frontPath + item.path);
+        setCurrent((prev) => {
+          return {
+            ...prev,
+            subPath: item.name,
+          };
+        });
       },
       key: item.name,
     };
@@ -139,20 +154,23 @@ function CollapseMenu({
   if (!isOpenSidebar) {
     return (
       <Dropdown
-        trigger={['click']}
+        trigger={["click"]}
         menu={{
           items: menus,
         }}
         overlayStyle={{
-          borderRadius: '8px',
+          borderRadius: "8px",
         }}
       >
         <ListCollapseStyled
           isOpen={isOpenSidebar}
-          isFocus={current === name}
+          isFocus={current?.path === name}
           onClick={() => {
             setIsCollapse(!isCollapse);
-            setCurrent(name);
+            setCurrent({
+              path: name,
+              subPath: current?.subPath || "",
+            });
           }}
         >
           <div>{icon}</div>
@@ -165,30 +183,33 @@ function CollapseMenu({
     <>
       <ListCollapseStyled
         isOpen={isOpenSidebar}
-        isFocus={current === name}
+        isFocus={current?.path === name}
         onClick={() => {
           setIsCollapse(!isCollapse);
-          setCurrent(name);
+          setCurrent({
+            path: name,
+            subPath: current?.subPath || "",
+          });
         }}
       >
         <div>{icon}</div>
         {isOpenSidebar && (
-          <TextStyled isFocus={current === name} strong>
+          <TextStyled isFocus={current?.path === name} strong>
             {title}
           </TextStyled>
         )}
         {isOpenSidebar && (
           <ImageCollapseStyled
             isOpen={!isCollapse}
-            src={current !== name ? iconImport.downGrayIcon : iconImport.upWhiteIcon}
+            src={current?.path !== name ? iconImport.downGrayIcon : iconImport.upWhiteIcon}
           />
         )}
       </ListCollapseStyled>
       {!isCollapse && isOpenSidebar && (
         <div
           style={{
-            width: '100%',
-            padding: '0 8px 8px',
+            width: "100%",
+            padding: "0 8px 8px",
           }}
         >
           {subLists.map((subList, idx) => {
@@ -196,12 +217,12 @@ function CollapseMenu({
               <SubListItem
                 key={idx}
                 onClick={() => {
-                  setCurrentSub(subList.name);
-                  navigate(subList.path);
+                  setCurrent((prev) => ({ ...prev, subPath: subList.name }));
+                  navigate(frontPath + subList.path);
                 }}
-                isFocus={subList.name === currentSub}
+                isFocus={subList.name === current?.subPath}
               >
-                <TextSubStyled strong isFocus={subList.name === currentSub}>
+                <TextSubStyled strong isFocus={subList.name === current?.subPath}>
                   {subList.title}
                 </TextSubStyled>
               </SubListItem>

@@ -13,7 +13,9 @@ module.exports = {
               "@primary-color": "#0068F4",
 
               "@link-color": "#0068F4",
+              "border-radius-base": "4px",
             },
+
             javascriptEnabled: true,
           },
         },
