@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled, { css } from 'styled-components';
-import color from '../../resource/color';
-import Text from '../Text/Text';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styled, { css } from "styled-components";
+import color from "../../resource/color";
+import Text from "../Text/Text";
 import {
   ShoppingCartOutlined,
   GiftOutlined,
@@ -10,8 +10,9 @@ import {
   UserOutlined,
   FundOutlined,
   ContainerOutlined,
-} from '@ant-design/icons';
-import CollapseMenu from './CollapseMenu';
+} from "@ant-design/icons";
+import CollapseMenu from "./CollapseMenu";
+import { useEffectOnce } from "react-use";
 interface Props {
   style?: React.CSSProperties;
   lists: {
@@ -52,8 +53,8 @@ const ListStyled = styled.div<{ isOpen?: boolean; isFocus?: boolean }>`
         background-color: ${color.secondary};
         color: white;
         border-radius: 8px;
-        margin-left: ${isOpen ? '8px' : '16px'};
-        margin-right: ${isOpen ? '8px' : '16px'};
+        margin-left: ${isOpen ? "8px" : "16px"};
+        margin-right: ${isOpen ? "8px" : "16px"};
       `;
     } else {
       return css`
@@ -68,7 +69,7 @@ const ListStyled = styled.div<{ isOpen?: boolean; isFocus?: boolean }>`
   justify-content: center;
   cursor: pointer;
   &:hover {
-    color: ${(props) => (props.isFocus ? 'white' : color.secondary)};
+    color: ${(props) => (props.isFocus ? "white" : color.secondary)};
   }
 `;
 
@@ -80,12 +81,13 @@ export const TextStyled = styled(Text)<{ isFocus?: boolean }>`
       `;
     } else {
       return css`
-        color: black;
+        color: ${color.Text1};
       `;
     }
   }}
+  font-family: Helvetica !important;
   &:hover {
-    color: ${(props) => (props.isFocus ? 'white' : color.secondary)};
+    color: ${(props) => (props.isFocus ? "white" : color.secondary)};
   }
 `;
 
@@ -93,51 +95,76 @@ const iconsInActive = {
   order: (
     <ShoppingCartOutlined
       style={{
-        fontSize: '20px',
+        fontSize: "20px",
       }}
     />
   ),
   approveOrder: (
     <ContainerOutlined
       style={{
-        fontSize: '20px',
+        fontSize: "20px",
       }}
     />
   ),
   promotion: (
     <GiftOutlined
       style={{
-        fontSize: '20px',
+        fontSize: "20px",
       }}
     />
   ),
   discountList: (
     <TagOutlined
       style={{
-        fontSize: '20px',
+        fontSize: "20px",
       }}
     />
   ),
   priceList: (
     <FundOutlined
       style={{
-        fontSize: '20px',
+        fontSize: "20px",
       }}
     />
   ),
   user: (
     <UserOutlined
       style={{
-        fontSize: '20px',
+        fontSize: "20px",
       }}
     />
   ),
 };
 function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Element {
   const navigate = useNavigate();
-  const [current, setCurrent] = useState('order');
+  const [current, setCurrent] = useState({
+    path: "",
+    subPath: "",
+  });
+  useEffectOnce(() => {
+    const pathName = window.location.pathname;
+    const pathNameSplit = pathName.split("/").filter((item) => item !== "");
+
+    const currentPath = lists.find((item) => item.path === `/${pathNameSplit[0]}`);
+    if (currentPath) {
+      const isHaveSubPath = currentPath.subMenu.find((el) => el.path === `/${pathNameSplit[1]}`);
+
+      setCurrent({
+        path: currentPath.name,
+        subPath: isHaveSubPath ? isHaveSubPath.name : "",
+      });
+    }
+    // const pathNameSplit = pathName.split("/");
+    // if (pathNameSplit.length > 2) {
+    //   setCurrent(pathNameSplit[2]);
+    // }
+  });
+
   const onClickList = (name: string) => {
-    setCurrent(name);
+    setCurrent({
+      path: name,
+      subPath: "",
+    });
   };
   return (
     <MenuSiderStyled style={style}>
@@ -147,7 +174,7 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
             <ListStyled
               key={idx}
               isOpen={isOpenSidebar}
-              isFocus={current === list.name}
+              isFocus={current.path === list.name}
               onClick={() => {
                 onClickList(list.name);
                 navigate(list.path);
@@ -155,7 +182,7 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
             >
               <div>{iconsInActive[list.name as keyof typeof iconsInActive]}</div>
               {isOpenSidebar && (
-                <TextStyled isFocus={current === list.name} strong>
+                <TextStyled isFocus={current.path === list.name} strong>
                   {list.title}
                 </TextStyled>
               )}
@@ -172,6 +199,7 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
               title={list.title}
               setCurrent={setCurrent}
               current={current}
+              frontPath={list.path}
             />
           );
         }

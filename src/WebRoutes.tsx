@@ -1,28 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import { profileAtom } from './store/ProfileAtom';
-import Layouts from './components/Layout/Layout';
-import AdvancePromotionPage from './pages/ApproveOrderPage/AdvancePromotionPage';
-import SpecialPromotionPage from './pages/ApproveOrderPage/SpecialPromotionPage';
-import SpecialRequestPage from './pages/ApproveOrderPage/SpecialRequestPage';
-import { AuthPage } from './pages/AuthPage/AuthPage';
-import { AddDiscountCOPage } from './pages/DiscountPage/AddDiscountCOPage';
-import { DiscountCOPage } from './pages/DiscountPage/DiscountCOPage';
-import { DiscountListPage } from './pages/DiscountPage/DiscountListPage';
-import ErrorLoginPage from './pages/ErrorPage/ErrorLoginPage';
-import PageNotFound from './pages/HttpError/PageNotFound';
-import { OrderPage } from './pages/OrderPage/OrderPage';
-import { DistributionPage } from './pages/PriceListPage/DistributionPage';
-import ShopPage from './pages/PriceListPage/ShopPage';
-import { AddNewSale } from './pages/UserPage/AddNewSale';
-import RoleManagementPage from './pages/UserPage/RoleManagementPage';
-import SaleManagementPage from './pages/UserPage/SaleManagementPage';
-import ProtectRoute from './ProtectRoute';
-import PublicRoute from './PublicRoute';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { profileAtom } from "./store/ProfileAtom";
+import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
+import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
+import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
+import { AuthPage } from "./pages/AuthPage/AuthPage";
+import { DiscountCOPage } from "./pages/DiscountPage/DiscountCOPage";
+import { DiscountListPage } from "./pages/DiscountPage/DiscountListPage";
+import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
+import PageNotFound from "./pages/HttpError/PageNotFound";
+import { OrderPage } from "./pages/OrderPage/OrderPage";
+import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
+import ShopPage from "./pages/PriceListPage/ShopPage";
+import { AddNewSale } from "./pages/UserPage/SaleMangementPage/AddNewSale";
+import ProtectRoute from "./ProtectRoute";
+import PublicRoute from "./PublicRoute";
+import SaleManagementPage from "./pages/UserPage/SaleMangementPage";
+import RedirectPathPage from "./pages/RedirectPathPage";
+import { EditUserSale } from "./pages/UserPage/SaleMangementPage/EditUserSale";
+import RolesManagementPage from "./pages/UserPage/RolesManagementPage";
+import AddNewRole from "./pages/UserPage/RolesManagementPage/AddNewRole";
 
 const WebRoutes: React.FC<any> = () => {
-  const token = useRecoilValue(profileAtom);
   return (
     <BrowserRouter>
       <Routes>
@@ -36,9 +36,13 @@ const WebRoutes: React.FC<any> = () => {
           <Route path='/DistributionPage' element={<DistributionPage />} />
           <Route path='/AdvancePromotionPage' element={<AdvancePromotionPage />} />
           <Route path='/ShopPage' element={<ShopPage />} />
-          <Route path='/SaleManagementPage' element={<SaleManagementPage />} />
-          <Route path='/RoleManagementPage' element={<RoleManagementPage />} />
-          <Route path='/AddNewSale' element={<AddNewSale />} />
+          <Route path='/UserPage/*' element={<RedirectPathPage />}>
+            <Route index path='SaleManagementPage/*' element={<SaleManagementPage />} />
+            <Route path='SaleManagementPage/AddSale' element={<AddNewSale />} />
+            <Route path='SaleManagementPage/EditSale/:userStaffId' element={<EditUserSale />} />
+            <Route path='RoleManagementPage/*' element={<RolesManagementPage />} />
+            <Route path='RoleManagementPage/AddNewRole' element={<AddNewRole />} />
+          </Route>
           <Route path='*' element={<PageNotFound />} />
         </Route>
 
