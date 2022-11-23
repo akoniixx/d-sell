@@ -18,7 +18,7 @@ interface TextType {
     | "warning"
     | "white";
   level?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-  fontFamily?: "Sarabun" | "IBM Plex Sans Thai";
+  fontFamily?: "Sarabun" | "IBM Plex Sans Thai" | "Helvetica";
 }
 interface Props extends TextProps, TextType {
   children?: React.ReactNode;
@@ -32,7 +32,7 @@ interface Props extends TextProps, TextType {
     | "success"
     | "warning"
     | "white";
-  fontFamily?: "Sarabun" | "IBM Plex Sans Thai";
+  fontFamily?: "Sarabun" | "IBM Plex Sans Thai" | "Helvetica";
 }
 const TextStyled = styled(Typography.Text)<TextType>`
   font-family: ${({ fontFamily }) => fontFamily || "IBM Plex Sans Thai"};

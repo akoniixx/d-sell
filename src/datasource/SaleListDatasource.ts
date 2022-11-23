@@ -36,6 +36,7 @@ const updateUserStaff = async (id: string, data: SaleEntity) => {
 
 const createNewSaleStaff = async (data: SaleEntity) => {
   const url = `${BASE_URL}/auth/user-staff`;
+
   return await httpClient.post(url, data).then((res: AxiosResponse) => res.data);
 };
 const deleteSaleStaff = async (id?: string) => {

@@ -16,6 +16,7 @@ import Text from "../../../components/Text/Text";
 import ConfirmModal from "../../../components/Modal/ConfirmModal";
 import { SaleListDatasource } from "../../../datasource/SaleListDatasource";
 import { useNavigate } from "react-router-dom";
+import { useLocalStorage } from "../../../hook/useLocalStorage";
 
 const Top = styled.div``;
 const Bottom = styled(Row)`
@@ -28,11 +29,16 @@ export function AddNewSale() {
 
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
+  const [profile] = useLocalStorage("profile", null);
 
   const onFinish = async (values: any) => {
     try {
       setLoading(true);
-      const res = await SaleListDatasource.createNewSaleStaff(values);
+      const res = await SaleListDatasource.createNewSaleStaff({
+        ...values,
+        company: profile.company,
+        status: "ACTIVE",
+      });
       if (res && res.success) {
         Swal.fire({
           title: "บันทึกข้อมูลสำเร็จ",
@@ -57,7 +63,7 @@ export function AddNewSale() {
             title: "custom-title",
           },
           showConfirmButton: false,
-        }).then((res) => {
+        }).then(() => {
           setLoading(false);
         });
       }

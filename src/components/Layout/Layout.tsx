@@ -1,26 +1,16 @@
-import { MenuProps, Menu, Breadcrumb, Row, Col, Button, Space } from "antd";
+import { Button } from "antd";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
-import React, { Children, useEffect, useState } from "react";
-import {
-  HomeOutlined,
-  ShoppingCartOutlined,
-  GiftOutlined,
-  TagOutlined,
-  UserOutlined,
-  FundOutlined,
-  ContainerOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
+import React, { useState } from "react";
+import { LogoutOutlined } from "@ant-design/icons";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import icon from "../../resource/icon";
 import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import { getCompanyName } from "../../utility/CompanyName";
 import styled, { css } from "styled-components";
-import MenuItem from "antd/lib/menu/MenuItem";
 import MenuSider from "../MenuSider/MenuSider";
 import Text from "../Text/Text";
 
@@ -127,22 +117,26 @@ const Layouts: React.FC<any> = ({ children }) => {
     },
   ];
 
-  const logout = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    const url = window.location.href;
-    const arr = url.split("/");
-    const resultUrlHost = arr[0] + "//" + arr[2];
-    window.location.href =
-      "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
-      resultUrlHost;
+  const logout = async () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      const url = window.location.href;
+      const arr = url.split("/");
+      const resultUrlHost = arr[0] + "//" + arr[2];
+      window.location.href =
+        "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
+        resultUrlHost;
+    } catch (e) {
+      console.log(e);
+    }
   };
   const toggleButton = () => {
     setIsOpenSidebar(!isOpenSidebar);
   };
 
   return (
-    <Layout style={{ height: "100vh" }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <Header
         style={{
           backgroundColor: "#FFFFFF",
@@ -168,9 +162,7 @@ const Layouts: React.FC<any> = ({ children }) => {
           <Text level={5}>
             {persistedProfile?.firstname} {persistedProfile?.lastname}
           </Text>
-          <Text color='Text3' level={5}>{`, ${getCompanyName(
-            persistedProfile?.companyId || "icpl",
-          )}`}</Text>
+          <Text color='Text3' level={5}>{`, ${getCompanyName(persistedProfile?.company)}`}</Text>
           <Button onClick={() => logout()} icon={<LogoutOutlined />} size={size} />
         </div>
       </Header>
