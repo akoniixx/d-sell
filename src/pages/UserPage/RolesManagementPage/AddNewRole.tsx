@@ -112,6 +112,8 @@ export default function AddNewRole(): JSX.Element {
               justifyContent: "space-between",
               padding: 16,
               alignItems: "center",
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
               backgroundColor: color.background1,
             }}
           >
@@ -205,6 +207,8 @@ export default function AddNewRole(): JSX.Element {
               padding: 16,
               alignItems: "center",
               backgroundColor: color.background1,
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
             }}
           >
             <Text fontWeight={700}>SaleCoda - Sale</Text>
@@ -279,6 +283,8 @@ export default function AddNewRole(): JSX.Element {
               padding: 16,
               alignItems: "center",
               backgroundColor: color.background1,
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
             }}
           >
             <Text fontWeight={700}>SaleCoda - Shop</Text>

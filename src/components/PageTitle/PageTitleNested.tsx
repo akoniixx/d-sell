@@ -9,6 +9,7 @@ interface Props {
   title: string;
   extra?: React.ReactNode;
   showBack?: boolean;
+  style?: React.CSSProperties;
 }
 const BackImage = styled.img`
   width: 30px;
@@ -22,8 +23,10 @@ const ConvertTitleObj = {
   AddSale: "เพิ่มรายชื่อพนักงาน",
   RoleManagementPage: "จัดการสิทธิตำแหน่งผู้ใช้งาน",
   AddNewRole: "เพิ่มตำแหน่ง",
+  AddNewShop: "เพิ่มร้านค้า",
+  ShopListPage: "รายชื่อร้านค้า",
 };
-const PageTitleNested = ({ title, extra, showBack = true }: Props) => {
+const PageTitleNested = ({ title, extra, showBack = true, style }: Props) => {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
   const currentPathSplit = currentPath.split("/").filter((el) => el !== "");
@@ -36,9 +39,9 @@ const PageTitleNested = ({ title, extra, showBack = true }: Props) => {
         path: "/" + path,
       };
     })
-    .filter((el) => el.path !== "/UserPage");
+    .filter((el) => el.path !== "/UserPage" && el.path !== "/ShopManagementPage");
   return (
-    <Row justify='space-between'>
+    <Row justify='space-between' style={style}>
       <Col>
         <Row
           style={{

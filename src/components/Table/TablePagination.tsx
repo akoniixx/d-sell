@@ -83,6 +83,13 @@ const Image = styled.img`
   height: 24px;
 `;
 
+const ButtonJump = styled.div`
+  width: 42px !important;
+  height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+`;
 const PageButton = styled.div<{ focus: boolean }>`
   width: 42px !important;
   height: 42px !important;
@@ -92,7 +99,7 @@ const PageButton = styled.div<{ focus: boolean }>`
   border: 1px solid #d9d9d9 !important;
   background-color: white;
   font-family: Helvetica;
-  font-weight: 700 !important;
+  font-weight: 400 !important;
   font-size: 18px;
   :hover {
     transition: all 0.3s ease-in-out;
@@ -236,6 +243,7 @@ function TablePagination({
               if (type === "page") {
                 return <PageButton focus={currentPage === page}>{page}</PageButton>;
               }
+              return <ButtonJump>{element}</ButtonJump>;
             },
             ...props.pagination,
           }

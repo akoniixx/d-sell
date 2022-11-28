@@ -20,6 +20,8 @@ import { useEffectOnce } from "react-use";
 import DetailUserModal from "../../../components/Modal/DetailUserModal";
 import { SaleEntity } from "../../../entities/SaleEntity";
 import useDebounce from "../../../hook/useDebounce";
+import { useRecoilValue } from "recoil";
+import { profileAtom } from "../../../store/ProfileAtom";
 
 const NoImage = styled.div`
   width: 42px;
@@ -34,6 +36,8 @@ const NoImage = styled.div`
 function SaleManagementPage() {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState<string | undefined>(undefined);
+  const profile = useRecoilValue(profileAtom);
+
   const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState("all");
@@ -46,12 +50,14 @@ function SaleManagementPage() {
     isLoading,
     error,
     refetch: getUserStaff,
-  } = useQuery(["saleManagement", keyword], async () =>
+  } = useQuery(["saleManagement", debouncedValue], async () =>
     SaleListDatasource.getUserStaff({
       keyword: debouncedValue,
       page,
       take: 8,
       isActive: tab === "all" ? undefined : tab === "active" ? "ACTIVE" : "INACTIVE",
+
+      company: profile?.company,
     }),
   );
   const onChangeStatus = async (id: string, currentStatus: string) => {
@@ -63,7 +69,6 @@ function SaleManagementPage() {
 
   useEffectOnce(() => {
     searchParams.get("status") && setTab(searchParams.get("status") || "all");
-    getUserStaff();
   });
   const defaultTableColumns = useMemo(() => {
     const staticData = [

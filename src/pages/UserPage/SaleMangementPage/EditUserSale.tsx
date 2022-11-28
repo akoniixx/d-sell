@@ -9,16 +9,16 @@ import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { defaultPropsForm } from "../../../utility/DefaultProps";
 import Select from "../../../components/Select/Select";
-import { mockZone, SelectDataRoles } from "../../../utility/StaticRoles";
+import { SelectDataRoles } from "../../../utility/StaticRoles";
 import styled from "styled-components";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
 import { useNavigate, useParams } from "react-router-dom";
 import { SaleListDatasource } from "../../../datasource/SaleListDatasource";
 import ConfirmModal from "../../../components/Modal/ConfirmModal";
-import { useLocalStorage } from "../../../hook/useLocalStorage";
 import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../../store/ProfileAtom";
+import { zoneDatasource } from "../../../datasource/ZoneDatasource";
 
 const Top = styled.div``;
 const Bottom = styled(Row)`
@@ -31,6 +31,18 @@ export function EditUserSale() {
   const navigate = useNavigate();
   const profile = useRecoilValue(profileAtom);
   const { userStaffId } = useParams();
+  const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
+  const getZoneByCompany = async () => {
+    const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
+    const data = res.map((item: any) => {
+      return {
+        label: item.zoneName,
+        value: item.zoneName,
+        key: item.zoneId,
+      };
+    });
+    setZone(data);
+  };
 
   const getInitialValue = async () => {
     try {
@@ -43,6 +55,7 @@ export function EditUserSale() {
     }
   };
   useEffect(() => {
+    getZoneByCompany();
     if (userStaffId) {
       getInitialValue();
     }
@@ -218,7 +231,7 @@ export function EditUserSale() {
                   getFieldValue("role") === "SALE" && (
                     <Col span={12}>
                       <Form.Item label='เขต' name={"zone"}>
-                        <Select data={mockZone} />
+                        <Select data={zone} />
                       </Form.Item>
                     </Col>
                   )

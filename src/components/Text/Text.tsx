@@ -31,6 +31,7 @@ interface Props extends TextProps, TextType {
     | "error"
     | "success"
     | "warning"
+    | "error"
     | "white";
   fontFamily?: "Sarabun" | "IBM Plex Sans Thai" | "Helvetica";
 }

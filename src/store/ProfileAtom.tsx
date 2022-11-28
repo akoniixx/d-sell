@@ -1,6 +1,15 @@
 import { atom } from "recoil";
 
-const profileAtom = atom({
+interface Profile {
+  email: string;
+  firstname: string;
+  lastname: string;
+  company?: "ICPL" | "ICPI" | "ICPF" | "ICK";
+  role: string;
+  userStaffId: string;
+  [key: string]: any;
+}
+const profileAtom = atom<Profile>({
   key: "profile",
   default: {
     email: "",

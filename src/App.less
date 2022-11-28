@@ -7,10 +7,83 @@
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+@primary-color: #1890ff;
+@secondary-color: #1b4586;
+@text3: #babcbe;
+
+.ant-steps-item-title {
+  font-size: 14px;
+  font-family: "IBM Plex Sans Thai", sans-serif;
+}
+.ant-steps-item-process
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  font-weight: 700;
+  color: @secondary-color !important;
+}
+.ant-steps-item-icon {
+  font-family: "IBM Plex Sans Thai", sans-serif !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding-top: 4px;
+}
+.ant-steps-item-tail {
+  margin-top: 2px !important;
+  padding: 3.5px 16px 0px 20px !important;
+}
+
+.ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-icon {
+  background-color: white !important;
+}
+.ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-icon .ant-steps-icon {
+  color: #0068f4 !important;
+  font-weight: 600 !important;
+}
+
+.ant-steps-item .ant-steps-item-wait {
+  background-color: white !important;
+
+  :hover {
+    color: #0068f4 !important;
   }
+}
+.ant-steps-item-finish .ant-steps-item-icon {
+  background-color: #0068f4 !important;
+}
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+  color: white !important;
+}
+
+.ant-steps-item-container {
+  .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+    color: @text3 !important;
+    font-weight: 600;
+    background-color: white !important;
+  }
+  :hover {
+    color: @primary-color !important;
+  }
+}
+.ant-steps .ant-steps-item-wait .ant-steps-item-icon {
+  background-color: white !important;
+}
+.ant-steps
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: @text3 !important;
+}
+
+.ant-radio-inner {
+  background-color: #e5eaee !important;
+}
+.ant-radio-checked .ant-radio-inner {
+  background-color: white !important;
 }
 .ant-checkbox-wrapper + .ant-checkbox-wrapper {
   margin-left: 0 !important;

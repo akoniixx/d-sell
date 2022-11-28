@@ -1,7 +1,6 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "./store/ProfileAtom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
 import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
@@ -21,13 +20,16 @@ import RedirectPathPage from "./pages/RedirectPathPage";
 import { EditUserSale } from "./pages/UserPage/SaleMangementPage/EditUserSale";
 import RolesManagementPage from "./pages/UserPage/RolesManagementPage";
 import AddNewRole from "./pages/UserPage/RolesManagementPage/AddNewRole";
+import ShopListPage from "./pages/ShopManagementPage/ShopListPage";
+import ApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage";
+import AddNewShopPage from "./pages/ShopManagementPage/ShopListPage/AddNewShopPage";
 
 const WebRoutes: React.FC<any> = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<ProtectRoute />}>
-          <Route path='*' element={<Navigate to='/OrderPage' />} />
+          {/* <Route path='*' element={<Navigate to='/OrderPage' />} /> */}
           <Route path='/OrderPage' element={<OrderPage />} />
           <Route path='/SpecialRequestPage' element={<SpecialRequestPage />} />
           <Route path='/SpecialPromotionPage' element={<SpecialPromotionPage />} />
@@ -36,6 +38,11 @@ const WebRoutes: React.FC<any> = () => {
           <Route path='/DistributionPage' element={<DistributionPage />} />
           <Route path='/AdvancePromotionPage' element={<AdvancePromotionPage />} />
           <Route path='/ShopPage' element={<ShopPage />} />
+          <Route path='/ShopManagementPage/*' element={<RedirectPathPage />}>
+            <Route index path='ShopListPage/*' element={<ShopListPage />} />
+            <Route path='ShopListPage/AddNewShop' element={<AddNewShopPage />} />
+            <Route path='ApproveTelPage' element={<ApproveTelPage />} />
+          </Route>
           <Route path='/UserPage/*' element={<RedirectPathPage />}>
             <Route index path='SaleManagementPage/*' element={<SaleManagementPage />} />
             <Route path='SaleManagementPage/AddSale' element={<AddNewSale />} />

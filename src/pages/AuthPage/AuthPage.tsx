@@ -22,7 +22,7 @@ export const AuthPage: React.FC = () => {
   const setProfile = useSetRecoilState(profileAtom);
 
   const navigate = useNavigate();
-  const authHandler = (err: any, data: any) => {
+  const authHandler = (err: any, data: any, msal: any) => {
     AuthDatasource.login(data.account.userName).then((res: any) => {
       if (res) {
         setPersistedProfile(res.data);
@@ -94,6 +94,7 @@ export const AuthPage: React.FC = () => {
               }}
             >
               <MicrosoftLogin
+                useLocalStorageCache={true}
                 clientId='87575c83-d0d9-4544-93e5-7cd61636b45c'
                 authCallback={authHandler}
                 buttonTheme='dark'

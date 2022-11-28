@@ -10,6 +10,7 @@ import {
   UserOutlined,
   FundOutlined,
   ContainerOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import CollapseMenu from "./CollapseMenu";
 import { useEffectOnce } from "react-use";
@@ -122,6 +123,13 @@ const iconsInActive = {
   ),
   priceList: (
     <FundOutlined
+      style={{
+        fontSize: "20px",
+      }}
+    />
+  ),
+  shopManagement: (
+    <ShopOutlined
       style={{
         fontSize: "20px",
       }}

@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useEffectOnce } from "react-use";
 
 function RedirectPathPage() {
-  const pathEmptyList = ["/UserPage"];
+  const pathEmptyList = ["/UserPage", "/ShopManagementPage"];
   const navigate = useNavigate();
   useEffectOnce(() => {
     const currentPath = window.location.pathname;

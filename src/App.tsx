@@ -5,11 +5,13 @@ import "antd/dist/antd.less";
 import { RecoilRoot } from "recoil";
 import locale_th from "antd/lib/locale-provider/th_TH";
 import { ConfigProvider } from "antd";
-import BuddaEra from "dayjs/plugin/buddhistEra";
+import BuddhaEra from "dayjs/plugin/buddhistEra";
 import dayjs from "dayjs";
 import { QueryClient, QueryClientProvider } from "react-query";
 
-dayjs.extend(BuddaEra);
+dayjs.extend(BuddhaEra);
+dayjs.locale("th");
+
 function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -18,6 +20,17 @@ function App() {
       },
     },
   });
+  const newLocale = {
+    ...locale_th,
+    DatePicker: {
+      ...locale_th.DatePicker,
+      lang: {
+        ...locale_th?.DatePicker?.lang,
+        yearFormat: "BBBB",
+        dateFormat: "DD/MM/BBBB",
+      },
+    },
+  };
 
   return (
     <RecoilRoot>

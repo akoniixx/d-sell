@@ -6,13 +6,14 @@ import { LogoutOutlined } from "@ant-design/icons";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import { Link } from "react-router-dom";
 import icon from "../../resource/icon";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import { getCompanyName } from "../../utility/CompanyName";
 import styled, { css } from "styled-components";
 import MenuSider from "../MenuSider/MenuSider";
 import Text from "../Text/Text";
+import { useEffectOnce } from "react-use";
 
 const ImageStyled = styled.img<{ isOpen: boolean }>`
   ${(props) =>
@@ -28,11 +29,15 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
 `;
 
 const Layouts: React.FC<any> = ({ children }) => {
-  const [size, setSize] = useState<SizeType>("large");
-  const profile = useRecoilValue<any>(profileAtom);
+  const setProfile = useSetRecoilState(profileAtom);
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
   const [persistedProfile] = useLocalStorage("profile", []);
+  useEffectOnce(() => {
+    if (persistedProfile) {
+      setProfile(persistedProfile);
+    }
+  });
 
   const pathLists = [
     {
@@ -99,6 +104,23 @@ const Layouts: React.FC<any> = ({ children }) => {
       ],
     },
     {
+      path: "/ShopManagementPage",
+      name: "shopManagement",
+      title: "จัดการร้านค้า",
+      subMenu: [
+        {
+          path: "/ShopListPage",
+          name: "shopList",
+          title: "รายชื่อร้านค้า",
+        },
+        {
+          path: "/ApproveTelPage",
+          name: "approveTel",
+          title: "อนุมัติเบอร์โทรศัพท์",
+        },
+      ],
+    },
+    {
       path: "/UserPage",
       name: "user",
       title: "User",
@@ -124,6 +146,7 @@ const Layouts: React.FC<any> = ({ children }) => {
       const url = window.location.href;
       const arr = url.split("/");
       const resultUrlHost = arr[0] + "//" + arr[2];
+
       window.location.href =
         "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
         resultUrlHost;
@@ -163,7 +186,7 @@ const Layouts: React.FC<any> = ({ children }) => {
             {persistedProfile?.firstname} {persistedProfile?.lastname}
           </Text>
           <Text color='Text3' level={5}>{`, ${getCompanyName(persistedProfile?.company)}`}</Text>
-          <Button onClick={() => logout()} icon={<LogoutOutlined />} size={size} />
+          <Button onClick={() => logout()} icon={<LogoutOutlined />} size='large' />
         </div>
       </Header>
       <Layout>

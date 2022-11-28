@@ -99,7 +99,7 @@ export default function CheckboxGroup({ value, data, onChange, name }: Props) {
                   marginTop: 6,
                 }}
               >
-                <Text>{item.label}</Text>
+                <Text level={6}>{item.label}</Text>
               </div>
             </CheckBoxStyled>
           );
