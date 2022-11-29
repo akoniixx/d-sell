@@ -205,9 +205,25 @@ export const DistributionPage: React.FC = () => {
       },
     },
     {
+      title: "หมวดสินค้า",
+      dataIndex: "productCategoryId",
+      key: "productCategoryId",
+      width: '124px',
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5}>{(dataState?.categories?.find((c: any) => c.productCategoryId === value) as any)?.productCategoryName || '-'}</Text>
+            </FlexCol>
+          ),
+        };
+      },
+    },
+    {
       title: "กลุ่มสินค้า",
       dataIndex: "productGroup",
       key: "productGroup",
+      width: '132px',
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -257,6 +273,7 @@ export const DistributionPage: React.FC = () => {
       title: "ราคา / หน่วย",
       dataIndex: "unitPrice",
       key: "unitPrice",
+      width: '132px',
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
         return {
@@ -286,6 +303,7 @@ export const DistributionPage: React.FC = () => {
       title: "ราคาต่อแพ็ค",
       dataIndex: "marketPrice",
       key: "marketPrice",
+      width: '136px',
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
         return {
