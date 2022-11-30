@@ -1,23 +1,16 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import Layouts from './components/Layout/Layout';
+import { Navigate, Outlet } from "react-router-dom";
+import Layouts from "./components/Layout/Layout";
 
-const useAuth = () => {
-  const user = localStorage.getItem('token');
-  if (user) {
-    return true;
-  } else {
-    return false;
+const ProtectRoute = ({ isAuth, children }: { isAuth: boolean; children?: JSX.Element }) => {
+  if (!isAuth) {
+    return <Navigate to='/' replace />;
   }
-};
-
-const ProtectRoute = () => {
-  const auth = useAuth();
-  return auth ? (
+  return children ? (
+    children
+  ) : (
     <Layouts>
       <Outlet />
     </Layouts>
-  ) : (
-    <Navigate to='' />
   );
 };
 

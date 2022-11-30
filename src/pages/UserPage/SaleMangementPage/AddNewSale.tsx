@@ -54,7 +54,7 @@ export function AddNewSale() {
       setLoading(true);
       const res = await SaleListDatasource.createNewSaleStaff({
         ...values,
-        company: profile.company,
+        company: profile?.company,
         status: "ACTIVE",
       });
       if (res && res.success) {

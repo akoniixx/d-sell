@@ -22,6 +22,7 @@ import { SaleEntity } from "../../../entities/SaleEntity";
 import useDebounce from "../../../hook/useDebounce";
 import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../../store/ProfileAtom";
+import { useLocalStorage } from "../../../hook/useLocalStorage";
 
 const NoImage = styled.div`
   width: 42px;
@@ -36,7 +37,7 @@ const NoImage = styled.div`
 function SaleManagementPage() {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState<string | undefined>(undefined);
-  const profile = useRecoilValue(profileAtom);
+  const [profile] = useLocalStorage("profile", null);
 
   const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();
@@ -209,15 +210,15 @@ function SaleManagementPage() {
   }, []);
   const dataTabs = [
     {
-      label: `ทั้งหมด (${data?.count})`,
+      label: data?.counttotal ? `ทั้งหมด (${data?.counttotal})` : "ทั้งหมด",
       key: "all",
     },
     {
-      label: `Active (${data?.count})`,
+      label: data?.countactive ? `Active (${data?.countactive})` : "Active",
       key: "active",
     },
     {
-      label: `Inactive (${data?.count})`,
+      label: data?.countinactive ? `Inactive (${data?.countinactive})` : "Inactive",
       key: "inactive",
     },
   ];

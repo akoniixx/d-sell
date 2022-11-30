@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
-interface Profile {
+export interface Profile {
   email: string;
   firstname: string;
   lastname: string;
@@ -9,14 +9,8 @@ interface Profile {
   userStaffId: string;
   [key: string]: any;
 }
-const profileAtom = atom<Profile>({
+const profileAtom = atom<Profile | null>({
   key: "profile",
-  default: {
-    email: "",
-    firstname: "",
-    lastname: "",
-    role: "",
-    userStaffId: "",
-  },
+  default: null,
 });
 export { profileAtom };
