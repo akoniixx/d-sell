@@ -49,7 +49,7 @@ export default function CheckboxGroup({ value, data, onChange, name }: Props) {
   return (
     <Container>
       <CheckBoxStyled
-        checked={value?.length === data.length}
+        checked={value && value?.length > 0}
         onChange={() => {
           if (value?.length === data.length) {
             onChange?.([]);
@@ -99,7 +99,7 @@ export default function CheckboxGroup({ value, data, onChange, name }: Props) {
                   marginTop: 6,
                 }}
               >
-                <Text>{item.label}</Text>
+                <Text level={6}>{item.label}</Text>
               </div>
             </CheckBoxStyled>
           );

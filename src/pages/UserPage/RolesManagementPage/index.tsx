@@ -1,7 +1,10 @@
 import { Row } from "antd";
 import dayjs from "dayjs";
 import React, { useMemo } from "react";
+import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import Swal from "sweetalert2";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import SearchInput from "../../../components/Input/SearchInput";
@@ -9,15 +12,54 @@ import MenuTable from "../../../components/MenuTable/MenuTable";
 import PageTitle from "../../../components/PageTitle/PageTitle";
 import TablePagination from "../../../components/Table/TablePagination";
 import Text from "../../../components/Text/Text";
+import { roleDatasource } from "../../../datasource/RoleDatasource";
+import useDebounce from "../../../hook/useDebounce";
+import { profileAtom } from "../../../store/ProfileAtom";
 
 export default function RolesManagementPage(): JSX.Element {
-  const data = {
-    count: 0,
-  };
+  const profile = useRecoilValue(profileAtom);
   const [page, setPage] = React.useState(1);
   const [keyword, setKeyword] = React.useState<string | undefined>(undefined);
   const navigate = useNavigate();
 
+  const [debouncedValue, loading] = useDebounce(keyword, 500);
+  const {
+    data: awaitData,
+    isLoading,
+    refetch: getAllRoles,
+  } = useQuery(["rolesManagement", debouncedValue, page, profile?.company], async () => {
+    return await roleDatasource.getAllRoles({
+      text: debouncedValue,
+      page,
+      take: 8,
+      company: profile?.company,
+    });
+  });
+  const data = useMemo(() => {
+    return awaitData?.data;
+  }, [awaitData]);
+
+  const onClickEdit = (id: string) => {
+    navigate(`EditRole/${id}`);
+  };
+  const onClickDelete = async (id: string) => {
+    try {
+      await roleDatasource.deleteRole(id);
+      getAllRoles();
+      Swal.fire({
+        title: "ลบข้อมูลสำเร็จ",
+        text: "",
+        width: 250,
+        icon: "success",
+        customClass: {
+          title: "custom-title",
+        },
+        showConfirmButton: false,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const defaultTableColumns = useMemo(() => {
     const staticData = [
       {
@@ -27,19 +69,19 @@ export default function RolesManagementPage(): JSX.Element {
       },
       {
         title: "ชื่อตำแหน่ง",
-        dataIndex: "role",
-        key: "role",
+        dataIndex: "rolename",
+        key: "rolename",
       },
 
       {
         title: "คำอธิบาย",
-        dataIndex: "description",
-        key: "description",
+        dataIndex: "roledescription",
+        key: "roledescription",
       },
       {
         title: "จำนวนสมาชิก",
-        dataIndex: "members",
-        key: "members",
+        dataIndex: "countmember",
+        key: "countmember",
       },
 
       {
@@ -76,12 +118,20 @@ export default function RolesManagementPage(): JSX.Element {
           }
 
           if (item.key === "action") {
-            return <MenuTable />;
+            return (
+              <MenuTable
+                hideList
+                onClickDelete={() => onClickDelete(data.roleId)}
+                onClickEdit={() => {
+                  onClickEdit(data.roleId);
+                }}
+              />
+            );
           }
 
           return (
             <div style={{ padding: 4 }}>
-              <Text>{value ? `${value}` : "-"}</Text>
+              <Text>{value || value === 0 ? `${value}` : "-"}</Text>
             </div>
           );
         },
@@ -132,8 +182,13 @@ export default function RolesManagementPage(): JSX.Element {
         >
           <TablePagination
             columns={defaultTableColumns}
-            data={[]}
-            isLoading={false}
+            data={(data?.data || []).map((item: any, index: number) => {
+              return {
+                ...item,
+                id: index + 1,
+              };
+            })}
+            isLoading={!!loading || isLoading}
             scroll={{ x: "max-content" }}
             pagination={{
               current: 1,

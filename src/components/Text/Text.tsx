@@ -19,6 +19,7 @@ interface TextType {
     | "white";
   level?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   fontFamily?: "Sarabun" | "IBM Plex Sans Thai" | "Helvetica";
+  align?: "left" | "center" | "right";
 }
 interface Props extends TextProps, TextType {
   children?: React.ReactNode;
@@ -31,13 +32,15 @@ interface Props extends TextProps, TextType {
     | "error"
     | "success"
     | "warning"
+    | "error"
     | "white";
   fontFamily?: "Sarabun" | "IBM Plex Sans Thai" | "Helvetica";
+  align?: "left" | "center" | "right";
 }
 const TextStyled = styled(Typography.Text)<TextType>`
   font-family: ${({ fontFamily }) => fontFamily || "IBM Plex Sans Thai"};
   color: ${(props) => color[props.color || "Text1"]};
-
+  text-align: ${({ align }) => align || "left"};
   font-weight: ${(props) => (props.fontWeight ? props.fontWeight : 400)} !important;
   ${({ level = 5, fontWeight, fontSize }) => {
     if (fontSize) {

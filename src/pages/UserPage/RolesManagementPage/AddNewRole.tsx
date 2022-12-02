@@ -1,6 +1,9 @@
 import { Col, Form, Row } from "antd";
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
 import styled from "styled-components";
+import Swal from "sweetalert2";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import CheckboxGroup from "../../../components/CheckboxGroup/CheckboxGroup";
@@ -9,10 +12,23 @@ import TextArea from "../../../components/Input/TextArea";
 import ConfirmModal from "../../../components/Modal/ConfirmModal";
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
 import Text from "../../../components/Text/Text";
+import { roleDatasource } from "../../../datasource/RoleDatasource";
 import color from "../../../resource/color";
+import { profileAtom } from "../../../store/ProfileAtom";
 import { defaultPropsForm } from "../../../utility/DefaultProps";
-import { websiteBackOffice, saleCodaSale, saleCodaShop } from "../../../utility/StaticPermission";
+import { websiteBackOffice } from "../../../utility/StaticPermission";
 
+interface FormData {
+  rolename: string;
+  roledescription?: string;
+  priceList: string[];
+  orderManagement: string[];
+  specialRequest: string[];
+  promotionSetting: string[];
+  discountCo: string[];
+  saleManagement: string[];
+  roleManagement: string[];
+}
 const CardRole = styled.div`
   border: 1px solid ${color.background1};
   border-radius: 8px;
@@ -25,8 +41,56 @@ const Bottom = styled(Row)`
 `;
 export default function AddNewRole(): JSX.Element {
   const [form] = Form.useForm();
-  const onFinish = (values: any) => {
-    console.log(values);
+  const [loading, setLoading] = React.useState(false);
+  const navigate = useNavigate();
+  const profile = useRecoilValue(profileAtom);
+
+  const onFinish = async (values: FormData) => {
+    const { rolename, roledescription, ...rest } = values;
+    const keyObj = Object.keys(rest);
+    const menus = keyObj.map((item) => {
+      return {
+        menuName: item,
+        permission: rest[item as keyof typeof rest],
+      };
+    });
+    const payload = {
+      rolename,
+      roledescription,
+      company: profile?.company,
+      menus,
+      updateBy: `${profile?.firstname} ${profile?.lastname}`,
+    };
+    setLoading(true);
+    const res = await roleDatasource.createNewRole(payload);
+    if (res && res.success) {
+      Swal.fire({
+        title: "บันทึกข้อมูลสำเร็จ",
+        text: "",
+        width: 250,
+        icon: "success",
+        customClass: {
+          title: "custom-title",
+        },
+        showConfirmButton: false,
+      }).then(() => {
+        setLoading(false);
+        navigate("/UserPage/RoleManagementPage");
+      });
+    } else {
+      Swal.fire({
+        title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
+        text: "",
+        width: 250,
+        icon: "error",
+        customClass: {
+          title: "custom-title",
+        },
+        showConfirmButton: false,
+      }).then(() => {
+        setLoading(false);
+      });
+    }
   };
   const [visible, setVisible] = React.useState(false);
   const onClickSelectAllBo = () => {
@@ -35,7 +99,7 @@ export default function AddNewRole(): JSX.Element {
       specialRequest: websiteBackOffice.specialRequest.map((el) => el.value),
       promotionSetting: websiteBackOffice.promotionSetting.map((el) => el.value),
       discountCo: websiteBackOffice.discountCo.map((el) => el.value),
-      priceListX10: websiteBackOffice.priceListX10.map((el) => el.value),
+      priceList: websiteBackOffice.priceListX10.map((el) => el.value),
       saleManagement: websiteBackOffice.saleManagement.map((el) => el.value),
       roleManagement: websiteBackOffice.roleManagement.map((el) => el.value),
     });
@@ -46,39 +110,12 @@ export default function AddNewRole(): JSX.Element {
       specialRequest: [],
       promotionSetting: [],
       discountCo: [],
-      priceListX10: [],
+      priceList: [],
       saleManagement: [],
       roleManagement: [],
     });
   };
-  const onClickSelectAllSale = () => {
-    form.setFieldsValue({
-      createOrder: saleCodaSale.createOrder.map((el) => el.value),
-      history: saleCodaSale.history.map((el) => el.value),
-      feature: saleCodaSale.feature.map((el) => el.value),
-      notification: saleCodaSale.notification.map((el) => el.value),
-      profile: saleCodaSale.profile.map((el) => el.value),
-    });
-  };
-  const onClearAllSale = () => {
-    form.setFieldsValue({
-      createOrder: [],
-      history: [],
-      feature: [],
-      notification: [],
-      profile: [],
-    });
-  };
-  const onClickSelectAllShop = () => {
-    form.setFieldsValue({
-      order: saleCodaShop.order.map((el) => el.value),
-    });
-  };
-  const onClearAllShop = () => {
-    form.setFieldsValue({
-      order: [],
-    });
-  };
+
   return (
     <CardContainer>
       <PageTitleNested title='เพิ่มชื่อตำแหน่ง' />
@@ -87,15 +124,32 @@ export default function AddNewRole(): JSX.Element {
         style={{
           marginTop: 32,
         }}
+        initialValues={{
+          orderManagement: [],
+          priceList: [],
+          promotionSetting: [],
+          roleManagement: [],
+          saleManagement: [],
+          specialRequest: [],
+        }}
         form={form}
         onFinish={onFinish}
       >
-        <Form.Item label='ชื่อตำแหน่ง' name='name'>
+        <Form.Item
+          label='ชื่อตำแหน่ง'
+          name='rolename'
+          rules={[
+            {
+              required: true,
+              message: "กรุณากรอกชื่อตำแหน่ง",
+            },
+          ]}
+        >
           <Input placeholder='ระบุชื่อตำแหน่ง' />
         </Form.Item>
         <Form.Item
           label='อธิบายชื่อตำแหน่ง'
-          name='description'
+          name='roledescription'
           style={{
             marginBottom: 0,
           }}
@@ -112,6 +166,8 @@ export default function AddNewRole(): JSX.Element {
               justifyContent: "space-between",
               padding: 16,
               alignItems: "center",
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
               backgroundColor: color.background1,
             }}
           >
@@ -179,7 +235,7 @@ export default function AddNewRole(): JSX.Element {
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item noStyle name='priceListX10'>
+                <Form.Item noStyle name='priceList'>
                   <CheckboxGroup data={websiteBackOffice.priceListX10} name='Price List X+10' />
                 </Form.Item>
               </Col>
@@ -198,13 +254,15 @@ export default function AddNewRole(): JSX.Element {
             </Row>
           </div>
         </CardRole>
-        <CardRole>
+        {/* <CardRole>
           <Row
             style={{
               justifyContent: "space-between",
               padding: 16,
               alignItems: "center",
               backgroundColor: color.background1,
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
             }}
           >
             <Text fontWeight={700}>SaleCoda - Sale</Text>
@@ -279,6 +337,8 @@ export default function AddNewRole(): JSX.Element {
               padding: 16,
               alignItems: "center",
               backgroundColor: color.background1,
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
             }}
           >
             <Text fontWeight={700}>SaleCoda - Shop</Text>
@@ -323,7 +383,7 @@ export default function AddNewRole(): JSX.Element {
               </Col>
             </Row>
           </div>
-        </CardRole>
+        </CardRole> */}
         <Bottom>
           <Col span={22}>
             <Text color='Text3' level={6} fontFamily='Sarabun'>
@@ -340,6 +400,7 @@ export default function AddNewRole(): JSX.Element {
           </Col>
         </Bottom>
         <ConfirmModal
+          loading={loading}
           visible={visible}
           onConfirm={() => {
             form.submit();

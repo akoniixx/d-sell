@@ -14,15 +14,19 @@ interface Props {
   }[];
   onChange?: (v: any) => void;
   setValue?: (value: any) => void;
-
+  style?: React.CSSProperties;
   defaultValue?: string | number;
   value?: string | number;
   disabled?: boolean;
   edit?: boolean;
   placeholder?: string;
+  labelInValue?: boolean;
+  onSearch?: (value: string) => void;
+  filterOption?: boolean;
+  notFoundContent?: JSX.Element | null;
 }
 
-const AntSelectCustom = styled(AntSelect)`
+export const AntSelectCustom = styled(AntSelect)`
   .ant-select-selector {
     height: 40px !important;
     display: flex;
@@ -36,7 +40,7 @@ const AntSelectCustom = styled(AntSelect)`
   .ant-select-selection-item {
     border-radius: 4px;
     font-family: Sarabun !important;
-    font-weight: 600;
+    font-weight: 600 !important;
     display: flex;
     align-items: center;
   }
@@ -67,14 +71,18 @@ function Select({
   value,
   disabled = false,
   placeholder = "กรุณาเลือก",
+  style,
+  ...props
 }: Props): JSX.Element {
   return (
     <AntSelectCustom
+      {...props}
       dropdownStyle={{ fontFamily: "Sarabun" }}
       onChange={(e) => {
         onChange?.(e);
         setValue?.(e);
       }}
+      style={style}
       placeholder={placeholder}
       suffixIcon={
         <CaretDownOutlined
@@ -91,7 +99,9 @@ function Select({
       {data.map((item) => {
         return (
           <Option key={item.key} value={item.value ? item.value : item.key}>
-            <Text>{item.label}</Text>
+            <Text fontFamily='Sarabun' fontWeight={600}>
+              {item.label}
+            </Text>
           </Option>
         );
       })}

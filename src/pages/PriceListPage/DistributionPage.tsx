@@ -1,26 +1,11 @@
-import React, { useEffect, useState, memo } from "react";
-import {
-  Table,
-  Tabs,
-  Modal,
-  DatePicker,
-  Switch,
-  Row,
-  Col,
-  Input,
-  Button,
-  Select,
-  Pagination,
-} from "antd";
-import Navbar from "../../components/Navbar/Navbar";
+import React, { useState } from "react";
+import { Table, Modal, Switch, Row, Col, Select, Pagination } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { FormOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { Option } from "antd/lib/mentions";
 import * as _ from "lodash";
-const { RangePicker } = DatePicker;
 const SLASH_DMY = "DD/MM/YYYY";
-const { TabPane } = Tabs;
 
 export const DistributionPage: React.FC = () => {
   const style: React.CSSProperties = {
@@ -233,7 +218,7 @@ export const DistributionPage: React.FC = () => {
         </CardContainer>
       </div>
 
-      <Modal visible={isModalDeleteVisible} onCancel={() => setIsModalDeleteVisible(false)}>
+      <Modal open={isModalDeleteVisible} onCancel={() => setIsModalDeleteVisible(false)}>
         <p style={{ color: "#464E5F", fontSize: 24 }}>ต้องการลบข้อมูลตำแหน่งผู้ใช้งานนี้</p>
         <p style={{ color: "#BABCBE", fontSize: 16 }}>โปรดยืนยันการลบข้อมูลรายการ Credit Memo</p>
       </Modal>

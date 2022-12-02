@@ -9,14 +9,17 @@ import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { defaultPropsForm } from "../../../utility/DefaultProps";
 import Select from "../../../components/Select/Select";
-import { mockZone, SelectDataRoles } from "../../../utility/StaticRoles";
+import { SelectDataRoles } from "../../../utility/StaticRoles";
 import styled from "styled-components";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
 import ConfirmModal from "../../../components/Modal/ConfirmModal";
 import { SaleListDatasource } from "../../../datasource/SaleListDatasource";
 import { useNavigate } from "react-router-dom";
-import { useLocalStorage } from "../../../hook/useLocalStorage";
+import { zoneDatasource } from "../../../datasource/ZoneDatasource";
+import { useEffectOnce } from "react-use";
+import { useRecoilValue } from "recoil";
+import { profileAtom } from "../../../store/ProfileAtom";
 
 const Top = styled.div``;
 const Bottom = styled(Row)`
@@ -29,14 +32,29 @@ export function AddNewSale() {
 
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
-  const [profile] = useLocalStorage("profile", null);
+  const profile = useRecoilValue(profileAtom);
+  const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
+  const getZoneByCompany = async () => {
+    const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
+    const data = res.map((item: any) => {
+      return {
+        label: item.zoneName,
+        value: item.zoneName,
+        key: item.zoneId,
+      };
+    });
+    setZone(data);
+  };
+  useEffectOnce(() => {
+    getZoneByCompany();
+  });
 
   const onFinish = async (values: any) => {
     try {
       setLoading(true);
       const res = await SaleListDatasource.createNewSaleStaff({
         ...values,
-        company: profile.company,
+        company: profile?.company,
         status: "ACTIVE",
       });
       if (res && res.success) {
@@ -49,7 +67,7 @@ export function AddNewSale() {
             title: "custom-title",
           },
           showConfirmButton: false,
-        }).then((res) => {
+        }).then(() => {
           setLoading(false);
           navigate("/UserPage/SaleManagementPage?status=all");
         });
@@ -198,7 +216,7 @@ export function AddNewSale() {
                   getFieldValue("role") === "SALE" && (
                     <Col span={12}>
                       <Form.Item label='เขต' name={"zone"}>
-                        <Select data={mockZone} />
+                        <Select data={zone} />
                       </Form.Item>
                     </Col>
                   )

@@ -1,7 +1,6 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "./store/ProfileAtom";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+
 import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
 import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
@@ -12,45 +11,301 @@ import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
 import { OrderPage } from "./pages/OrderPage/OrderPage";
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
-import ShopPage from "./pages/PriceListPage/ShopPage";
 import { AddNewSale } from "./pages/UserPage/SaleMangementPage/AddNewSale";
 import ProtectRoute from "./ProtectRoute";
-import PublicRoute from "./PublicRoute";
 import SaleManagementPage from "./pages/UserPage/SaleMangementPage";
 import RedirectPathPage from "./pages/RedirectPathPage";
 import { EditUserSale } from "./pages/UserPage/SaleMangementPage/EditUserSale";
 import RolesManagementPage from "./pages/UserPage/RolesManagementPage";
 import AddNewRole from "./pages/UserPage/RolesManagementPage/AddNewRole";
+import ShopListPage from "./pages/ShopManagementPage/ShopListPage";
+import ApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage";
+import AddNewShopPage from "./pages/ShopManagementPage/ShopListPage/AddNewShopPage";
+import { Spin } from "antd";
+import { profileAtom } from "./store/ProfileAtom";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import EditRole from "./pages/UserPage/RolesManagementPage/EditRole";
+import { roleAtom } from "./store/RoleAtom";
+import { roleDatasource } from "./datasource/RoleDatasource";
+import ShopPage from "./pages/PriceListPage/ShopPage";
+import DetailShopPage from "./pages/ShopManagementPage/ShopListPage/DetailShopPage";
+import EditShopPage from "./pages/ShopManagementPage/ShopListPage/EditShopPage";
 
+interface IRoute {
+  path: string;
+  element: JSX.Element;
+  permission: {
+    name: string;
+    action: string;
+  } | null;
+  nestedRoutes: {
+    path: string;
+    element: JSX.Element;
+    permission: {
+      name: string;
+      action: string;
+    } | null;
+  }[];
+  index?: boolean;
+}
+export const protectRoutesData: IRoute[] = [
+  {
+    path: "/OrderPage",
+    element: <OrderPage />,
+    permission: {
+      name: "orderManagement",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/SpecialRequestPage",
+    element: <SpecialRequestPage />,
+    permission: {
+      name: "specialRequest",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/SpecialPromotionPage",
+    element: <SpecialPromotionPage />,
+    permission: {
+      name: "specialPromotion",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/DiscountListPage",
+    element: <DiscountListPage />,
+    permission: {
+      name: "discountList",
+      action: "view",
+    },
+
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/DiscountCOPage",
+    element: <DiscountCOPage />,
+    permission: {
+      name: "discountCo",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/PriceListPage",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "DistributionPage/*",
+        element: <DistributionPage />,
+        permission: null,
+      },
+      {
+        path: "ShopPage/*",
+        element: <ShopPage />,
+        permission: null,
+      },
+    ],
+    index: false,
+  },
+  {
+    path: "/AdvancePromotionPage",
+    element: <AdvancePromotionPage />,
+    permission: {
+      name: "advancePromotion",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+
+  {
+    path: "/ShopManagementPage/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "ShopListPage/*",
+        element: <ShopListPage />,
+        permission: null,
+      },
+      {
+        path: "ShopListPage/AddNewShop",
+        element: <AddNewShopPage />,
+        permission: null,
+      },
+      {
+        path: "ShopListPage/DetailPage/:shopId",
+        element: <DetailShopPage />,
+        permission: null,
+      },
+      {
+        path: "ShopListPage/DetailPage/EditShopPage/:shopId",
+        element: <EditShopPage />,
+        permission: null,
+      },
+
+      {
+        path: "ApproveTelPage",
+        element: <ApproveTelPage />,
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/UserPage/*",
+    element: <RedirectPathPage />,
+    permission: {
+      name: "nestedUser",
+      action: "view",
+    },
+    nestedRoutes: [
+      {
+        path: "SaleManagementPage/*",
+        element: <SaleManagementPage />,
+        permission: {
+          name: "saleManagement",
+          action: "view",
+        },
+      },
+      {
+        path: "SaleManagementPage/AddSale",
+        element: <AddNewSale />,
+        permission: {
+          name: "saleManagement",
+          action: "create",
+        },
+      },
+      {
+        path: "SaleManagementPage/EditSale/:userStaffId",
+        element: <EditUserSale />,
+        permission: {
+          name: "saleManagement",
+          action: "edit",
+        },
+      },
+      {
+        path: "RoleManagementPage/*",
+        element: <RolesManagementPage />,
+        permission: {
+          name: "roleManagement",
+          action: "view",
+        },
+      },
+      {
+        path: "RoleManagementPage/AddNewRole",
+        element: <AddNewRole />,
+        permission: {
+          name: "roleManagement",
+          action: "create",
+        },
+      },
+      {
+        path: "RoleManagementPage/EditRole/:roleId",
+        element: <EditRole />,
+        permission: {
+          name: "roleManagement",
+          action: "edit",
+        },
+      },
+    ],
+  },
+];
 const WebRoutes: React.FC<any> = () => {
+  const [profileRecoil, setProfileRecoil] = useRecoilState(profileAtom);
+
+  const setRole = useSetRecoilState(roleAtom);
+
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const getUserData = async () => {
+      setLoading(true);
+      const profile: any = await localStorage.getItem("profile");
+
+      setProfileRecoil(JSON.parse(profile) || null);
+    };
+    if (!profileRecoil) {
+      getUserData();
+    }
+  }, []);
+
+  useEffect(() => {
+    const getRoleData = async () => {
+      try {
+        const roleData = await roleDatasource.getRoleById(profileRecoil?.roleId);
+        setRole(roleData);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (profileRecoil) {
+      getRoleData();
+    } else {
+      setTimeout(() => {
+        setLoading(false);
+        setProfileRecoil(null);
+        setRole(null);
+      }, 1500);
+    }
+  }, [profileRecoil]);
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+        }}
+      >
+        <Spin size='large' />
+      </div>
+    );
+  }
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<ProtectRoute />}>
-          <Route path='*' element={<Navigate to='/OrderPage' />} />
-          <Route path='/OrderPage' element={<OrderPage />} />
-          <Route path='/SpecialRequestPage' element={<SpecialRequestPage />} />
-          <Route path='/SpecialPromotionPage' element={<SpecialPromotionPage />} />
-          <Route path='/DiscountListPage' element={<DiscountListPage />} />
-          <Route path='/DiscountCOPage' element={<DiscountCOPage />} />
-          <Route path='/DistributionPage' element={<DistributionPage />} />
-          <Route path='/AdvancePromotionPage' element={<AdvancePromotionPage />} />
-          <Route path='/ShopPage' element={<ShopPage />} />
-          <Route path='/UserPage/*' element={<RedirectPathPage />}>
-            <Route index path='SaleManagementPage/*' element={<SaleManagementPage />} />
-            <Route path='SaleManagementPage/AddSale' element={<AddNewSale />} />
-            <Route path='SaleManagementPage/EditSale/:userStaffId' element={<EditUserSale />} />
-            <Route path='RoleManagementPage/*' element={<RolesManagementPage />} />
-            <Route path='RoleManagementPage/AddNewRole' element={<AddNewRole />} />
+        {profileRecoil === null ? (
+          <>
+            <Route index element={<AuthPage />} />
+            <Route path='/' element={<AuthPage />} />
+            <Route path='/ErrorLoginPage' element={<ErrorLoginPage />} />
+            <Route path='*' element={<PageNotFound />} />
+          </>
+        ) : (
+          <Route element={<ProtectRoute isAuth={!!profileRecoil} />}>
+            {protectRoutesData.map((route, index) => {
+              if (route.nestedRoutes.length < 1) {
+                return <Route key={index} path={route.path} element={route.element} />;
+              } else {
+                return (
+                  <Route key={index} path={route.path} element={route.element}>
+                    {route.nestedRoutes.map((nestedRoute, idx) => {
+                      return (
+                        <Route key={idx} path={nestedRoute.path} element={nestedRoute.element} />
+                      );
+                    })}
+                  </Route>
+                );
+              }
+            })}
+            <Route path='*' element={<PageNotFound />} />
           </Route>
-          <Route path='*' element={<PageNotFound />} />
-        </Route>
-
-        <Route element={<PublicRoute />}>
-          <Route index element={<AuthPage />} />
-          <Route path='/ErrorLoginPage' element={<ErrorLoginPage />} />
-          <Route path='*' element={<PageNotFound />} />
-        </Route>
+        )}
       </Routes>
     </BrowserRouter>
   );
