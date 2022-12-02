@@ -225,6 +225,7 @@ const Layouts: React.FC<any> = ({ children }) => {
           <Button onClick={() => logout()} icon={<LogoutOutlined />} size='large' />
         </div>
       </Header>
+
       <Layout>
         <Sider width={220} className='site-layout-background' collapsed={!isOpenSidebar}>
           <div
