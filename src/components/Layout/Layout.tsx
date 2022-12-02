@@ -35,41 +35,6 @@ export const pathLists = [
     title: "Order Management",
     subMenu: [],
   },
-  // {
-  //   path: "/SalePage",
-  //   name: "approveOrder",
-  //   title: "Approve Order",
-  //   permission: null,
-  //   subMenu: [
-  //     {
-  //       path: "/SpecialRequestPage",
-  //       name: "specialRequest",
-  //       title: "Special Request",
-  //       permission: {
-  //         name: "specialRequest",
-  //         action: "view",
-  //       },
-  //     },
-  //     {
-  //       path: "/SpecialPromotionPage",
-  //       name: "specialPromotion",
-  //       title: "Special Promotion",
-  //       permission: {
-  //         name: "specialRequest",
-  //         action: "view",
-  //       },
-  //     },
-  //     {
-  //       path: "/AdvancePromotionPage",
-  //       name: "advancePromotion",
-  //       title: "Advance Promotion",
-  //       permission: {
-  //         name: "specialRequest",
-  //         action: "view",
-  //       },
-  //     },
-  //   ],
-  // },
   {
     path: "/PromotionPage",
     name: "promotion",

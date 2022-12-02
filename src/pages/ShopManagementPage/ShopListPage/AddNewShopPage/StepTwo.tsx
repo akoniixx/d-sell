@@ -45,12 +45,6 @@ interface Props {
   onClickBack: () => void;
 }
 function StepTwo({ form, onClickBack }: Props): JSX.Element {
-  // const { data, error } = useQuery(["getAllProvince"], async () => {
-  //   const res = await addressDatasource.getAllProvince();
-  //   return res;
-  // });
-  // console.log(data, error);
-
   return (
     <Fragment>
       <BottomSection>
