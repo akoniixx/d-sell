@@ -5,18 +5,20 @@ import PageTitleNested from "../../../../components/PageTitle/PageTitleNested";
 import Text from "../../../../components/Text/Text";
 import { FormOutlined } from "@ant-design/icons";
 import AntdTabs from "../../../../components/AntdTabs/AntdTabs";
+import DetailTab from "./DetailTab";
+import HistoryTab from "./HistoryTab";
 
 function DetailShopPage(): JSX.Element {
   const dataTabs: { key: string; label: React.ReactNode; children?: JSX.Element | undefined }[] = [
     {
       key: "detail",
       label: "รายละเอียดร้านค้า",
-      children: <div>รายละเอียดร้านค้า</div>,
+      children: <DetailTab />,
     },
     {
       key: "history",
       label: "ประวัติการบันทึกข้อมูล",
-      children: <div>ประวัติการบันทึกข้อมูล</div>,
+      children: <HistoryTab />,
     },
   ];
   return (

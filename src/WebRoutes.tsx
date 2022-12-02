@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
 import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
@@ -23,7 +23,7 @@ import ApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage";
 import AddNewShopPage from "./pages/ShopManagementPage/ShopListPage/AddNewShopPage";
 import { Spin } from "antd";
 import { profileAtom } from "./store/ProfileAtom";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import EditRole from "./pages/UserPage/RolesManagementPage/EditRole";
 import { roleAtom } from "./store/RoleAtom";
 import { roleDatasource } from "./datasource/RoleDatasource";
@@ -223,13 +223,16 @@ export const protectRoutesData: IRoute[] = [
 ];
 const WebRoutes: React.FC<any> = () => {
   const [profileRecoil, setProfileRecoil] = useRecoilState(profileAtom);
+
   const setRole = useSetRecoilState(roleAtom);
 
   const [loading, setLoading] = useState<boolean>(true);
+
   useEffect(() => {
     const getUserData = async () => {
       setLoading(true);
       const profile: any = await localStorage.getItem("profile");
+
       setProfileRecoil(JSON.parse(profile) || null);
     };
     if (!profileRecoil) {
@@ -250,6 +253,12 @@ const WebRoutes: React.FC<any> = () => {
     };
     if (profileRecoil) {
       getRoleData();
+    } else {
+      setTimeout(() => {
+        setLoading(false);
+        setProfileRecoil(null);
+        setRole(null);
+      }, 1500);
     }
   }, [profileRecoil]);
   if (loading) {
@@ -270,7 +279,7 @@ const WebRoutes: React.FC<any> = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {!profileRecoil ? (
+        {profileRecoil === null ? (
           <>
             <Route index element={<AuthPage />} />
             <Route path='/' element={<AuthPage />} />

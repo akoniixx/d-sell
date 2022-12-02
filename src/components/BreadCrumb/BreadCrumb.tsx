@@ -30,11 +30,11 @@ function BreadCrumb({ data = [] }: Props): JSX.Element {
         return (
           <BreadCrumbAntd.Item key={idx} className={"flex"} separator={false}>
             <Text
-              onClick={() => navigate(el.path)}
+              onClick={() => (isLast ? null : navigate(el.path))}
               level={7}
               color={isLast ? "primary" : "Text3"}
               style={{
-                cursor: "pointer",
+                cursor: isLast ? "default" : "pointer",
               }}
             >
               {el.text}

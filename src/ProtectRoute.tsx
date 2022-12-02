@@ -30,13 +30,13 @@ const ProtectRoute = ({ isAuth, children }: { isAuth: boolean; children?: JSX.El
     return <Navigate to='' replace />;
   }
   useEffect(() => {
-    if (location.pathname === "/") {
+    if (currentPath === "/") {
       navigate(`${redirectByRole(roleData?.menus)}`);
     }
-  }, [roleData]);
+  }, [roleData, currentPath]);
   useEffect(() => {
     if (roleData && !checkPermission(roleData?.menus, currentPath)) {
-      navigate(`*`);
+      navigate(`${redirectByRole(roleData?.menus)}`);
     }
   }, [currentPath, roleData]);
   return children ? (

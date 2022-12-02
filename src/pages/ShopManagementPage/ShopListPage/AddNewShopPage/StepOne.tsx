@@ -9,7 +9,7 @@ import Select from "../../../../components/Select/Select";
 import { Col, Form, FormInstance, Row } from "antd";
 import color from "../../../../resource/color";
 import Button from "../../../../components/Button/Button";
-import { getCompanyName } from "../../../../utility/CompanyName";
+import { getCompanyImage, getCompanyName } from "../../../../utility/CompanyName";
 
 const BottomSection = styled.div`
   padding: 8px 24px 24px;
@@ -199,9 +199,39 @@ function StepOne({
     <Fragment>
       <BottomSection>
         <CardSection
-          title={
-            <div>
-              <Text>{getCompanyName(company?.toString() || "")}</Text>
+          leftComponent={
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                paddingLeft: 16,
+              }}
+            >
+              <div
+                style={{
+                  height: 24,
+                  width: 58,
+                  position: "relative",
+                  bottom: 4,
+                }}
+              >
+                <img
+                  style={{
+                    height: "100%",
+                    width: "100%",
+                  }}
+                  src={getCompanyImage(company || "ICPL")}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                }}
+              >
+                <Text fontWeight={700}>{getCompanyName(company?.toString() || "")}</Text>
+              </div>
             </div>
           }
           extra={
