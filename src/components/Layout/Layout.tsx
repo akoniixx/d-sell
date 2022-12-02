@@ -3,17 +3,13 @@ import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
 import React, { useState } from "react";
 import { LogoutOutlined } from "@ant-design/icons";
-import type { SizeType } from "antd/es/config-provider/SizeContext";
 import { Link } from "react-router-dom";
 import icon from "../../resource/icon";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { profileAtom } from "../../store/ProfileAtom";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import { getCompanyName } from "../../utility/CompanyName";
 import styled, { css } from "styled-components";
 import MenuSider from "../MenuSider/MenuSider";
 import Text from "../Text/Text";
-import { useEffectOnce } from "react-use";
 
 const ImageStyled = styled.img<{ isOpen: boolean }>`
   ${(props) =>
@@ -28,116 +24,156 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
         `}
 `;
 
+export const pathLists = [
+  {
+    path: "/OrderPage",
+    name: "order",
+    permission: {
+      name: "orderManagement",
+      action: "view",
+    },
+    title: "Order Management",
+    subMenu: [],
+  },
+  // {
+  //   path: "/SalePage",
+  //   name: "approveOrder",
+  //   title: "Approve Order",
+  //   permission: null,
+  //   subMenu: [
+  //     {
+  //       path: "/SpecialRequestPage",
+  //       name: "specialRequest",
+  //       title: "Special Request",
+  //       permission: {
+  //         name: "specialRequest",
+  //         action: "view",
+  //       },
+  //     },
+  //     {
+  //       path: "/SpecialPromotionPage",
+  //       name: "specialPromotion",
+  //       title: "Special Promotion",
+  //       permission: {
+  //         name: "specialRequest",
+  //         action: "view",
+  //       },
+  //     },
+  //     {
+  //       path: "/AdvancePromotionPage",
+  //       name: "advancePromotion",
+  //       title: "Advance Promotion",
+  //       permission: {
+  //         name: "specialRequest",
+  //         action: "view",
+  //       },
+  //     },
+  //   ],
+  // },
+  {
+    path: "/PromotionPage",
+    name: "promotion",
+    title: "Promotion Setting",
+    subMenu: [],
+    permission: {
+      name: "specialPromotion",
+      action: "view",
+    },
+  },
+  {
+    path: "/DiscountListPage",
+    name: "discountList",
+    title: "Discount (CO)",
+    permission: {
+      name: "discountCo",
+      action: "view",
+    },
+    subMenu: [
+      {
+        path: "/DiscountCOPage",
+        name: "discountCO",
+        title: "Discount CO",
+        permission: {
+          name: "discountCo",
+          action: "view",
+        },
+      },
+    ],
+  },
+  {
+    path: "/PriceListPage",
+    name: "priceList",
+    title: "Price List",
+    permission: null,
+    subMenu: [
+      {
+        path: "/DistributionPage",
+        name: "distribution",
+        permission: null,
+        title: "Distribution (DIS)",
+      },
+      {
+        path: "/ShopPage",
+        name: "shop",
+        title: "Shop",
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/ShopManagementPage",
+    name: "shopManagement",
+    title: "จัดการร้านค้า",
+    permission: null,
+    subMenu: [
+      {
+        path: "/ShopListPage",
+        name: "shopList",
+        title: "รายชื่อร้านค้า",
+        permission: null,
+      },
+      {
+        path: "/ApproveTelPage",
+        name: "approveTel",
+        title: "อนุมัติเบอร์โทรศัพท์",
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/UserPage",
+    name: "user",
+    title: "User",
+    permission: {
+      name: ["roleManagement", "saleManagement"],
+      action: "view",
+    },
+    subMenu: [
+      {
+        path: "/SaleManagementPage?status=all",
+        name: "saleManagement",
+        title: "Sale Management",
+        permission: {
+          name: "saleManagement",
+          action: "view",
+        },
+      },
+      {
+        path: "/RoleManagementPage",
+        name: "roleManagement",
+        title: "Role Management",
+        permission: {
+          name: "roleManagement",
+          action: "view",
+        },
+      },
+    ],
+  },
+];
 const Layouts: React.FC<any> = ({ children }) => {
-  const setProfile = useSetRecoilState(profileAtom);
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
   const [persistedProfile] = useLocalStorage("profile", []);
-  useEffectOnce(() => {
-    if (persistedProfile) {
-      setProfile(persistedProfile);
-    }
-  });
-
-  const pathLists = [
-    {
-      path: "/OrderPage",
-      name: "order",
-      title: "Order Management",
-      subMenu: [],
-    },
-    {
-      path: "/SalePage",
-      name: "approveOrder",
-      title: "Approve Order",
-      subMenu: [
-        {
-          path: "/SpecialRequestPage",
-          name: "specialRequest",
-          title: "Special Request",
-        },
-        {
-          path: "/SpecialPromotionPage",
-          name: "specialPromotion",
-          title: "Special Promotion",
-        },
-        {
-          path: "/AdvancePromotionPage",
-          name: "advancePromotion",
-          title: "Advance Promotion",
-        },
-      ],
-    },
-    {
-      path: "/PromotionPage",
-      name: "promotion",
-      title: "Promotion Setting",
-      subMenu: [],
-    },
-    {
-      path: "/DiscountListPage",
-      name: "discountList",
-      title: "Discount (CO)",
-      subMenu: [
-        {
-          path: "/DiscountCOPage",
-          name: "discountCO",
-          title: "Discount CO",
-        },
-      ],
-    },
-    {
-      path: "/PriceListPage",
-      name: "priceList",
-      title: "Price List",
-      subMenu: [
-        {
-          path: "/DistributionPage",
-          name: "distribution",
-          title: "Distribution (DIS)",
-        },
-        {
-          path: "/ShopPage",
-          name: "shop",
-          title: "Shop",
-        },
-      ],
-    },
-    {
-      path: "/ShopManagementPage",
-      name: "shopManagement",
-      title: "จัดการร้านค้า",
-      subMenu: [
-        {
-          path: "/ShopListPage",
-          name: "shopList",
-          title: "รายชื่อร้านค้า",
-        },
-        {
-          path: "/ApproveTelPage",
-          name: "approveTel",
-          title: "อนุมัติเบอร์โทรศัพท์",
-        },
-      ],
-    },
-    {
-      path: "/UserPage",
-      name: "user",
-      title: "User",
-      subMenu: [
-        {
-          path: "/SaleManagementPage?status=all",
-          name: "saleManagement",
-          title: "Sale Management",
-        },
-        {
-          path: "/RoleManagementPage",
-          name: "roleManagement",
-          title: "Role Management",
-        },
-      ],
-    },
-  ];
 
   const logout = async () => {
     try {

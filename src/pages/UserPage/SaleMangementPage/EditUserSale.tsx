@@ -120,7 +120,7 @@ export function EditUserSale() {
         }}
       >
         <Top>
-          <PageTitleNested title='แก้ไขรายชื่อพนักงาน' />
+          <PageTitleNested title='แก้ไขรายชื่อพนักงาน' cutParams />
           <Row>
             <Form.Item name='profileImage'>
               <ProfileImage />

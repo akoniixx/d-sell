@@ -67,6 +67,9 @@ function ShopListPage(): JSX.Element {
       }).toString(),
     });
   };
+  const onClickDetail = (id: string) => {
+    navigate(`DetailPage/${id}`);
+  };
   const newZone = useMemo(() => {
     if (zone) {
       return [{ label: "เขต : ทั้งหมด", value: "all", key: "all" }, ...zone];
@@ -147,13 +150,21 @@ function ShopListPage(): JSX.Element {
               <Text fontWeight={600}>Active</Text>
             ) : (
               <Text color='error' fontWeight={600}>
-                Inactive
+                In Active
               </Text>
             );
           };
 
           if (item.key === "action") {
-            return <MenuTable hideDelete hideEdit />;
+            return (
+              <MenuTable
+                hideDelete
+                hideEdit
+                onClickList={() => {
+                  onClickDetail(data?.customerId || "");
+                }}
+              />
+            );
           }
           if (item.key === "shopName") {
             return (

@@ -20,8 +20,7 @@ import { useEffectOnce } from "react-use";
 import DetailUserModal from "../../../components/Modal/DetailUserModal";
 import { SaleEntity } from "../../../entities/SaleEntity";
 import useDebounce from "../../../hook/useDebounce";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "../../../store/ProfileAtom";
+
 import { useLocalStorage } from "../../../hook/useLocalStorage";
 
 const NoImage = styled.div`
@@ -176,7 +175,7 @@ function SaleManagementPage() {
           if (item.key === "status") {
             return (
               <Switch
-                checked={value === "ACTIVE"}
+                value={value === "ACTIVE"}
                 onChange={() => {
                   onChangeStatus(data.userStaffId, value);
                 }}

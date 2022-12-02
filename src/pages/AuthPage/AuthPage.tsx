@@ -15,12 +15,15 @@ import styled from "styled-components";
 import { useSetRecoilState } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { useEffectOnce } from "react-use";
-
+import { roleAtom } from "../../store/RoleAtom";
+import { redirectByRole } from "../../utility/func/RedirectByPermission";
 const Container = styled.div``;
 export const AuthPage: React.FC = () => {
   const [, setPersistedProfile] = useLocalStorage("profile", []);
   const [, setToken] = useLocalStorage("token", []);
   const setProfile = useSetRecoilState(profileAtom);
+
+  const setRole = useSetRecoilState(roleAtom);
   const [loading, setLoading] = React.useState(false);
 
   const navigate = useNavigate();
@@ -29,10 +32,18 @@ export const AuthPage: React.FC = () => {
     await AuthDatasource.login(data.account.userName).then((res: any) => {
       if (res.accessToken) {
         setTimeout(() => {
-          setPersistedProfile(res.data);
+          setPersistedProfile({
+            ...res.data,
+            roleId: res.rolePermission.roleId,
+          });
           setToken(res.accessToken);
-          setProfile(res.data);
-          navigate("/OrderPage");
+          setRole(res.rolePermission);
+          setProfile({
+            ...res.data,
+            roleId: res.rolePermission.roleId,
+          });
+
+          navigate(`${redirectByRole(res.rolePermission.menus)}`);
           setLoading(false);
         }, 1500);
       } else {
@@ -42,6 +53,7 @@ export const AuthPage: React.FC = () => {
   };
   useEffectOnce(() => {
     setProfile(null);
+    setRole(null);
   });
 
   if (loading) {
@@ -66,7 +78,7 @@ export const AuthPage: React.FC = () => {
           <div
             style={{
               background: color.primary,
-              minHeight: "100vh",
+              minHeight: "80vh",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",

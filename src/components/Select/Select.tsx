@@ -20,9 +20,13 @@ interface Props {
   disabled?: boolean;
   edit?: boolean;
   placeholder?: string;
+  labelInValue?: boolean;
+  onSearch?: (value: string) => void;
+  filterOption?: boolean;
+  notFoundContent?: JSX.Element | null;
 }
 
-const AntSelectCustom = styled(AntSelect)`
+export const AntSelectCustom = styled(AntSelect)`
   .ant-select-selector {
     height: 40px !important;
     display: flex;
@@ -68,9 +72,11 @@ function Select({
   disabled = false,
   placeholder = "กรุณาเลือก",
   style,
+  ...props
 }: Props): JSX.Element {
   return (
     <AntSelectCustom
+      {...props}
       dropdownStyle={{ fontFamily: "Sarabun" }}
       onChange={(e) => {
         onChange?.(e);

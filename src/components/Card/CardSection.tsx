@@ -10,7 +10,7 @@ const CardSectionStyled = styled.div`
   padding: 0;
 `;
 interface Props {
-  title?: string;
+  title?: string | React.ReactNode;
   style?: React.CSSProperties;
   children?: React.ReactNode;
   extra?: React.ReactNode;

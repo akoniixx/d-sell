@@ -10,6 +10,8 @@ interface Props {
   extra?: React.ReactNode;
   showBack?: boolean;
   style?: React.CSSProperties;
+  cutParams?: boolean;
+  description?: React.ReactNode;
 }
 const BackImage = styled.img`
   width: 30px;
@@ -25,11 +27,28 @@ const ConvertTitleObj = {
   AddNewRole: "เพิ่มตำแหน่ง",
   AddNewShop: "เพิ่มร้านค้า",
   ShopListPage: "รายชื่อร้านค้า",
+  EditSale: "แก้ไขรายชื่อพนักงาน",
+  EditRole: "แก้ไขตำแหน่ง",
+  DetailPage: "รายละเอียดร้านค้า",
 };
-const PageTitleNested = ({ title, extra, showBack = true, style }: Props) => {
+const PageTitleNested = ({
+  title,
+  extra,
+  showBack = true,
+  style,
+  cutParams,
+  description,
+}: Props) => {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
-  const currentPathSplit = currentPath.split("/").filter((el) => el !== "");
+
+  const currentPathSplit = cutParams
+    ? currentPath
+        .split("/")
+        .filter((el) => el !== "")
+        .slice(0, -1)
+    : currentPath.split("/").filter((el) => el !== "");
+
   const data = currentPathSplit
     .map((el, idx) => {
       const path = currentPathSplit.slice(0, idx + 1).join("/");
@@ -65,6 +84,7 @@ const PageTitleNested = ({ title, extra, showBack = true, style }: Props) => {
             <Row>
               <BreadCrumb data={data} />
             </Row>
+            {description && <Row>{description}</Row>}
           </Col>
         </Row>
       </Col>

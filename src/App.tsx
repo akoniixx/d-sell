@@ -20,17 +20,6 @@ function App() {
       },
     },
   });
-  const newLocale = {
-    ...locale_th,
-    DatePicker: {
-      ...locale_th.DatePicker,
-      lang: {
-        ...locale_th?.DatePicker?.lang,
-        yearFormat: "BBBB",
-        dateFormat: "DD/MM/BBBB",
-      },
-    },
-  };
 
   return (
     <RecoilRoot>

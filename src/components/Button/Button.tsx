@@ -54,13 +54,26 @@ const ButtonStyled = styled(AntButton)<StyledButton>`
 interface Props extends ButtonProps, StyledButton {
   title?: string;
   typeButton?: "primary" | "secondary" | "danger" | "default" | "primary-light" | "border-light";
-
+  icon?: React.ReactNode;
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
-export default function Button({ title, typeButton = "primary", ...props }: Props): JSX.Element {
+export default function Button({
+  title,
+  typeButton = "primary",
+  icon,
+  ...props
+}: Props): JSX.Element {
   return (
     <ButtonStyled {...props} $typeButton={typeButton}>
-      <Row>
+      <Row
+        style={{
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
+        {icon && icon}
         {title && (
           <Text
             level={props.level || 5}

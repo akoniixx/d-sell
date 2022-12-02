@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
@@ -11,10 +11,8 @@ import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
 import { OrderPage } from "./pages/OrderPage/OrderPage";
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
-import ShopPage from "./pages/PriceListPage/ShopPage";
 import { AddNewSale } from "./pages/UserPage/SaleMangementPage/AddNewSale";
 import ProtectRoute from "./ProtectRoute";
-import PublicRoute from "./PublicRoute";
 import SaleManagementPage from "./pages/UserPage/SaleMangementPage";
 import RedirectPathPage from "./pages/RedirectPathPage";
 import { EditUserSale } from "./pages/UserPage/SaleMangementPage/EditUserSale";
@@ -25,25 +23,235 @@ import ApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage";
 import AddNewShopPage from "./pages/ShopManagementPage/ShopListPage/AddNewShopPage";
 import { Spin } from "antd";
 import { profileAtom } from "./store/ProfileAtom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import EditRole from "./pages/UserPage/RolesManagementPage/EditRole";
+import { roleAtom } from "./store/RoleAtom";
+import { roleDatasource } from "./datasource/RoleDatasource";
+import ShopPage from "./pages/PriceListPage/ShopPage";
+import DetailShopPage from "./pages/ShopManagementPage/ShopListPage/DetailShopPage";
+import EditShopPage from "./pages/ShopManagementPage/ShopListPage/EditShopPage";
 
+interface IRoute {
+  path: string;
+  element: JSX.Element;
+  permission: {
+    name: string;
+    action: string;
+  } | null;
+  nestedRoutes: {
+    path: string;
+    element: JSX.Element;
+    permission: {
+      name: string;
+      action: string;
+    } | null;
+  }[];
+  index?: boolean;
+}
+export const protectRoutesData: IRoute[] = [
+  {
+    path: "/OrderPage",
+    element: <OrderPage />,
+    permission: {
+      name: "orderManagement",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/SpecialRequestPage",
+    element: <SpecialRequestPage />,
+    permission: {
+      name: "specialRequest",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/SpecialPromotionPage",
+    element: <SpecialPromotionPage />,
+    permission: {
+      name: "specialPromotion",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/DiscountListPage",
+    element: <DiscountListPage />,
+    permission: {
+      name: "discountList",
+      action: "view",
+    },
+
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/DiscountCOPage",
+    element: <DiscountCOPage />,
+    permission: {
+      name: "discountCo",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+  {
+    path: "/PriceListPage",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "DistributionPage/*",
+        element: <DistributionPage />,
+        permission: null,
+      },
+      {
+        path: "ShopPage/*",
+        element: <ShopPage />,
+        permission: null,
+      },
+    ],
+    index: false,
+  },
+  {
+    path: "/AdvancePromotionPage",
+    element: <AdvancePromotionPage />,
+    permission: {
+      name: "advancePromotion",
+      action: "view",
+    },
+    nestedRoutes: [],
+    index: false,
+  },
+
+  {
+    path: "/ShopManagementPage/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "ShopListPage/*",
+        element: <ShopListPage />,
+        permission: null,
+      },
+      {
+        path: "ShopListPage/AddNewShop",
+        element: <AddNewShopPage />,
+        permission: null,
+      },
+      {
+        path: "ShopListPage/DetailPage/:shopId",
+        element: <DetailShopPage />,
+        permission: null,
+      },
+      {
+        path: "ShopListPage/DetailPage/EditShopPage/:shopId",
+        element: <EditShopPage />,
+        permission: null,
+      },
+
+      {
+        path: "ApproveTelPage",
+        element: <ApproveTelPage />,
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/UserPage/*",
+    element: <RedirectPathPage />,
+    permission: {
+      name: "nestedUser",
+      action: "view",
+    },
+    nestedRoutes: [
+      {
+        path: "SaleManagementPage/*",
+        element: <SaleManagementPage />,
+        permission: {
+          name: "saleManagement",
+          action: "view",
+        },
+      },
+      {
+        path: "SaleManagementPage/AddSale",
+        element: <AddNewSale />,
+        permission: {
+          name: "saleManagement",
+          action: "create",
+        },
+      },
+      {
+        path: "SaleManagementPage/EditSale/:userStaffId",
+        element: <EditUserSale />,
+        permission: {
+          name: "saleManagement",
+          action: "edit",
+        },
+      },
+      {
+        path: "RoleManagementPage/*",
+        element: <RolesManagementPage />,
+        permission: {
+          name: "roleManagement",
+          action: "view",
+        },
+      },
+      {
+        path: "RoleManagementPage/AddNewRole",
+        element: <AddNewRole />,
+        permission: {
+          name: "roleManagement",
+          action: "create",
+        },
+      },
+      {
+        path: "RoleManagementPage/EditRole/:roleId",
+        element: <EditRole />,
+        permission: {
+          name: "roleManagement",
+          action: "edit",
+        },
+      },
+    ],
+  },
+];
 const WebRoutes: React.FC<any> = () => {
   const [profileRecoil, setProfileRecoil] = useRecoilState(profileAtom);
+  const setRole = useSetRecoilState(roleAtom);
 
   const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
-    const getProfile = async () => {
+    const getUserData = async () => {
       setLoading(true);
       const profile: any = await localStorage.getItem("profile");
-      setProfileRecoil(profile || null);
-      setTimeout(() => {
-        setLoading(false);
-      }, 1500);
+      setProfileRecoil(JSON.parse(profile) || null);
     };
     if (!profileRecoil) {
-      getProfile();
+      getUserData();
     }
   }, []);
+
+  useEffect(() => {
+    const getRoleData = async () => {
+      try {
+        const roleData = await roleDatasource.getRoleById(profileRecoil?.roleId);
+        setRole(roleData);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (profileRecoil) {
+      getRoleData();
+    }
+  }, [profileRecoil]);
   if (loading) {
     return (
       <div
@@ -58,102 +266,6 @@ const WebRoutes: React.FC<any> = () => {
       </div>
     );
   }
-  const protectRoutesData = [
-    {
-      path: "/OrderPage",
-      element: <OrderPage />,
-      permission: null,
-      nestedRoutes: [],
-    },
-    {
-      path: "/SpecialRequestPage",
-      element: <SpecialRequestPage />,
-      permission: null,
-      nestedRoutes: [],
-    },
-    {
-      path: "/SpecialPromotionPage",
-      element: <SpecialPromotionPage />,
-      permission: null,
-      nestedRoutes: [],
-    },
-    {
-      path: "/DiscountListPage",
-      element: <DiscountListPage />,
-      permission: null,
-      nestedRoutes: [],
-    },
-    {
-      path: "/DiscountCOPage",
-      element: <DiscountCOPage />,
-      permission: null,
-      nestedRoutes: [],
-    },
-    {
-      path: "/DistributionPage",
-      element: <DistributionPage />,
-      permission: null,
-      nestedRoutes: [],
-    },
-    {
-      path: "/AdvancePromotionPage",
-      element: <AdvancePromotionPage />,
-      permission: null,
-      nestedRoutes: [],
-    },
-    {
-      path: "/ShopPage",
-      element: <ShopPage />,
-      permission: null,
-      nestedRoutes: [],
-    },
-    {
-      path: "/ShopManagementPage/*",
-      element: <RedirectPathPage />,
-      permission: null,
-      nestedRoutes: [
-        {
-          path: "ShopListPage/*",
-          element: <ShopListPage />,
-        },
-        {
-          path: "ShopListPage/AddNewShop",
-          element: <AddNewShopPage />,
-        },
-        {
-          path: "ApproveTelPage",
-          element: <ApproveTelPage />,
-        },
-      ],
-    },
-    {
-      path: "/UserPage/*",
-      element: <RedirectPathPage />,
-      permission: null,
-      nestedRoutes: [
-        {
-          path: "SaleManagementPage/*",
-          element: <SaleManagementPage />,
-        },
-        {
-          path: "SaleManagementPage/AddSale",
-          element: <AddNewSale />,
-        },
-        {
-          path: "SaleManagementPage/EditSale/:userStaffId",
-          element: <EditUserSale />,
-        },
-        {
-          path: "RolesManagementPage/*",
-          element: <RolesManagementPage />,
-        },
-        {
-          path: "RolesManagementPage/AddNewRole",
-          element: <AddNewRole />,
-        },
-      ],
-    },
-  ];
 
   return (
     <BrowserRouter>
@@ -161,7 +273,9 @@ const WebRoutes: React.FC<any> = () => {
         {!profileRecoil ? (
           <>
             <Route index element={<AuthPage />} />
+            <Route path='/' element={<AuthPage />} />
             <Route path='/ErrorLoginPage' element={<ErrorLoginPage />} />
+            <Route path='*' element={<PageNotFound />} />
           </>
         ) : (
           <Route element={<ProtectRoute isAuth={!!profileRecoil} />}>
@@ -180,10 +294,9 @@ const WebRoutes: React.FC<any> = () => {
                 );
               }
             })}
+            <Route path='*' element={<PageNotFound />} />
           </Route>
         )}
-
-        <Route path='*' element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>
   );

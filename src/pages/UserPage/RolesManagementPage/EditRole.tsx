@@ -1,6 +1,6 @@
 import { Col, Form, Row } from "antd";
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import Swal from "sweetalert2";
@@ -39,11 +39,53 @@ const Bottom = styled(Row)`
   padding-top: 16px;
   margin-top: 40px;
 `;
-export default function AddNewRole(): JSX.Element {
+export default function EditRole(): JSX.Element {
   const [form] = Form.useForm();
-  const [loading, setLoading] = React.useState(false);
-  const navigate = useNavigate();
   const profile = useRecoilValue(profileAtom);
+  const navigate = useNavigate();
+  const { roleId } = useParams();
+  const [loading, setLoading] = React.useState(false);
+  useEffect(() => {
+    const getInitialValue = async () => {
+      try {
+        const result = await roleDatasource.getRoleById(roleId || "");
+        if (result) {
+          const {
+            menus,
+          }: {
+            menus: string;
+          } = result;
+          const newMenus: {
+            menuName: string;
+            permission: string[];
+          }[] = JSON.parse(menus);
+
+          const priceList = newMenus.find((item) => item.menuName === "priceList");
+          const orderManagement = newMenus.find((item) => item.menuName === "orderManagement");
+          const specialRequest = newMenus.find((item) => item.menuName === "specialRequest");
+          const promotionSetting = newMenus.find((item) => item.menuName === "promotionSetting");
+          const discountCo = newMenus.find((item) => item.menuName === "discountCo");
+          const saleManagement = newMenus.find((item) => item.menuName === "saleManagement");
+          const roleManagement = newMenus.find((item) => item.menuName === "roleManagement");
+          form.setFieldsValue({
+            ...result,
+            priceList: priceList?.permission,
+            orderManagement: orderManagement?.permission,
+            specialRequest: specialRequest?.permission,
+            promotionSetting: promotionSetting?.permission,
+            discountCo: discountCo?.permission,
+            saleManagement: saleManagement?.permission,
+            roleManagement: roleManagement?.permission,
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    if (roleId) {
+      getInitialValue();
+    }
+  }, []);
 
   const onFinish = async (values: FormData) => {
     const { rolename, roledescription, ...rest } = values;
@@ -61,35 +103,42 @@ export default function AddNewRole(): JSX.Element {
       menus,
       updateBy: `${profile?.firstname} ${profile?.lastname}`,
     };
-    setLoading(true);
-    const res = await roleDatasource.createNewRole(payload);
-    if (res && res.success) {
-      Swal.fire({
-        title: "บันทึกข้อมูลสำเร็จ",
-        text: "",
-        width: 250,
-        icon: "success",
-        customClass: {
-          title: "custom-title",
-        },
-        showConfirmButton: false,
-      }).then(() => {
-        setLoading(false);
-        navigate("/UserPage/RoleManagementPage");
-      });
-    } else {
-      Swal.fire({
-        title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
-        text: "",
-        width: 250,
-        icon: "error",
-        customClass: {
-          title: "custom-title",
-        },
-        showConfirmButton: false,
-      }).then(() => {
-        setLoading(false);
-      });
+    try {
+      setLoading(true);
+      const res = await roleDatasource.updateRole(roleId || "", payload);
+
+      if (res) {
+        Swal.fire({
+          title: "แก้ไขข้อมูลสำเร็จ",
+          text: "",
+          width: 250,
+          icon: "success",
+          customClass: {
+            title: "custom-title",
+          },
+          showConfirmButton: false,
+        }).then(() => {
+          setLoading(false);
+          navigate("/UserPage/RoleManagementPage");
+        });
+      } else {
+        Swal.fire({
+          title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
+          text: "",
+          width: 250,
+          icon: "error",
+          customClass: {
+            title: "custom-title",
+          },
+          showConfirmButton: false,
+        }).then(() => {
+          setLoading(false);
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
   const [visible, setVisible] = React.useState(false);
@@ -99,7 +148,7 @@ export default function AddNewRole(): JSX.Element {
       specialRequest: websiteBackOffice.specialRequest.map((el) => el.value),
       promotionSetting: websiteBackOffice.promotionSetting.map((el) => el.value),
       discountCo: websiteBackOffice.discountCo.map((el) => el.value),
-      priceList: websiteBackOffice.priceListX10.map((el) => el.value),
+      priceListX10: websiteBackOffice.priceListX10.map((el) => el.value),
       saleManagement: websiteBackOffice.saleManagement.map((el) => el.value),
       roleManagement: websiteBackOffice.roleManagement.map((el) => el.value),
     });
@@ -118,7 +167,7 @@ export default function AddNewRole(): JSX.Element {
 
   return (
     <CardContainer>
-      <PageTitleNested title='เพิ่มชื่อตำแหน่ง' />
+      <PageTitleNested title='แก้ไขชื่อตำแหน่ง' cutParams />
       <Form
         {...defaultPropsForm}
         style={{
@@ -254,136 +303,7 @@ export default function AddNewRole(): JSX.Element {
             </Row>
           </div>
         </CardRole>
-        {/* <CardRole>
-          <Row
-            style={{
-              justifyContent: "space-between",
-              padding: 16,
-              alignItems: "center",
-              backgroundColor: color.background1,
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-            }}
-          >
-            <Text fontWeight={700}>SaleCoda - Sale</Text>
-            <div
-              style={{
-                display: "flex",
-                gap: 16,
-                alignItems: "center",
-              }}
-            >
-              <Button
-                title='เลือกทั้งหมด'
-                onClick={onClickSelectAllSale}
-                style={{
-                  width: 96,
-                  padding: "2px 4px",
-                }}
-                height={32}
-              />
-              <Button
-                title='ล้าง'
-                onClick={onClearAllSale}
-                typeButton='primary-light'
-                style={{
-                  width: 96,
-                  padding: "4px 8px",
-                }}
-                height={32}
-              />
-            </div>
-          </Row>
-          <div
-            style={{
-              padding: 24,
-            }}
-          >
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='createOrder'>
-                  <CheckboxGroup data={saleCodaSale.createOrder} name='Create Order' />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='history'>
-                  <CheckboxGroup data={saleCodaSale.history} name='History' />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='feature'>
-                  <CheckboxGroup data={saleCodaSale.feature} name='Feature' />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='notification'>
-                  <CheckboxGroup data={saleCodaSale.notification} name='Notification' />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='profile'>
-                  <CheckboxGroup data={saleCodaSale.profile} name='Profile' />
-                </Form.Item>
-              </Col>
-            </Row>
-          </div>
-        </CardRole>
-        <CardRole>
-          <Row
-            style={{
-              justifyContent: "space-between",
-              padding: 16,
-              alignItems: "center",
-              backgroundColor: color.background1,
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-            }}
-          >
-            <Text fontWeight={700}>SaleCoda - Shop</Text>
-            <div
-              style={{
-                display: "flex",
-                gap: 16,
-                alignItems: "center",
-              }}
-            >
-              <Button
-                title='เลือกทั้งหมด'
-                style={{
-                  width: 96,
-                  padding: "2px 4px",
-                }}
-                onClick={onClickSelectAllShop}
-                height={32}
-              />
-              <Button
-                onClick={onClearAllShop}
-                title='ล้าง'
-                typeButton='primary-light'
-                style={{
-                  width: 96,
-                  padding: "4px 8px",
-                }}
-                height={32}
-              />
-            </div>
-          </Row>
-          <div
-            style={{
-              padding: 24,
-            }}
-          >
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='order'>
-                  <CheckboxGroup data={saleCodaShop.order} name='Order' />
-                </Form.Item>
-              </Col>
-            </Row>
-          </div>
-        </CardRole> */}
+
         <Bottom>
           <Col span={22}>
             <Text color='Text3' level={6} fontFamily='Sarabun'>

@@ -41,7 +41,6 @@ function DatePicker({
   placeholder,
   ...props
 }: Props): JSX.Element {
-  console.log(newLocale);
   return (
     <AntDatePicker
       locale={newLocale}

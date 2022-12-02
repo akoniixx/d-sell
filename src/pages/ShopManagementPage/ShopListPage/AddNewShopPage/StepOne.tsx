@@ -1,15 +1,15 @@
 import React, { Fragment } from "react";
 import Switch from "../../../../components/Switch/Switch";
 import Text from "../../../../components/Text/Text";
-import { defaultPropsForm } from "../../../../utility/DefaultProps";
 import styled from "styled-components";
 import CardSection from "../../../../components/Card/CardSection";
 import Input from "../../../../components/Input/Input";
 import Radio from "../../../../components/Radio/Radio";
 import Select from "../../../../components/Select/Select";
-import { Col, Form, Row } from "antd";
+import { Col, Form, FormInstance, Row } from "antd";
 import color from "../../../../resource/color";
 import Button from "../../../../components/Button/Button";
+import { getCompanyName } from "../../../../utility/CompanyName";
 
 const BottomSection = styled.div`
   padding: 8px 24px 24px;
@@ -23,11 +23,14 @@ const Footer = styled(Row)`
 
   margin-top: 40px;
 `;
-const onFinish = async (values: any) => {
-  console.log("Success:", values);
-};
-function StepOne() {
-  const [form] = Form.useForm();
+
+function StepOne({
+  form,
+  company,
+}: {
+  form: FormInstance<any>;
+  company?: "ICPL" | "ICPI" | "ICPF" | "ICK";
+}) {
   const typeShop = Form.useWatch("typeShop", form);
   const listSDMock = [
     {
@@ -43,11 +46,164 @@ function StepOne() {
       zone: "C02",
     },
   ];
+
+  const listRadio = [
+    {
+      label: "Dealer",
+      value: "DL",
+    },
+    {
+      label: "Sub Dealer",
+      value: "SD",
+    },
+  ];
+  const renderByCompany = () => {
+    switch (company) {
+      case "ICPL": {
+        return (
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name='zone'
+                label='เขต*'
+                rules={[
+                  {
+                    required: true,
+                    message: "กรุณาเลือกเขต",
+                  },
+                ]}
+              >
+                <Select
+                  data={[
+                    {
+                      label: "C01",
+                      value: "C01",
+                      key: "C01",
+                    },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        );
+      }
+      case "ICPF": {
+        return (
+          <Row gutter={16}>
+            <Col span={6}>
+              <Form.Item
+                name='productBrand'
+                label='Product Brands*'
+                rules={[
+                  {
+                    required: true,
+                    message: "กรุณาเลือก Product Brands",
+                  },
+                ]}
+              >
+                <Select
+                  data={[
+                    {
+                      label: "C01",
+                      value: "C01",
+                      key: "C01",
+                    },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={10}>
+              <Form.Item
+                name='shopId'
+                label='รหัสร้านค้า (ใน NAV)*'
+                rules={[
+                  {
+                    required: true,
+                    message: "กรุณากรอกรหัสร้านค้า (ใน NAV)",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name='zone'
+                label='เขต*'
+                rules={[
+                  {
+                    required: true,
+                    message: "กรุณาเลือกเขต",
+                  },
+                ]}
+              >
+                <Select
+                  data={[]}
+                  style={{
+                    width: "45%",
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        );
+      }
+      default: {
+        return (
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name='shopId'
+                label='รหัสร้านค้า (ใน NAV)*'
+                rules={[
+                  {
+                    required: true,
+                    message: "กรุณากรอกรหัสร้านค้า (ใน NAV)",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name='zone'
+                label='เขต*'
+                rules={[
+                  {
+                    required: true,
+                    message: "กรุณาเลือกเขต",
+                  },
+                ]}
+              >
+                <Select
+                  data={[
+                    {
+                      label: "C01",
+                      value: "C01",
+                      key: "C01",
+                    },
+                  ]}
+                  style={{
+                    width: "45%",
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        );
+      }
+    }
+  };
   return (
     <Fragment>
       <BottomSection>
         <CardSection
-          title='ICP Ladda'
+          title={
+            <div>
+              <Text>{getCompanyName(company?.toString() || "")}</Text>
+            </div>
+          }
           extra={
             <div
               style={{
@@ -59,7 +215,9 @@ function StepOne() {
               <Text fontFamily='Sarabun' level={6}>
                 เปิดใช้งาน
               </Text>
-              <Switch />
+              <Form.Item noStyle name='isActive'>
+                <Switch />
+              </Form.Item>
             </div>
           }
         >
@@ -68,74 +226,19 @@ function StepOne() {
               padding: 16,
             }}
           >
-            <Form
-              {...defaultPropsForm}
-              form={form}
-              onFinish={onFinish}
-              initialValues={{
-                typeShop: "SD",
-              }}
+            <Form.Item
+              name='typeShop'
+              label='ประเภทคู่ค้า*'
+              rules={[
+                {
+                  required: true,
+                  message: "กรุณาเลือกประเภทคู่ค้า",
+                },
+              ]}
             >
-              <Form.Item
-                name='typeShop'
-                label='ประเภทคู่ค้า*'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณาเลือกประเภทคู่ค้า",
-                  },
-                ]}
-              >
-                <Radio
-                  items={[
-                    {
-                      label: "Dealer",
-                      value: "DL",
-                    },
-                    {
-                      label: "Sub Dealer",
-                      value: "SD",
-                    },
-                  ]}
-                />
-              </Form.Item>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name='shopId'
-                    label='รหัสร้านค้า (ใน NAV)*'
-                    rules={[
-                      {
-                        required: true,
-                        message: "กรุณากรอกรหัสร้านค้า (ใน NAV)",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-
-                <Col span={12}>
-                  <Form.Item
-                    name='zone'
-                    label='เขต*'
-                    rules={[
-                      {
-                        required: true,
-                        message: "กรุณาเลือกเขต",
-                      },
-                    ]}
-                  >
-                    <Select
-                      data={[]}
-                      style={{
-                        width: "45%",
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Form>
+              <Radio items={company && company === "ICPL" ? listRadio.slice(1) : listRadio} />
+            </Form.Item>
+            {renderByCompany()}
           </div>
         </CardSection>
         {typeShop === "SD" && (

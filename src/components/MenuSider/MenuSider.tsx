@@ -14,16 +14,27 @@ import {
 } from "@ant-design/icons";
 import CollapseMenu from "./CollapseMenu";
 import { useEffectOnce } from "react-use";
+import { checkPermissionRenderMenu } from "../../utility/func/RedirectByPermission";
+import { useRecoilValue } from "recoil";
+import { roleAtom } from "../../store/RoleAtom";
 interface Props {
   style?: React.CSSProperties;
   lists: {
     path: string;
     name: string;
     title: string;
+    permission: {
+      name: string | string[];
+      action: string;
+    } | null;
     subMenu: {
       path: string;
       name: string;
       title: string;
+      permission?: {
+        name: string;
+        action: string;
+      } | null;
     }[];
   }[];
   isOpenSidebar?: boolean;
@@ -149,6 +160,7 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
     path: "",
     subPath: "",
   });
+  const roleData = useRecoilValue(roleAtom);
   useEffectOnce(() => {
     const pathName = window.location.pathname;
     const pathNameSplit = pathName.split("/").filter((item) => item !== "");
@@ -177,6 +189,13 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
   return (
     <MenuSiderStyled style={style}>
       {lists.map((list, idx) => {
+        const isPremiss = checkPermissionRenderMenu({
+          menus: roleData?.menus,
+          permission: list?.permission || null,
+        });
+
+        if (!isPremiss) return null;
+
         if (list.subMenu.length < 1) {
           return (
             <ListStyled

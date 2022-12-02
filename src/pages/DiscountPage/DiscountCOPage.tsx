@@ -216,7 +216,7 @@ export const DiscountCOPage: React.FC = () => {
         </CardContainer>
       </div>
 
-      <Modal visible={isModalDeleteVisible} onCancel={() => setIsModalDeleteVisible(false)}>
+      <Modal open={isModalDeleteVisible} onCancel={() => setIsModalDeleteVisible(false)}>
         <p style={{ color: "#464E5F", fontSize: 24 }}>ต้องการลบข้อมูลตำแหน่งผู้ใช้งานนี้</p>
         <p style={{ color: "#BABCBE", fontSize: 16 }}>โปรดยืนยันการลบข้อมูลรายการ Credit Memo</p>
       </Modal>
