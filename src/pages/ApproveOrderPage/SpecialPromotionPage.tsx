@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 function SpecialPromotionPage() {
   return <div>SpecialPromotionPage</div>;

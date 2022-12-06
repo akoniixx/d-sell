@@ -227,23 +227,12 @@ const WebRoutes: React.FC<any> = () => {
   const setRole = useSetRecoilState(roleAtom);
 
   const [loading, setLoading] = useState<boolean>(true);
+  const profile: any = localStorage.getItem("profile");
 
   useEffect(() => {
-    const getUserData = async () => {
-      setLoading(true);
-      const profile: any = await localStorage.getItem("profile");
-
-      setProfileRecoil(JSON.parse(profile) || null);
-    };
-    if (!profileRecoil) {
-      getUserData();
-    }
-  }, []);
-
-  useEffect(() => {
-    const getRoleData = async () => {
+    const getRoleData = async (roleId: string) => {
       try {
-        const roleData = await roleDatasource.getRoleById(profileRecoil?.roleId);
+        const roleData = await roleDatasource.getRoleById(roleId);
         setRole(roleData);
       } catch (error) {
         console.log(error);
@@ -251,16 +240,26 @@ const WebRoutes: React.FC<any> = () => {
         setLoading(false);
       }
     };
-    if (profileRecoil) {
-      getRoleData();
+    const getUserData = async () => {
+      setLoading(true);
+
+      setProfileRecoil(JSON.parse(profile) || null);
+      if (JSON.parse(profile)) {
+        getRoleData(JSON.parse(profile).roleId);
+      }
+    };
+
+    if (profile) {
+      getUserData();
     } else {
       setTimeout(() => {
         setLoading(false);
         setProfileRecoil(null);
         setRole(null);
-      }, 1500);
+      }, 2000);
     }
-  }, [profileRecoil]);
+  }, []);
+
   if (loading) {
     return (
       <div

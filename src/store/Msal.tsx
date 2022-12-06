@@ -1,7 +1,7 @@
-import {atom} from 'recoil'
+import { atom } from "recoil";
 
 const msal = atom({
-    key: 'msal',
-    default: null
-})
-export {msal}
+  key: "msal",
+  default: null,
+});
+export { msal };
