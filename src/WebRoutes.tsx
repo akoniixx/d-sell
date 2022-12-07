@@ -12,6 +12,8 @@ import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
 import { OrderPage } from "./pages/OrderPage/OrderPage";
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
+import { DistributionPageDetail } from "./pages/PriceListPage/ProductDetailPage";
+import { DistributionPageEdit } from "./pages/PriceListPage/ProductEditPage";
 import ShopPage from "./pages/PriceListPage/ShopPage";
 import { AddNewSale } from "./pages/UserPage/SaleMangementPage/AddNewSale";
 import ProtectRoute from "./ProtectRoute";
@@ -33,7 +35,9 @@ const WebRoutes: React.FC<any> = () => {
           <Route path='/SpecialPromotionPage' element={<SpecialPromotionPage />} />
           <Route path='/DiscountListPage' element={<DiscountListPage />} />
           <Route path='/DiscountCOPage' element={<DiscountCOPage />} />
-          <Route path='/DistributionPage' element={<DistributionPage />} />
+          <Route path='/PriceListPage/DistributionPage' element={<DistributionPage />} />
+          <Route path='/PriceListPage/DistributionPage/:id' element={<DistributionPageDetail />} />
+          <Route path='/PriceListPage/DistributionPage/edit/:id' element={<DistributionPageEdit/>} />
           <Route path='/AdvancePromotionPage' element={<AdvancePromotionPage />} />
           <Route path='/ShopPage' element={<ShopPage />} />
           <Route path='/UserPage/*' element={<RedirectPathPage />}>

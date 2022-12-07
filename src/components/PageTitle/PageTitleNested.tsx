@@ -9,6 +9,8 @@ interface Props {
   title: string;
   extra?: React.ReactNode;
   showBack?: boolean;
+  extraTitle?: React.ReactNode;
+  customBreadCrumb?: React.ReactNode;
 }
 const BackImage = styled.img`
   width: 30px;
@@ -23,7 +25,10 @@ const ConvertTitleObj = {
   RoleManagementPage: "จัดการสิทธิตำแหน่งผู้ใช้งาน",
   AddNewRole: "เพิ่มตำแหน่ง",
 };
-const PageTitleNested = ({ title, extra, showBack = true }: Props) => {
+const ExtraTitleContainer = styled.div`
+  margin-left: 12px;
+`;
+const PageTitleNested = ({ title, extra, showBack = true, extraTitle, customBreadCrumb }: Props) => {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
   const currentPathSplit = currentPath.split("/").filter((el) => el !== "");
@@ -54,13 +59,14 @@ const PageTitleNested = ({ title, extra, showBack = true }: Props) => {
             </Col>
           )}
           <Col>
-            <Row>
+            <Row align='middle'>
               <Text level={2} color='Text2'>
                 {title}
               </Text>
+              {extraTitle && <ExtraTitleContainer>{extraTitle}</ExtraTitleContainer>}
             </Row>
             <Row>
-              <BreadCrumb data={data} />
+              {customBreadCrumb ? customBreadCrumb : <BreadCrumb data={data} />}
             </Row>
           </Col>
         </Row>

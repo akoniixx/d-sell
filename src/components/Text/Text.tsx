@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 import color from "../../resource/color";
 
 interface TextType {
-  fontWeight?: 400 | 500 | 600 | 700;
+  fontWeight?: 400 | 500 | 600 | 700
   fontSize?: 14 | 16 | 18 | 20 | 22 | 24 | 26 | 28 | 30 | 32 | 34 | 36 | 38 | 40 | 46 | 50;
   color?:
     | "primary"
@@ -69,6 +69,7 @@ const TextStyled = styled(Typography.Text)<TextType>`
     if (level === 5) {
       return css`
         font-size: 16px !important;
+        ${fontWeight ? `font-weight: ${fontWeight}!important;` : ''} 
       `;
     }
     if (level === 6) {

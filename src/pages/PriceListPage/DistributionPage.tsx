@@ -1,190 +1,278 @@
-import React, { useEffect, useState, memo } from "react";
+import React, { useEffect, useState, memo, useMemo } from "react";
 import {
   Table,
   Tabs,
-  Modal,
-  DatePicker,
-  Switch,
   Row,
   Col,
   Input,
-  Button,
   Select,
-  Pagination,
+  Avatar,
+  Tag,
 } from "antd";
-import Navbar from "../../components/Navbar/Navbar";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { FormOutlined } from "@ant-design/icons";
-import moment from "moment";
+import { UnorderedListOutlined , SearchOutlined} from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
-import * as _ from "lodash";
-const { RangePicker } = DatePicker;
-const SLASH_DMY = "DD/MM/YYYY";
-const { TabPane } = Tabs;
+import { getProductBrand, getProductCategory, getProductGroup, getProductList } from "../../datasource/ProductDatasource";
+import { nameFormatter, priceFormatter } from "../../utility/Formatter";
+import { FlexCol, FlexRow } from "../../components/Container/Container";
+import Text from "../../components/Text/Text";
+import { BrandEntity } from "../../entities/BrandEntity";
+import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
+import { STATUS_COLOR_MAPPING } from "../../definitions/product";
+import { useRecoilValue } from "recoil";
+import { profileAtom } from "../../store/ProfileAtom";
+import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
+import color from "../../resource/color";
+
+type FixedType = 'left' | 'right' | boolean;
 
 export const DistributionPage: React.FC = () => {
   const style: React.CSSProperties = {
     width: "180px",
   };
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
-  const [optionalTextSearch, setTextSearch] = useState<string>();
-  const [memoList, setMemoList] = useState([]);
-  const [keyword, setKeyword] = useState("");
-  const [isModalDeleteVisible, setIsModalDeleteVisible] = useState<boolean>(false);
-  const changeTextSearch = (text?: string) => {
-    setTextSearch(text);
-  };
+
+  const pageSize = 8;
+  const userProfile = JSON.parse(localStorage.getItem('profile')!);
+  const { company } = userProfile;
+  
+  const [keyword, setKeyword] = useState<string>();
+  const [prodGroup, setProdGroup] = useState<string>();
+  const [location, setLocation] = useState<string>();
+  const [page, setPage] = useState<number>(1);
+  const [loading, setLoading] = useState(false);
+  const [dataState, setDataState] = useState({
+    count: 0, 
+    count_location: [], 
+    data: [],
+    groups: [],
+    categories: [],
+    brands: []
+  })
+
+  useEffect(() => {
+    if(!loading) fetchProduct();
+  }, [keyword, prodGroup, location, page])
+
+  const resetPage = () => setPage(1);
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const { data, count, count_location } = await getProductList({
+        company,
+        take: pageSize,
+        productGroup: prodGroup,
+        searchText: keyword,
+        productLocation: location,
+        page
+      });
+
+      const { responseData } = await getProductGroup(company);
+      const brands = await getProductBrand(company);
+      const categories = await getProductCategory(company);
+      setDataState({
+        data, 
+        count, 
+        count_location,
+        groups: responseData,
+        brands,
+        categories
+      });
+      console.log({  company, prodGroup, keyword, location, page,data, count_location, count, responseData, brands, categories, userProfile });
+      
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+
+  }
 
   const PageTitle = () => {
     return (
       <Row>
-        <Col className='gutter-row' span={12}>
+        <Col className='gutter-row' xl={16} sm={10}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              Distribution (DIS) Price List-ราคาสินค้า
+              รายการสินค้า
             </span>
           </div>
         </Col>
-        <Col className='gutter-row' span={4}>
-          {/* <div style={style}>
+        <Col className='gutter-row' xl={4} sm={7}>
+          <div style={style}>
               <Input
                 placeholder="ค้นหาชื่อสินค้า"
                 prefix={<SearchOutlined style={{ color: "grey" }} />}
-                value={keyword}
+                defaultValue={keyword}
+                onPressEnter={(e) => {
+                  const value = (e.target as HTMLTextAreaElement).value;
+                  setKeyword(value);
+                  resetPage();
+                }}
               />
-            </div> */}
+            </div> 
         </Col>
-        <Col className='gutter-row' span={4}>
-          <div>
-            <Select defaultValue='เลือกกลุ่มสินค้า' style={style} onChange={handleChange}>
-              <Option value='Fert'>Fert</Option>
-              <Option value='Inter'>Inter</Option>
-              <Option value='Ladda'>Ladda</Option>
-            </Select>
-          </div>
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <div>
-            <Select defaultValue='เลือก Strategy Group' style={style} onChange={handleChange}>
-              {/* <Option value="รายการคำสั่งซื้อทั้งหมด">
-                  รายการคำสั่งซื้อทั้งหมด
-                </Option>
-                <Option value="รอการอนุมัติคำสั่งซื้อ">
-                  รอการอนุมัติคำสั่งซื้อ
-                </Option>
-                <Option value="รอยืนยันคำสั่งซื้อ">รอยืนยันคำสั่งซื้อ</Option>
-                <Option value="ยืนยันคำสั่งซื้อแล้ว">
-                  ยืนยันคำสั่งซื้อแล้ว
-                </Option>
-                <Option value="เปิดรายการคำสั่งซื้อ">
-                  เปิดรายการคำสั่งซื้อ
-                </Option>
-                <Option value="กำลังจัดส่ง">กำลังจัดส่ง</Option>
-                <Option value="ลูกค้ารับสินค้าแล้ว">ลูกค้ารับสินค้าแล้ว</Option>
-                <Option value="ยกเลิกคำสั่งซื้อโดยร้านค้า">
-                  ยกเลิกคำสั่งซื้อโดยร้านค้า
-                </Option>
-                <Option value="ไม่อนุมัติคำสั่งซื้อ">
-                  ไม่อนุมัติคำสั่งซื้อ
-                </Option> */}
-            </Select>
-          </div>
+        <Col className='gutter-row' xl={4} sm={7}>
+            <Select 
+              defaultValue={prodGroup}
+              style={style} 
+              allowClear
+              onChange={(value: string) => {
+                setProdGroup(value);
+                resetPage();
+              }}
+              placeholder='เลือกกลุ่มสินค้า'
+              options={dataState.groups.map((group: ProductGroupEntity) => ({ label: group.product_group, value: group.product_group }))}
+            />
         </Col>
       </Row>
     );
   };
 
-  const sorter = (a: any, b: any) => {
-    if (a === b) return 0;
-    else if (a === null) return 1;
-    else if (b === null) return -1;
-    else return a.localeCompare(b);
-  };
+  const tabsItems = [
+    { label: 'ทั้งหมด', key: 'ALL' },
+    ...(dataState?.count_location?.map(({ location, count }) => ({
+      label: LOCATION_FULLNAME_MAPPING[location] + `(${count})`,
+      key: location
+    })) || [])
+  ];
 
   const columns = [
     {
-      title: "อัพเดตล่าสุด",
-      dataIndex: "date",
-      key: "date",
-      width: "12%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      title: "ชื่อสินค้า",
+      dataIndex: "commonName",
+      key: "commonName",
+      // width: "12%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <div className='test'>
-              <span className='text-dark-75 font-size-lg'>
-                {moment(row.start_datetime).format(SLASH_DMY)} -{" "}
-              </span>
-              <span className='text-dark-75 font-size-lg '>
-                {moment(row.end_datetime).format(SLASH_DMY)}
-              </span>
-            </div>
+            <FlexRow align="center">
+              <div style={{ marginRight: 16 }}>
+                <Avatar src={row.productImage} size={50} shape='square'/>
+              </div>
+              <FlexCol>
+                <Text level={5}>{row.productName}</Text>
+                <Text level={6} color='Text3'>{value}</Text>
+              </FlexCol>
+            </FlexRow>
           ),
         };
       },
     },
     {
-      title: "ชื่อสินค้า",
-      dataIndex: "title",
-      key: "title",
-      width: "18%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
-    },
-    {
       title: "ขนาด",
-      dataIndex: "number",
-      key: "number",
-    },
-    {
-      title: " กลุ่มสินค้า",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
-    },
-    {
-      title: "Strategy Group",
-      dataIndex: "title",
-      key: "title",
-      width: "15%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
-    },
-    {
-      title: "ราคาต่อหน่วย",
-      dataIndex: "title",
-      key: "title",
-      width: "13%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
-    },
-    {
-      title: "ราคาตลาด",
-      dataIndex: "title",
-      key: "title",
-      width: "10%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
-    },
-    {
-      title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
-      width: "10%",
-      sorter: (a: any, b: any) => sorter(a.name, b.name),
+      dataIndex: "packSize",
+      key: "packSize",
+      // width: "18%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Switch checked={row.is_active} />,
+          children: (
+            <FlexCol>
+              <Text level={5}>{value}</Text>
+              <Text level={6} color='Text3'>{row.productCodeNAV}</Text>
+            </FlexCol>
+          ),
         };
       },
     },
     {
-      title: "",
+      title: "กลุ่มสินค้า",
+      dataIndex: "productGroup",
+      key: "productGroup",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5}>{value}</Text>
+              <Text level={6} color='Text3'>{row.productStrategy}</Text>
+            </FlexCol>
+          ),
+        };
+      }
+    },
+    {
+      title: "Product Brands",
+      dataIndex: "productBrandId",
+      key: "productBrandId",
+      // width: "15%",
+      render: (value: any, row: any, index: number) => {
+        const brand: BrandEntity = dataState?.brands?.find((d: BrandEntity) => value === d.productBrandId) || null!;
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5}>{brand.productBrandName}</Text>
+            </FlexCol>
+          ),
+        }
+      } 
+    },
+    {
+      title: "โรงงาน",
+      dataIndex: "productLocation",
+      key: "productLocation",
+      // width: "13%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5}>{LOCATION_FULLNAME_MAPPING[value] || '-'}</Text>
+            </FlexCol>
+          ),
+        }
+      } 
+    },
+    {
+      title: "ราคา / หน่วย",
+      dataIndex: "unitPrice",
+      key: "unitPrice",
+      fixed: "right" as FixedType | undefined,
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5}>{priceFormatter(value)}</Text>
+              <Text level={6} color='Text3'>{row.saleUOM}</Text>
+            </FlexCol>
+          ),
+        };
+      }
+    },
+    {
+      title: "สถานะ",
+      dataIndex: "productStatus",
+      key: "productStatus",
+      fixed: "right" as FixedType | undefined,
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>,
+        };
+      },
+    },
+    {
+      title: "ราคาต่อแพ็ค",
+      dataIndex: "marketPrice",
+      key: "marketPrice",
+      fixed: "right" as FixedType | undefined,
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5} color='primary' fontWeight={700}>{priceFormatter(value || '')}</Text>
+              <Text level={6} color='Text3'>{row.saleUOM}</Text>
+            </FlexCol>
+          ),
+        };
+      }
+    },
+    {
+      title: "จัดการ",
       dataIndex: "action",
       key: "action",
       width: "5%",
+      fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -192,10 +280,10 @@ export const DistributionPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => (window.location.href = "/EditCreditMemoPage?id=" + row.id)}
+                  onClick={() => (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <FormOutlined />
+                    <UnorderedListOutlined style={{ color: color['primary'] }}/>
                   </span>
                 </div>
               </div>
@@ -209,34 +297,34 @@ export const DistributionPage: React.FC = () => {
   return (
     <>
       <div className='container '>
-        <PageTitle />
-        <br />
         <CardContainer>
+          <PageTitle />
+          <br />
+          <Tabs 
+            items={tabsItems}
+            onChange={(key: string) => {
+              setLocation(key === 'ALL' ? undefined : key);
+              resetPage();
+            }}
+          />
           <Table
             className='rounded-lg'
             columns={columns}
-            dataSource={memoList}
-            pagination={{ position: ["bottomCenter"] }}
+            scroll={{ x: "max-content" }}
+            dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i}))}
+            pagination={{ 
+              position: ["bottomCenter"],
+              pageSize,
+              current: page,
+              total: dataState?.count,
+              onChange: (p) => setPage(p)
+            }}
+            loading={loading}
             size='large'
             tableLayout='fixed'
           />
-          <br />
-          <div className='d-flex justify-content-end pt-10'>
-            <Pagination
-              defaultCurrent={1}
-              // total={meta?.totalItem}
-
-              // current={Number(meta?.currentPage)}
-              // onChange={(p) => fetchCreditMemoList(p)}
-            />
-          </div>
         </CardContainer>
       </div>
-
-      <Modal visible={isModalDeleteVisible} onCancel={() => setIsModalDeleteVisible(false)}>
-        <p style={{ color: "#464E5F", fontSize: 24 }}>ต้องการลบข้อมูลตำแหน่งผู้ใช้งานนี้</p>
-        <p style={{ color: "#BABCBE", fontSize: 16 }}>โปรดยืนยันการลบข้อมูลรายการ Credit Memo</p>
-      </Modal>
     </>
   );
 };
