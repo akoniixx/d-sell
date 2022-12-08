@@ -27,7 +27,7 @@ const Container = styled.div`
       font-size: 14px;
       color: ${color.Text1};
       font-weight: 400;
-      font-family: "IBM Plex Sans Thai", "Helvetica", sans-serif;
+      font-family: "IBM Plex Sans Thai", "Helvetica";
       :hover {
         color: ${color.primary} !important;
       }
@@ -45,7 +45,7 @@ const Container = styled.div`
 
       font-size: 14px;
       font-weight: 700;
-      font-family: "IBM Plex Sans Thai", "Helvetica", sans-serif;
+      font-family: "IBM Plex Sans Thai", "Helvetica";
     }
     .ant-tabs-ink-bar {
       background: ${color.primary};

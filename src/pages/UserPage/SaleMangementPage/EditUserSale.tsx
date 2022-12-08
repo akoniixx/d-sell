@@ -1,5 +1,5 @@
 import { CardContainer } from "../../../components/Card/CardContainer";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import Swal from "sweetalert2";
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
@@ -32,7 +32,7 @@ export function EditUserSale() {
   const profile = useRecoilValue(profileAtom);
   const { userStaffId } = useParams();
   const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
-  const getZoneByCompany = async () => {
+  const getZoneByCompany = useCallback(async () => {
     const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
     const data = res.map((item: any) => {
       return {
@@ -42,9 +42,9 @@ export function EditUserSale() {
       };
     });
     setZone(data);
-  };
+  }, [profile?.company]);
 
-  const getInitialValue = async () => {
+  const getInitialValue = useCallback(async () => {
     try {
       const result = await SaleListDatasource.getSaleStaffById(userStaffId);
       form.setFieldsValue({
@@ -53,13 +53,13 @@ export function EditUserSale() {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [form, userStaffId]);
   useEffect(() => {
     getZoneByCompany();
     if (userStaffId) {
       getInitialValue();
     }
-  }, []);
+  }, [getInitialValue, userStaffId, getZoneByCompany]);
 
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);

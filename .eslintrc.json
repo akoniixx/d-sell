@@ -9,7 +9,7 @@
     "plugin:@typescript-eslint/recommended",
     "prettier",
     "plugin:import/recommended",
-    "react-hooks/recommended"
+    "plugin:react-hooks/recommended"
   ],
   "overrides": [],
   "parser": "@typescript-eslint/parser",
@@ -22,8 +22,9 @@
     "react/react-in-jsx-scope": "off",
     "no-duplicate-imports": "error",
     "@typescript-eslint/no-explicit-any": "off",
+    "import/named": "off",
     "import/extensions": [
-      "error",
+      "off",
       "ignorePackages",
       {
         "js": "never",

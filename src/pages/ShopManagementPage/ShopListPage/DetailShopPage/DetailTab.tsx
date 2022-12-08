@@ -73,6 +73,20 @@ function DetailTab(): JSX.Element {
     },
   };
   const listDataKey = Object.keys(listData);
+  const mockData = [
+    {
+      company: "ICPL",
+      companyType: "Dealer",
+      companyCode: "ICPL000002",
+      zone: "C01",
+    },
+    {
+      company: "ICPF",
+      companyType: "Sub Dealer",
+      companyCode: "ICPF000002",
+      zone: "C02",
+    },
+  ];
   return (
     <Container>
       <Header>
@@ -91,7 +105,14 @@ function DetailTab(): JSX.Element {
             <Col>
               <Text level={6} fontFamily='Sarabun'>
                 ประเภทคู่ค้า :
-                <Text level={6} color='primary' fontFamily='Sarabun'>
+                <Text
+                  level={6}
+                  color='primary'
+                  fontFamily='Sarabun'
+                  style={{
+                    marginLeft: 4,
+                  }}
+                >
                   Dealer
                 </Text>
               </Text>
@@ -116,13 +137,101 @@ function DetailTab(): JSX.Element {
       >
         {listDataKey.map((el) => {
           return (
-            <Row key={el}>
-              <Col span={8}>
+            <Row
+              key={el}
+              style={{
+                marginBottom: 8,
+              }}
+            >
+              <Col span={4}>
                 <Text color='Text3'>{listData[el as keyof typeof listData].label}</Text>
+              </Col>
+              <Col span={20}>
+                <Text>{listData[el as keyof typeof listData].value}</Text>
               </Col>
             </Row>
           );
         })}
+      </div>
+      <div
+        style={{
+          marginTop: 32,
+          paddingBottom: 16,
+        }}
+      >
+        <Text fontWeight={700}>คู่ค้าบริษัทในเครือ ICP Group</Text>
+        <div
+          style={{
+            padding: "0 16px",
+          }}
+        >
+          {mockData.map((el, idx) => {
+            return (
+              <Row
+                key={idx}
+                gutter={16}
+                style={{
+                  marginTop: 24,
+                }}
+              >
+                <Col span={2}>
+                  <div
+                    style={{
+                      backgroundColor: color.background2,
+                      borderRadius: 8,
+                      width: 54,
+                      height: 50,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <img
+                      alt='img_company'
+                      src={getCompanyImage(el.company)}
+                      style={{
+                        maxWidth: 40,
+                        maxHeight: 40,
+                      }}
+                    />
+                  </div>
+                </Col>
+                <Col span={22}>
+                  <Text level={6} fontWeight={700}>
+                    {getCompanyName(el.company || "")}
+                  </Text>
+                  <Row gutter={16}>
+                    <Col>
+                      <Text level={6} fontFamily='Sarabun'>
+                        ประเภทคู่ค้า :
+                        <Text
+                          level={6}
+                          color='primary'
+                          fontFamily='Sarabun'
+                          style={{
+                            marginLeft: 4,
+                          }}
+                        >
+                          {el.companyType}
+                        </Text>
+                      </Text>
+                    </Col>
+                    <Col>
+                      <Text level={6} fontFamily='Sarabun'>
+                        รหัสร้านค้า : {el.companyCode}
+                      </Text>
+                    </Col>
+                    <Col>
+                      <Text level={6} fontFamily='Sarabun'>
+                        เขต : {el.zone}
+                      </Text>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+            );
+          })}
+        </div>
       </div>
     </Container>
   );
