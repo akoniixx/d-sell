@@ -17,6 +17,7 @@ import { profileAtom } from "../../store/ProfileAtom";
 import { useEffectOnce } from "react-use";
 import { roleAtom } from "../../store/RoleAtom";
 import { redirectByRole } from "../../utility/func/RedirectByPermission";
+import packageJson from "../../../package.json";
 const Container = styled.div``;
 export const AuthPage: React.FC = () => {
   const [, setPersistedProfile] = useLocalStorage("profile", []);
@@ -27,6 +28,7 @@ export const AuthPage: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
 
   const navigate = useNavigate();
+  const version = packageJson.version;
   const authHandler = async (err: any, data: any) => {
     setLoading(true);
     await AuthDatasource.login(data.account.userName).then((res: any) => {
@@ -136,7 +138,11 @@ export const AuthPage: React.FC = () => {
                 buttonTheme='dark'
               />
             </div>
+            <span>
+            <span>version {version}</span>
+            </span>
           </div>
+          
         </Col>
       </Row>
     </Container>
