@@ -23,6 +23,7 @@ interface Props {
 }
 function BreadCrumb({ data = [] }: Props): JSX.Element {
   const navigate = useNavigate();
+
   return (
     <BreadCrumbComponent>
       {data.map((el, idx) => {

@@ -1,4 +1,4 @@
-import { Col, Input, Row } from "antd";
+import { Col, Row } from "antd";
 import Text from "../Text/Text";
 
 interface Props {

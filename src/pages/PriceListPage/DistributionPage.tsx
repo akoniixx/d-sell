@@ -19,9 +19,9 @@ import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
+import * as _ from "lodash";
 
 type FixedType = "left" | "right" | boolean;
-import * as _ from "lodash";
 const SLASH_DMY = "DD/MM/YYYY";
 
 export const DistributionPage: React.FC = () => {

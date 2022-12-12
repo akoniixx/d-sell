@@ -37,6 +37,7 @@ export const checkPermission = (menus?: string, path?: string) => {
     menuName: string;
     permission: string[];
   }[] = JSON.parse(menus);
+
   const reduceNested = protectRoutesData.reduce((acc: any, cur) => {
     if (cur.nestedRoutes.length > 0) {
       return [

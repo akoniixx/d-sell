@@ -7,8 +7,11 @@ import { FormOutlined } from "@ant-design/icons";
 import AntdTabs from "../../../../components/AntdTabs/AntdTabs";
 import DetailTab from "./DetailTab";
 import HistoryTab from "./HistoryTab";
+import { useNavigate, useParams } from "react-router-dom";
 
 function DetailShopPage(): JSX.Element {
+  const { shopId } = useParams();
+  const navigate = useNavigate();
   const dataTabs: { key: string; label: React.ReactNode; children?: JSX.Element | undefined }[] = [
     {
       key: "detail",
@@ -39,6 +42,9 @@ function DetailShopPage(): JSX.Element {
         }
         extra={
           <Button
+            onClick={() => {
+              navigate(`EditShopPage`);
+            }}
             icon={
               <FormOutlined
                 style={{
