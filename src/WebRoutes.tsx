@@ -18,6 +18,9 @@ import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
 import { OrderPage } from "./pages/OrderPage/OrderPage";
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
+import { DistributionPageDetail } from "./pages/PriceListPage/ProductDetailPage";
+import { DistributionPageEdit } from "./pages/PriceListPage/ProductEditPage";
+import ShopPage from "./pages/PriceListPage/ShopPage";
 import { AddNewSale } from "./pages/UserPage/SaleMangementPage/AddNewSale";
 import ProtectRoute from "./ProtectRoute";
 import SaleManagementPage from "./pages/UserPage/SaleMangementPage";
@@ -34,9 +37,11 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import EditRole from "./pages/UserPage/RolesManagementPage/EditRole";
 import { roleAtom } from "./store/RoleAtom";
 import { roleDatasource } from "./datasource/RoleDatasource";
-import ShopPage from "./pages/PriceListPage/ShopPage";
 import DetailShopPage from "./pages/ShopManagementPage/ShopListPage/DetailShopPage";
 import EditShopPage from "./pages/ShopManagementPage/ShopListPage/EditShopPage";
+import { FreebieListPage } from "./pages/promotionPage/freebieList";
+import { PromotionListPage } from "./pages/promotionPage/promotionList";
+import { PromotionCreatePage } from "./pages/promotionPage/createPromotion";
 
 interface IRoute {
   path: string;
@@ -110,22 +115,26 @@ export const protectRoutesData: IRoute[] = [
     index: false,
   },
   {
-    path: "/PriceListPage",
+    path: "/PriceListPage/*",
     element: <RedirectPathPage />,
     permission: null,
     nestedRoutes: [
       {
-        path: "DistributionPage/*",
+        path: "DistributionPage",
         element: <DistributionPage />,
         permission: null,
       },
       {
-        path: "ShopPage/*",
-        element: <ShopPage />,
+        path: "DistributionPage/:id",
+        element: <DistributionPageDetail />,
+        permission: null,
+      },
+      {
+        path: "DistributionPage/edit/:i",
+        element: <DistributionPageEdit />,
         permission: null,
       },
     ],
-    index: false,
   },
   {
     path: "/AdvancePromotionPage",
@@ -137,7 +146,6 @@ export const protectRoutesData: IRoute[] = [
     nestedRoutes: [],
     index: false,
   },
-
   {
     path: "/ShopManagementPage/*",
     element: <RedirectPathPage />,
@@ -235,6 +243,7 @@ export const protectRoutesData: IRoute[] = [
     ],
   },
 ];
+
 const WebRoutes: React.FC<any> = () => {
   const [profileRecoil, setProfileRecoil] = useRecoilState(profileAtom);
   const token = localStorage.getItem("token");

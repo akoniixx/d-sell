@@ -9,6 +9,8 @@ interface Props {
   title: string;
   extra?: React.ReactNode;
   showBack?: boolean;
+  extraTitle?: React.ReactNode;
+  customBreadCrumb?: React.ReactNode;
   style?: React.CSSProperties;
   cutParams?: boolean;
   description?: React.ReactNode;
@@ -32,6 +34,9 @@ const ConvertTitleObj = {
   DetailPage: "รายละเอียดร้านค้า",
   EditShopPage: "แก้ไขรายละเอียดร้านค้า",
 };
+const ExtraTitleContainer = styled.div`
+  margin-left: 12px;
+`;
 const PageTitleNested = ({
   title,
   extra,
@@ -39,6 +44,8 @@ const PageTitleNested = ({
   style,
   cutParams,
   description,
+  extraTitle,
+  customBreadCrumb,
 }: Props) => {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
@@ -101,14 +108,13 @@ const PageTitleNested = ({
             </Col>
           )}
           <Col>
-            <Row>
+            <Row align='middle'>
               <Text level={2} color='Text2'>
                 {title}
               </Text>
+              {extraTitle && <ExtraTitleContainer>{extraTitle}</ExtraTitleContainer>}
             </Row>
-            <Row>
-              <BreadCrumb data={data} />
-            </Row>
+            <Row>{customBreadCrumb ? customBreadCrumb : <BreadCrumb data={data} />}</Row>
             {description && <Row>{description}</Row>}
           </Col>
         </Row>

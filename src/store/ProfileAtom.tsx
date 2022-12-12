@@ -14,4 +14,5 @@ const profileAtom = atom<Profile | null>({
   key: "profile",
   default: null,
 });
+
 export { profileAtom };

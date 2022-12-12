@@ -110,6 +110,16 @@ export const websiteBackOffice = {
       value: "delete",
     },
   ],
+  productManagement: [
+    {
+      label: "View Product",
+      value: "view",
+    },
+    {
+      label: "Edit Product",
+      value: "edit",
+    }
+  ],
 };
 export const saleCodaSale = {
   createOrder: [

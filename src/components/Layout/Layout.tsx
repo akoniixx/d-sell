@@ -38,12 +38,22 @@ export const pathLists = [
   {
     path: "/PromotionPage",
     name: "promotion",
-    title: "Promotion Setting",
-    subMenu: [],
-    permission: {
-      name: "specialPromotion",
-      action: "view",
-    },
+    title: "ตั้งค่าโปรโมชั่น",
+    subMenu: [
+      {
+        path: "/promotion",
+        name: "promotionList",
+        title: "รายการโปรโมชัน",
+        permission: null,
+      },
+      {
+        path: "/freebies",
+        name: "freebiesList",
+        title: "รายการของแถม",
+        permission: null,
+      },
+    ],
+    permission: null,
   },
   {
     path: "/DiscountListPage",
@@ -66,23 +76,11 @@ export const pathLists = [
     ],
   },
   {
-    path: "/PriceListPage",
+    path: "/PriceListPage/DistributionPage",
     name: "priceList",
-    title: "Price List",
+    title: "รายการสินค้า",
     permission: null,
     subMenu: [
-      {
-        path: "/DistributionPage",
-        name: "distribution",
-        permission: null,
-        title: "Distribution (DIS)",
-      },
-      {
-        path: "/ShopPage",
-        name: "shop",
-        title: "Shop",
-        permission: null,
-      },
     ],
   },
   {

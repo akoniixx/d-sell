@@ -137,7 +137,7 @@ const iconsInActive = {
     />
   ),
   priceList: (
-    <FundOutlined
+    <ShopOutlined
       style={{
         fontSize: "20px",
       }}

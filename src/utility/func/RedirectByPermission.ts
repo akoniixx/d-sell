@@ -81,7 +81,7 @@ export const checkPermissionRenderMenu = ({
   const newMenus: {
     menuName: string;
     permission: string[];
-  }[] = JSON.parse(menus || "");
+  }[] = JSON.parse(menus || "[]");
   const isPermission = newMenus.some((menu) => {
     if (permission === null) return true;
     if (Array.isArray(permission.name)) {

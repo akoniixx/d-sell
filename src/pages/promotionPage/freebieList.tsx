@@ -1,7 +1,7 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag } from "antd";
+import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Switch } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { UnorderedListOutlined, SearchOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
 import {
   getProductBrand,
@@ -19,12 +19,12 @@ import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
-import * as _ from "lodash";
 
 type FixedType = "left" | "right" | boolean;
+import * as _ from "lodash";
 const SLASH_DMY = "DD/MM/YYYY";
 
-export const DistributionPage: React.FC = () => {
+export const FreebieListPage: React.FC = () => {
   const style: React.CSSProperties = {
     width: "180px",
   };
@@ -100,17 +100,17 @@ export const DistributionPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row>
-        <Col className='gutter-row' xl={16} sm={10}>
+        <Col className='gutter-row' xl={12} sm={12}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              รายการสินค้า
+              รายการของแถม
             </span>
           </div>
         </Col>
-        <Col className='gutter-row' xl={4} sm={7}>
+        <Col className='gutter-row' xl={4} sm={6}>
           <div style={style}>
             <Input
               placeholder='ค้นหาชื่อสินค้า'
@@ -124,7 +124,7 @@ export const DistributionPage: React.FC = () => {
             />
           </div>
         </Col>
-        <Col className='gutter-row' xl={4} sm={7}>
+        <Col className='gutter-row' xl={4} sm={6}>
           <Select
             defaultValue={prodGroup}
             style={style}
@@ -143,14 +143,6 @@ export const DistributionPage: React.FC = () => {
       </Row>
     );
   };
-
-  const tabsItems = [
-    { label: "ทั้งหมด", key: "ALL" },
-    ...(dataState?.count_location?.map(({ location, count }) => ({
-      label: LOCATION_FULLNAME_MAPPING[location] + `(${count})`,
-      key: location,
-    })) || []),
-  ];
 
   const columns = [
     {
@@ -177,9 +169,9 @@ export const DistributionPage: React.FC = () => {
       },
     },
     {
-      title: "ขนาด",
-      dataIndex: "packSize",
-      key: "packSize",
+      title: "รหัสสินค้า",
+      dataIndex: "productCode",
+      key: "productCode",
       // width: "18%",
       render: (value: any, row: any, index: number) => {
         return {
@@ -212,82 +204,17 @@ export const DistributionPage: React.FC = () => {
       },
     },
     {
-      title: "Product Brands",
-      dataIndex: "productBrandId",
-      key: "productBrandId",
+      title: "สถานะ",
+      dataIndex: "status",
+      key: "status",
       // width: "15%",
       render: (value: any, row: any, index: number) => {
-        const brand: BrandEntity =
-          dataState?.brands?.find((d: BrandEntity) => value === d.productBrandId) || null!;
         return {
           children: (
-            <FlexCol>
-              <Text level={5}>{brand.productBrandName}</Text>
-            </FlexCol>
-          ),
-        };
-      },
-    },
-    {
-      title: "โรงงาน",
-      dataIndex: "productLocation",
-      key: "productLocation",
-      // width: "13%",
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: (
-            <FlexCol>
-              <Text level={5}>{LOCATION_FULLNAME_MAPPING[value] || "-"}</Text>
-            </FlexCol>
-          ),
-        };
-      },
-    },
-    {
-      title: "ราคา / หน่วย",
-      dataIndex: "unitPrice",
-      key: "unitPrice",
-      fixed: "right" as FixedType | undefined,
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: (
-            <FlexCol>
-              <Text level={5}>{priceFormatter(value)}</Text>
-              <Text level={6} color='Text3'>
-                {row.saleUOM}
-              </Text>
-            </FlexCol>
-          ),
-        };
-      },
-    },
-    {
-      title: "สถานะ",
-      dataIndex: "productStatus",
-      key: "productStatus",
-      fixed: "right" as FixedType | undefined,
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>,
-        };
-      },
-    },
-    {
-      title: "ราคาต่อแพ็ค",
-      dataIndex: "marketPrice",
-      key: "marketPrice",
-      fixed: "right" as FixedType | undefined,
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: (
-            <FlexCol>
-              <Text level={5} color='primary' fontWeight={700}>
-                {priceFormatter(value || "")}
-              </Text>
-              <Text level={6} color='Text3'>
-                {row.saleUOM}
-              </Text>
-            </FlexCol>
+            <Switch 
+              defaultChecked={value} 
+              onChange={(checked: boolean) => {console.log('onToggleSwitch', checked)}}
+            />
           ),
         };
       },
@@ -310,7 +237,17 @@ export const DistributionPage: React.FC = () => {
                   }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined style={{ color: color["primary"] }} />
+                    <EditOutlined style={{ color: color["primary"] }} />
+                  </span>
+                </div>
+                <div
+                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                  onClick={() =>
+                    (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)
+                  }
+                >
+                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                    <DeleteOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
               </div>
@@ -327,13 +264,6 @@ export const DistributionPage: React.FC = () => {
         <CardContainer>
           <PageTitle />
           <br />
-          <Tabs
-            items={tabsItems}
-            onChange={(key: string) => {
-              setLocation(key === "ALL" ? undefined : key);
-              resetPage();
-            }}
-          />
           <Table
             className='rounded-lg'
             columns={columns}

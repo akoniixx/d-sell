@@ -72,6 +72,7 @@ const TextStyled = styled(Typography.Text)<TextType>`
     if (level === 5) {
       return css`
         font-size: 16px !important;
+        ${fontWeight ? `font-weight: ${fontWeight}!important;` : ""}
       `;
     }
     if (level === 6) {
