@@ -99,8 +99,8 @@ export const FreebieListPage: React.FC = () => {
 
   const PageTitle = () => {
     return (
-      <Row>
-        <Col className='gutter-row' xl={12} sm={12}>
+      <Row gutter={16}>
+        <Col className='gutter-row' xl={16} sm={12}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -240,6 +240,7 @@ export const FreebieListPage: React.FC = () => {
                     <EditOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
+                &nbsp;
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() =>
