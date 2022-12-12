@@ -87,6 +87,7 @@ export default function ProfileImage({ onChange, value }: Props): JSX.Element {
             showUploadList={false}
             customRequest={async (options) => {
               const { onSuccess, onError, file } = options;
+              
               const convertToImage = (file: any) => {
                 return new Promise((resolve, reject) => {
                   const reader = new FileReader();

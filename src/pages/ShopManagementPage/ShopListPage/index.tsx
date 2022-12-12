@@ -1,5 +1,5 @@
 import { Form, Row } from "antd";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useEffectOnce } from "react-use";
@@ -45,19 +45,17 @@ function ShopListPage(): JSX.Element {
     getZoneByCompany();
   });
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch: getAllCustomer,
-  } = useQuery(["shopList", page, debouncedValueSearch, currentZone], async () => {
-    return await shopDatasource.getAllCustomer({
-      page,
-      take: 8,
-      searchText: debouncedValueSearch,
-      zone: currentZone === "all" ? undefined : currentZone,
-    });
-  });
+  const { data, isLoading, error } = useQuery(
+    ["shopList", page, debouncedValueSearch, currentZone],
+    async () => {
+      return await shopDatasource.getAllCustomer({
+        page,
+        take: 8,
+        searchText: debouncedValueSearch,
+        zone: currentZone === "all" ? undefined : currentZone,
+      });
+    },
+  );
   const onFinish = (values: { taxId: string }) => {
     setVisible(false);
     navigate({
@@ -67,9 +65,12 @@ function ShopListPage(): JSX.Element {
       }).toString(),
     });
   };
-  const onClickDetail = (id: string) => {
-    navigate(`DetailPage/${id}`);
-  };
+  const onClickDetail = useCallback(
+    (id: string) => {
+      navigate(`DetailPage/${id}`);
+    },
+    [navigate],
+  );
   const newZone = useMemo(() => {
     if (zone) {
       return [{ label: "เขต : ทั้งหมด", value: "all", key: "all" }, ...zone];
@@ -235,7 +236,7 @@ function ShopListPage(): JSX.Element {
       };
     });
     return columns;
-  }, []);
+  }, [onClickDetail]);
   return (
     <CardContainer>
       <PageTitle
