@@ -5,7 +5,7 @@ import color from "../../resource/color";
 import Text from "../Text/Text";
 
 interface StyledButton {
-  typeButton?: "primary" | "secondary" | "danger" | "default" | "primary-light" | "border-light";
+  $typeButton?: "primary" | "secondary" | "danger" | "default" | "primary-light" | "border-light";
   height?: number;
 }
 const ButtonStyled = styled(AntButton)<StyledButton>`
@@ -16,29 +16,29 @@ const ButtonStyled = styled(AntButton)<StyledButton>`
   justify-content: center;
   display: flex;
   align-items: center;
-  ${({ typeButton }) => {
-    if (typeButton === "secondary") {
+  ${({ $typeButton }) => {
+    if ($typeButton === "secondary") {
       return css`
         background-color: ${color.background1} !important;
         color: white;
         border: 1px solid ${color.background1} !important;
       `;
     }
-    if (typeButton === "danger") {
+    if ($typeButton === "danger") {
       return css`
         background-color: ${color.error} !important;
         color: white;
         border: 1px solid ${color.error} !important;
       `;
     }
-    if (typeButton === "primary-light") {
+    if ($typeButton === "primary-light") {
       return css`
         background-color: ${color.white} !important;
         color: ${color.primary} !important;
         border: 1px solid ${color.primary} !important;
       `;
     }
-    if (typeButton === "border-light") {
+    if ($typeButton === "border-light") {
       return css`
         background-color: transparent !important;
         border: 1px solid ${color.background2} !important;
@@ -54,13 +54,26 @@ const ButtonStyled = styled(AntButton)<StyledButton>`
 interface Props extends ButtonProps, StyledButton {
   title?: string;
   typeButton?: "primary" | "secondary" | "danger" | "default" | "primary-light" | "border-light";
-
+  icon?: React.ReactNode;
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
-export default function Button({ title, typeButton = "primary", ...props }: Props): JSX.Element {
+export default function Button({
+  title,
+  typeButton = "primary",
+  icon,
+  ...props
+}: Props): JSX.Element {
   return (
-    <ButtonStyled {...props} typeButton={typeButton}>
-      <Row>
+    <ButtonStyled {...props} $typeButton={typeButton}>
+      <Row
+        style={{
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
+        {icon && icon}
         {title && (
           <Text
             level={props.level || 5}

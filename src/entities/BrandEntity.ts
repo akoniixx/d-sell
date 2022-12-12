@@ -1,7 +1,6 @@
 export interface BrandEntity {
-    company: string, 
-    productBrandId: number | string,
-    productBrandLogo: string,
-    productBrandName: string
+  company: string;
+  productBrandId: number | string;
+  productBrandLogo: string;
+  productBrandName: string;
 }
-  

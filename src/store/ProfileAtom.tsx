@@ -8,6 +8,7 @@ export interface Profile {
   role: string;
   userStaffId: string;
   [key: string]: any;
+  roleId: string;
 }
 const profileAtom = atom<Profile | null>({
   key: "profile",

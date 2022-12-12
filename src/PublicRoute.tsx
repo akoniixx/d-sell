@@ -1,20 +1,18 @@
+import { Navigate, Outlet } from "react-router-dom";
 
-import {Navigate, Outlet} from 'react-router-dom'
-
-const useAuth=()=>{
-  const token=localStorage.getItem('token')
-  if(token){
-    return true
+const useAuth = () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    return true;
   } else {
-    return false
+    return false;
   }
-}
+};
 
-const  PublicRoute=(props:any) =>{
+const PublicRoute = (props: any) => {
+  const auth = useAuth();
 
-  const auth=useAuth()
-
-  return auth?<Navigate to="/AuthPage"/>: <Outlet/>
-}
+  return auth ? <Navigate to='/AuthPage' /> : <Outlet />;
+};
 
 export default PublicRoute;

@@ -10,30 +10,66 @@ import icon from "../../resource/icon";
 import image from "../../resource/image";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import Text from "../../components/Text/Text";
-import { Col, Row } from "antd";
+import { Col, Row, Spin } from "antd";
 import styled from "styled-components";
 import { useSetRecoilState } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
-
+import { useEffectOnce } from "react-use";
+import { roleAtom } from "../../store/RoleAtom";
+import { redirectByRole } from "../../utility/func/RedirectByPermission";
 const Container = styled.div``;
 export const AuthPage: React.FC = () => {
-  const [persistedProfile, setPersistedProfile] = useLocalStorage("profile", []);
-  const [token, setToken] = useLocalStorage("token", []);
+  const [, setPersistedProfile] = useLocalStorage("profile", []);
+  const [, setToken] = useLocalStorage("token", []);
   const setProfile = useSetRecoilState(profileAtom);
 
+  const setRole = useSetRecoilState(roleAtom);
+  const [loading, setLoading] = React.useState(false);
+
   const navigate = useNavigate();
-  const authHandler = (err: any, data: any) => {
-    AuthDatasource.login(data.account.userName).then((res: any) => {
-      if (res) {
-        setPersistedProfile(res.data);
-        setToken(res.accessToken);
-        setProfile(res.data);
-        return navigate("OrderPage");
+  const authHandler = async (err: any, data: any) => {
+    setLoading(true);
+    await AuthDatasource.login(data.account.userName).then((res: any) => {
+      if (res.accessToken) {
+        setTimeout(() => {
+          setPersistedProfile({
+            ...res.data,
+            roleId: res.rolePermission.roleId,
+          });
+          setToken(res.accessToken);
+          setRole(res.rolePermission);
+          setProfile({
+            ...res.data,
+            roleId: res.rolePermission.roleId,
+          });
+
+          navigate(`${redirectByRole(res.rolePermission.menus)}`);
+          setLoading(false);
+        }, 1500);
       } else {
         return navigate("ErrorLoginPage");
       }
     });
   };
+  useEffectOnce(() => {
+    setProfile(null);
+    setRole(null);
+  });
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+        }}
+      >
+        <Spin size='large' />
+      </div>
+    );
+  }
 
   return (
     <Container>
@@ -42,7 +78,7 @@ export const AuthPage: React.FC = () => {
           <div
             style={{
               background: color.primary,
-              minHeight: "100vh",
+              minHeight: "80vh",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -94,6 +130,7 @@ export const AuthPage: React.FC = () => {
               }}
             >
               <MicrosoftLogin
+                useLocalStorageCache={true}
                 clientId='87575c83-d0d9-4544-93e5-7cd61636b45c'
                 authCallback={authHandler}
                 buttonTheme='dark'

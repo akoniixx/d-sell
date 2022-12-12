@@ -2,117 +2,123 @@ export const websiteBackOffice = {
   orderManagement: [
     {
       label: "View Detail",
-      value: "viewDetail",
+      value: "view",
     },
+    // {
+    //   label: "Sync Navision",
+    //   value: "sync",
+    // },
     {
-      label: "Sync Navision",
-      value: "syncNavision",
-    },
-    {
-      label: "Update Status",
-      value: "updateStatus",
+      label: "Edit Status",
+      value: "edit",
     },
   ],
   specialRequest: [
     {
       label: "View Detail",
-      value: "viewDetail",
+      value: "view",
     },
     {
       label: "Approve Order",
-      value: "approveOrder",
+      value: "edit",
     },
   ],
   promotionSetting: [
     {
       label: "View Detail",
-      value: "viewDetail",
+      value: "view",
     },
     {
       label: "Create Promotion",
-      value: "createPromotion",
+      value: "create",
     },
     {
       label: "Edit Promotion",
-      value: "editPromotion",
+      value: "edit",
     },
     {
       label: "Delete Promotion",
-      value: "deletePromotion",
+      value: "delete",
     },
   ],
   discountCo: [
     {
-      label: "คูปองรายการสั่งซื้อ",
-      value: "couponOrderList",
+      label: "View Detail",
+      value: "view",
     },
     {
-      label: "สร้างคูปองรายการสั่งซื้อ",
-      value: "createCouponOrderList",
+      label: "Create Discount",
+      value: "create",
     },
     {
-      label: "แก้ไขคูปองรายการสั่งซื้อ",
-      value: "editCouponOrderList",
+      label: "Edit Discount",
+      value: "edit",
     },
     {
-      label: "สร้างคูปองร้านค้า",
-      value: "createCouponStore",
-    },
-    {
-      label: "กำหนด Status คูปองร้านค้า",
-      value: "setStatusCouponStore",
+      label: "Delete Discount",
+      value: "delete",
     },
   ],
   priceListX10: [
-    { label: "View Price List", value: "viewPriceList" },
+    { label: "View Price List", value: "view" },
     {
       label: "Create Price List",
-      value: "createPriceList",
+      value: "create",
     },
     {
       label: "Edit Price List",
-      value: "editPriceList",
+      value: "edit",
     },
     {
       label: "Delete Price List",
-      value: "deletePriceList",
+      value: "delete",
     },
   ],
   saleManagement: [
     {
       label: "View Detail",
-      value: "viewDetail",
+      value: "view",
     },
     {
       label: "Create User",
-      value: "createUser",
+      value: "create",
     },
     {
       label: "Edit User",
-      value: "editUser",
+      value: "edit",
     },
     {
       label: "Delete User",
-      value: "deleteUser",
+      value: "delete",
     },
   ],
   roleManagement: [
     {
       label: "View Role",
-      value: "viewRole",
+      value: "view",
     },
     {
       label: "Create Role",
-      value: "createRole",
+      value: "create",
     },
     {
       label: "Edit Role",
-      value: "editRole",
+      value: "edit",
     },
     {
       label: "Delete Role",
-      value: "deleteRole",
+      value: "delete",
     },
+  ],
+  productManagement: [
+    {
+      label: "View Product",
+      value: "view",
+    },
+    {
+      label: "Edit Product",
+      value: "edit",
+    }
   ],
 };
 export const saleCodaSale = {

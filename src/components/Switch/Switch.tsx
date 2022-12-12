@@ -4,19 +4,24 @@ import { Switch as SwitchA } from "antd";
 
 const SwitchStyled = styled(SwitchA)``;
 interface Props {
-  checked?: boolean;
+  value?: boolean;
   onChange?: (checked: boolean) => void;
+  size?: "small" | "default";
 }
-function Switch({ onChange, checked }: Props): JSX.Element {
+function Switch({ onChange, value, size }: Props): JSX.Element {
   const [loading, setLoading] = React.useState(false);
   return (
     <SwitchStyled
-      checked={checked}
+      checked={value}
       loading={loading}
+      style={{
+        backgroundColor: "#FBFEFF",
+      }}
+      size={size}
       onChange={() => {
         setLoading(true);
         setTimeout(() => {
-          onChange && onChange(!checked);
+          onChange && onChange(!value);
           setLoading(false);
         }, 500);
       }}

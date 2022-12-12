@@ -8,7 +8,7 @@ export class AuthDatasource {
         email: email,
       })
       .then((response) => {
-        localStorage.setItem('profile', response.data)
+        localStorage.setItem("profile", response.data);
         return response.data;
       })
       .catch((error) => {

@@ -1,18 +1,14 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import {
-  Table,
-  Tabs,
-  Row,
-  Col,
-  Input,
-  Select,
-  Avatar,
-  Tag,
-} from "antd";
+import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { UnorderedListOutlined , SearchOutlined} from "@ant-design/icons";
+import { UnorderedListOutlined, SearchOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
-import { getProductBrand, getProductCategory, getProductGroup, getProductList } from "../../datasource/ProductDatasource";
+import {
+  getProductBrand,
+  getProductCategory,
+  getProductGroup,
+  getProductList,
+} from "../../datasource/ProductDatasource";
 import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
@@ -24,7 +20,9 @@ import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
 
-type FixedType = 'left' | 'right' | boolean;
+type FixedType = "left" | "right" | boolean;
+import * as _ from "lodash";
+const SLASH_DMY = "DD/MM/YYYY";
 
 export const DistributionPage: React.FC = () => {
   const style: React.CSSProperties = {
@@ -32,26 +30,26 @@ export const DistributionPage: React.FC = () => {
   };
 
   const pageSize = 8;
-  const userProfile = JSON.parse(localStorage.getItem('profile')!);
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
-  
+
   const [keyword, setKeyword] = useState<string>();
   const [prodGroup, setProdGroup] = useState<string>();
   const [location, setLocation] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState({
-    count: 0, 
-    count_location: [], 
+    count: 0,
+    count_location: [],
     data: [],
     groups: [],
     categories: [],
-    brands: []
-  })
+    brands: [],
+  });
 
   useEffect(() => {
-    if(!loading) fetchProduct();
-  }, [keyword, prodGroup, location, page])
+    if (!loading) fetchProduct();
+  }, [keyword, prodGroup, location, page]);
 
   const resetPage = () => setPage(1);
 
@@ -64,29 +62,40 @@ export const DistributionPage: React.FC = () => {
         productGroup: prodGroup,
         searchText: keyword,
         productLocation: location,
-        page
+        page,
       });
 
       const { responseData } = await getProductGroup(company);
       const brands = await getProductBrand(company);
       const categories = await getProductCategory(company);
       setDataState({
-        data, 
-        count, 
+        data,
+        count,
         count_location,
         groups: responseData,
         brands,
-        categories
+        categories,
       });
-      console.log({  company, prodGroup, keyword, location, page,data, count_location, count, responseData, brands, categories, userProfile });
-      
+      console.log({
+        company,
+        prodGroup,
+        keyword,
+        location,
+        page,
+        data,
+        count_location,
+        count,
+        responseData,
+        brands,
+        categories,
+        userProfile,
+      });
     } catch (e) {
       console.log(e);
     } finally {
       setLoading(false);
     }
-
-  }
+  };
 
   const PageTitle = () => {
     return (
@@ -103,41 +112,44 @@ export const DistributionPage: React.FC = () => {
         </Col>
         <Col className='gutter-row' xl={4} sm={7}>
           <div style={style}>
-              <Input
-                placeholder="ค้นหาชื่อสินค้า"
-                prefix={<SearchOutlined style={{ color: "grey" }} />}
-                defaultValue={keyword}
-                onPressEnter={(e) => {
-                  const value = (e.target as HTMLTextAreaElement).value;
-                  setKeyword(value);
-                  resetPage();
-                }}
-              />
-            </div> 
-        </Col>
-        <Col className='gutter-row' xl={4} sm={7}>
-            <Select 
-              defaultValue={prodGroup}
-              style={style} 
-              allowClear
-              onChange={(value: string) => {
-                setProdGroup(value);
+            <Input
+              placeholder='ค้นหาชื่อสินค้า'
+              prefix={<SearchOutlined style={{ color: "grey" }} />}
+              defaultValue={keyword}
+              onPressEnter={(e) => {
+                const value = (e.target as HTMLTextAreaElement).value;
+                setKeyword(value);
                 resetPage();
               }}
-              placeholder='เลือกกลุ่มสินค้า'
-              options={dataState.groups.map((group: ProductGroupEntity) => ({ label: group.product_group, value: group.product_group }))}
             />
+          </div>
+        </Col>
+        <Col className='gutter-row' xl={4} sm={7}>
+          <Select
+            defaultValue={prodGroup}
+            style={style}
+            allowClear
+            onChange={(value: string) => {
+              setProdGroup(value);
+              resetPage();
+            }}
+            placeholder='เลือกกลุ่มสินค้า'
+            options={dataState.groups.map((group: ProductGroupEntity) => ({
+              label: group.product_group,
+              value: group.product_group,
+            }))}
+          />
         </Col>
       </Row>
     );
   };
 
   const tabsItems = [
-    { label: 'ทั้งหมด', key: 'ALL' },
+    { label: "ทั้งหมด", key: "ALL" },
     ...(dataState?.count_location?.map(({ location, count }) => ({
       label: LOCATION_FULLNAME_MAPPING[location] + `(${count})`,
-      key: location
-    })) || [])
+      key: location,
+    })) || []),
   ];
 
   const columns = [
@@ -149,13 +161,15 @@ export const DistributionPage: React.FC = () => {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <FlexRow align="center">
+            <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar src={row.productImage} size={50} shape='square'/>
+                <Avatar src={row.productImage} size={50} shape='square' />
               </div>
               <FlexCol>
                 <Text level={5}>{row.productName}</Text>
-                <Text level={6} color='Text3'>{value}</Text>
+                <Text level={6} color='Text3'>
+                  {value}
+                </Text>
               </FlexCol>
             </FlexRow>
           ),
@@ -172,7 +186,9 @@ export const DistributionPage: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5}>{value}</Text>
-              <Text level={6} color='Text3'>{row.productCodeNAV}</Text>
+              <Text level={6} color='Text3'>
+                {row.productCodeNAV}
+              </Text>
             </FlexCol>
           ),
         };
@@ -187,11 +203,13 @@ export const DistributionPage: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5}>{value}</Text>
-              <Text level={6} color='Text3'>{row.productStrategy}</Text>
+              <Text level={6} color='Text3'>
+                {row.productStrategy}
+              </Text>
             </FlexCol>
           ),
         };
-      }
+      },
     },
     {
       title: "Product Brands",
@@ -199,15 +217,16 @@ export const DistributionPage: React.FC = () => {
       key: "productBrandId",
       // width: "15%",
       render: (value: any, row: any, index: number) => {
-        const brand: BrandEntity = dataState?.brands?.find((d: BrandEntity) => value === d.productBrandId) || null!;
+        const brand: BrandEntity =
+          dataState?.brands?.find((d: BrandEntity) => value === d.productBrandId) || null!;
         return {
           children: (
             <FlexCol>
               <Text level={5}>{brand.productBrandName}</Text>
             </FlexCol>
           ),
-        }
-      } 
+        };
+      },
     },
     {
       title: "โรงงาน",
@@ -218,11 +237,11 @@ export const DistributionPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{LOCATION_FULLNAME_MAPPING[value] || '-'}</Text>
+              <Text level={5}>{LOCATION_FULLNAME_MAPPING[value] || "-"}</Text>
             </FlexCol>
           ),
-        }
-      } 
+        };
+      },
     },
     {
       title: "ราคา / หน่วย",
@@ -234,11 +253,13 @@ export const DistributionPage: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5}>{priceFormatter(value)}</Text>
-              <Text level={6} color='Text3'>{row.saleUOM}</Text>
+              <Text level={6} color='Text3'>
+                {row.saleUOM}
+              </Text>
             </FlexCol>
           ),
         };
-      }
+      },
     },
     {
       title: "สถานะ",
@@ -260,12 +281,16 @@ export const DistributionPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5} color='primary' fontWeight={700}>{priceFormatter(value || '')}</Text>
-              <Text level={6} color='Text3'>{row.saleUOM}</Text>
+              <Text level={5} color='primary' fontWeight={700}>
+                {priceFormatter(value || "")}
+              </Text>
+              <Text level={6} color='Text3'>
+                {row.saleUOM}
+              </Text>
             </FlexCol>
           ),
         };
-      }
+      },
     },
     {
       title: "จัดการ",
@@ -280,10 +305,12 @@ export const DistributionPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)}
+                  onClick={() =>
+                    (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)
+                  }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined style={{ color: color['primary'] }}/>
+                    <UnorderedListOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
               </div>
@@ -300,10 +327,10 @@ export const DistributionPage: React.FC = () => {
         <CardContainer>
           <PageTitle />
           <br />
-          <Tabs 
+          <Tabs
             items={tabsItems}
             onChange={(key: string) => {
-              setLocation(key === 'ALL' ? undefined : key);
+              setLocation(key === "ALL" ? undefined : key);
               resetPage();
             }}
           />
@@ -311,13 +338,13 @@ export const DistributionPage: React.FC = () => {
             className='rounded-lg'
             columns={columns}
             scroll={{ x: "max-content" }}
-            dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i}))}
-            pagination={{ 
+            dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i }))}
+            pagination={{
               position: ["bottomCenter"],
               pageSize,
               current: page,
               total: dataState?.count,
-              onChange: (p) => setPage(p)
+              onChange: (p) => setPage(p),
             }}
             loading={loading}
             size='large'

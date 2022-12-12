@@ -7,15 +7,18 @@ async function getUserStaff({
   take = 10,
   keyword,
   isActive,
+  company,
 }: {
   page?: number;
   take?: number;
   keyword?: any;
   isActive?: "ACTIVE" | "INACTIVE";
+  company?: "ICPI" | "ICPL" | "ICPF" | "ICK";
 }) {
   const query: any = {
     page,
     take,
+    company,
   };
   if (keyword) {
     query.text = keyword;

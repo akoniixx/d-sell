@@ -3,11 +3,8 @@ import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
 import React, { useState } from "react";
 import { LogoutOutlined } from "@ant-design/icons";
-import type { SizeType } from "antd/es/config-provider/SizeContext";
 import { Link } from "react-router-dom";
 import icon from "../../resource/icon";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "../../store/ProfileAtom";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import { getCompanyName } from "../../utility/CompanyName";
 import styled, { css } from "styled-components";
@@ -27,95 +24,119 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
         `}
 `;
 
+export const pathLists = [
+  {
+    path: "/OrderPage",
+    name: "order",
+    permission: {
+      name: "orderManagement",
+      action: "view",
+    },
+    title: "Order Management",
+    subMenu: [],
+  },
+  {
+    path: "/PromotionPage",
+    name: "promotion",
+    title: "ตั้งค่าโปรโมชั่น",
+    subMenu: [
+      {
+        path: "/promotion",
+        name: "promotionList",
+        title: "รายการโปรโมชัน",
+        permission: null,
+      },
+      {
+        path: "/freebies",
+        name: "freebiesList",
+        title: "รายการของแถม",
+        permission: null,
+      },
+    ],
+    permission: null,
+  },
+  {
+    path: "/DiscountListPage",
+    name: "discountList",
+    title: "Discount (CO)",
+    permission: {
+      name: "discountCo",
+      action: "view",
+    },
+    subMenu: [
+      {
+        path: "/DiscountCOPage",
+        name: "discountCO",
+        title: "Discount CO",
+        permission: {
+          name: "discountCo",
+          action: "view",
+        },
+      },
+    ],
+  },
+  {
+    path: "/PriceListPage/DistributionPage",
+    name: "priceList",
+    title: "รายการสินค้า",
+    permission: null,
+    subMenu: [
+    ],
+  },
+  {
+    path: "/ShopManagementPage",
+    name: "shopManagement",
+    title: "จัดการร้านค้า",
+    permission: null,
+    subMenu: [
+      {
+        path: "/ShopListPage",
+        name: "shopList",
+        title: "รายชื่อร้านค้า",
+        permission: null,
+      },
+      {
+        path: "/ApproveTelPage",
+        name: "approveTel",
+        title: "อนุมัติเบอร์โทรศัพท์",
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/UserPage",
+    name: "user",
+    title: "User",
+    permission: {
+      name: ["roleManagement", "saleManagement"],
+      action: "view",
+    },
+    subMenu: [
+      {
+        path: "/SaleManagementPage?status=all",
+        name: "saleManagement",
+        title: "Sale Management",
+        permission: {
+          name: "saleManagement",
+          action: "view",
+        },
+      },
+      {
+        path: "/RoleManagementPage",
+        name: "roleManagement",
+        title: "Role Management",
+        permission: {
+          name: "roleManagement",
+          action: "view",
+        },
+      },
+    ],
+  },
+];
 const Layouts: React.FC<any> = ({ children }) => {
-  const [size, setSize] = useState<SizeType>("large");
-  const profile = useRecoilValue<any>(profileAtom);
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
   const [persistedProfile] = useLocalStorage("profile", []);
-
-  const pathLists = [
-    {
-      path: "/OrderPage",
-      name: "order",
-      title: "Order Management",
-      subMenu: [],
-    },
-    {
-      path: "/SalePage",
-      name: "approveOrder",
-      title: "Approve Order",
-      subMenu: [
-        {
-          path: "/SpecialRequestPage",
-          name: "specialRequest",
-          title: "Special Request",
-        },
-        {
-          path: "/SpecialPromotionPage",
-          name: "specialPromotion",
-          title: "Special Promotion",
-        },
-        {
-          path: "/AdvancePromotionPage",
-          name: "advancePromotion",
-          title: "Advance Promotion",
-        },
-      ],
-    },
-    {
-      path: "/PromotionPage",
-      name: "promotion",
-      title: "Promotion Setting",
-      subMenu: [],
-    },
-    {
-      path: "/DiscountListPage",
-      name: "discountList",
-      title: "Discount (CO)",
-      subMenu: [
-        {
-          path: "/DiscountCOPage",
-          name: "discountCO",
-          title: "Discount CO",
-        },
-      ],
-    },
-    {
-      path: "/PriceListPage",
-      name: "priceList",
-      title: "Price List",
-      subMenu: [
-        {
-          path: "/DistributionPage",
-          name: "distribution",
-          title: "Distribution (DIS)",
-        },
-        {
-          path: "/ShopPage",
-          name: "shop",
-          title: "Shop",
-        },
-      ],
-    },
-    {
-      path: "/UserPage",
-      name: "user",
-      title: "User",
-      subMenu: [
-        {
-          path: "/SaleManagementPage?status=all",
-          name: "saleManagement",
-          title: "Sale Management",
-        },
-        {
-          path: "/RoleManagementPage",
-          name: "roleManagement",
-          title: "Role Management",
-        },
-      ],
-    },
-  ];
 
   const logout = async () => {
     try {
@@ -124,6 +145,7 @@ const Layouts: React.FC<any> = ({ children }) => {
       const url = window.location.href;
       const arr = url.split("/");
       const resultUrlHost = arr[0] + "//" + arr[2];
+
       window.location.href =
         "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
         resultUrlHost;
@@ -163,9 +185,10 @@ const Layouts: React.FC<any> = ({ children }) => {
             {persistedProfile?.firstname} {persistedProfile?.lastname}
           </Text>
           <Text color='Text3' level={5}>{`, ${getCompanyName(persistedProfile?.company)}`}</Text>
-          <Button onClick={() => logout()} icon={<LogoutOutlined />} size={size} />
+          <Button onClick={() => logout()} icon={<LogoutOutlined />} size='large' />
         </div>
       </Header>
+
       <Layout>
         <Sider width={220} className='site-layout-background' collapsed={!isOpenSidebar}>
           <div

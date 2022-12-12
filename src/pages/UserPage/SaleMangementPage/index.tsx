@@ -21,6 +21,8 @@ import DetailUserModal from "../../../components/Modal/DetailUserModal";
 import { SaleEntity } from "../../../entities/SaleEntity";
 import useDebounce from "../../../hook/useDebounce";
 
+import { useLocalStorage } from "../../../hook/useLocalStorage";
+
 const NoImage = styled.div`
   width: 42px;
   height: 42px;
@@ -34,6 +36,8 @@ const NoImage = styled.div`
 function SaleManagementPage() {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState<string | undefined>(undefined);
+  const [profile] = useLocalStorage("profile", null);
+
   const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState("all");
@@ -46,12 +50,14 @@ function SaleManagementPage() {
     isLoading,
     error,
     refetch: getUserStaff,
-  } = useQuery(["saleManagement", keyword], async () =>
+  } = useQuery(["saleManagement", debouncedValue], async () =>
     SaleListDatasource.getUserStaff({
       keyword: debouncedValue,
       page,
       take: 8,
       isActive: tab === "all" ? undefined : tab === "active" ? "ACTIVE" : "INACTIVE",
+
+      company: profile?.company,
     }),
   );
   const onChangeStatus = async (id: string, currentStatus: string) => {
@@ -63,7 +69,6 @@ function SaleManagementPage() {
 
   useEffectOnce(() => {
     searchParams.get("status") && setTab(searchParams.get("status") || "all");
-    getUserStaff();
   });
   const defaultTableColumns = useMemo(() => {
     const staticData = [
@@ -170,7 +175,7 @@ function SaleManagementPage() {
           if (item.key === "status") {
             return (
               <Switch
-                checked={value === "ACTIVE"}
+                value={value === "ACTIVE"}
                 onChange={() => {
                   onChangeStatus(data.userStaffId, value);
                 }}
@@ -204,15 +209,15 @@ function SaleManagementPage() {
   }, []);
   const dataTabs = [
     {
-      label: `ทั้งหมด (${data?.count})`,
+      label: data?.counttotal ? `ทั้งหมด (${data?.counttotal})` : "ทั้งหมด",
       key: "all",
     },
     {
-      label: `Active (${data?.count})`,
+      label: data?.countactive ? `Active (${data?.countactive})` : "Active",
       key: "active",
     },
     {
-      label: `Inactive (${data?.count})`,
+      label: data?.countinactive ? `Inactive (${data?.countinactive})` : "Inactive",
       key: "inactive",
     },
   ];

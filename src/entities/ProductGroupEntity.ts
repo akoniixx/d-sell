@@ -1,4 +1,3 @@
 export interface ProductGroupEntity {
-    product_group: string
+  product_group: string;
 }
-  

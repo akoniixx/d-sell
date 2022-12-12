@@ -1,21 +1,16 @@
 import React, { useEffect, useState, memo, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Table,
-  Tabs,
-  Row,
-  Col,
-  Input,
-  Select,
-  Avatar,
-  Tag,
-  Card,
-  Button
-} from "antd";
+import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Card, Button } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { EditOutlined, FormOutlined , SearchOutlined} from "@ant-design/icons";
+import { EditOutlined, FormOutlined, SearchOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
-import { getProductBrand, getProductCategory, getProductDetail, getProductGroup, getProductList } from "../../datasource/ProductDatasource";
+import {
+  getProductBrand,
+  getProductCategory,
+  getProductDetail,
+  getProductGroup,
+  getProductList,
+} from "../../datasource/ProductDatasource";
 import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
@@ -34,203 +29,219 @@ import styled from "styled-components";
 import { ProductCategoryEntity } from "../../entities/ProductCategoryEntity";
 
 const Container = styled.div`
-    margin: 32px 0px 10px 0px;
+  margin: 32px 0px 10px 0px;
 `;
 
 const ProdImage = styled.img`
-    width: 136px;
-    height: 136px;
-    border-radius: 12px;
-    object-fit: contain;
+  width: 136px;
+  height: 136px;
+  border-radius: 12px;
+  object-fit: contain;
 `;
 
 interface DescProps {
-    label: string;
-    value: ReactNode;
-} 
-
-const ProdDesc = ({ label, value }: DescProps) => {
-    return <Row align='middle' style={{ padding: '8px 0px'}}>
-        <Col xl={6} sm={8}>
-            <Text level={5} color='Text3'>
-                {label}
-            </Text>
-        </Col>
-        <Col xl={18} sm={16}>
-            <Text level={5} color='Text1'>
-                {value || '-'}
-            </Text>
-        </Col>
-    </Row>
+  label: string;
+  value: ReactNode;
 }
 
+const ProdDesc = ({ label, value }: DescProps) => {
+  return (
+    <Row align='middle' style={{ padding: "8px 0px" }}>
+      <Col xl={6} sm={8}>
+        <Text level={5} color='Text3'>
+          {label}
+        </Text>
+      </Col>
+      <Col xl={18} sm={16}>
+        <Text level={5} color='Text1'>
+          {value || "-"}
+        </Text>
+      </Col>
+    </Row>
+  );
+};
+
 export const DistributionPageDetail: React.FC = (props: any) => {
+  const [loading, setLoading] = useState(false);
+  const [dataState, setDataState] = useState<ProductEntity>();
 
-    const [loading, setLoading] = useState(false);
-    const [dataState, setDataState] = useState<ProductEntity>();
+  useEffectOnce(() => {
+    fetchProduct();
+  });
 
-    useEffectOnce(() => {
-        fetchProduct();
-    })
-
-    const fetchProduct = async () => {
-        try {
-        setLoading(true);
-        const { pathname } = window.location;
-        const pathSplit = pathname.split('/') as Array<string>;
-        const data = await getProductDetail(parseInt(pathSplit[3]));
-        setDataState(data);
-        console.log({ pathSplit, data })
-        } catch (e) {
-        console.log(e);
-        } finally {
-        setLoading(false);
-        }
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const { pathname } = window.location;
+      const pathSplit = pathname.split("/") as Array<string>;
+      const data = await getProductDetail(parseInt(pathSplit[3]));
+      setDataState(data);
+      console.log({ pathSplit, data });
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const {
-        baseUOM,
-        commonName,
-        company,
-        createDate,
-        description,
-        inventoryGroup,
-        marketPrice,
-        packSize,
-        packingUOM,
-        productBrand,
-        productBrandId,
-        productCategory,
-        productCategoryId,
-        productCodeNAV,
-        productGroup,
-        productId,
-        productImage,
-        productLocation,
-        productName,
-        productStatus,
-        productStrategy,
-        qtySaleUnit,
-        saleUOM,
-        unitPrice,
-        updateBy,
-        updateDate,
-    } = dataState || {};
+  const {
+    baseUOM,
+    commonName,
+    company,
+    createDate,
+    description,
+    inventoryGroup,
+    marketPrice,
+    packSize,
+    packingUOM,
+    productBrand,
+    productBrandId,
+    productCategory,
+    productCategoryId,
+    productCodeNAV,
+    productGroup,
+    productId,
+    productImage,
+    productLocation,
+    productName,
+    productStatus,
+    productStrategy,
+    qtySaleUnit,
+    saleUOM,
+    unitPrice,
+    updateBy,
+    updateDate,
+  } = dataState || {};
 
-    const dataGroup1 = [
-        {
-            label: 'Product Brands',
-            value: (productBrand as BrandEntity)?.productBrandName
-        },
-        {
-            label: 'โรงงาน',
-            value: LOCATION_FULLNAME_MAPPING[productLocation as string]
-        },
-        {
-            label: 'รหัสสินค้า',
-            value: productCodeNAV
-        },
-        {
-            label: 'ชื่อทางการค้า (Tradename)',
-            value: productName
-        },
-        {
-            label: 'ชื่อสามัญ',
-            value: commonName
-        },
-        {
-            label: 'กลุ่มสินค้า (Product Group)',
-            value: productGroup
-        },
-        {
-            label: 'กลุ่มสินค้า (Product Category)',
-            value: (productCategory as ProductCategoryEntity)?.productCategoryName
+  const dataGroup1 = [
+    {
+      label: "Product Brands",
+      value: (productBrand as BrandEntity)?.productBrandName,
+    },
+    {
+      label: "โรงงาน",
+      value: LOCATION_FULLNAME_MAPPING[productLocation as string],
+    },
+    {
+      label: "รหัสสินค้า",
+      value: productCodeNAV,
+    },
+    {
+      label: "ชื่อทางการค้า (Tradename)",
+      value: productName,
+    },
+    {
+      label: "ชื่อสามัญ",
+      value: commonName,
+    },
+    {
+      label: "กลุ่มสินค้า (Product Group)",
+      value: productGroup,
+    },
+    {
+      label: "กลุ่มสินค้า (Product Category)",
+      value: (productCategory as ProductCategoryEntity)?.productCategoryName,
+    },
+  ];
+
+  const dataGroup2 = [
+    {
+      label: "ปริมาณสินค้า / หน่วย",
+      value: saleUOM,
+    },
+    {
+      label: "ราคากลาง (Base price)",
+      value: priceFormatter(parseFloat(unitPrice || "")),
+    },
+  ];
+
+  const dataGroup3 = [
+    {
+      label: "ราคากลาง (Base price)",
+      value: priceFormatter(parseFloat(marketPrice || "")),
+    },
+  ];
+
+  const dataGroup4 = [
+    {
+      label: "คุณสมบัติและ ประโยชน์",
+      value: description,
+    },
+  ];
+
+  const PageTitle = () => {
+    return (
+      <PageTitleNested
+        title='รายละเอียดสินค้า'
+        showBack
+        extra={
+          <Button
+            type='primary'
+            onClick={() =>
+              (window.location.href = "/PriceListPage/DistributionPage/edit/" + productId)
+            }
+          >
+            <EditOutlined />
+            แก้ไขรายละเอียด
+          </Button>
         }
-    ]
-
-    const dataGroup2 = [
-        {
-            label: 'ปริมาณสินค้า / หน่วย',
-            value: saleUOM
-        },
-        {
-            label: 'ราคากลาง (Base price)',
-            value: priceFormatter(parseFloat(unitPrice || ''))
-        },
-    ]
-
-    const dataGroup3 = [
-        {
-            label: 'ราคากลาง (Base price)',
-            value: priceFormatter(parseFloat(marketPrice || ''))
-        },
-    ]
-
-    const dataGroup4 = [
-        {
-            label: 'คุณสมบัติและ ประโยชน์',
-            value: description
+        extraTitle={
+          productStatus && (
+            <Tag color={STATUS_COLOR_MAPPING[productStatus]}>{nameFormatter(productStatus)}</Tag>
+          )
         }
-    ]
-
-    const PageTitle = () => {
-        return (
-            <PageTitleNested
-                title="รายละเอียดสินค้า"
-                showBack
-                extra={
-                    <Button 
-                        type='primary' 
-                        onClick={() => (window.location.href = "/PriceListPage/DistributionPage/edit/" + productId)}
-                    >
-                        <EditOutlined/>แก้ไขรายละเอียด
-                    </Button>
-                }
-                extraTitle={productStatus && <Tag color={STATUS_COLOR_MAPPING[productStatus]}>{nameFormatter(productStatus)}</Tag>}
-                customBreadCrumb={              
-                    <BreadCrumb 
-                        data={[
-                            { text: 'รายชื่อสินค้า', path: '/PriceListPage/DistributionPage' }, 
-                            { text: 'รายละเอียดสินค้า', path: window.location.pathname}
-                        ]} 
-                    />
-                }            
-            />
-        );
-    };
-
-    return loading ? (
-        <div className='container '>
-            <Card loading/>
-        </div>
-    ) : (
-        <>
-            <div className='container '>
-                <CardContainer>
-                    <PageTitle />
-                    <Container>
-                        <ProdImage src={productImage} />
-                    </Container>
-                    <Container>
-                        {dataGroup1.map((p: DescProps, i) => <ProdDesc {...p} key={i}/>)}
-                    </Container>
-                    <Container>
-                        <Text color='primary' fontWeight={700}>
-                            UNIT SIZE
-                        </Text>
-                        {dataGroup2.map((p: DescProps, i) => <ProdDesc {...p} key={i}/>)}
-                    </Container>
-                    <Container>
-                        <Text color='primary' fontWeight={700}>
-                            PACKAGE SIZE
-                        </Text>
-                        {dataGroup3.map((p: DescProps, i) => <ProdDesc {...p} key={i}/>)}
-                    </Container>
-                    <Container>
-                        {dataGroup4.map((p: DescProps, i) => <ProdDesc {...p} key={i}/>)}
-                    </Container>
-                </CardContainer>
-            </div>
-        </>
+        customBreadCrumb={
+          <BreadCrumb
+            data={[
+              { text: "รายชื่อสินค้า", path: "/PriceListPage/DistributionPage" },
+              { text: "รายละเอียดสินค้า", path: window.location.pathname },
+            ]}
+          />
+        }
+      />
     );
+  };
+
+  return loading ? (
+    <div className='container '>
+      <Card loading />
+    </div>
+  ) : (
+    <>
+      <div className='container '>
+        <CardContainer>
+          <PageTitle />
+          <Container>
+            <ProdImage src={productImage} />
+          </Container>
+          <Container>
+            {dataGroup1.map((p: DescProps, i) => (
+              <ProdDesc {...p} key={i} />
+            ))}
+          </Container>
+          <Container>
+            <Text color='primary' fontWeight={700}>
+              UNIT SIZE
+            </Text>
+            {dataGroup2.map((p: DescProps, i) => (
+              <ProdDesc {...p} key={i} />
+            ))}
+          </Container>
+          <Container>
+            <Text color='primary' fontWeight={700}>
+              PACKAGE SIZE
+            </Text>
+            {dataGroup3.map((p: DescProps, i) => (
+              <ProdDesc {...p} key={i} />
+            ))}
+          </Container>
+          <Container>
+            {dataGroup4.map((p: DescProps, i) => (
+              <ProdDesc {...p} key={i} />
+            ))}
+          </Container>
+        </CardContainer>
+      </div>
+    </>
+  );
 };

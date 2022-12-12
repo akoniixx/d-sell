@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { BASE_URL, httpClient } from "../config/develop-config";
- 
+
 const baseUrl = `${BASE_URL}/master`;
 
 const getProductList = async (params: object) => {
@@ -9,13 +9,13 @@ const getProductList = async (params: object) => {
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
- 
+
 const getProductGroup = async (company: string) => {
   return await httpClient
     .get(`${baseUrl}/product/product-group/${company}`)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
-}; 
+};
 
 const getProductCategory = async (company: string) => {
   return await httpClient
@@ -36,20 +36,20 @@ const getProductDetail = async (productId: number) => {
     .get(`${baseUrl}/product/${productId}`)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
-}; 
+};
 
 const updateProduct = async (data: FormData) => {
   return await httpClient
     .post(`${baseUrl}/product/update-product`, data)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
-}; 
+};
 
-export { 
-  getProductList, 
+export {
+  getProductList,
   getProductGroup,
   getProductCategory,
   getProductBrand,
   getProductDetail,
-  updateProduct
+  updateProduct,
 };

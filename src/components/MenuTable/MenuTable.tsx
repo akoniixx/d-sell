@@ -1,7 +1,9 @@
 import { Col, Row } from "antd";
+import React from "react";
 
 import icon from "../../resource/icon";
 import Button from "../Button/Button";
+import ConfirmModal from "../Modal/ConfirmModal";
 
 interface Props {
   onClickEdit?: () => void;
@@ -26,6 +28,7 @@ export default function MenuTable({
   disableDelete,
   disableList,
 }: Props) {
+  const [visible, setVisible] = React.useState(false);
   const Lists = [
     {
       onClick: onClickList,
@@ -46,7 +49,7 @@ export default function MenuTable({
       height: 20,
     },
     {
-      onClick: onClickDelete,
+      onClick: () => setVisible(true),
       icon: icon.trashIcon,
       disable: disableDelete,
       isHide: hideDelete,
@@ -82,6 +85,16 @@ export default function MenuTable({
           </Col>
         );
       })}
+      <ConfirmModal
+        title='ต้องการลบข้อมูลตำแหน่งผู้ใช้งานนี้'
+        desc='โปรดยืนยันการลบข้อมูลตำแหน่งผู้ใช้งาน'
+        visible={visible}
+        onConfirm={() => {
+          onClickDelete?.();
+          setVisible(false);
+        }}
+        onCancel={() => setVisible(false)}
+      />
     </Row>
   );
 }
