@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { CalendarOutlined } from "@ant-design/icons";
-import { Col, Input, Row, Space } from "antd";
-import Layouts from "../../components/Layout/Layout";
+import React from "react";
+import {} from "@ant-design/icons";
+import { Col, Input, Row } from "antd";
 
 export function OrderPage() {
-  const token = localStorage.getItem("token");
   const mystyle = {
     color: "black",
     backgroundColor: "white",

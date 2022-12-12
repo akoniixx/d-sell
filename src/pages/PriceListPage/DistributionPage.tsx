@@ -22,6 +22,7 @@ import color from "../../resource/color";
 
 type FixedType = "left" | "right" | boolean;
 import * as _ from "lodash";
+import Text from "../../components/Text/Text";
 const SLASH_DMY = "DD/MM/YYYY";
 
 export const DistributionPage: React.FC = () => {

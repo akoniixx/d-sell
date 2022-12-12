@@ -1,5 +1,5 @@
 import { Col, Row } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useMatches, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import icon from "../../resource/icon";
 import BreadCrumb from "../BreadCrumb/BreadCrumb";
@@ -32,6 +32,7 @@ const ConvertTitleObj = {
   EditSale: "แก้ไขรายชื่อพนักงาน",
   EditRole: "แก้ไขตำแหน่ง",
   DetailPage: "รายละเอียดร้านค้า",
+  EditShopPage: "แก้ไขรายละเอียดร้านค้า",
 };
 const ExtraTitleContainer = styled.div`
   margin-left: 12px;
@@ -48,6 +49,8 @@ const PageTitleNested = ({
 }: Props) => {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
+  const params = useParams();
+  const paramsListKey = Object.keys(params);
 
   const currentPathSplit = cutParams
     ? currentPath
@@ -56,10 +59,32 @@ const PageTitleNested = ({
         .slice(0, -1)
     : currentPath.split("/").filter((el) => el !== "");
 
-  const data = currentPathSplit
+  const isHaveParams = currentPathSplit.find((el) => {
+    const isHave = paramsListKey.find((key) => params[key as keyof typeof params] === el);
+    return isHave;
+  });
+
+  const removeBeforeMap = isHaveParams
+    ? currentPathSplit
+        .join("/")
+        .replace(isHaveParams, "")
+        .split("/")
+        .filter((el) => el !== "")
+    : currentPathSplit;
+  const indexOfParams = isHaveParams && currentPathSplit.indexOf(isHaveParams as string);
+
+  const data = removeBeforeMap
     .map((el, idx) => {
-      const path = currentPathSplit.slice(0, idx + 1).join("/");
       const text = ConvertTitleObj[el as keyof typeof ConvertTitleObj];
+      const path = currentPathSplit.slice(0, idx + 1).join("/");
+
+      if (indexOfParams && isHaveParams && idx >= indexOfParams - 1) {
+        return {
+          text,
+          path: "/" + currentPathSplit.slice(0, idx + 2).join("/"),
+        };
+      }
+
       return {
         text,
         path: "/" + path,
