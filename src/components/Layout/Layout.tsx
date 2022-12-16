@@ -80,8 +80,7 @@ export const pathLists = [
     name: "priceList",
     title: "รายการสินค้า",
     permission: null,
-    subMenu: [
-    ],
+    subMenu: [],
   },
   {
     path: "/ShopManagementPage",
@@ -115,7 +114,7 @@ export const pathLists = [
       {
         path: "/SaleManagementPage?status=all",
         name: "saleManagement",
-        title: "Sale Management",
+        title: "รายชื่อผู้ใช้งาน",
         permission: {
           name: "saleManagement",
           action: "view",
