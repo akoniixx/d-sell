@@ -60,7 +60,7 @@ export function AddNewSale() {
     const newFormat = data.data.map((el: { rolename: string; roleId: string }) => {
       return {
         label: el.rolename,
-        value: el.roleId,
+        value: el.rolename,
         key: el.roleId,
       };
     });

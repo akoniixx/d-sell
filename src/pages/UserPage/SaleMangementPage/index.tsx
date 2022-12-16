@@ -8,7 +8,6 @@ import TablePagination from "../../../components/Table/TablePagination";
 import Text from "../../../components/Text/Text";
 import dayjs from "dayjs";
 import { SaleListDatasource } from "../../../datasource/SaleListDatasource";
-import { RolesObj } from "../../../utility/StaticRoles";
 import styled from "styled-components";
 import color from "../../../resource/color";
 import Switch from "../../../components/Switch/Switch";

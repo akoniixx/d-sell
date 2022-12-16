@@ -9,7 +9,6 @@ import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { defaultPropsForm } from "../../../utility/DefaultProps";
 import Select from "../../../components/Select/Select";
-import { SelectDataRoles } from "../../../utility/StaticRoles";
 import styled from "styled-components";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
@@ -58,7 +57,7 @@ export function EditUserSale() {
     const newFormat = data.data.map((el: { rolename: string; roleId: string }) => {
       return {
         label: el.rolename,
-        value: el.roleId,
+        value: el.rolename,
         key: el.roleId,
       };
     });
@@ -81,7 +80,7 @@ export function EditUserSale() {
     if (userStaffId) {
       getInitialValue();
     }
-  }, [getInitialValue, userStaffId, getZoneByCompany, getRoleList]);
+  }, [getInitialValue, userStaffId, getZoneByCompany]);
 
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
@@ -262,8 +261,9 @@ export function EditUserSale() {
               }}
             >
               {({ getFieldValue }) => {
+                const findRole = roleList.find((item) => item.value === getFieldValue("role"));
                 return (
-                  getFieldValue("role") === "SALE" && (
+                  findRole?.label === "SALE" && (
                     <Col span={12}>
                       <Form.Item label='เขต' name={"zone"}>
                         <Select data={zone} />
