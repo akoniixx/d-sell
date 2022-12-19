@@ -86,12 +86,26 @@ function DetailUserModal({ visible, bodyStyle, data, onCancel }: Props) {
                 position: "relative",
               }}
             >
-              <NoImage>
-                <StatusCircle status={data.status === "ACTIVE"} />
-                <Text color='primary' fontSize={50} fontWeight={600}>
-                  {data?.firstname?.split("")[0]}
-                </Text>
-              </NoImage>
+              {data?.profileImage ? (
+                <>
+                  <StatusCircle status={data.status === "ACTIVE"} />
+                  <img
+                    src={data?.profileImage}
+                    style={{
+                      width: 120,
+                      height: 120,
+                      borderRadius: "50%",
+                    }}
+                  />
+                </>
+              ) : (
+                <NoImage>
+                  <StatusCircle status={data.status === "ACTIVE"} />
+                  <Text color='primary' fontSize={50} fontWeight={600}>
+                    {data?.firstname?.split("")[0]}
+                  </Text>
+                </NoImage>
+              )}
             </div>
             <div
               style={{

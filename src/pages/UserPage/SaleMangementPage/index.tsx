@@ -8,7 +8,6 @@ import TablePagination from "../../../components/Table/TablePagination";
 import Text from "../../../components/Text/Text";
 import dayjs from "dayjs";
 import { SaleListDatasource } from "../../../datasource/SaleListDatasource";
-import { RolesObj } from "../../../utility/StaticRoles";
 import styled from "styled-components";
 import color from "../../../resource/color";
 import Switch from "../../../components/Switch/Switch";
@@ -50,13 +49,12 @@ function SaleManagementPage() {
     isLoading,
     error,
     refetch: getUserStaff,
-  } = useQuery(["saleManagement", debouncedValue], async () =>
+  } = useQuery(["saleManagement", debouncedValue, tab, page], async () =>
     SaleListDatasource.getUserStaff({
       keyword: debouncedValue,
       page,
       take: 8,
       isActive: tab === "all" ? undefined : tab === "active" ? "ACTIVE" : "INACTIVE",
-
       company: profile?.company,
     }),
   );
@@ -83,14 +81,14 @@ function SaleManagementPage() {
         key: "name",
       },
       {
-        title: "เขต",
-        dataIndex: "zone",
-        key: "zone",
-      },
-      {
         title: "ตำแหน่ง",
         dataIndex: "role",
         key: "role",
+      },
+      {
+        title: "เขต",
+        dataIndex: "zone",
+        key: "zone",
       },
       {
         title: "ข้อมูลติดต่อ",
@@ -129,9 +127,21 @@ function SaleManagementPage() {
                   gap: 16,
                 }}
               >
-                <NoImage>
-                  <Text color='primary'>{data.firstname.split("")[0]}</Text>
-                </NoImage>
+                {data.profileImage ? (
+                  <img
+                    src={data.profileImage}
+                    alt=''
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 50,
+                    }}
+                  />
+                ) : (
+                  <NoImage>
+                    <Text color='primary'>{data.firstname.split("")[0]}</Text>
+                  </NoImage>
+                )}
                 <div>
                   <Row>
                     <Text>
@@ -158,7 +168,7 @@ function SaleManagementPage() {
             );
           }
           if (item.key === "role") {
-            return <Text>{RolesObj[value as keyof typeof RolesObj]}</Text>;
+            return <Text>{value}</Text>;
           }
           if (item.key === "updateBy") {
             return (
@@ -221,15 +231,6 @@ function SaleManagementPage() {
       key: "inactive",
     },
   ];
-  // const onDelete = async (id: string) => {
-  //   try {
-  //     await SaleListDatasource.deleteSaleStaff(id);
-  //     getUserStaff();
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
   return (
     <>
       <CardContainer
@@ -238,7 +239,7 @@ function SaleManagementPage() {
         }}
       >
         <PageTitle
-          title='รายชื่อพนักงาน'
+          title='รายชื่อผู้ใช้งาน'
           extra={
             <div
               style={{
@@ -251,7 +252,7 @@ function SaleManagementPage() {
                   onChange={(e) => {
                     setKeyword(e.target.value);
                   }}
-                  placeholder='ค้นหาพนักงาน'
+                  placeholder='ค้นหาผู้ใช้งาน'
                   value={keyword}
                 />
               </div>
@@ -260,7 +261,7 @@ function SaleManagementPage() {
                   onClick={() => {
                     navigate("AddSale");
                   }}
-                  title=' + เพิ่มพนักงาน'
+                  title=' + เพิ่มผู้ใช้งาน'
                 />
               </div>
             </div>

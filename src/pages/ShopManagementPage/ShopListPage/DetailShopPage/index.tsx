@@ -8,7 +8,6 @@ import AntdTabs from "../../../../components/AntdTabs/AntdTabs";
 import DetailTab from "./DetailTab";
 import HistoryTab from "./HistoryTab";
 import { useNavigate, useParams } from "react-router-dom";
-
 function DetailShopPage(): JSX.Element {
   const { shopId } = useParams();
   const navigate = useNavigate();

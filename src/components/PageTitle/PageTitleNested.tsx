@@ -1,5 +1,5 @@
 import { Col, Row } from "antd";
-import { useMatches, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import icon from "../../resource/icon";
 import BreadCrumb from "../BreadCrumb/BreadCrumb";
@@ -14,6 +14,7 @@ interface Props {
   style?: React.CSSProperties;
   cutParams?: boolean;
   description?: React.ReactNode;
+  onBack?: () => void;
 }
 const BackImage = styled.img`
   width: 30px;
@@ -23,13 +24,13 @@ const ContainerBackButton = styled.div`
   cursor: pointer;
 `;
 const ConvertTitleObj = {
-  SaleManagementPage: "รายชื่อพนักงาน",
-  AddSale: "เพิ่มรายชื่อพนักงาน",
+  SaleManagementPage: "รายชื่อผู้ใช้งาน",
+  AddSale: "เพิ่มรายชื่อผู้ใช้งาน",
   RoleManagementPage: "จัดการสิทธิตำแหน่งผู้ใช้งาน",
   AddNewRole: "เพิ่มตำแหน่ง",
   AddNewShop: "เพิ่มร้านค้า",
   ShopListPage: "รายชื่อร้านค้า",
-  EditSale: "แก้ไขรายชื่อพนักงาน",
+  EditSale: "แก้ไขรายชื่อผู้ใช้งาน",
   EditRole: "แก้ไขตำแหน่ง",
   DetailPage: "รายละเอียดร้านค้า",
   EditShopPage: "แก้ไขรายละเอียดร้านค้า",
@@ -46,6 +47,7 @@ const PageTitleNested = ({
   description,
   extraTitle,
   customBreadCrumb,
+  onBack,
 }: Props) => {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
@@ -102,7 +104,7 @@ const PageTitleNested = ({
         >
           {showBack && (
             <Col>
-              <ContainerBackButton onClick={() => navigate(-1)}>
+              <ContainerBackButton onClick={onBack ? onBack : () => navigate(-1)}>
                 <BackImage src={icon.backLeft} />
               </ContainerBackButton>
             </Col>
