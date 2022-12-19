@@ -15,3 +15,7 @@
 - Added Menu ShopManagement only ui (ShopManagement , ShopDetail , ShopCreate , ShopEdit)
 - Added Menu ProductList UI and API (ProductList, ProductDetail, EditProduct)
 
+##  Features [v0.2.4] - Release Date: 2022-12-19
+- Added Menu FreebieList UI and API
+- Added Menu Promotion UI
+

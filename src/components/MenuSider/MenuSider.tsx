@@ -17,7 +17,8 @@ import { useEffectOnce } from "react-use";
 import { checkPermissionRenderMenu } from "../../utility/func/RedirectByPermission";
 import { useRecoilValue } from "recoil";
 import { roleAtom } from "../../store/RoleAtom";
-import { version } from "../../config/version";
+import packageJson from "../../../package.json";
+
 interface Props {
   style?: React.CSSProperties;
   lists: {
@@ -242,7 +243,7 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
           padding: "0 4px",
         }}
       >
-        <Text level={7} fontWeight={700}>{` Dev : ${version.dev} `}</Text>
+        <Text level={7} fontWeight={700}>{` Dev : ${packageJson.version} `}</Text>
       </div>
     </MenuSiderStyled>
   );

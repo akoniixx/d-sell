@@ -88,7 +88,7 @@ const ProductName = ({ product, size }: ProdNameProps) => {
     )
 }
 
-const AddProduct = ({ list, setList, onClose }: SearchProps) => {
+const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
     const [products, setProducts] = useState<ProductEntity[]>([]);
     const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
     const [selectedProductId, setSelectedProdId] = useState<string[]>([]);
