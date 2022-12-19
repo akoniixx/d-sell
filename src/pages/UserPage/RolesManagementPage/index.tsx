@@ -45,16 +45,18 @@ export default function RolesManagementPage(): JSX.Element {
   const onClickDelete = async (id: string) => {
     try {
       await roleDatasource.deleteRole(id);
-      getAllRoles();
-      Swal.fire({
+      await Swal.fire({
         title: "ลบข้อมูลสำเร็จ",
         text: "",
         width: 250,
+        timer: 2000,
         icon: "success",
         customClass: {
           title: "custom-title",
         },
         showConfirmButton: false,
+      }).then(() => {
+        getAllRoles();
       });
     } catch (e) {
       console.log(e);
@@ -68,7 +70,7 @@ export default function RolesManagementPage(): JSX.Element {
         key: "id",
       },
       {
-        title: "ชื่อตำแหน่ง",
+        title: "ชื่อบทบาท",
         dataIndex: "rolename",
         key: "rolename",
       },
@@ -111,7 +113,7 @@ export default function RolesManagementPage(): JSX.Element {
                   <Text>{data.updateDate ? dayjs(data.updateDate).format("DD/MM/BBBB") : "-"}</Text>
                 </Row>
                 <Text level={6} color='Text3'>
-                  {data.updateBy}
+                  {data.updateBy ? data.updateBy : "-"}
                 </Text>
               </div>
             );
@@ -120,7 +122,11 @@ export default function RolesManagementPage(): JSX.Element {
           if (item.key === "action") {
             return (
               <MenuTable
-                hideList
+                onClickList={() => {
+                  navigate(`DetailRole/${data.roleId}`);
+                }}
+                titleModalWarning='ต้องการลบข้อมูลบทบาทผู้ใช้งานนี้'
+                descriptionModalWarning='โปรดยืนยันการลบข้อมูลบทบาทผู้ใช้งาน'
                 onClickDelete={() => onClickDelete(data.roleId)}
                 onClickEdit={() => {
                   onClickEdit(data.roleId);
@@ -147,7 +153,7 @@ export default function RolesManagementPage(): JSX.Element {
         }}
       >
         <PageTitle
-          title='จัดการสิทธิตำแหน่งผู้ใช้งาน'
+          title='จัดการสิทธิบทบาทผู้ใช้งาน'
           extra={
             <div
               style={{
@@ -160,13 +166,13 @@ export default function RolesManagementPage(): JSX.Element {
                   onChange={(e) => {
                     setKeyword(e.target.value);
                   }}
-                  placeholder='ค้นหาตำแหน่ง'
+                  placeholder='ค้นหาบทบาท'
                   value={keyword}
                 />
               </div>
               <div>
                 <Button
-                  title='+ เพิ่มตำแหน่ง'
+                  title='+ เพิ่มบทบาท'
                   onClick={() => {
                     navigate("AddNewRole");
                   }}

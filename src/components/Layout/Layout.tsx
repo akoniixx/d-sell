@@ -123,7 +123,7 @@ export const pathLists = [
       {
         path: "/RoleManagementPage",
         name: "roleManagement",
-        title: "Role Management",
+        title: "จัดการสิทธิ",
         permission: {
           name: "roleManagement",
           action: "view",

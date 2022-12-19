@@ -26,7 +26,7 @@ import ApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage";
 import AddNewShopPage from "./pages/ShopManagementPage/ShopListPage/AddNewShopPage";
 import { Spin } from "antd";
 import { profileAtom } from "./store/ProfileAtom";
-import { useRecoilState,  useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import EditRole from "./pages/UserPage/RolesManagementPage/EditRole";
 import { roleAtom } from "./store/RoleAtom";
 import { roleDatasource } from "./datasource/RoleDatasource";
@@ -35,6 +35,7 @@ import EditShopPage from "./pages/ShopManagementPage/ShopListPage/EditShopPage";
 import { FreebieListPage } from "./pages/promotionPage/freebieList";
 import { PromotionListPage } from "./pages/promotionPage/promotionList";
 import { PromotionCreatePage } from "./pages/promotionPage/createPromotion";
+import DetailRole from "./pages/UserPage/RolesManagementPage/DetailRole";
 
 interface IRoute {
   path: string;
@@ -219,6 +220,14 @@ export const protectRoutesData: IRoute[] = [
         },
       },
       {
+        path: "RoleManagementPage/DetailRole/:roleId",
+        element: <DetailRole />,
+        permission: {
+          name: "roleManagement",
+          action: "view",
+        },
+      },
+      {
         path: "RoleManagementPage/EditRole/:roleId",
         element: <EditRole />,
         permission: {
@@ -259,7 +268,7 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
     ],
-  }
+  },
 ];
 
 const WebRoutes: React.FC<any> = () => {
