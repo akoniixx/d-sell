@@ -26,7 +26,7 @@ import ApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage";
 import AddNewShopPage from "./pages/ShopManagementPage/ShopListPage/AddNewShopPage";
 import { Spin } from "antd";
 import { profileAtom } from "./store/ProfileAtom";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState,  useSetRecoilState } from "recoil";
 import EditRole from "./pages/UserPage/RolesManagementPage/EditRole";
 import { roleAtom } from "./store/RoleAtom";
 import { roleDatasource } from "./datasource/RoleDatasource";

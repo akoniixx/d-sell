@@ -9,7 +9,6 @@ import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { defaultPropsForm } from "../../../utility/DefaultProps";
 import Select from "../../../components/Select/Select";
-import { SelectDataRoles } from "../../../utility/StaticRoles";
 import styled from "styled-components";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
@@ -19,6 +18,7 @@ import ConfirmModal from "../../../components/Modal/ConfirmModal";
 import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../../store/ProfileAtom";
 import { zoneDatasource } from "../../../datasource/ZoneDatasource";
+import { roleDatasource } from "../../../datasource/RoleDatasource";
 
 const Top = styled.div``;
 const Bottom = styled(Row)`
@@ -29,8 +29,12 @@ const Bottom = styled(Row)`
 export function EditUserSale() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [visibleWarning, setVisibleWarning] = React.useState(false);
   const profile = useRecoilValue(profileAtom);
   const { userStaffId } = useParams();
+  const [roleList, setRoleList] = React.useState<{ label: string; value: string; key: string }[]>(
+    [],
+  );
   const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
   const getZoneByCompany = useCallback(async () => {
     const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
@@ -43,6 +47,22 @@ export function EditUserSale() {
     });
     setZone(data);
   }, [profile?.company]);
+  const getRoleList = async () => {
+    const { data } = await roleDatasource.getAllRoles({
+      page: 1,
+      take: 100,
+      company: profile?.company,
+    });
+
+    const newFormat = data.data.map((el: { rolename: string; roleId: string }) => {
+      return {
+        label: el.rolename,
+        value: el.rolename,
+        key: el.roleId,
+      };
+    });
+    setRoleList(newFormat);
+  };
 
   const getInitialValue = useCallback(async () => {
     try {
@@ -56,6 +76,7 @@ export function EditUserSale() {
   }, [form, userStaffId]);
   useEffect(() => {
     getZoneByCompany();
+    getRoleList();
     if (userStaffId) {
       getInitialValue();
     }
@@ -78,6 +99,8 @@ export function EditUserSale() {
           text: "",
           width: 250,
           icon: "success",
+          timer: 2000,
+
           customClass: {
             title: "custom-title",
           },
@@ -120,7 +143,18 @@ export function EditUserSale() {
         }}
       >
         <Top>
-          <PageTitleNested title='แก้ไขรายชื่อพนักงาน' cutParams />
+          <PageTitleNested
+            title='แก้ไขรายชื่อผู้ใช้งาน'
+            cutParams
+            onBack={() => {
+              const isHaveValue = Object.values(form.getFieldsValue()).some((item) => item);
+              if (isHaveValue) {
+                setVisibleWarning(true);
+              } else {
+                navigate(-1);
+              }
+            }}
+          />
           <Row>
             <Form.Item name='profileImage'>
               <ProfileImage />
@@ -217,7 +251,7 @@ export function EditUserSale() {
                   },
                 ]}
               >
-                <Select data={SelectDataRoles} placeholder='เลือกตำแหน่ง' />
+                <Select data={roleList} placeholder='เลือกตำแหน่ง' />
               </Form.Item>
             </Col>
             <Form.Item
@@ -227,8 +261,9 @@ export function EditUserSale() {
               }}
             >
               {({ getFieldValue }) => {
+                const findRole = roleList.find((item) => item.value === getFieldValue("role"));
                 return (
-                  getFieldValue("role") === "SALE" && (
+                  findRole?.label === "SALE" && (
                     <Col span={12}>
                       <Form.Item label='เขต' name={"zone"}>
                         <Select data={zone} />
@@ -268,6 +303,18 @@ export function EditUserSale() {
         }}
         title='ยืนยันการบันทึกข้อมูล'
         desc='โปรดยืนยันการบันทึกข้อมูลเพิ่มตำแหน่งชื่อ'
+      />
+      <ConfirmModal
+        visible={visibleWarning}
+        onConfirm={() => {
+          setVisibleWarning(false);
+          navigate(-1);
+        }}
+        onCancel={() => {
+          setVisibleWarning(false);
+        }}
+        title='คุณต้องการกลับสู่หน้าหลักใช่หรือไม่'
+        desc='โปรดยืนยันการกลับสู่หน้าหลัก'
       />
     </CardContainer>
   );
