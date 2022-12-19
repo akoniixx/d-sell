@@ -7,8 +7,6 @@ export const priceFormatter = (price: number | string, fractionDigits?: number) 
   });
   const num = typeof price === "number" ? price : parseFloat(price);
 
-  console.log("priceFormatter", price);
-
   return `${formatter.format(num)} ฿`;
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Switch, DatePicker } from "antd";
+import { Table, Tabs, Row, Col, Select, Avatar, Tag, Switch } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
@@ -22,8 +22,8 @@ import color from "../../resource/color";
 import * as _ from "lodash";
 import Button from "../../components/Button/Button";
 import moment from "moment";
-
-const { RangePicker } = DatePicker;
+import Input from "../../components/Input/Input";
+import { RangePicker } from "../../components/DatePicker/DatePicker";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -69,7 +69,7 @@ export const PromotionListPage: React.FC = () => {
 
   const PageTitle = () => {
     return (
-      <Row align='middle'>
+      <Row align='middle' gutter={16}>
         <Col className='gutter-row' xl={10} sm={6}>
           <div>
             <span
@@ -95,7 +95,9 @@ export const PromotionListPage: React.FC = () => {
           </div>
         </Col>
         <Col className='gutter-row' xl={6} sm={6}>
-          <RangePicker />
+          <RangePicker
+            
+          />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
           <Button

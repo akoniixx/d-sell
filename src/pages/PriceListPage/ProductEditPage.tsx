@@ -32,6 +32,7 @@ import color from "../../resource/color";
 import TextArea from "../../components/Input/TextArea";
 import { RcFile } from "antd/lib/upload";
 import { ProductCategoryEntity } from "../../entities/ProductCategoryEntity";
+import { getProductFreebieDetail, updateProductFreebie } from "../../datasource/PromotionDatasource";
 
 const Container = styled.div`
   margin: 32px 0px 10px 0px;
@@ -69,6 +70,10 @@ const ProdFormItem = ({ name, label, value, enable, customInput }: DescProps) =>
 };
 
 export const DistributionPageEdit: React.FC = (props: any) => {
+  const { pathname } = window.location;
+  const pathSplit = pathname.split("/") as Array<string>;
+  const isFreebie = pathSplit[2] === 'freebies';
+
   const [form] = Form.useForm();
 
   const [loading, setLoading] = useState(false);
@@ -84,9 +89,14 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const { pathname } = window.location;
-      const pathSplit = pathname.split("/") as Array<string>;
-      const data = await getProductDetail(parseInt(pathSplit[4]));
+
+      let data;
+      const id = parseInt(pathSplit[4])
+      if(isFreebie){
+        data = await getProductFreebieDetail(id);
+      } else {
+        data = await getProductDetail(parseInt(pathSplit[4]));
+      }
 
       const userProfile = JSON.parse(localStorage.getItem("profile")!);
       const { company } = userProfile;
@@ -109,17 +119,28 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   };
 
   const updateData = async () => {
-    const { description } = form.getFieldsValue();
+    const { description, productCategory, productStatus } = form.getFieldsValue();
     const data = new FormData();
-    data.append("productId", `${productId}`);
+    if(isFreebie) {
+      data.append("productFreebiesId", `${productFreebiesId}`);
+      data.append("productFreebiesStatus", `${productStatus}`)
+    }else {
+      data.append("productId", `${productId}`);
+      data.append("description", description);
+      data.append("categoryId", productCategory);
+    }
     data.append("file", file!);
-    data.append("description", description);
 
     try {
       setUploading(true);
-      const res = await updateProduct(data);
+      if(isFreebie){
+        const res = await updateProductFreebie(data);
+        window.location.href = `/PromotionPage/freebies/${productFreebiesId}`;
+      }else {
+        const res = await updateProduct(data);
+        window.location.href = `/PriceListPage/DistributionPage/${productId}`;
+      }
       // message.success('บันทึกข้อมูลสำเร็จ');
-      window.location.href = `/PriceListPage/DistributionPage/${productId}`;
     } catch (e) {
       console.log(e);
     } finally {
@@ -154,6 +175,10 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     unitPrice,
     updateBy,
     updateDate,
+    productFreebiesId,
+    productFreebiesCodeNAV,
+    productFreebiesImage,
+    productFreebiesStatus
   } = dataState || {};
 
   const dataGroup1 = [
@@ -161,16 +186,18 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       name: "productBrandName",
       label: "Product Brands",
       value: (productBrand as BrandEntity)?.productBrandName,
+      freebieHide: true
     },
     {
       name: "productLocation",
       label: "โรงงาน",
       value: LOCATION_FULLNAME_MAPPING[productLocation as string],
+      freebieHide: true
     },
     {
       name: "productCodeNAV",
       label: "รหัสสินค้า",
-      value: productCodeNAV,
+      value: isFreebie ? productFreebiesCodeNAV : productCodeNAV,
     },
     {
       name: "productName",
@@ -181,6 +208,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       name: "commonName",
       label: "ชื่อสามัญ",
       value: commonName,
+      freebieHide: true
     },
     {
       name: "productGroup",
@@ -190,8 +218,9 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     {
       name: "productCategory",
       label: "กลุ่มสินค้า (Product Category)",
-      value: (productCategory as ProductCategoryEntity)?.productCategoryName,
+      value: (productCategory as ProductCategoryEntity)?.productCategoryId,
       enable: true,
+      freebieHide: true,
       customInput: (
         <Select
           options={categories?.map((cat: ProductCategoryEntity) => ({
@@ -237,8 +266,8 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายชื่อสินค้า", path: "/PriceListPage/DistributionPage" },
-              { text: "รายละเอียดสินค้า", path: `/PriceListPage/DistributionPage/${productId}` },
+              { text: "รายชื่อสินค้า", path: `/${pathSplit[1]}/${pathSplit[2]}` },
+              { text: "รายละเอียดสินค้า", path: `/${pathSplit[1]}/${pathSplit[2]}/${isFreebie ? productFreebiesId : productId}` },
               { text: "แก้ไขสินค้า", path: window.location.pathname },
             ]}
           />
@@ -278,16 +307,16 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                       return "success";
                     }}
                   >
-                    {!file && <ProdImage src={productImage} />}
+                    {!file && <ProdImage src={isFreebie ? productFreebiesImage : productImage} />}
                   </Upload>
                 </Form.Item>
               </Row>
               <Row gutter={24}>
-                {dataGroup1.map((d, i) => (
+                {dataGroup1.filter((e) => !isFreebie || !e.freebieHide).map((d, i) => (
                   <ProdFormItem {...d} key={i} />
                 ))}
               </Row>
-              <PriceContainer>
+              {!isFreebie && <PriceContainer>
                 <Text color='primary' fontWeight={700}>
                   UNIT SIZE
                 </Text>
@@ -304,21 +333,21 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                     <ProdFormItem {...d} key={i} />
                   ))}
                 </Row>
-              </PriceContainer>
+              </PriceContainer>}
               <br />
               <Form.Item
                 label={"คุณสมบัติและ ประโยชน์"}
                 name='description'
                 initialValue={description}
               >
-                <TextArea />
+                <TextArea disabled={isFreebie}/>
               </Form.Item>
               <br />
-              <Form.Item label={"สถานะสินค้า"} name='productStatus' initialValue={productStatus}>
-                <Radio.Group disabled>
+              <Form.Item label={"สถานะสินค้า"} name='productStatus' initialValue={isFreebie ? productFreebiesStatus : productStatus}>
+                <Radio.Group disabled={!isFreebie}>
                   <Radio value={"ACTIVE"}>ใช้งาน</Radio>
                   <Radio value={"INACTIVE"}>ปิดการใช้งาน</Radio>
-                  <Radio value={"HOLD"}>Hold</Radio>
+                  {!isFreebie && <Radio value={"HOLD"}>Hold</Radio>}
                 </Radio.Group>
               </Form.Item>
               <Divider />

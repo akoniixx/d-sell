@@ -7,13 +7,11 @@ import {
   getProductBrand,
   getProductCategory,
   getProductGroup,
-  getProductList,
 } from "../../datasource/ProductDatasource";
 import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import { BrandEntity } from "../../entities/BrandEntity";
-import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { STATUS_COLOR_MAPPING } from "../../definitions/product";
 import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
@@ -22,6 +20,7 @@ import color from "../../resource/color";
 
 type FixedType = "left" | "right" | boolean;
 import * as _ from "lodash";
+import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
 const SLASH_DMY = "DD/MM/YYYY";
 
 export const FreebieListPage: React.FC = () => {
@@ -35,59 +34,51 @@ export const FreebieListPage: React.FC = () => {
 
   const [keyword, setKeyword] = useState<string>();
   const [prodGroup, setProdGroup] = useState<string>();
-  const [location, setLocation] = useState<string>();
+  const [statusFilter, setStatusFilter] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState({
     count: 0,
-    count_location: [],
+    count_status: [],
     data: [],
     groups: [],
-    categories: [],
-    brands: [],
   });
 
   useEffect(() => {
     if (!loading) fetchProduct();
-  }, [keyword, prodGroup, location, page]);
+  }, [keyword, prodGroup, statusFilter, page]);
 
   const resetPage = () => setPage(1);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const { data, count, count_location } = await getProductList({
+      const { data, count, count_status } = await getProductFreebies({
         company,
         take: pageSize,
         productGroup: prodGroup,
         searchText: keyword,
-        productLocation: location,
+        productFreebiesStatus: statusFilter,
         page,
       });
 
-      const { responseData } = await getProductGroup(company);
-      const brands = await getProductBrand(company);
-      const categories = await getProductCategory(company);
+      const { responseData } = await getProductFreebieGroup(company);
       setDataState({
         data,
         count,
-        count_location,
+        count_status,
         groups: responseData,
-        brands,
-        categories,
       });
       console.log({
         company,
         prodGroup,
         keyword,
-        location,
+        statusFilter,
         page,
         data,
-        count_location,
+        count_status,
         count,
         responseData,
-        brands,
-        categories,
         userProfile,
       });
     } catch (e) {
@@ -144,6 +135,15 @@ export const FreebieListPage: React.FC = () => {
     );
   };
 
+
+  const tabsItems = [
+    { label: "ทั้งหมด", key: "ALL" },
+    ...(dataState?.count_status?.map(({ product_freebies_status, count }) => ({
+      label: product_freebies_status + `(${count})`,
+      key: product_freebies_status,
+    })) || []),
+  ];
+
   const columns = [
     {
       title: "ชื่อสินค้า",
@@ -155,7 +155,7 @@ export const FreebieListPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar src={row.productImage} size={50} shape='square' />
+                <Avatar src={row.productFreebiesImage} size={50} shape='square' />
               </div>
               <FlexCol>
                 <Text level={5}>{row.productName}</Text>
@@ -170,17 +170,14 @@ export const FreebieListPage: React.FC = () => {
     },
     {
       title: "รหัสสินค้า",
-      dataIndex: "productCode",
-      key: "productCode",
+      dataIndex: "productFreebiesCodeNAV",
+      key: "productFreebiesCodeNAV",
       // width: "18%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <FlexCol>
               <Text level={5}>{value}</Text>
-              <Text level={6} color='Text3'>
-                {row.productCodeNAV}
-              </Text>
             </FlexCol>
           ),
         };
@@ -205,16 +202,13 @@ export const FreebieListPage: React.FC = () => {
     },
     {
       title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "productFreebiesStatus",
+      key: "productFreebiesStatus",
       // width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <Switch 
-              defaultChecked={value} 
-              onChange={(checked: boolean) => {console.log('onToggleSwitch', checked)}}
-            />
+            <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>
           ),
         };
       },
@@ -233,22 +227,11 @@ export const FreebieListPage: React.FC = () => {
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() =>
-                    (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)
+                    (window.location.href = "/PromotionPage/freebies/" + row.productFreebiesId)
                   }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <EditOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-                &nbsp;
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
-                    (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)
-                  }
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <DeleteOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
               </div>
@@ -265,6 +248,13 @@ export const FreebieListPage: React.FC = () => {
         <CardContainer>
           <PageTitle />
           <br />
+          <Tabs
+            items={tabsItems}
+            onChange={(key: string) => {
+              setStatusFilter(key === "ALL" ? undefined : key);
+              resetPage();
+            }}
+          />
           <Table
             className='rounded-lg'
             columns={columns}
@@ -276,6 +266,7 @@ export const FreebieListPage: React.FC = () => {
               current: page,
               total: dataState?.count,
               onChange: (p) => setPage(p),
+              showSizeChanger: false
             }}
             loading={loading}
             size='large'

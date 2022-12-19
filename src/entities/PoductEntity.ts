@@ -1,5 +1,5 @@
 export interface ProductEntity {
-  productId: string | number;
+  productId: string;
   baseUOM?: string;
   commonName?: string;
   company?: string;
@@ -25,4 +25,8 @@ export interface ProductEntity {
   unitPrice?: string;
   updateBy?: string;
   updateDate?: string;
+  productFreebiesId?: string;
+  productFreebiesCodeNAV?: string;
+  productFreebiesImage?: string;
+  productFreebiesStatus?: string;
 }

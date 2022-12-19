@@ -248,6 +248,16 @@ export const protectRoutesData: IRoute[] = [
         element: <FreebieListPage />,
         permission: null,
       },
+      {
+        path: "freebies/:id",
+        element: <DistributionPageDetail />,
+        permission: null,
+      },
+      {
+        path: "freebies/edit/:id",
+        element: <DistributionPageEdit />,
+        permission: null,
+      },
     ],
   }
 ];
