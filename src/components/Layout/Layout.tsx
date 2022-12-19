@@ -27,9 +27,9 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
 export const pathLists = [
   {
     path: "/OrderPage",
-    name: "order",
+    name: "คำสั่งซื้อ",
     permission: {
-      name: "orderManagement",
+      name: "จัดการคำสั่งซื้อ",
       action: "view",
     },
     title: "Order Management",
@@ -105,7 +105,7 @@ export const pathLists = [
   {
     path: "/UserPage",
     name: "user",
-    title: "User",
+    title: "จัดการผู้ใช้งาน",
     permission: {
       name: ["roleManagement", "saleManagement"],
       action: "view",

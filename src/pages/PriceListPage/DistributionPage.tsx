@@ -345,6 +345,7 @@ export const DistributionPage: React.FC = () => {
               current: page,
               total: dataState?.count,
               onChange: (p) => setPage(p),
+              showSizeChanger: false
             }}
             loading={loading}
             size='large'

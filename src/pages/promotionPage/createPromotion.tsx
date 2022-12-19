@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Switch, DatePicker, Divider, Steps as AntdStep } from "antd";
+import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Switch, DatePicker, Divider, Steps as AntdStep, Form } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
@@ -23,6 +23,9 @@ import moment from "moment";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import styled from "styled-components";
+import { PromotionCreateStep1 } from "./createPromotionSteptsx/PromotionCreateStep1";
+import { PromotionCreateStep2 } from "./createPromotionSteptsx/PromotionCreateStep2";
+import { PromotionCreateStep3 } from "./createPromotionSteptsx/PromotionCreateStep3";
 
 const { RangePicker } = DatePicker;
 
@@ -56,6 +59,11 @@ export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
+  const [form1] = Form.useForm();
+  const [form2] = Form.useForm();
+  const [form3] = Form.useForm();
+  const [form4] = Form.useForm();
+
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState({
@@ -81,6 +89,12 @@ export const PromotionCreatePage: React.FC = () => {
     }
   };
 
+  const onSubmit = async () => {
+    console.log({
+      f1: form1.getFieldsValue()
+    })
+  }
+
   const PageTitle = () => {
     return (
       <PageTitleNested
@@ -101,9 +115,9 @@ export const PromotionCreatePage: React.FC = () => {
                         {
                             title: <>รายละเอียด<br/>โปรโมชั่น</>,
                         },
-                        {
-                            title: <>เงื่อนไข&nbsp;/<br/>สิทธิประโยชน์</>,
-                        },
+                        // {
+                        //     title: <>เงื่อนไข&nbsp;/<br/>สิทธิประโยชน์</>,
+                        // },
                     ]}
                 />
             </>
@@ -120,12 +134,43 @@ export const PromotionCreatePage: React.FC = () => {
     );
   };
 
+  const stepsComponents = [
+    <PromotionCreateStep1 form={form1} key={0}/>,
+    <PromotionCreateStep2 form={form2} key={1}/>,
+    <PromotionCreateStep3 form={form3} key={2}/>,
+  ]
+
   return (
     <>
       <div className='container '>
         <CardContainer>
           <PageTitle />
           <Divider />
+          {stepsComponents[step]}
+          <Divider />
+          <Row justify='space-between' gutter={12}>
+            <Col xl={3} sm={6}>
+              {step > 0 && <Button 
+                typeButton='primary-light'
+                title="ย้อนกลับ"
+                onClick={() => setStep(step-1)}
+              />}
+            </Col>
+            <Col xl={15} sm={6}></Col>
+            <Col xl={3} sm={6}>
+              <Button 
+                typeButton='primary-light'
+                title="บันทึกแบบร่าง"
+              />
+            </Col>
+            <Col xl={3} sm={6}>
+              <Button 
+                typeButton='primary'
+                title={step===3 ? "" : "ถัดไป"}
+                onClick={step===3 ? onSubmit : () => setStep(step+1)}
+              />
+            </Col> 
+          </Row>
         </CardContainer>
       </div>
     </>

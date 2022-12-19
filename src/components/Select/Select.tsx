@@ -24,6 +24,7 @@ interface Props {
   onSearch?: (value: string) => void;
   filterOption?: boolean;
   notFoundContent?: JSX.Element | null;
+  mode?: string;
 }
 
 export const AntSelectCustom = styled(AntSelect)`
@@ -71,6 +72,7 @@ function Select({
   value,
   disabled = false,
   placeholder = "กรุณาเลือก",
+  mode,
   style,
   ...props
 }: Props): JSX.Element {
