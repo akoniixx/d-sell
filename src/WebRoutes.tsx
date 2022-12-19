@@ -159,7 +159,7 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
-        path: "ShopListPage/DetailPage/EditShopPage/:shopId",
+        path: "ShopListPage/DetailPage/:shopId/EditShopPage",
         element: <EditShopPage />,
         permission: null,
       },
@@ -232,7 +232,7 @@ export const protectRoutesData: IRoute[] = [
         element: <EditRole />,
         permission: {
           name: "roleManagement",
-          action: "edit",
+          action: "view",
         },
       },
     ],
