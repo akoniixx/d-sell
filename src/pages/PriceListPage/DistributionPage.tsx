@@ -20,6 +20,7 @@ import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
 import * as _ from "lodash";
+import { useNavigate } from "react-router-dom";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -32,6 +33,8 @@ export const DistributionPage: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+
+  const navigate = useNavigate();
 
   const [keyword, setKeyword] = useState<string>();
   const [prodGroup, setProdGroup] = useState<string>();
@@ -306,7 +309,7 @@ export const DistributionPage: React.FC = () => {
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() =>
-                    (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)
+                    navigate("/PriceListPage/DistributionPage/" + row.productId)
                   }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>

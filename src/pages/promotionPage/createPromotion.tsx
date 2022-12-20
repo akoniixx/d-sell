@@ -3,12 +3,7 @@ import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Switch, DatePicker, 
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
-import {
-  getProductBrand,
-  getProductCategory,
-  getProductGroup,
-  getProductList,
-} from "../../datasource/ProductDatasource";
+import { getProductList } from "../../datasource/ProductDatasource";
 import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
@@ -34,20 +29,27 @@ const SLASH_DMY = "DD/MM/YYYY";
 
 const Steps = styled(AntdStep)`
     .ant-steps-item-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .ant-steps-item-title {
-        height: 48px;
-        width: 96px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        line-height: 20px;
-        text-align: center;
+      height: 48px;
+      width: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 20px;
+      text-align: center;
     }
+    .ant-steps-item-title::after {
+      position: absolute;
+      top: 16px;
+      left: 100%;
+      display: block;
+      width: 100px;
+    } 
 `;
 
 export const PromotionCreatePage: React.FC = () => {
@@ -74,6 +76,11 @@ export const PromotionCreatePage: React.FC = () => {
     categories: [],
     brands: [],
   });
+  const [promotionData, setPromotionData] = useState({
+    p1: null,
+    p2: null,
+    p3: null
+  });
 
   useEffect(() => {
     if (!loading) fetchProduct();
@@ -88,12 +95,6 @@ export const PromotionCreatePage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const onSubmit = async () => {
-    console.log({
-      f1: form1.getFieldsValue()
-    })
-  }
 
   const PageTitle = () => {
     return (
@@ -137,8 +138,42 @@ export const PromotionCreatePage: React.FC = () => {
   const stepsComponents = [
     <PromotionCreateStep1 form={form1} key={0}/>,
     <PromotionCreateStep2 form={form2} key={1}/>,
-    <PromotionCreateStep3 form={form3} key={2}/>,
+    <PromotionCreateStep3 
+      form={form3} 
+      promotionType={form1.getFieldValue('promotionType')}
+      key={2}
+    />,
   ]
+
+  const onNext = () => {
+    if(step === 0){
+      form1.validateFields()
+      .then((values) => {
+          setStep(step+1);
+          setPromotionData({
+            ...promotionData,
+            p1: values
+          })
+          console.log('values', values);
+      })
+      .catch((errInfo) => {
+        console.log('errInfo', errInfo);
+      })
+    } else if (step === 1) {
+        setStep(step+1);
+    } else if (step === 2) {
+        onSubmit();
+    }
+  }
+
+  const onSubmit = async () => {
+    console.log({
+      f1: form1.getFieldsValue(),
+      f2: form2.getFieldsValue(),
+      f3: form3.getFieldsValue(),
+      promotionData
+    })
+  }
 
   return (
     <>
@@ -166,8 +201,8 @@ export const PromotionCreatePage: React.FC = () => {
             <Col xl={3} sm={6}>
               <Button 
                 typeButton='primary'
-                title={step===3 ? "" : "ถัดไป"}
-                onClick={step===3 ? onSubmit : () => setStep(step+1)}
+                title={step===2 ? "บันทึก" : "ถัดไป"}
+                onClick={onNext}
               />
             </Col> 
           </Row>

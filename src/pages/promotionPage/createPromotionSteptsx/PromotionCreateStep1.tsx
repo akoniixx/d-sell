@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, Row, Upload } from "antd";
+import { Button, Col, Form, FormInstance, message, Row, Upload } from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
@@ -9,6 +9,8 @@ import Input from "../../../components/Input/Input";
 import Select from "../../../components/Select/Select";
 import DatePicker, { TimePicker } from "../../../components/DatePicker/DatePicker";
 import TextArea from "../../../components/Input/TextArea";
+import dayjs from 'dayjs';
+import { PromotionType, PROMOTION_TYPE_NAME } from "../../../definitions/promotion";
 
 const UploadHorizontal = styled(Upload)`
     .ant-upload,
@@ -68,6 +70,7 @@ interface Props  {
 export const PromotionCreateStep1 = ({ form }: Props) => {
     const [file1, setFile1] = useState<Blob>();
     const [file2, setFile2] = useState<Blob>();
+    const [fileMemo, setFileMemo] = useState<Blob>();
 
     return (
         <>
@@ -80,7 +83,17 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
             >
                 <FlexRow justify='start' style={{ padding: '20px 0'}}>
                     <FlexCol style={{ marginRight: 16 }}>
-                        <Form.Item noStyle>
+                        <Form.Item 
+                            noStyle 
+                            name="verticalImage"
+                            valuePropName="file"
+                            // rules={[
+                            //     {
+                            //         required: true,
+                            //         message: '*โปรดระบุรูปภาพ'
+                            //     }
+                            // ]}
+                        >
                             <UploadVeritical
                                 listType='picture-card'
                                 maxCount={1}
@@ -89,7 +102,7 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                                     console.log("customRequest");
                                 }}
                                 onChange={({ file }: any) => {
-                                    setFile1(file);
+                                    setFileMemo(file);
                                     console.log(file);
                                     return "success";
                                 }}
@@ -118,7 +131,17 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                         </Text>
                     </FlexCol>
                     <FlexCol style={{ marginRight: 16 }}>
-                        <Form.Item noStyle>
+                        <Form.Item 
+                            noStyle
+                            name="horizontalImage"
+                            valuePropName="file"
+                            // rules={[
+                            //     {
+                            //         required: true,
+                            //         message: '*โปรดระบุรูปภาพ'
+                            //     }
+                            // ]}
+                        >
                             <UploadHorizontal
                                 listType='picture-card'
                                 maxCount={1}
@@ -161,7 +184,12 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                         <Form.Item
                             name='promotionName'
                             label='ชื่อโปรโมชัน'
-                            required
+                            rules={[
+                                {
+                                    required: true,
+                                    message: '*โปรดระบุชื่อโปรโมชัน'
+                                }
+                            ]}
                         >
                             <Input placeholder="ระบุชื่อโปรโมชัน"/>
                         </Form.Item>
@@ -170,11 +198,25 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                         <Form.Item
                             name='promotionType'
                             label='ประเภทโปรโมชัน'
-                            required
+                            rules={[
+                                {
+                                    required: true,
+                                    message: '*โปรดเลือกประเภทโปรโมชัน'
+                                }
+                            ]}
                         >
                             <Select 
                                 placeholder="เลือกประเภทโปรโมชัน"
-                                data={[]}
+                                data={[
+                                    {
+                                        key: PromotionType.DISCOUNT_NOT_MIX,
+                                        label: PROMOTION_TYPE_NAME[PromotionType.DISCOUNT_NOT_MIX]
+                                    },
+                                    {
+                                        key: PromotionType.FREEBIES_NOT_MIX,
+                                        label: PROMOTION_TYPE_NAME[PromotionType.FREEBIES_NOT_MIX]
+                                    }
+                                ]}
                             />
                         </Form.Item>
                     </Col>
@@ -182,7 +224,12 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                         <Form.Item
                             name='promotionCode'
                             label='รหัสโปรโมชัน'
-                            required
+                            rules={[
+                                {
+                                    required: true,
+                                    message: '*โปรดระบุรหัสโปรโมชัน'
+                                }
+                            ]}
                         >
                             <Input placeholder="ระบุรหัสโปรโมชัน"/>
                         </Form.Item>
@@ -193,20 +240,25 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item
-                                    name='promotionStartDate'
+                                    name='startDate'
                                     label='วันที่เริ่มโปรโมชัน'
-                                    required
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: '*โปรดเลือกวันที่เริ่มโปรโมชัน'
+                                        }
+                                    ]}
                                 >
                                     <DatePicker style={{ width: '100%'}} />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
                                 <Form.Item
-                                    name='promotionStartTime'
+                                    name='startTime'
                                     label='เวลาเริ่มโปรโมชัน'
-                                    required
+                                    initialValue={dayjs('00:00', 'HH:mm')}
                                 >
-                                    <TimePicker />
+                                    <TimePicker allowClear={false}/>
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -215,20 +267,25 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                         <Row gutter={16}>   
                             <Col span={12}>
                                 <Form.Item
-                                    name='promotionEndDate'
+                                    name='endDate'
                                     label='วันที่สิ้นสุดโปรโมชัน'
-                                    required
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: '*โปรดเลือกวันที่สิ้นสุดโปรโมชัน'
+                                        }
+                                    ]}
                                 >
                                     <DatePicker style={{ width: '100%'}} />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
                                 <Form.Item
-                                    name='promotionEndTime'
+                                    name='endTime'
                                     label='เวลาสิ้นสุดโปรโมชัน'
-                                    required
+                                    initialValue={dayjs('23:59', 'HH:mm')}
                                 >
-                                    <TimePicker />
+                                    <TimePicker allowClear={false}/>
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -245,9 +302,19 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                 <Row>
                     <Col span={12}>
                         <MemoArea>
-                            <Form.Item noStyle>
+                            <Form.Item 
+                                noStyle
+                                name="memoFile"
+                                valuePropName="file"
+                            >
                                 <Upload
-                                    beforeUpload={() => false}
+                                    beforeUpload={(file) => {
+                                        const isPNG = file.type === 'application/pdf';
+                                        if (!isPNG) {
+                                        message.error(`อัปโหลดเฉพาะไฟล์ pdf เท่านั้น`);
+                                        }
+                                        return isPNG || Upload.LIST_IGNORE;
+                                    }}
                                     customRequest={() => {
                                         console.log("customRequest");
                                     }}
@@ -279,22 +346,22 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                 <br/>
                 <br/>
                 <Row>
-                    <Col span={24}>
-                        <Form.Item name="relates">
-                        <Select
-                            mode="multiple"
-                            placeholder="เลือกโปรโมชันอ้างอิงโปรโมชันที่เกี่ยวข้อง"
-                            value={'0'}
-                            onChange={() => {console.log()}}
-                            style={{ width: '100%' }}
-                            data={[]}
-                        />
+                    <Col span={12}>
+                        <Form.Item name="referencePromotion">
+                            <Select
+                                mode="multiple"
+                                placeholder="เลือกโปรโมชันอ้างอิงโปรโมชันที่เกี่ยวข้อง"
+                                value={'0'}
+                                onChange={() => {console.log()}}
+                                style={{ width: '100%' }}
+                                data={[]}
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
                 <Row>
                     <Col span={24}>
-                        <Form.Item name="remark" label='หมายเหตุเพิ่มเติม'>
+                        <Form.Item name="comment" label='หมายเหตุเพิ่มเติม'>
                             <TextArea/>
                         </Form.Item>
                     </Col>

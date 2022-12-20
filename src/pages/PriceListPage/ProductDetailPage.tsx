@@ -67,6 +67,8 @@ export const DistributionPageDetail: React.FC = (props: any) => {
   const pathSplit = pathname.split("/") as Array<string>;
   const isFreebie = pathSplit[2] === 'freebies';
 
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState<ProductEntity>();
 
@@ -194,7 +196,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
           <Button
             type='primary'
             onClick={() =>
-              (window.location.href = `/${pathSplit[1]}/${pathSplit[2]}/edit/${isFreebie ? productFreebiesId : productId}`)
+              navigate(`/${pathSplit[1]}/${pathSplit[2]}/edit/${isFreebie ? productFreebiesId : productId}`)
             }
           >
             <EditOutlined />

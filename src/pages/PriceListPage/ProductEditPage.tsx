@@ -76,6 +76,8 @@ export const DistributionPageEdit: React.FC = (props: any) => {
 
   const [form] = Form.useForm();
 
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState<ProductEntity>();
   const [categories, setCategories] = useState<Array<ProductCategoryEntity>>();
@@ -135,10 +137,10 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       setUploading(true);
       if(isFreebie){
         const res = await updateProductFreebie(data);
-        window.location.href = `/PromotionPage/freebies/${productFreebiesId}`;
+        navigate(`/PromotionPage/freebies/${productFreebiesId}`);
       }else {
         const res = await updateProduct(data);
-        window.location.href = `/PriceListPage/DistributionPage/${productId}`;
+        navigate(`/PriceListPage/DistributionPage/${productId}`);
       }
       // message.success('บันทึกข้อมูลสำเร็จ');
     } catch (e) {

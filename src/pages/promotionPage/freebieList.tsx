@@ -21,6 +21,7 @@ import color from "../../resource/color";
 type FixedType = "left" | "right" | boolean;
 import * as _ from "lodash";
 import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
+import { useNavigate } from "react-router-dom";
 const SLASH_DMY = "DD/MM/YYYY";
 
 export const FreebieListPage: React.FC = () => {
@@ -31,6 +32,8 @@ export const FreebieListPage: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+
+  const navigate = useNavigate();
 
   const [keyword, setKeyword] = useState<string>();
   const [prodGroup, setProdGroup] = useState<string>();
@@ -227,7 +230,7 @@ export const FreebieListPage: React.FC = () => {
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() =>
-                    (window.location.href = "/PromotionPage/freebies/" + row.productFreebiesId)
+                    navigate("/PromotionPage/freebies/" + row.productFreebiesId)
                   }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>

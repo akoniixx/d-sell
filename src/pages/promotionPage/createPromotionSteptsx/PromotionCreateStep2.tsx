@@ -174,10 +174,11 @@ export const PromotionCreateStep2 = ({ form }: Step2Props) => {
     }
     const [filter, setFilter] = useState(defaultFilter);
     const [showSearch, setSearch] = useState(false);
-    const [storeList, setStoreList] = useState<Array<StoreEntity>>([]);
+    const [storeList, setStoreList] = useState<StoreEntity[]>(form.getFieldValue('stores'));
     const [selectedStoreList, setSelectedStoreList] = useState<Array<StoreEntity>>([]);
     
-    const onSelect = (stores: any) => {
+    const onSetStore = (stores: any) => {
+        setStoreList(stores)
         form.setFieldsValue({
             ...form.getFieldsValue(),
             stores
@@ -214,9 +215,14 @@ export const PromotionCreateStep2 = ({ form }: Step2Props) => {
 
     return (
         <>
-            <Text level={5} fontWeight={700}>
-                รายละเอียดเขต และร้านค้า
-            </Text>
+            <Row>
+                <Text level={5} fontWeight={700}>
+                    รายละเอียดเขต และร้านค้า
+                </Text>
+                {/* <Text>
+                    โปรดระบุรายละเอียดเขต และร้านค้า*
+                </Text> */}
+            </Row>
             <br/><br/>
             <Row>
                 <Col span={14}>
@@ -248,7 +254,7 @@ export const PromotionCreateStep2 = ({ form }: Step2Props) => {
                                 <FlexRow align="center" justify="end" style={{ height: '100%' }}>
                                     <DeleteOutlined 
                                         style={{ fontSize: 20 }} 
-                                        onClick={() => setStoreList(
+                                        onClick={() => onSetStore(
                                             storeList.filter((s) => (
                                                 !selectedStoreList.find((s2) => (
                                                     s.storeId === s2.storeId
@@ -288,7 +294,7 @@ export const PromotionCreateStep2 = ({ form }: Step2Props) => {
             />
             </TableContainer>
             <Modal
-                visible={showSearch}
+                open={showSearch}
                 footer={null}
                 closable={false}
                 width={'80vw'}
@@ -309,7 +315,7 @@ export const PromotionCreateStep2 = ({ form }: Step2Props) => {
                 <br/>
                 <SearchStore 
                     list={storeList} 
-                    setList={setStoreList}
+                    setList={onSetStore}
                     onClose={toggleSearchWindow}
                 />
             </Modal>

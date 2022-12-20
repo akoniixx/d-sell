@@ -129,6 +129,7 @@ interface TimeProps {
   placeholder?: string;
   style?: React.CSSProperties;
   showNow?: boolean;
+  allowClear?: boolean;
 }
 function TimePicker({
   onChange,
