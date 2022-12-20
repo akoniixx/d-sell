@@ -26,7 +26,10 @@ export const redirectByRole = (menus?: string) => {
       return true;
     }
     return newMenus.some((menu) => {
-      return menu.permission.includes(el.permission.action) && menu.menuName === el.permission.name;
+      return (
+        (menu.permission || []).includes(el.permission.action) &&
+        menu.menuName === el.permission.name
+      );
     });
   });
   return redirectPath?.path || "/";
@@ -62,7 +65,7 @@ export const checkPermission = (menus?: string, path?: string) => {
       return true;
     }
     return (
-      menu?.permission?.includes(redirectPath?.permission?.action) &&
+      (menu?.permission || []).includes(redirectPath?.permission?.action) &&
       menu.menuName === redirectPath?.permission.name
     );
   });
@@ -85,9 +88,14 @@ export const checkPermissionRenderMenu = ({
   const isPermission = newMenus.some((menu) => {
     if (permission === null) return true;
     if (Array.isArray(permission.name)) {
-      return menu.permission.includes(permission.action) && permission.name.includes(menu.menuName);
+      return (
+        (menu.permission || []).includes(permission.action) &&
+        permission.name.includes(menu.menuName)
+      );
     }
-    return menu.permission.includes(permission?.action) && menu.menuName === permission?.name;
+    return (
+      (menu.permission || []).includes(permission?.action) && menu.menuName === permission?.name
+    );
   });
   return isPermission;
 };

@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import React, { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
+import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import CheckboxGroup from "../../../components/CheckboxGroup/CheckboxGroup";
@@ -10,6 +11,7 @@ import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
 import Text from "../../../components/Text/Text";
 import { roleDatasource } from "../../../datasource/RoleDatasource";
 import color from "../../../resource/color";
+import { profileAtom } from "../../../store/ProfileAtom";
 import { defaultPropsForm } from "../../../utility/DefaultProps";
 import { websiteBackOffice } from "../../../utility/StaticPermission";
 const CardRole = styled.div`
@@ -19,10 +21,11 @@ const CardRole = styled.div`
 `;
 function DetailRole() {
   const { roleId } = useParams();
+  const profile = useRecoilValue(profileAtom);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery("roleDetail", async () => {
-    return await roleDatasource.getRoleById(roleId);
+    return await roleDatasource.getRoleById(roleId, profile?.company);
   });
   useEffect(() => {
     if (data) {

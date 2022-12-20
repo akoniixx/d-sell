@@ -42,6 +42,7 @@ const Bottom = styled(Row)`
 export default function EditRole(): JSX.Element {
   const [form] = Form.useForm();
   const profile = useRecoilValue(profileAtom);
+
   const [visibleWarning, setVisibleWarning] = React.useState(false);
   const navigate = useNavigate();
   const { roleId } = useParams();
@@ -49,7 +50,7 @@ export default function EditRole(): JSX.Element {
   useEffect(() => {
     const getInitialValue = async () => {
       try {
-        const result = await roleDatasource.getRoleById(roleId || "");
+        const result = await roleDatasource.getRoleById(roleId || "", profile?.company);
         if (result) {
           const {
             menus,
