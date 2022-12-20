@@ -15,6 +15,8 @@ interface Props {
   disableEdit?: boolean;
   disableDelete?: boolean;
   disableList?: boolean;
+  titleModalWarning?: string;
+  descriptionModalWarning?: string;
 }
 
 export default function MenuTable({
@@ -27,6 +29,8 @@ export default function MenuTable({
   disableEdit,
   disableDelete,
   disableList,
+  descriptionModalWarning,
+  titleModalWarning,
 }: Props) {
   const [visible, setVisible] = React.useState(false);
   const Lists = [
@@ -86,8 +90,8 @@ export default function MenuTable({
         );
       })}
       <ConfirmModal
-        title='ต้องการลบข้อมูลตำแหน่งผู้ใช้งานนี้'
-        desc='โปรดยืนยันการลบข้อมูลตำแหน่งผู้ใช้งาน'
+        title={titleModalWarning || "ยืนยันการลบข้อมูล"}
+        desc={descriptionModalWarning || "คุณต้องการลบข้อมูลนี้ใช่หรือไม่"}
         visible={visible}
         onConfirm={() => {
           onClickDelete?.();

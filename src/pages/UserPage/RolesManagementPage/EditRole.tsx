@@ -42,13 +42,15 @@ const Bottom = styled(Row)`
 export default function EditRole(): JSX.Element {
   const [form] = Form.useForm();
   const profile = useRecoilValue(profileAtom);
+
+  const [visibleWarning, setVisibleWarning] = React.useState(false);
   const navigate = useNavigate();
   const { roleId } = useParams();
   const [loading, setLoading] = React.useState(false);
   useEffect(() => {
     const getInitialValue = async () => {
       try {
-        const result = await roleDatasource.getRoleById(roleId || "");
+        const result = await roleDatasource.getRoleById(roleId || "", profile?.company);
         if (result) {
           const {
             menus,
@@ -113,6 +115,7 @@ export default function EditRole(): JSX.Element {
           text: "",
           width: 250,
           icon: "success",
+          timer: 2000,
           customClass: {
             title: "custom-title",
           },
@@ -167,7 +170,19 @@ export default function EditRole(): JSX.Element {
 
   return (
     <CardContainer>
-      <PageTitleNested title='แก้ไขชื่อตำแหน่ง' cutParams />
+      <PageTitleNested
+        title='แก้ไขบทบาท'
+        cutParams
+        onBack={() => {
+          const formValue = form.getFieldsValue();
+          const isDirty = Object.values(formValue).some((el: any) => !!el);
+          if (isDirty) {
+            setVisibleWarning(true);
+          } else {
+            navigate(-1);
+          }
+        }}
+      />
       <Form
         {...defaultPropsForm}
         style={{
@@ -204,7 +219,7 @@ export default function EditRole(): JSX.Element {
           }}
           className='ant-form-no-margin-bottom'
         >
-          <TextArea placeholder='ระบุคำอธิบาย' />
+          <TextArea placeholder='ระบุคำอธิบาย' maxLength={255} />
         </Form.Item>
         <Row style={{ padding: " 16px 0" }}>
           <Text fontWeight={700}>ตั้งค่าสิทธิการใช้งานแพลตฟอร์มต่างๆ ของ Sellcoda</Text>
@@ -307,7 +322,7 @@ export default function EditRole(): JSX.Element {
         <Bottom>
           <Col span={22}>
             <Text color='Text3' level={6} fontFamily='Sarabun'>
-              โปรดตรวจสอบข้อมูลพนักงานก่อนบันทึก
+              โปรดยืนยันการบันทึกข้อมูลแก้ไขบทบาท
             </Text>
           </Col>
           <Col span={2}>
@@ -330,9 +345,21 @@ export default function EditRole(): JSX.Element {
             setVisible(false);
           }}
           title='ยืนยันการบันทึกข้อมูล'
-          desc='โปรดยืนยันการบันทึกข้อมูลเพิ่มตำแหน่งชื่อ'
+          desc='โปรดยืนยันการบันทึกข้อมูลแก้ไขบทบาท'
         />
       </Form>
+      <ConfirmModal
+        visible={visibleWarning}
+        onConfirm={() => {
+          setVisibleWarning(false);
+          navigate(-1);
+        }}
+        onCancel={() => {
+          setVisibleWarning(false);
+        }}
+        title='คุณต้องการกลับสู่หน้าหลักใช่หรือไม่'
+        desc='โปรดยืนยันการกลับสู่หน้าหลัก'
+      />
     </CardContainer>
   );
 }

@@ -25,8 +25,8 @@ const createNewRole = async (data: RoleCreatePayload) => {
   const url = BASE_URL + `/auth/role-management`;
   return await httpClient.post(url, data).then((res) => res.data);
 };
-const getRoleById = async (id?: string) => {
-  const url = BASE_URL + `/auth/role-management/${id}`;
+const getRoleById = async (id?: string, company?: string) => {
+  const url = BASE_URL + `/auth/role-management/${id}?company=${company}&id=${id}`;
   return await httpClient.get(url).then((res) => res.data);
 };
 const updateRole = async (id: string, data: RoleCreatePayload) => {

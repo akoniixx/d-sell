@@ -129,7 +129,7 @@ export function AddNewSale() {
       >
         <Top>
           <PageTitleNested
-            title='เพิ่มรายผู้ใช้งาน'
+            title='เพิ่มรายชื่อผู้ใช้งาน'
             onBack={() => {
               const isHaveValue = Object.values(form.getFieldsValue()).some((item) => item);
               if (isHaveValue) {
