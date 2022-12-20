@@ -26,14 +26,15 @@ const ContainerBackButton = styled.div`
 const ConvertTitleObj = {
   SaleManagementPage: "รายชื่อผู้ใช้งาน",
   AddSale: "เพิ่มรายชื่อผู้ใช้งาน",
-  RoleManagementPage: "จัดการสิทธิตำแหน่งผู้ใช้งาน",
-  AddNewRole: "เพิ่มตำแหน่ง",
+  RoleManagementPage: "จัดการสิทธิบทบาทผู้ใช้งาน",
+  AddNewRole: "เพิ่มบทบาท",
   AddNewShop: "เพิ่มร้านค้า",
   ShopListPage: "รายชื่อร้านค้า",
   EditSale: "แก้ไขรายชื่อผู้ใช้งาน",
-  EditRole: "แก้ไขตำแหน่ง",
+  EditRole: "แก้ไขบทบาท",
   DetailPage: "รายละเอียดร้านค้า",
   EditShopPage: "แก้ไขรายละเอียดร้านค้า",
+  DetailRole: "รายละเอียดบทบาท",
 };
 const ExtraTitleContainer = styled.div`
   margin-left: 12px;

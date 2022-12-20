@@ -13,6 +13,7 @@ interface Props {
   onChange?: (value: CheckboxValueType[]) => void;
   value?: CheckboxValueType[];
   name?: string;
+  disabled?: boolean;
 }
 const Container = styled.div`
   display: flex;
@@ -20,35 +21,38 @@ const Container = styled.div`
   gap: 8px;
   padding-bottom: 24px;
 `;
-const CheckBoxStyled = styled(Checkbox)`
+const CheckBoxStyled = styled(Checkbox)<{ disabled?: boolean }>`
   .ant-checkbox-checked {
-    background-color: ${color.primary} !important;
+    background-color: ${({ disabled }) => (disabled ? color.Text3 : color.primary)} !important;
     border-radius: 4px !important;
   }
   .ant-checkbox-inner {
     width: 24px !important;
     height: 24px !important;
     border-radius: 4px !important;
-    background-color: ${color.background1} !important;
+    background-color: ${color.background2} !important;
     border-color: ${color.background2} !important;
   }
   .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: ${color.primary} !important;
-    border-color: ${color.primary} !important;
+    background-color: ${({ disabled }) => (disabled ? color.Text3 : color.primary)} !important;
+    border-color: ${({ disabled }) => (disabled ? color.Text3 : color.primary)} !important;
     border-radius: 4px !important;
   }
   .ant-checkbox-inner::after {
     width: 8px;
-    background-color: ${color.primary};
-
+    background-color: ${({ disabled }) => (disabled ? color.Text3 : color.primary)} !important;
     height: 14px;
+  }
+  .ant-checkbox-disabled.ant-checkbox-checked .ant-checkbox-inner::after {
+    border-color: ${color.white} !important;
   }
 `;
 const CheckboxG = CheckBoxStyled.Group;
-export default function CheckboxGroup({ value, data, onChange, name }: Props) {
+export default function CheckboxGroup({ value, data, onChange, name, disabled = false }: Props) {
   return (
     <Container>
       <CheckBoxStyled
+        disabled={disabled}
         checked={value && value?.length > 0}
         onChange={() => {
           if (value?.length === data.length) {
@@ -76,6 +80,7 @@ export default function CheckboxGroup({ value, data, onChange, name }: Props) {
           flexDirection: "column",
           gap: 8,
         }}
+        disabled={disabled}
         onChange={(value) => {
           onChange && onChange(value);
         }}
@@ -84,6 +89,7 @@ export default function CheckboxGroup({ value, data, onChange, name }: Props) {
         {data.map((item) => {
           return (
             <CheckBoxStyled
+              disabled={disabled}
               key={item.value}
               style={{
                 display: "flex",

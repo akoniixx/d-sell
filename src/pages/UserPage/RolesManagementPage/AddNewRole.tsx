@@ -42,6 +42,7 @@ const Bottom = styled(Row)`
 export default function AddNewRole(): JSX.Element {
   const [form] = Form.useForm();
   const [loading, setLoading] = React.useState(false);
+  const [visibleWarning, setVisibleWarning] = React.useState(false);
   const navigate = useNavigate();
   const profile = useRecoilValue(profileAtom);
 
@@ -69,6 +70,8 @@ export default function AddNewRole(): JSX.Element {
         text: "",
         width: 250,
         icon: "success",
+        timer: 2000,
+
         customClass: {
           title: "custom-title",
         },
@@ -118,7 +121,18 @@ export default function AddNewRole(): JSX.Element {
 
   return (
     <CardContainer>
-      <PageTitleNested title='เพิ่มชื่อตำแหน่ง' />
+      <PageTitleNested
+        title='เพิ่มบทบาท'
+        onBack={() => {
+          const formValue = form.getFieldsValue();
+          const isDirty = Object.values(formValue).some((el: any) => !!el);
+          if (isDirty) {
+            setVisibleWarning(true);
+          } else {
+            navigate(-1);
+          }
+        }}
+      />
       <Form
         {...defaultPropsForm}
         style={{
@@ -155,7 +169,7 @@ export default function AddNewRole(): JSX.Element {
           }}
           className='ant-form-no-margin-bottom'
         >
-          <TextArea placeholder='ระบุคำอธิบาย' />
+          <TextArea placeholder='ระบุคำอธิบาย' maxLength={255} />
         </Form.Item>
         <Row style={{ padding: " 16px 0" }}>
           <Text fontWeight={700}>ตั้งค่าสิทธิการใช้งานแพลตฟอร์มต่างๆ ของ Sellcoda</Text>
@@ -387,7 +401,7 @@ export default function AddNewRole(): JSX.Element {
         <Bottom>
           <Col span={22}>
             <Text color='Text3' level={6} fontFamily='Sarabun'>
-              โปรดตรวจสอบข้อมูลพนักงานก่อนบันทึก
+              โปรดยืนยันการบันทึกข้อมูลเพิ่มบทบาท
             </Text>
           </Col>
           <Col span={2}>
@@ -410,7 +424,19 @@ export default function AddNewRole(): JSX.Element {
             setVisible(false);
           }}
           title='ยืนยันการบันทึกข้อมูล'
-          desc='โปรดยืนยันการบันทึกข้อมูลเพิ่มตำแหน่งชื่อ'
+          desc='โปรดยืนยันการบันทึกข้อมูลเพิ่มบทบาท'
+        />
+        <ConfirmModal
+          visible={visibleWarning}
+          onConfirm={() => {
+            setVisibleWarning(false);
+            navigate(-1);
+          }}
+          onCancel={() => {
+            setVisibleWarning(false);
+          }}
+          title='คุณต้องการกลับสู่หน้าหลักใช่หรือไม่'
+          desc='โปรดยืนยันการกลับสู่หน้าหลัก'
         />
       </Form>
     </CardContainer>

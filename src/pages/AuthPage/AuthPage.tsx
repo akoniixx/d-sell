@@ -80,7 +80,7 @@ export const AuthPage: React.FC = () => {
           <div
             style={{
               background: color.primary,
-              minHeight: "80vh",
+              minHeight: "100vh",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -139,10 +139,9 @@ export const AuthPage: React.FC = () => {
               />
             </div>
             <span>
-            <span>version {version}</span>
+              <span>version {version}</span>
             </span>
           </div>
-          
         </Col>
       </Row>
     </Container>
