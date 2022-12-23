@@ -22,6 +22,8 @@ interface SearchProps  {
 
 interface Step2Props  {
     form: FormInstance;
+    showError?: boolean;
+    setError?: any;
 }
 
 const SearchStore = ({ list, setList, onClose }: SearchProps) => {
@@ -166,7 +168,7 @@ const SearchStore = ({ list, setList, onClose }: SearchProps) => {
     )
 }
 
-export const PromotionCreateStep2 = ({ form }: Step2Props) => {
+export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) => {
 
     const defaultFilter = {
         zone: null,
@@ -215,13 +217,15 @@ export const PromotionCreateStep2 = ({ form }: Step2Props) => {
 
     return (
         <>
-            <Row>
+            <Row align='middle'>
                 <Text level={5} fontWeight={700}>
-                    รายละเอียดเขต และร้านค้า
+                    รายละเอียดเขต และร้านค้า&nbsp;&nbsp;
                 </Text>
-                {/* <Text>
-                    โปรดระบุรายละเอียดเขต และร้านค้า*
-                </Text> */}
+                {showError && (
+                    <Text level={6} color='error'>
+                        &nbsp;โปรดระบุรายละเอียดเขต และร้านค้า*
+                    </Text>
+                )}
             </Row>
             <br/><br/>
             <Row>

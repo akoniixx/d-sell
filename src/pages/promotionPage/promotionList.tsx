@@ -13,7 +13,6 @@ import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import { BrandEntity } from "../../entities/BrandEntity";
-import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { STATUS_COLOR_MAPPING } from "../../definitions/product";
 import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
@@ -24,6 +23,8 @@ import Button from "../../components/Button/Button";
 import moment from "moment";
 import Input from "../../components/Input/Input";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
+import { useNavigate } from "react-router-dom";
+import { getPromotion } from "../../datasource/PromotionDatasource";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -37,9 +38,11 @@ export const PromotionListPage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
+  const navigate = useNavigate();
+
   const [keyword, setKeyword] = useState<string>();
-  const [prodGroup, setProdGroup] = useState<string>();
-  const [location, setLocation] = useState<string>();
+  const [statusFilter, setStatusFilter] = useState<string>();
+  const [dateFilter, setDateFilter] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState({
@@ -53,13 +56,23 @@ export const PromotionListPage: React.FC = () => {
 
   useEffect(() => {
     if (!loading) fetchProduct();
-  }, [keyword, prodGroup, location, page]);
+  }, [keyword, statusFilter, page]);
 
   const resetPage = () => setPage(1);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
+      const { data, count, count_status } = await getPromotion({
+        company,
+        promotionStatus: undefined,
+        startDate: undefined,
+        endDate: undefined,
+        searchText: undefined,
+        take: pageSize,
+        page,
+      });
+
     } catch (e) {
       console.log(e);
     } finally {
@@ -96,7 +109,8 @@ export const PromotionListPage: React.FC = () => {
         </Col>
         <Col className='gutter-row' xl={6} sm={6}>
           <RangePicker
-            
+            allowEmpty={[true, true]}
+            enablePast
           />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
@@ -283,14 +297,14 @@ export const PromotionListPage: React.FC = () => {
 
   return (
     <>
-      <div className='container '>
+      <div className='container'>
         <CardContainer>
           <PageTitle />
           <br />
           <Tabs
             items={tabsItems}
             onChange={(key: string) => {
-              setLocation(key === "ALL" ? undefined : key);
+              setStatusFilter(key === "ALL" ? undefined : key);
               resetPage();
             }}
           />

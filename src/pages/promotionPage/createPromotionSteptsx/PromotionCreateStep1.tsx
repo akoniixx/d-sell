@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, message, Row, Upload } from "antd";
+import { Button, Col, Form, FormInstance, message, Row, Upload, UploadFile } from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
@@ -11,6 +11,9 @@ import DatePicker, { TimePicker } from "../../../components/DatePicker/DatePicke
 import TextArea from "../../../components/Input/TextArea";
 import dayjs from 'dayjs';
 import { PromotionType, PROMOTION_TYPE_NAME } from "../../../definitions/promotion";
+import { checkPromotionCode } from "../../../datasource/PromotionDatasource";
+import ImgCrop from "../../../components/ImgCrop/ImgCrop";
+import { RcFile } from "antd/lib/upload";
 
 const UploadHorizontal = styled(Upload)`
     .ant-upload,
@@ -63,14 +66,44 @@ const UploadIcon = (
     </>
 )
 
+const getBase64 = (img: RcFile, callback: (url: string) => void) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result as string));
+    reader.readAsDataURL(img);
+};
+
+const beforeUpload = (file: RcFile) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+};
+
 interface Props  {
     form: FormInstance;
 }
 
 export const PromotionCreateStep1 = ({ form }: Props) => {
+    const userProfile = JSON.parse(localStorage.getItem("profile")!);
+    const { company } = userProfile;
+
     const [file1, setFile1] = useState<Blob>();
     const [file2, setFile2] = useState<Blob>();
     const [fileMemo, setFileMemo] = useState<Blob>();
+    const [imageUrl1, setImgUrl1] = useState<string>();
+    const [imageUrl2, setImgUrl2] = useState<string>();
+    const [imageMemo, setImageMemo] = useState<string>();
+
+    const imgCropProps = {
+        modalTitle: 'ปรับขนาดรูปภาพ',
+        modalOk: 'ยืนยัน',
+        modalCancel: 'ยกเลิก'
+    }
 
     return (
         <>
@@ -94,30 +127,55 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                             //     }
                             // ]}
                         >
-                            <UploadVeritical
-                                listType='picture-card'
-                                maxCount={1}
-                                beforeUpload={() => false}
-                                customRequest={() => {
-                                    console.log("customRequest");
-                                }}
-                                onChange={({ file }: any) => {
-                                    setFileMemo(file);
-                                    console.log(file);
-                                    return "success";
-                                }}
-                            >
-                                {!file1 && 
-                                    <UploadArea 
-                                        style={{ 
-                                            width: '120px',
-                                            height: '160px',
-                                        }}
-                                    >
-                                        {UploadIcon}
-                                    </UploadArea>
-                                }
-                            </UploadVeritical>
+                            <ImgCrop aspect={3/4} {...imgCropProps}>
+                                <UploadVeritical
+                                    listType='picture-card'
+                                    maxCount={1}
+                                    beforeUpload={(file) => {
+                                        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+                                        if (!isJpgOrPng) {
+                                            message.error('You can only upload JPG/PNG file!');
+                                            return true;
+                                        }
+                                        setFile1(file);
+                                        getBase64(file as RcFile, (url) => {
+                                            console.log({ url });
+                                            setImgUrl1(url);
+                                        })
+                                        return false
+                                    }}
+                                    customRequest={({ file }) => {
+                                        console.log("customRequest", file);
+                                    }}
+                                    onChange={({ file }: any) => {
+                                        return "success";
+                                    }}
+                                    onRemove={() => {
+                                        setFile1(undefined);
+                                    }}
+                                    showUploadList={false}
+                                >
+                                    {!file1 ? (
+                                        <UploadArea 
+                                            style={{ 
+                                                width: '120px',
+                                                height: '160px',
+                                            }}
+                                        >
+                                            {UploadIcon}
+                                        </UploadArea>
+                                    ):(
+                                        <img
+                                            style={{ 
+                                                width: '120px',
+                                                height: '160px',
+                                                borderRadius: 4
+                                            }}
+                                            src={imageUrl1}
+                                        />
+                                    )}
+                                </UploadVeritical>
+                            </ImgCrop>
                         </Form.Item>
                     </FlexCol>
                     <FlexCol style={{ marginRight: 32 }}>
@@ -135,37 +193,55 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                             noStyle
                             name="horizontalImage"
                             valuePropName="file"
-                            // rules={[
-                            //     {
-                            //         required: true,
-                            //         message: '*โปรดระบุรูปภาพ'
-                            //     }
-                            // ]}
                         >
-                            <UploadHorizontal
-                                listType='picture-card'
-                                maxCount={1}
-                                beforeUpload={() => false}
-                                customRequest={() => {
-                                    console.log("customRequest");
-                                }}
-                                onChange={({ file }: any) => {
-                                    setFile2(file);
-                                    console.log(file);
-                                    return "success";
-                                }}
-                            >
-                                {!file2 && 
-                                    <UploadArea 
-                                        style={{ 
-                                            width: '160px',
-                                            height: '120px',
-                                        }}
-                                    >
-                                        {UploadIcon}
-                                    </UploadArea>
-                                }
-                            </UploadHorizontal>
+                            <ImgCrop aspect={4/3} {...imgCropProps}>
+                                <UploadHorizontal
+                                    listType='picture-card'
+                                    maxCount={1}
+                                    beforeUpload={(file) => {
+                                        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+                                        if (!isJpgOrPng) {
+                                            message.error('You can only upload JPG/PNG file!');
+                                            return true;
+                                        }
+                                        setFile2(file);
+                                        getBase64(file as RcFile, (url) => {
+                                            console.log({ url });
+                                            setImgUrl2(url);
+                                        })
+                                    }}
+                                    customRequest={() => {
+                                        console.log("customRequest");
+                                    }}
+                                    onChange={({ file }: any) => {
+                                        return "success";
+                                    }}
+                                    onRemove={() => {
+                                        setFile2(undefined)
+                                    }}
+                                    showUploadList={false}
+                                >
+                                    {!file2 ? (
+                                        <UploadArea 
+                                            style={{ 
+                                                width: '160px',
+                                                height: '120px',
+                                            }}
+                                        >
+                                            {UploadIcon}
+                                        </UploadArea>
+                                    ):(
+                                        <img
+                                            style={{ 
+                                                width: '160px',
+                                                height: '120px',
+                                                borderRadius: 4
+                                            }}
+                                            src={imageUrl2}
+                                        />
+                                    )}
+                                </UploadHorizontal>
+                            </ImgCrop>
                         </Form.Item>
                     </FlexCol>
                     <FlexCol>
@@ -228,6 +304,26 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                                 {
                                     required: true,
                                     message: '*โปรดระบุรหัสโปรโมชัน'
+                                },
+                                {
+                                    max: 22,
+                                    message: '*รหัสโปรโมชันต้องมีความยาวไม่เกิน 22 ตัวอักษร'
+                                },
+                                {
+                                    validator: async (rule, value) => {
+                                        const { success } = await checkPromotionCode({
+                                            promotionCode: value,
+                                            company
+                                        });
+                                        if(!success){
+                                            throw new Error();
+                                        }
+                                    },
+                                    message: '*รหัสโปรโมชันนี้ถูกใช้แล้ว'
+                                },
+                                {
+                                    pattern: /^[A-Za-zก-๙][A-Za-z0-9ก-๙]*$/,
+                                    message: '*รหัสโปรโมชันต้องประกอบด้วยตัวอักษรหรือตัวเลขเท่านั้น'
                                 }
                             ]}
                         >
@@ -319,9 +415,12 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                                         console.log("customRequest");
                                     }}
                                     onChange={({ file }: any) => {
-                                        setFile1(file);
+                                        setFileMemo(file);
                                         console.log(file);
                                         return "success";
+                                    }}
+                                    onRemove={() => {
+                                        setFileMemo(undefined);
                                     }}
                                 >
                                     <Button type='primary' icon={<UploadOutlined />}>เลือกไฟล์</Button>

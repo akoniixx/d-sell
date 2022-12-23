@@ -82,6 +82,7 @@ interface RangeProps {
   enablePast?: boolean;
   placeholder?: string;
   style?: React.CSSProperties;
+  allowEmpty?: [boolean, boolean];
 }
 function RangePicker({
   onChange,

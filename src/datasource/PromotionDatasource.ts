@@ -31,9 +31,25 @@ const updateProductFreebie = async (data: FormData) => {
     .catch((err) => console.log(err));
 };
 
+const getPromotion = async (params: object) => {
+  return await httpClient
+    .get(`${baseUrl}/promotions`, { params })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const checkPromotionCode = async (params: object) => {
+  return await httpClient
+    .post(`${baseUrl}/promotion/check-promotion-code`, null, { params })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductFreebies,
   getProductFreebieDetail,
   getProductFreebieGroup,
-  updateProductFreebie
+  updateProductFreebie,
+  getPromotion,
+  checkPromotionCode
 };

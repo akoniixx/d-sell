@@ -21,6 +21,7 @@ import styled from "styled-components";
 import { PromotionCreateStep1 } from "./createPromotionSteptsx/PromotionCreateStep1";
 import { PromotionCreateStep2 } from "./createPromotionSteptsx/PromotionCreateStep2";
 import { PromotionCreateStep3 } from "./createPromotionSteptsx/PromotionCreateStep3";
+import { PromotionType } from "../../definitions/promotion";
 
 const { RangePicker } = DatePicker;
 
@@ -77,10 +78,11 @@ export const PromotionCreatePage: React.FC = () => {
     brands: [],
   });
   const [promotionData, setPromotionData] = useState({
-    p1: null,
-    p2: null,
-    p3: null
+    promotionType: undefined,
+    stores: undefined,
+    items: undefined,
   });
+  const [showStep2Error, setStep2Error] = useState(false);
 
   useEffect(() => {
     if (!loading) fetchProduct();
@@ -137,7 +139,12 @@ export const PromotionCreatePage: React.FC = () => {
 
   const stepsComponents = [
     <PromotionCreateStep1 form={form1} key={0}/>,
-    <PromotionCreateStep2 form={form2} key={1}/>,
+    <PromotionCreateStep2 
+      form={form2} 
+      showError={showStep2Error}
+      setError={setStep2Error}
+      key={1}
+    />,
     <PromotionCreateStep3 
       form={form3} 
       promotionType={form1.getFieldValue('promotionType')}
@@ -152,27 +159,43 @@ export const PromotionCreatePage: React.FC = () => {
           setStep(step+1);
           setPromotionData({
             ...promotionData,
-            p1: values
-          })
+            ...values
+          });
           console.log('values', values);
       })
       .catch((errInfo) => {
         console.log('errInfo', errInfo);
       })
     } else if (step === 1) {
-        setStep(step+1);
+      const stores = form2.getFieldValue('store')
+      if(!stores || stores.length <= 0){
+        console.log('test')
+      }else{
+        setPromotionData({
+          ...promotionData,
+          stores
+        })
+      }
+      setStep(step+1);
     } else if (step === 2) {
-        onSubmit();
+        onSubmit(true);
     }
   }
 
-  const onSubmit = async () => {
-    console.log({
-      f1: form1.getFieldsValue(),
-      f2: form2.getFieldsValue(),
-      f3: form3.getFieldsValue(),
-      promotionData
-    })
+  const onSubmit = async (promotionStatus: boolean) => {
+    const { promotionType, items } = promotionData;
+    const submitData = {
+      ...promotionData,
+      conditionDetailDiscount: undefined,
+      conditionDetailFreebies: undefined
+    };
+    if(promotionType === PromotionType.FREEBIES_NOT_MIX){
+      submitData.conditionDetailDiscount = items;
+    } else {
+      submitData.conditionDetailFreebies = items;
+    }
+    
+    console.log({ promotionData, submitData });
   }
 
   return (
