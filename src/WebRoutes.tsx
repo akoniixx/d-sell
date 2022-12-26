@@ -227,18 +227,12 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "RoleManagementPage/DetailRole/:roleId",
         element: <DetailRole />,
-        permission: {
-          name: "roleManagement",
-          action: "view",
-        },
+        permission: null,
       },
       {
         path: "RoleManagementPage/EditRole/:roleId",
         element: <EditRole />,
-        permission: {
-          name: "roleManagement",
-          action: "view",
-        },
+        permission: null,
       },
     ],
   },
