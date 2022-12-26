@@ -263,6 +263,7 @@ function SaleManagementPage() {
               <div>
                 <SearchInput
                   onChange={(e) => {
+                    setPage(1);
                     setKeyword(e.target.value);
                   }}
                   placeholder='ค้นหาผู้ใช้งาน'
@@ -286,6 +287,7 @@ function SaleManagementPage() {
           data={dataTabs}
           onChange={(key) => {
             setTab(key);
+            setPage(1);
             navigate(`?status=${key}`);
           }}
           defaultTab={tab}

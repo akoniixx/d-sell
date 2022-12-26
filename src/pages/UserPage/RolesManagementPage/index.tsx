@@ -182,6 +182,7 @@ export default function RolesManagementPage(): JSX.Element {
               <div>
                 <SearchInput
                   onChange={(e) => {
+                    setPage(1);
                     setKeyword(e.target.value);
                   }}
                   placeholder='ค้นหาบทบาท'
@@ -217,7 +218,7 @@ export default function RolesManagementPage(): JSX.Element {
             isLoading={!!loading || isLoading}
             scroll={{ x: "max-content" }}
             pagination={{
-              current: 1,
+              current: page,
               pageSize: 10,
               total: data?.count || 0,
               onChange: (page) => {
