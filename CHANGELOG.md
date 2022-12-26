@@ -2,6 +2,7 @@
 ## [Version - 0]
 ## Resolve [v0.2.6] - 2022-12-16
 - fix bug defect RoleManagement
+- condition rendering with role
 ## Resolve [v0.2.5] - 2022-12-16
 - fix bug defect RoleManagement
 ## Resolve [v0.2.3] - 2022-12-16
