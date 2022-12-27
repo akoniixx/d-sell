@@ -33,7 +33,7 @@ const updateProductFreebie = async (data: FormData) => {
 
 const getPromotion = async (params: object) => {
   return await httpClient
-    .get(`${baseUrl}/promotions`, { params })
+    .get(`${baseUrl}/promotion`, { params })
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
@@ -45,11 +45,19 @@ const checkPromotionCode = async (params: object) => {
     .catch((err) => console.log(err));
 };
 
+const createPromotion = async (data: object) => {
+  return await httpClient
+    .post(`${baseUrl}/promotion/create`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductFreebies,
   getProductFreebieDetail,
   getProductFreebieGroup,
   updateProductFreebie,
   getPromotion,
-  checkPromotionCode
+  checkPromotionCode,
+  createPromotion
 };

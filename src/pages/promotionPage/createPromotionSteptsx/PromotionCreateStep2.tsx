@@ -1,11 +1,11 @@
-import { Col, DatePicker, Divider, Form, FormInstance, Modal, Row, Table, TimePicker, Upload } from "antd";
+import { Col, DatePicker, Divider, Form, FormInstance, Modal, Row, Spin, Table, TimePicker, Upload } from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import styled from "styled-components";
 import color from "../../../resource/color";
 import { CloseOutlined, DeleteOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
-import { StoreEntity } from "../../../entities/StoreEntity";
+import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import Select from "../../../components/Select/Select";
@@ -13,11 +13,13 @@ import Transfer from "../../../components/Transfer/Transfer";
 import type { TransferDirection } from 'antd/es/transfer';
 import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../components/Table/TableContainer";
+import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
 
 interface SearchProps  {
-    list: Array<StoreEntity>;
+    list: StoreEntity[];
     setList: any;
     onClose: any;
+    zones: ZoneEntity[];
 }
 
 interface Step2Props  {
@@ -26,26 +28,39 @@ interface Step2Props  {
     setError?: any;
 }
 
-const SearchStore = ({ list, setList, onClose }: SearchProps) => {
+const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
+    const userProfile = JSON.parse(localStorage.getItem("profile")!);
+    const { company } = userProfile;
 
     const [data, setData] = useState<StoreEntity[]>([]);
     const [total, setTotal] = useState(0);
+    const [loading, setLoading] = useState(false);
     const [targetKeys, setTargetKeys] = useState<string[]>([]);
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+    const [filter, setFilter] = useState({
+        zone: '',
+        searchText: ''
+    })
 
     useEffect(() => {
         fetchData();
-    }, [])
+    }, [filter])
 
-    const fetchData = () => {
-        const mockData = Array.from({ length: 20 }).map((_, i) => ({
-            key: i.toString(),
-            storeId: i.toString(),
-            storeName: `ชื่อร้านค้า ${i + 1}`,
-            zone: `A01`,
-        }));
-        setData(mockData);
-        setTotal(20);
+    const fetchData = async () => {
+        console.log('fetchData')
+        try {
+            setLoading(true);
+            const { count_total, data } = await getCustomers({
+                ...filter,
+                company,
+            })
+            setData(data?.map((d: StoreEntity, i: number) => ({...d, key: d.customerCompanyId })));
+            setTotal(count_total || 0);
+        }catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const onClearTarget = () => {
@@ -85,7 +100,7 @@ const SearchStore = ({ list, setList, onClose }: SearchProps) => {
     const renderItem = (item: any) => {
         return (
             <FlexCol style={{ padding: '4px 8px' }}>
-                <Text level={6}>{item.storeName}</Text>
+                <Text level={6}>{item.customerName}</Text>
                 <Text level={6} color="Text3">{item.zone}</Text>
             </FlexCol>
         )
@@ -105,7 +120,7 @@ const SearchStore = ({ list, setList, onClose }: SearchProps) => {
     };
 
     const onSave = () => {
-        setList(data.filter((item) => targetKeys.includes(item.storeId)))
+        setList(data.filter((item) => targetKeys.includes(item.customerCompanyId)))
         onClose();
     }
 
@@ -118,7 +133,14 @@ const SearchStore = ({ list, setList, onClose }: SearchProps) => {
                             label='รายเขต'
                             name='zone'
                         >
-                            <Select data={[]}/>
+                            <Select 
+                                data={[
+                                    { label: 'ทั้งหมด', key: '' }, 
+                                    ...zones.map((z) => ({ label: z.zoneName, key: z.zoneName }))
+                                ]}
+                                onChange={(val) => setFilter({ ...filter, zone: val })}
+                                value={filter.zone}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={10}>
@@ -129,6 +151,13 @@ const SearchStore = ({ list, setList, onClose }: SearchProps) => {
                             <Input 
                                 suffix={<SearchOutlined/>}
                                 placeholder={'ระบุชื่อร้านค้า'}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                                    setFilter({
+                                        ...filter,
+                                        searchText: e.target.value
+                                    })
+                                }}
+                                value={filter.searchText}
                             />
                         </Form.Item>
                     </Col>
@@ -140,22 +169,38 @@ const SearchStore = ({ list, setList, onClose }: SearchProps) => {
                             <Button
                                 title="ล้างการค้นหา"
                                 typeButton="primary-light"
+                                onClick={() => setFilter({
+                                    zone: '',
+                                    searchText: ''
+                                })}
                             />
                         </Form.Item>
                     </Col>
                 </Row>
             </Form>
             <Divider style={{ margin: '0px 0px 16px' }} />
-            <Transfer
-                dataSource={data}
-                titles={titles}
-                render={renderItem}
-                listStyle={{ height: 300 }}
-                targetKeys={targetKeys}
-                selectedKeys={selectedKeys}
-                onChange={onChange}
-                onSelectChange={onSelectChange}
-            />
+            {
+                loading ?  (
+                    <FlexRow 
+                        align='center'
+                        justify='center'
+                        style={{ width: '100%', minHeight: 300 }}
+                    >
+                        <Spin size='large'/>
+                    </FlexRow>
+                ) : (
+                    <Transfer
+                        dataSource={data}
+                        titles={titles}
+                        render={renderItem}
+                        listStyle={{ height: 300 }}
+                        targetKeys={targetKeys}
+                        selectedKeys={selectedKeys}
+                        onChange={onChange}
+                        onSelectChange={onSelectChange}
+                    />
+                )
+            }
             <Divider style={{ margin: '12px 0px' }} />
             <Row justify='end'>
                 <Button
@@ -169,22 +214,46 @@ const SearchStore = ({ list, setList, onClose }: SearchProps) => {
 }
 
 export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) => {
+    const userProfile = JSON.parse(localStorage.getItem("profile")!);
+    const { company } = userProfile;
 
     const defaultFilter = {
-        zone: null,
-        keyword: null
+        zone: '',
+        keyword: ''
     }
     const [filter, setFilter] = useState(defaultFilter);
     const [showSearch, setSearch] = useState(false);
     const [storeList, setStoreList] = useState<StoreEntity[]>(form.getFieldValue('stores'));
-    const [selectedStoreList, setSelectedStoreList] = useState<Array<StoreEntity>>([]);
+    const [storeListFiltered, setStoreListFiltered] = useState<StoreEntity[]>(form.getFieldValue('stores'));
+    const [selectedStoreList, setSelectedStoreList] = useState<StoreEntity[]>([]);
+    const [zones, setZones] = useState<ZoneEntity[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        fetchZones();
+    }, [])
+
+    const fetchZones = async () => {
+        try {
+            setLoading(true);
+            const data = await getZones(company);
+            setZones(data.map((d: StoreEntity, i: number) => ({...d, key: d.customerCompanyId })));
+        }catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+        }
+    }
     
     const onSetStore = (stores: any) => {
-        setStoreList(stores)
+        setStoreList(stores);
+        setStoreListFiltered(stores);
+        setFilter(defaultFilter);
         form.setFieldsValue({
             ...form.getFieldsValue(),
             stores
-        })
+        });
+        setError(false)
     }
 
     const toggleSearchWindow = () => {
@@ -194,7 +263,7 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
     const columns = [
         {
           title: 'ชื่อร้านค้า',
-          dataIndex: 'storeName',
+          dataIndex: 'customerName',
           align: 'center' as AlignType,
           render: (text: string) => <a>{text}</a>,
         },
@@ -211,9 +280,20 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
             setSelectedStoreList(selectedRows)
         },
         getCheckboxProps: (record: StoreEntity) => ({
-            name: record.storeName,
+            name: record.customerName,
         }),
     };
+
+    const onFilter = ({ zone, keyword }: any) => {
+        setFilter({ zone, keyword });
+        setStoreListFiltered(
+            storeList.filter((store) => {
+                const isInZone = !zone || store.zone === zone;
+                const hasKeyword = !keyword || store.customerName.includes(keyword)
+                return isInZone && hasKeyword;
+            })
+        )
+    }
 
     return (
         <>
@@ -234,19 +314,32 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
                         <Col span={10}>
                             <Select 
                                 style={{ width: '100%' }}
-                                data={[]}
+                                data={[
+                                    { label: 'ทั้งหมด', key: '' }, 
+                                    ...zones.map((z) => ({ label: z.zoneName, key: z.zoneName }))
+                                ]}
+                                onChange={(val) => onFilter({ ...filter, zone: val })}
+                                value={filter.zone}
                             />
                         </Col>
                         <Col span={10}>
                             <Input 
                                 suffix={<SearchOutlined/>}
                                 placeholder={'ระบุชื่อร้านค้า'}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                                    onFilter({
+                                        ...filter,
+                                        keyword: e.target.value
+                                    })
+                                }}
+                                value={filter.keyword}
                             />
                         </Col>
                         <Col span={4}>
                             <Button
                                 title="ล้างการค้นหา"
                                 typeButton="primary-light"
+                                onClick={() => onFilter(defaultFilter)}
                             />
                         </Col>
                     </Row>
@@ -261,7 +354,7 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
                                         onClick={() => onSetStore(
                                             storeList.filter((s) => (
                                                 !selectedStoreList.find((s2) => (
-                                                    s.storeId === s2.storeId
+                                                    s.customerCompanyId === s2.customerCompanyId
                                                 ))
                                             )))
                                         }
@@ -293,8 +386,9 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
                         ...rowSelection,
                     }}
                     columns={columns}
-                    dataSource={storeList}
+                    dataSource={storeListFiltered}
                     pagination={false}
+                    
             />
             </TableContainer>
             <Modal
@@ -321,6 +415,7 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
                     list={storeList} 
                     setList={onSetStore}
                     onClose={toggleSearchWindow}
+                    zones={zones}
                 />
             </Modal>
         </>

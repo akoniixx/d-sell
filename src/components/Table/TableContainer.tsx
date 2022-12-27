@@ -11,5 +11,12 @@ const TableContainer = styled.div`
         color: white;
         font-weight: 700;
     }
+    .table-row-highlight {
+        background-color: ${color['secondary']}20;
+    }
+    .table-row-clickable {
+        cursor: pointer;
+    }
 `
 export default TableContainer;
+  

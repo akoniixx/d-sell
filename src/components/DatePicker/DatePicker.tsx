@@ -1,4 +1,4 @@
-import { TimePicker as AntdTimePicker} from "antd";
+import { TimePicker as AntdTimePicker } from "antd";
 import locale from "antd/es/date-picker/locale/th_TH";
 import dayjs, { Dayjs } from "dayjs";
 import moment, { Moment } from "moment";
@@ -33,6 +33,7 @@ interface Props {
   enablePast?: boolean;
   placeholder?: string;
   style?: React.CSSProperties;
+  disabledDate?: (current: Dayjs) => boolean;
 }
 function DatePicker({
   onChange,
@@ -41,6 +42,7 @@ function DatePicker({
   enablePast = false,
   style,
   placeholder,
+  disabledDate,
   ...props
 }: Props): JSX.Element {
   return (
@@ -57,7 +59,7 @@ function DatePicker({
         fontFamily: "Sarabun",
         ...style,
       }}
-      disabledDate={(current) => {
+      disabledDate={disabledDate ? disabledDate : (current) => {
         if (enablePast) {
           return !enablePast;
         } else {
@@ -131,6 +133,7 @@ interface TimeProps {
   style?: React.CSSProperties;
   showNow?: boolean;
   allowClear?: boolean;
+  disabledTime?: (date: Moment) => any
 }
 function TimePicker({
   onChange,
@@ -138,6 +141,7 @@ function TimePicker({
   style,
   placeholder,
   showNow = false,
+  disabledTime,
   ...props
 }: TimeProps): JSX.Element {
   return (
@@ -155,6 +159,7 @@ function TimePicker({
       }}
       format={"HH:mm"}
       showNow={showNow}
+      disabledTime={disabledTime}
       {...props}
     />
   );

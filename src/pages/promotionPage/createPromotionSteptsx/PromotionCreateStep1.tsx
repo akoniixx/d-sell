@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, message, Row, Upload, UploadFile } from "antd";
+import { Button, Col, Form, FormInstance, message, Row, Upload, Select as AntdSelect } from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
@@ -9,9 +9,9 @@ import Input from "../../../components/Input/Input";
 import Select from "../../../components/Select/Select";
 import DatePicker, { TimePicker } from "../../../components/DatePicker/DatePicker";
 import TextArea from "../../../components/Input/TextArea";
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { PromotionType, PROMOTION_TYPE_NAME } from "../../../definitions/promotion";
-import { checkPromotionCode } from "../../../datasource/PromotionDatasource";
+import { checkPromotionCode, getPromotion } from "../../../datasource/PromotionDatasource";
 import ImgCrop from "../../../components/ImgCrop/ImgCrop";
 import { RcFile } from "antd/lib/upload";
 
@@ -86,23 +86,57 @@ const beforeUpload = (file: RcFile) => {
 
 interface Props  {
     form: FormInstance;
+    file1: Blob | undefined;
+    file2: Blob | undefined;
+    fileMemo: Blob | undefined;
+    setFile1: (file: Blob | undefined) => void;
+    setFile2: (file: Blob | undefined) => void;
+    setFileMemo: (file: Blob | undefined) => void;
 }
 
-export const PromotionCreateStep1 = ({ form }: Props) => {
+export const PromotionCreateStep1 = ({ 
+    form,
+    file1,
+    file2,
+    fileMemo,
+    setFile1,
+    setFile2,
+    setFileMemo 
+}: Props) => {
     const userProfile = JSON.parse(localStorage.getItem("profile")!);
     const { company } = userProfile;
 
-    const [file1, setFile1] = useState<Blob>();
-    const [file2, setFile2] = useState<Blob>();
-    const [fileMemo, setFileMemo] = useState<Blob>();
+    // const [file1, setFile1] = useState<Blob>();
+    // const [file2, setFile2] = useState<Blob>();
+    // const [fileMemo, setFileMemo] = useState<Blob>();
     const [imageUrl1, setImgUrl1] = useState<string>();
     const [imageUrl2, setImgUrl2] = useState<string>();
     const [imageMemo, setImageMemo] = useState<string>();
+    const [promotions, setPromotions] = useState();
 
     const imgCropProps = {
         modalTitle: 'ปรับขนาดรูปภาพ',
         modalOk: 'ยืนยัน',
         modalCancel: 'ยกเลิก'
+    }
+
+    useEffect(() => {
+        fetchPromotion();
+    }, [])
+
+    const fetchPromotion = async () => {
+        try {
+            const { data } = await getPromotion({ company });
+            setPromotions(
+                data.map((p: any) => ({
+                    label: `${p.promotionName} (${p.promotionId})`,
+                    value: `${p.promotionId}`
+                }))
+            );
+            console.log(data)
+          } catch (e) {
+            console.log(e);
+          }
     }
 
     return (
@@ -372,7 +406,13 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                                         }
                                     ]}
                                 >
-                                    <DatePicker style={{ width: '100%'}} />
+                                    <DatePicker 
+                                        style={{ width: '100%'}} 
+                                        disabledDate={(current: Dayjs) => {
+                                            const startDate = form.getFieldValue('startDate');
+                                            return current && current.isBefore(dayjs(startDate));
+                                        }}
+                                    />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
@@ -381,7 +421,31 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                                     label='เวลาสิ้นสุดโปรโมชัน'
                                     initialValue={dayjs('23:59', 'HH:mm')}
                                 >
-                                    <TimePicker allowClear={false}/>
+                                    <TimePicker 
+                                        allowClear={false}
+                                        disabledTime={(now) => {
+                                            const startDate = form.getFieldValue('startDate') as Dayjs;
+                                            const endDate = form.getFieldValue('endDate') as Dayjs;
+                                            const startTime = form.getFieldValue('startTime') as Dayjs;
+                                            const isSameDay = startDate && endDate && startDate?.isSame(endDate, 'year');
+                                            if(!isSameDay) return {};
+
+                                            const hour = startTime.hour();
+                                            const minute = startTime.minute();
+                                            const hours: number[] = [];
+                                            const minutes: number[] = [];
+                                            for (let i = 0; i < hour; i++) {
+                                                hours.push(i);
+                                            }
+                                            for (let i = 0; i <= minute; i++) {
+                                                minutes.push(i);
+                                            }
+                                            return ({
+                                                disabledHours: () => hours,
+                                                disabledMinutes: (selectedHour: number) => selectedHour === hour ? minutes : [],
+                                            }) 
+                                        }}
+                                    />
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -447,13 +511,12 @@ export const PromotionCreateStep1 = ({ form }: Props) => {
                 <Row>
                     <Col span={12}>
                         <Form.Item name="referencePromotion">
-                            <Select
+                            <AntdSelect
                                 mode="multiple"
                                 placeholder="เลือกโปรโมชันอ้างอิงโปรโมชันที่เกี่ยวข้อง"
-                                value={'0'}
                                 onChange={() => {console.log()}}
-                                style={{ width: '100%' }}
-                                data={[]}
+                                style={{ width: '100%', lineHeight: '40px' }}
+                                options={promotions || []}
                             />
                         </Form.Item>
                     </Col>

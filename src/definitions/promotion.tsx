@@ -4,7 +4,7 @@ export enum PromotionType {
 }
 
 export const PROMOTION_TYPE_NAME: any = {
-    DISCOUNT_NOT_MIX: "โปรโมชันลดขั้นบันได",
-    FREEBIES_NOT_MIX: "โปรโมชันของแถมขั้นบันได"
+    DISCOUNT_NOT_MIX: "ส่วนลดแบบไม่คละ SKU",
+    FREEBIES_NOT_MIX: "ของแถมแบบไม่คละ SKU"
 };
   

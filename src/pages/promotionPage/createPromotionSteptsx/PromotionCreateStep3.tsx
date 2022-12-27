@@ -1,4 +1,4 @@
-import { Avatar, Col, Divider, Form, FormInstance, Modal, Row, Table, Upload } from "antd";
+import { Avatar, Col, Divider, Form, FormInstance, Modal, Row, Table, Tabs, Upload } from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
@@ -15,6 +15,10 @@ import Button from "../../../components/Button/Button";
 import Collapse from "../../../components/Collapse/collapse";
 import { PromotionEntity } from "../../../entities/PromotionEntity";
 import { PromotionType } from "../../../definitions/promotion";
+import { getProductGroup, getProductList } from "../../../datasource/ProductDatasource";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import productState from "../../../store/productList";
+import { getProductFreebies } from "../../../datasource/PromotionDatasource";
 
 const AddProductContainer = styled.div`
     display: flex;
@@ -60,6 +64,7 @@ interface SearchProps  {
     list: ProductEntity[],
     setList: any;
     onClose: any;
+    withFreebies?: boolean;
     isReplacing?: string;
 }
 
@@ -96,10 +101,29 @@ const ProductName = ({ product, size }: ProdNameProps) => {
     )
 }
 
-const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
+const AddProduct = ({ list, setList, onClose, withFreebies, isReplacing }: SearchProps) => {
+    const userProfile = JSON.parse(localStorage.getItem("profile")!);
+    const { company } = userProfile;
+    const pageSize = 100;
+    const isSingleItem = withFreebies || isReplacing;
+
+    const productList = useRecoilValue(productState);
+    const setProductList = useSetRecoilState(productState);
+
     const [products, setProducts] = useState<ProductEntity[]>([]);
+    const [freebies, setFreebies] = useState<ProductEntity[]>([]);
     const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
     const [selectedProductId, setSelectedProdId] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState<number>(1);
+    const [productGroups, setProductGroups] = useState([]);
+    const [showFreebie, setShowFreeie] = useState('false');
+    const [filter, setFilter] = useState({
+        productGroup: '',
+        searchText: '',
+    })
+
+    const resetPage = () => setPage(1);
 
     useEffect(() => {
         fetchProduct();
@@ -109,17 +133,45 @@ const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
         setSelectedProdId(list.map((item) => item.productId));
     },[list])
 
-    const fetchProduct = () => {
-        const mockData = Array.from({ length: 20 }).map((_, i) => ({
-            key: i.toString(),
-            productId: i.toString(),
-            productName: `ชื่อสินค้า ${i + 1}`,
-            packSize: '15 kg',
-            commonName: 'This is common name',
-            productGroup: 'productGroup',
-            packingUOM: 'ลัง',
-        }));
-        setProducts(mockData);
+    const fetchProduct = async () => {
+        try {
+            setLoading(true);
+            const { data, count } = await getProductList({
+              company,
+              take: pageSize,
+              productGroup: filter.productGroup,
+              searchText: filter.searchText,
+              page,
+            });
+
+            if(withFreebies){
+                const { data, count } = await getProductFreebies({
+                    company,
+                    take: pageSize,
+                    productGroup: filter.productGroup,
+                    searchText: filter.searchText,
+                    page,
+                });
+                const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }))
+                setFreebies(newData)
+            } 
+      
+            const { responseData } = await getProductGroup(company);
+            const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productId }))
+            setProductGroups(responseData);
+            setProducts(newData);
+
+            setProductList((oldList: any) => ({ 
+                page,
+                pageSize,
+                count,
+                data
+            }));
+          } catch (e) {
+            console.log(e);
+          } finally {
+            setLoading(false);
+          }
     }
 
     const rowSelection = {
@@ -149,10 +201,32 @@ const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
         }
     ];
 
+    const onRow = (record: ProductEntity) => ({
+        onClick: () => {
+            setSelectedProd([record]);
+        }
+    })
+
     const onSave = () => {
-        setList(products.filter((item) => selectedProductId.includes(item.productId)))
+        if(isSingleItem){
+            console.log('onSave')
+        } else {
+            setList(products.filter((item) => selectedProductId.includes(item.productId)))
+        }
         onClose();
     }
+
+    const rowClassName = (r: ProductEntity) => {
+        const isSelectedProduct = selectedProduct[0]?.productId && r.productId === selectedProduct[0]?.productId;
+        const isSelectedFreebie = selectedProduct[0]?.productFreebiesId && r.productFreebiesId === selectedProduct[0]?.productFreebiesId;
+
+        return isSingleItem && (isSelectedProduct || isSelectedFreebie) ? 'table-row-highlight table-row-clickable' : 'table-row-clickable';
+    }
+
+    const tabsItems = [
+        { label: `สินค้าแบรนด์ตัวเอง`, key: 'false' },
+        { label: `สินค้าอื่นๆ`, key: 'true' },
+    ];
 
     return (
         <>
@@ -198,17 +272,27 @@ const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
                     </Col>
                 </Row>
             </Form>
+            {withFreebies && (
+                <Tabs
+                    items={tabsItems}
+                    onChange={(key: string) => {
+                        setShowFreeie(key)
+                        resetPage();
+                    }}
+                    defaultValue={showFreebie}
+                />
+            )}
             <TableContainer>
                 <Table 
-                    rowSelection={{
-                        type: 'checkbox',
-                        ...rowSelection,
-                    }}
+                    rowSelection={isSingleItem ? undefined : { type: 'checkbox', ...rowSelection }}
+                    rowClassName={rowClassName}
+                    onRow={onRow}
                     columns={columns}
-                    dataSource={products}
+                    dataSource={showFreebie === 'true' ? freebies : products}
                     pagination={false}
                     scroll={{ y: 360 }}
-            />
+                    loading={loading}
+                />
             </TableContainer>
             <Divider style={{ margin: '12px 0px' }} />
             <Row justify='end'>
@@ -223,6 +307,11 @@ const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
 }
 
 const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
+    const [showModal, setModal] = useState(false);
+
+    const toggleModal = () => {
+        setModal(!showModal);
+    }
 
     const getValue = () => {
         // {unit: 'ลัง', qty: '10'}, { unit: 'ลัง'}
@@ -230,11 +319,12 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
     }
 
     const onAdd = () => {
-        const promo = form.getFieldValue(`promotion-${productId}`);
-        const list = getValue() || [];
-        list.push({ product: {}, qty: 0 });
-        promo[itemIndex] = { ...promo[itemIndex], freebieList: list };
-        form.setFieldValue(`promotion-${productId}`, promo);
+
+        // const promo = form.getFieldValue(`promotion-${productId}`);
+        // const list = getValue() || [];
+        // list.push({ product: {}, qty: 0 });
+        // promo[itemIndex] = { ...promo[itemIndex], freebieList: list };
+        // form.setFieldValue(`promotion-${productId}`, promo);
     }
 
     const onDelete = (i: number) => {
@@ -279,10 +369,37 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
             )}
             <AddProductContainer 
                 style={{ background: 'white', color: color.primary, padding: '8px 24px' }}
-                onClick={onAdd}
+                onClick={toggleModal}
             >
                 +&nbsp;เพิ่มของแถม
             </AddProductContainer>
+            <Modal 
+                visible={showModal}
+                width={'80vw'}
+                closable={false}
+                footer={null}
+            >
+                <Row align='middle' justify='space-between'>
+                    <Col span={20}>
+                        <FlexRow align='end'>
+                            <Text level={5} fontWeight={600}>เลือกของแถม</Text>
+                        </FlexRow>
+                    </Col>
+                    <Col span={4}>
+                        <FlexRow justify='end'>
+                            <CloseOutlined onClick={toggleModal}/>
+                        </FlexRow>
+                    </Col>
+                </Row>
+                <br/>
+                <AddProduct
+                    list={[]}
+                    setList={onAdd}
+                    onClose={toggleModal}
+                    withFreebies
+                />
+            </Modal>
+            
         </>
     )
 }
@@ -386,6 +503,7 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                     )}
                 >
                     {items.map((item, i) => {
+                        const currentKey = `promotion-${item.productId}`;
                         return (
                             <Collapse.Panel
                                 header={
@@ -397,7 +515,7 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                             <Text>{item.packSize}</Text>
                                         </Col>
                                         <Col span={8} >
-                                            <Text>จำนวน&nbsp;{0}&nbsp;ขั้นบันได</Text>
+                                            <Text>จำนวน&nbsp;{form.getFieldValue(currentKey)?.length}&nbsp;ขั้นบันได</Text>
                                         </Col>
                                         <Col span={2}>
                                             <FlexCol 
@@ -417,7 +535,7 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                                         }}
                                                     />
                                                 </IconContainer>
-                                                <IconContainer>
+                                                <IconContainer >
                                                     <DeleteOutlined 
                                                         onClick={() => onDeleteProduct(item.productId)}
                                                     />
@@ -428,7 +546,7 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                 }
                                 key={item.productId}
                             >
-                                <Form.List name={`promotion-${item.productId}`}>
+                                <Form.List name={currentKey}>
                                     {(fields, { add, remove }) => {
                                         if(fields.length <=0){
                                             add();
@@ -442,7 +560,7 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                                                 <Form.Item
                                                                     {...restField}
                                                                     label='จำนวนที่ซื้อครบ'
-                                                                    name={[name, 'qty']}
+                                                                    name={[name, 'quantity']}
                                                                     rules={[{ required: true, message: 'Missing qty' }]}
                                                                 >
                                                                     <Input placeholder="ระบุจำนวนที่ซื้อครบ" />
@@ -452,34 +570,34 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                                                 <Form.Item
                                                                     {...restField}
                                                                     label='หน่วย'
-                                                                    name={[name, 'unit']}
-                                                                    initialValue={item.packingUOM}
+                                                                    name={[name, 'saleUnit']}
+                                                                    initialValue={item.saleUOM}
                                                                 >
                                                                     <Input disabled />
                                                                 </Form.Item>
                                                             </Col>
                                                             {promotionType === PromotionType.FREEBIES_NOT_MIX ?
                                                                 (   <>
-                                                                        <Col span={10} >
+                                                                        <Col span={10} style={{ borderLeft: `1px solid ${color.background2}` }}>
                                                                             <Form.Item
                                                                                 {...restField}
                                                                                 noStyle
-                                                                                name={[name, 'freebieList']}
+                                                                                name={[name, 'freebies']}
                                                                             >
                                                                                 <FreebieList form={form} productId={item.productId} itemIndex={i}/>
                                                                             </Form.Item>
                                                                         </Col>
                                                                         <Col span={2}>
                                                                             {i > 0 && (
-                                                                                <FlexRow align='center' justify='center' style={{ height: '100%', padding: '0px 18px' }}>
+                                                                                <FlexRow align='center' justify='end' style={{ height: '100%', padding: '0px 18px' }}>
                                                                                     <FlexCol  
                                                                                         align="center"
                                                                                         justify="center"
-                                                                                        style={{ height: '100%', background: color.background1, borderRadius: 4, padding: 8, cursor: 'pointer' }}
+                                                                                        style={{ height: '100%', width: 32, background: color.background1, borderRadius: 4, padding: 8, cursor: 'pointer' }}
+                                                                                        onClick={() => remove(name)} 
                                                                                     >
                                                                                         <DeleteOutlined 
-                                                                                            style={{ fontSize: 20, color: color.secondary }}
-                                                                                            onClick={() => remove(name)} 
+                                                                                            style={{ fontSize: 18, color: color.secondary }}
                                                                                         />
                                                                                     </FlexCol>
                                                                                 </FlexRow>
@@ -492,7 +610,7 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                                                             <Form.Item
                                                                                 {...restField}
                                                                                 label='ราคาที่ต้องการลด'
-                                                                                name={[name, 'discountAmount']}
+                                                                                name={[name, 'discountPrice']}
                                                                                 rules={[{ required: true, message: 'Missing discount amount' }]}
                                                                             >
                                                                                 <Input 
@@ -505,8 +623,8 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                                                             <Form.Item
                                                                                 {...restField}
                                                                                 label='ต่อหน่วย SKU'
-                                                                                name={[name, 'perUnit']}
-                                                                                initialValue={item.packingUOM}
+                                                                                name={[name, 'saleUnitDiscount']}
+                                                                                initialValue={item.saleUOM}
                                                                             >
                                                                                 <Input disabled />
                                                                             </Form.Item>

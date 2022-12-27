@@ -3,12 +3,6 @@ import { Table, Tabs, Row, Col, Select, Avatar, Tag, Switch } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
-import {
-  getProductBrand,
-  getProductCategory,
-  getProductGroup,
-  getProductList,
-} from "../../datasource/ProductDatasource";
 import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
@@ -25,6 +19,7 @@ import Input from "../../components/Input/Input";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
 import { useNavigate } from "react-router-dom";
 import { getPromotion } from "../../datasource/PromotionDatasource";
+import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -47,11 +42,8 @@ export const PromotionListPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState({
     count: 0,
-    count_location: [],
+    count_status: [],
     data: [],
-    groups: [],
-    categories: [],
-    brands: [],
   });
 
   useEffect(() => {
@@ -72,6 +64,12 @@ export const PromotionListPage: React.FC = () => {
         take: pageSize,
         page,
       });
+      setDataState({
+        data,
+        count,
+        count_status
+      });
+      console.log({ data })
 
     } catch (e) {
       console.log(e);
@@ -142,7 +140,7 @@ export const PromotionListPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar src={row.promotionImage} size={50} shape='square' />
+                <Avatar src={row.promotionImageSecond} size={50} shape='square' />
               </div>
               <FlexCol>
                 <Text level={5}>{value}</Text>
@@ -164,7 +162,7 @@ export const PromotionListPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{value}</Text>
+              <Text level={5}>{PROMOTION_TYPE_NAME[value]}</Text>
               <Text level={6} color='Text3'>
                 {row.numOfStore}
               </Text>
@@ -211,24 +209,14 @@ export const PromotionListPage: React.FC = () => {
           return {
             children: (
               <FlexCol>
-                <Text level={5}>{value}</Text>
+                <Text level={5}>{value || '-'}</Text>
                 <Text level={6} color='Text3'>
-                    {moment(row.updateDate).format(SLASH_DMY)}
+                    {moment(row.updatedAt).format(SLASH_DMY)}
                 </Text>
               </FlexCol>
             ),
           };
         },
-    },
-    {
-        title: "การอนุมัติ",
-        dataIndex: "approveStatus",
-        key: "approveStatus",
-        render: (value: any, row: any, index: number) => {
-          return {
-            children: <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>,
-          };
-        }
     },
     {
         title: "สถานะ",

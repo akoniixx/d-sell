@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Switch, DatePicker, Divider, Steps as AntdStep, Form } from "antd";
+import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Switch, DatePicker, Divider, Steps as AntdStep, Form, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
@@ -8,7 +8,7 @@ import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import { BrandEntity } from "../../entities/BrandEntity";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
@@ -22,6 +22,9 @@ import { PromotionCreateStep1 } from "./createPromotionSteptsx/PromotionCreateSt
 import { PromotionCreateStep2 } from "./createPromotionSteptsx/PromotionCreateStep2";
 import { PromotionCreateStep3 } from "./createPromotionSteptsx/PromotionCreateStep3";
 import { PromotionType } from "../../definitions/promotion";
+import productState from "../../store/productList";
+import { ProductEntity } from "../../entities/PoductEntity";
+import { createPromotion } from "../../datasource/PromotionDatasource";
 
 const { RangePicker } = DatePicker;
 
@@ -62,10 +65,16 @@ export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
+  const productList = useRecoilValue(productState);
+  const setProductList = useSetRecoilState(productState);
+
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
   const [form3] = Form.useForm();
-  const [form4] = Form.useForm();
+
+  const [file1, setFile1] = useState<Blob | undefined>();
+  const [file2, setFile2] = useState<Blob | undefined>();
+  const [fileMemo, setFileMemo] = useState<Blob | undefined>();
 
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState(false);
@@ -77,7 +86,7 @@ export const PromotionCreatePage: React.FC = () => {
     categories: [],
     brands: [],
   });
-  const [promotionData, setPromotionData] = useState({
+  const [promotionData, setPromotionData] = useState<any>({
     promotionType: undefined,
     stores: undefined,
     items: undefined,
@@ -138,7 +147,16 @@ export const PromotionCreatePage: React.FC = () => {
   };
 
   const stepsComponents = [
-    <PromotionCreateStep1 form={form1} key={0}/>,
+    <PromotionCreateStep1 
+      form={form1} 
+      file1={file1}
+      file2={file2}
+      fileMemo={fileMemo}
+      setFile1={setFile1}
+      setFile2={setFile2}
+      setFileMemo={setFileMemo}
+      key={0}
+    />,
     <PromotionCreateStep2 
       form={form2} 
       showError={showStep2Error}
@@ -167,35 +185,85 @@ export const PromotionCreatePage: React.FC = () => {
         console.log('errInfo', errInfo);
       })
     } else if (step === 1) {
-      const stores = form2.getFieldValue('store')
+      const stores = form2.getFieldValue('stores');
+      console.log(stores)
       if(!stores || stores.length <= 0){
-        console.log('test')
+        setStep2Error(true);
       }else{
         setPromotionData({
           ...promotionData,
           stores
         })
+        setStep(step+1);
       }
-      setStep(step+1);
     } else if (step === 2) {
         onSubmit(true);
+        setPromotionData({
+          ...promotionData,
+          items: form3.getFieldsValue()
+        })
     }
   }
 
   const onSubmit = async (promotionStatus: boolean) => {
-    const { promotionType, items } = promotionData;
+    const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
     const submitData = {
       ...promotionData,
-      conditionDetailDiscount: undefined,
-      conditionDetailFreebies: undefined
+      company,
+      stores: undefined,
+      items: undefined,
+      memoFile: undefined,
+      horizontalImage: undefined,
+      verticalImage: undefined,
+      promotionShop: stores,
+      conditionDetailDiscount: [{}],
+      conditionDetailFreebies: undefined,
+      startDate: `${startDate.format('YYYY-MM-DD')}T${startTime.format('HH:mm')}:00.000Z`,
+      endDate: `${endDate.format('YYYY-MM-DD')}T${endTime.format('HH:mm')}:00.000Z`,
+      startTime: undefined,
+      endTime: undefined
     };
+    const promoList = form3.getFieldsValue();
     if(promotionType === PromotionType.FREEBIES_NOT_MIX){
-      submitData.conditionDetailDiscount = items;
-    } else {
       submitData.conditionDetailFreebies = items;
+    } else {
+      submitData.conditionDetailDiscount = Object.entries(promoList).map(([key, value]) => {
+        const [pKey, productId] = key.split('-');
+        const {
+          productName,
+          productCategory,
+          productImage,
+          packSize,
+        } = productList?.data?.find((p: ProductEntity) => p.productId === productId) || {} as ProductEntity
+        return ({
+          productId,
+          productName,
+          productCategory,
+          productImage,
+          packsize: packSize,
+          condition: value
+        })
+      });
     }
     
-    console.log({ promotionData, submitData });
+    console.log({ submitData });
+    // console.log(JSON.stringify(submitData));
+    await createPromotion(submitData).then((res: any) => {
+      const { success, responseData, developerMessage, userMessage } = res;
+      if(success) {
+        const { promotionId } = responseData;
+        console.log(responseData);
+
+        const formData = new FormData();
+        // formData.append('')
+        // save image
+        // then redirect 
+      } else {
+        message.error(userMessage || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+        console.log(developerMessage)
+      }
+    });
+    
   }
 
   return (
