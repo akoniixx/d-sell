@@ -21,6 +21,8 @@ import { SaleEntity } from "../../../entities/SaleEntity";
 import useDebounce from "../../../hook/useDebounce";
 
 import { useLocalStorage } from "../../../hook/useLocalStorage";
+import { useRecoilValue } from "recoil";
+import { roleAtom } from "../../../store/RoleAtom";
 
 const NoImage = styled.div`
   width: 42px;
@@ -43,6 +45,14 @@ function SaleManagementPage() {
   const [visible, setVisible] = useState(false);
   const [detailData, setDetailData] = useState<SaleEntity>({});
   const [debouncedValue, loadingDebouncing] = useDebounce(keyword, 500);
+  const roleData = useRecoilValue(roleAtom);
+  const parseRole = JSON.parse(roleData?.menus || "[]");
+  const findRoleSaleManagement = parseRole.find(
+    (item: { permission: string[]; menuName: string }) => {
+      return item.menuName === "saleManagement";
+    },
+  );
+  const includeCreate = findRoleSaleManagement.permission.includes("create");
 
   const {
     data,
@@ -58,6 +68,7 @@ function SaleManagementPage() {
       company: profile?.company,
     }),
   );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onChangeStatus = async (id: string, currentStatus: string) => {
     await SaleListDatasource.updateUserStaff(id, {
       status: currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE",
@@ -69,6 +80,7 @@ function SaleManagementPage() {
     searchParams.get("status") && setTab(searchParams.get("status") || "all");
   });
   const defaultTableColumns = useMemo(() => {
+    const includeEdit = findRoleSaleManagement.permission.includes("edit");
     const staticData = [
       {
         title: "ลำดับ",
@@ -196,6 +208,7 @@ function SaleManagementPage() {
             return (
               <MenuTable
                 hideDelete
+                hideEdit={!includeEdit}
                 onClickList={() => {
                   setDetailData(data);
                   setVisible(true);
@@ -216,7 +229,7 @@ function SaleManagementPage() {
       };
     });
     return columns;
-  }, []);
+  }, [findRoleSaleManagement, navigate, onChangeStatus]);
   const dataTabs = [
     {
       label: data?.counttotal ? `ทั้งหมด (${data?.counttotal})` : "ทั้งหมด",
@@ -250,20 +263,23 @@ function SaleManagementPage() {
               <div>
                 <SearchInput
                   onChange={(e) => {
+                    setPage(1);
                     setKeyword(e.target.value);
                   }}
                   placeholder='ค้นหาผู้ใช้งาน'
                   value={keyword}
                 />
               </div>
-              <div>
-                <Button
-                  onClick={() => {
-                    navigate("AddSale");
-                  }}
-                  title=' + เพิ่มผู้ใช้งาน'
-                />
-              </div>
+              {includeCreate && (
+                <div>
+                  <Button
+                    onClick={() => {
+                      navigate("AddSale");
+                    }}
+                    title=' + เพิ่มผู้ใช้งาน'
+                  />
+                </div>
+              )}
             </div>
           }
         />
@@ -271,6 +287,7 @@ function SaleManagementPage() {
           data={dataTabs}
           onChange={(key) => {
             setTab(key);
+            setPage(1);
             navigate(`?status=${key}`);
           }}
           defaultTab={tab}

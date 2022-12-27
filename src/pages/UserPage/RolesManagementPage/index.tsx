@@ -1,6 +1,6 @@
 import { Row } from "antd";
 import dayjs from "dayjs";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -15,13 +15,19 @@ import Text from "../../../components/Text/Text";
 import { roleDatasource } from "../../../datasource/RoleDatasource";
 import useDebounce from "../../../hook/useDebounce";
 import { profileAtom } from "../../../store/ProfileAtom";
+import { roleAtom } from "../../../store/RoleAtom";
 
 export default function RolesManagementPage(): JSX.Element {
   const profile = useRecoilValue(profileAtom);
   const [page, setPage] = React.useState(1);
   const [keyword, setKeyword] = React.useState<string | undefined>(undefined);
   const navigate = useNavigate();
-
+  const roleData = useRecoilValue(roleAtom);
+  const parseRole = JSON.parse(roleData?.menus || "[]");
+  const findRoleManagement = parseRole.find((item: { permission: string[]; menuName: string }) => {
+    return item.menuName === "roleManagement";
+  });
+  const includeCreate = findRoleManagement.permission.includes("create");
   const [debouncedValue, loading] = useDebounce(keyword, 500);
   const {
     data: awaitData,
@@ -39,30 +45,39 @@ export default function RolesManagementPage(): JSX.Element {
     return awaitData?.data;
   }, [awaitData]);
 
-  const onClickEdit = (id: string) => {
-    navigate(`EditRole/${id}`);
-  };
-  const onClickDelete = async (id: string) => {
-    try {
-      await roleDatasource.deleteRole(id);
-      await Swal.fire({
-        title: "ลบข้อมูลสำเร็จ",
-        text: "",
-        width: 250,
-        timer: 2000,
-        icon: "success",
-        customClass: {
-          title: "custom-title",
-        },
-        showConfirmButton: false,
-      }).then(() => {
-        getAllRoles();
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  const onClickEdit = useCallback(
+    (id: string) => {
+      navigate(`EditRole/${id}`);
+    },
+    [navigate],
+  );
+  const onClickDelete = useCallback(
+    async (id: string) => {
+      try {
+        await roleDatasource.deleteRole(id);
+        await Swal.fire({
+          title: "ลบข้อมูลสำเร็จ",
+          text: "",
+          width: 250,
+          timer: 2000,
+          icon: "success",
+          customClass: {
+            title: "custom-title",
+          },
+          showConfirmButton: false,
+        }).then(() => {
+          getAllRoles();
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    [getAllRoles],
+  );
   const defaultTableColumns = useMemo(() => {
+    const includeEdit = findRoleManagement?.permission.includes("edit");
+    const includeDelete = findRoleManagement?.permission.includes("delete");
+    const includeView = findRoleManagement?.permission.includes("view");
     const staticData = [
       {
         title: "ลำดับ",
@@ -125,6 +140,9 @@ export default function RolesManagementPage(): JSX.Element {
                 onClickList={() => {
                   navigate(`DetailRole/${data.roleId}`);
                 }}
+                hideDelete={!includeDelete}
+                hideList={!includeView}
+                hideEdit={!includeEdit}
                 titleModalWarning='ต้องการลบข้อมูลบทบาทผู้ใช้งานนี้'
                 descriptionModalWarning='โปรดยืนยันการลบข้อมูลบทบาทผู้ใช้งาน'
                 onClickDelete={() => onClickDelete(data.roleId)}
@@ -144,7 +162,7 @@ export default function RolesManagementPage(): JSX.Element {
       };
     });
     return columns;
-  }, []);
+  }, [findRoleManagement?.permission, navigate, onClickDelete, onClickEdit]);
   return (
     <>
       <CardContainer
@@ -164,20 +182,23 @@ export default function RolesManagementPage(): JSX.Element {
               <div>
                 <SearchInput
                   onChange={(e) => {
+                    setPage(1);
                     setKeyword(e.target.value);
                   }}
                   placeholder='ค้นหาบทบาท'
                   value={keyword}
                 />
               </div>
-              <div>
-                <Button
-                  title='+ เพิ่มบทบาท'
-                  onClick={() => {
-                    navigate("AddNewRole");
-                  }}
-                />
-              </div>
+              {includeCreate && (
+                <div>
+                  <Button
+                    title='+ เพิ่มบทบาท'
+                    onClick={() => {
+                      navigate("AddNewRole");
+                    }}
+                  />
+                </div>
+              )}
             </div>
           }
         />
@@ -197,7 +218,7 @@ export default function RolesManagementPage(): JSX.Element {
             isLoading={!!loading || isLoading}
             scroll={{ x: "max-content" }}
             pagination={{
-              current: 1,
+              current: page,
               pageSize: 10,
               total: data?.count || 0,
               onChange: (page) => {

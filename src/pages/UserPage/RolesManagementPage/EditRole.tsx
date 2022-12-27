@@ -200,19 +200,19 @@ export default function EditRole(): JSX.Element {
         onFinish={onFinish}
       >
         <Form.Item
-          label='ชื่อตำแหน่ง'
+          label='ชื่อบทบาท'
           name='rolename'
           rules={[
             {
               required: true,
-              message: "กรุณากรอกชื่อตำแหน่ง",
+              message: "กรุณากรอกชื่อบทบาท",
             },
           ]}
         >
-          <Input placeholder='ระบุชื่อตำแหน่ง' />
+          <Input placeholder='ระบุชื่อบทบาท' />
         </Form.Item>
         <Form.Item
-          label='อธิบายชื่อตำแหน่ง'
+          label='อธิบายชื่อบทบาท'
           name='roledescription'
           style={{
             marginBottom: 0,

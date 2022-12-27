@@ -15,7 +15,6 @@ import { protectRoutesData } from "./WebRoutes";
 
 const ProtectRoute = ({ isAuth, children }: { isAuth: boolean; children?: JSX.Element }) => {
   const roleData = useRecoilValue(roleAtom);
-  console.log(roleData);
 
   const useCurrentPath = () => {
     const location = useLocation();
