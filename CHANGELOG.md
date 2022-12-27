@@ -1,9 +1,19 @@
 
 ## [Version - 0]
+## Resolve [v0.2.6] - 2022-12-16
+- fix bug defect RoleManagement
+- condition rendering with role
+
 ## Resolve [v0.2.5] - 2022-12-16
 - fix bug defect RoleManagement
+
+## Features [v0.2.4] - Release Date: 2022-12-19
+- Added Menu FreebieList UI and API
+- Added Menu Promotion UI
+
 ## Resolve [v0.2.3] - 2022-12-16
 - fix bug defect UserManagement
+
 ## Enhance [v0.2.2] - 2022-12-12
 - docker file
 - nginx config
@@ -16,7 +26,4 @@
 - Added Menu ShopManagement only ui (ShopManagement , ShopDetail , ShopCreate , ShopEdit)
 - Added Menu ProductList UI and API (ProductList, ProductDetail, EditProduct)
 
-##  Features [v0.2.4] - Release Date: 2022-12-19
-- Added Menu FreebieList UI and API
-- Added Menu Promotion UI
 

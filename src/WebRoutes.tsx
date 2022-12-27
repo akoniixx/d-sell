@@ -35,6 +35,7 @@ import EditShopPage from "./pages/ShopManagementPage/ShopListPage/EditShopPage";
 import { FreebieListPage } from "./pages/promotionPage/freebieList";
 import { PromotionListPage } from "./pages/promotionPage/promotionList";
 import { PromotionCreatePage } from "./pages/promotionPage/createPromotion";
+import DetailRole from "./pages/UserPage/RolesManagementPage/DetailRole";
 
 interface IRoute {
   path: string;
@@ -224,12 +225,14 @@ export const protectRoutesData: IRoute[] = [
         },
       },
       {
+        path: "RoleManagementPage/DetailRole/:roleId",
+        element: <DetailRole />,
+        permission: null,
+      },
+      {
         path: "RoleManagementPage/EditRole/:roleId",
         element: <EditRole />,
-        permission: {
-          name: "roleManagement",
-          action: "edit",
-        },
+        permission: null,
       },
     ],
   },
