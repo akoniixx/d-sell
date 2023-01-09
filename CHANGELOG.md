@@ -1,5 +1,10 @@
 
 ## [Version - 0]
+## Features [v0.2.7] - Release Date: 2022-12-19
+- Added Menu Promotion API
+- fix defect FreebieList
+- fix defect ProductList
+
 ## Resolve [v0.2.6] - 2022-12-16
 - fix bug defect RoleManagement
 - condition rendering with role
