@@ -1,12 +1,9 @@
 
 ## [Version - 0]
 ## Features [v0.2.8] - Release Date: 2022-01-09
-<<<<<<< HEAD
 - Added Homepage
-
-=======
 - fix defect UserManagement Sale & Role
->>>>>>> e74f3ded3370e96f84d3cb11a1ba67594bb23992
+
 ## Features [v0.2.7] - Release Date: 2022-01-09
 - Added Menu Promotion API
 - fix defect FreebieList
