@@ -25,6 +25,7 @@ interface Props {
   filterOption?: boolean;
   notFoundContent?: JSX.Element | null;
   mode?: string;
+  allowClear?: boolean;
 }
 
 export const AntSelectCustom = styled(AntSelect)`

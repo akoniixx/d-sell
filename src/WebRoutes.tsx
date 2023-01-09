@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  Route,
-  createBrowserRouter,
-  createRoutesFromElements,
-  RouterProvider,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
 import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
 import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
 import { AuthPage } from "./pages/AuthPage/AuthPage";
-import { DiscountCOPage } from "./pages/DiscountPage/DiscountCOPage";
 import { DiscountListPage } from "./pages/DiscountPage/DiscountListPage";
 import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
@@ -31,7 +25,7 @@ import ApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage";
 import AddNewShopPage from "./pages/ShopManagementPage/ShopListPage/AddNewShopPage";
 import { Spin } from "antd";
 import { profileAtom } from "./store/ProfileAtom";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState,  useSetRecoilState } from "recoil";
 import EditRole from "./pages/UserPage/RolesManagementPage/EditRole";
 import { roleAtom } from "./store/RoleAtom";
 import { roleDatasource } from "./datasource/RoleDatasource";
@@ -41,6 +35,7 @@ import { FreebieListPage } from "./pages/promotionPage/freebieList";
 import { PromotionListPage } from "./pages/promotionPage/promotionList";
 import { PromotionCreatePage } from "./pages/promotionPage/createPromotion";
 import DetailRole from "./pages/UserPage/RolesManagementPage/DetailRole";
+import { DiscountCreatePage } from "./pages/DiscountPage/CreateCO";
 
 interface IRoute {
   path: string;
@@ -91,25 +86,24 @@ export const protectRoutesData: IRoute[] = [
     index: false,
   },
   {
-    path: "/DiscountListPage",
-    element: <DiscountListPage />,
-    permission: {
-      name: "discountList",
-      action: "view",
-    },
-
-    nestedRoutes: [],
-    index: false,
-  },
-  {
-    path: "/DiscountCOPage",
-    element: <DiscountCOPage />,
+    path: "/discount/*",
+    element: <RedirectPathPage />,
     permission: {
       name: "discountCo",
       action: "view",
     },
-    nestedRoutes: [],
-    index: false,
+    nestedRoutes: [
+      {
+        path: "list",
+        element: <DiscountListPage />,
+        permission: null,
+      },
+      {
+        path: "create",
+        element: <DiscountCreatePage />,
+        permission: null,
+      },
+    ],
   },
   {
     path: "/PriceListPage/*",
@@ -164,7 +158,7 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
-        path: "ShopListPage/DetailPage/:shopId/EditShopPage",
+        path: "ShopListPage/DetailPage/EditShopPage/:shopId",
         element: <EditShopPage />,
         permission: null,
       },
@@ -252,6 +246,11 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
+        path: "promotion/edit/:id",
+        element: <PromotionCreatePage />,
+        permission: null,
+      },
+      {
         path: "freebies",
         element: <FreebieListPage />,
         permission: null,
@@ -276,60 +275,38 @@ const WebRoutes: React.FC<any> = () => {
   const setRole = useSetRecoilState(roleAtom);
 
   const [loading, setLoading] = useState<boolean>(true);
-  const token = localStorage.getItem("token");
-
   const profile: any = localStorage.getItem("profile");
-  const parsedToken = token ? JSON.parse(token) : null;
-  const parsedProfile = profile ? JSON.parse(profile) : null;
 
   useEffect(() => {
     const getRoleData = async (roleId: string) => {
       try {
-        const roleData = await roleDatasource.getRoleById(roleId, parsedProfile.company);
+        const roleData = await roleDatasource.getRoleById(roleId);
         setRole(roleData);
-      } catch (error: any) {
-        if (error.response.status === 401) {
-          sessionStorage.clear();
-          localStorage.clear();
-          const url = window.location.href;
-          const arr = url.split("/");
-          const resultUrlHost = arr[0] + "//" + arr[2];
-
-          window.location.href =
-            "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
-            resultUrlHost;
-        }
-
-        throw error;
-      } finally {
-        setLoading(false);
-      }
-    };
-    const getUserData = async () => {
-      try {
-        setProfileRecoil(parsedProfile || null);
-
-        if (parsedProfile) {
-          await getRoleData(parsedProfile.roleId);
-        }
-      } catch (error: any) {
+      } catch (error) {
         console.log(error);
       } finally {
         setLoading(false);
       }
     };
-    if (parsedToken && profileRecoil === null) {
+    const getUserData = async () => {
+      setLoading(true);
+
+      setProfileRecoil(JSON.parse(profile) || null);
+      if (JSON.parse(profile)) {
+        getRoleData(JSON.parse(profile).roleId);
+      }
+    };
+
+    if (profile) {
       getUserData();
+    } else {
+      setTimeout(() => {
+        setLoading(false);
+        setProfileRecoil(null);
+        setRole(null);
+      }, 2000);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setProfileRecoil, setRole, profileRecoil]);
-
-  useEffect(() => {
-    if (!parsedProfile) {
-      setLoading(false);
-    }
-  }, [parsedProfile]);
+  }, []);
 
   if (loading) {
     return (
@@ -346,73 +323,39 @@ const WebRoutes: React.FC<any> = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "80vh",
-        }}
-      >
-        <Spin size='large' />
-      </div>
-    );
-  }
-  const router = createBrowserRouter(
-    createRoutesFromElements(
-      profileRecoil === null ? (
-        <>
-          <Route index element={<AuthPage />} />
-          <Route path='/' element={<AuthPage />} />
-          <Route path='/ErrorLoginPage' element={<ErrorLoginPage />} />
-          <Route path='*' element={<PageNotFound />} />
-        </>
-      ) : (
-        <Route element={<ProtectRoute isAuth={!!profileRecoil} />}>
-          {protectRoutesData.map((route, index) => {
-            if (route.nestedRoutes.length < 1) {
-              return (
-                <Route
-                  key={index}
-                  path={route.path}
-                  element={route.element}
-                  handle={{
-                    crumb: () => {
-                      return route;
-                    },
-                  }}
-                />
-              );
-            } else {
-              return (
-                <Route key={index} path={route.path} element={route.element}>
-                  {route.nestedRoutes.map((nestedRoute, idx) => {
-                    return (
-                      <Route
-                        key={idx}
-                        path={nestedRoute.path}
-                        element={nestedRoute.element}
-                        handle={{
-                          crumb: () => {
-                            return nestedRoute;
-                          },
-                        }}
-                      />
-                    );
-                  })}
-                </Route>
-              );
-            }
-          })}
-          <Route path='*' element={<PageNotFound />} />
-        </Route>
-      ),
-    ),
+  return (
+    <BrowserRouter>
+      <Routes>
+        {profileRecoil === null ? (
+          <>
+            <Route index element={<AuthPage />} />
+            <Route path='/' element={<AuthPage />} />
+            <Route path='/ErrorLoginPage' element={<ErrorLoginPage />} />
+            <Route path='*' element={<PageNotFound />} />
+          </>
+        ) : (
+          <Route element={<ProtectRoute isAuth={!!profileRecoil} />}>
+            {protectRoutesData.map((route, index) => {
+              if (route.nestedRoutes.length < 1) {
+                return <Route key={index} path={route.path} element={route.element} />;
+              } else {
+                return (
+                  <Route key={index} path={route.path} element={route.element}>
+                    {route.nestedRoutes.map((nestedRoute, idx) => {
+                      return (
+                        <Route key={idx} path={nestedRoute.path} element={nestedRoute.element} />
+                      );
+                    })}
+                  </Route>
+                );
+              }
+            })}
+            <Route path='*' element={<PageNotFound />} />
+          </Route>
+        )}
+      </Routes>
+    </BrowserRouter>
   );
-
-  return <RouterProvider router={router} />;
 };
 
 export default WebRoutes;

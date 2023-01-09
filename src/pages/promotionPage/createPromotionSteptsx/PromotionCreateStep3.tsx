@@ -1,4 +1,4 @@
-import { Avatar, Col, Divider, Form, FormInstance, Modal, Row, Table, Upload } from "antd";
+import { Avatar, Col, Divider, Form, FormInstance, Modal, Row, Table, Tabs, Tooltip, Upload } from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
@@ -14,6 +14,12 @@ import Input from "../../../components/Input/Input";
 import Button from "../../../components/Button/Button";
 import Collapse from "../../../components/Collapse/collapse";
 import { PromotionEntity } from "../../../entities/PromotionEntity";
+import { PromotionType } from "../../../definitions/promotion";
+import { getProductCategory, getProductGroup, getProductList } from "../../../datasource/ProductDatasource";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import productState from "../../../store/productList";
+import { getProductFreebieGroup, getProductFreebies } from "../../../datasource/PromotionDatasource";
+import { format } from "path";
 
 const AddProductContainer = styled.div`
     display: flex;
@@ -59,11 +65,19 @@ interface SearchProps  {
     list: ProductEntity[],
     setList: any;
     onClose: any;
+    withFreebies?: boolean;
     isReplacing?: string;
 }
 
+interface FreebieListProps  {
+    form: FormInstance;
+    productId: string;
+    itemIndex: number;
+}  
+
 interface Props  {
     form: FormInstance;
+    promotionType?: PromotionType;
 }
 
 const ProductName = ({ product, size }: ProdNameProps) => {
@@ -71,7 +85,7 @@ const ProductName = ({ product, size }: ProdNameProps) => {
     return (
         <FlexRow align='center'>
             <div style={{ marginRight: 16 }}>
-                <Avatar src={product.productImage} size={size || 50} shape='square' />
+                <Avatar src={product.productImage || product.productFreebiesImage} size={size || 50} shape='square' />
             </div>
             <FlexCol>
                 <Text level={5}>
@@ -88,30 +102,110 @@ const ProductName = ({ product, size }: ProdNameProps) => {
     )
 }
 
-const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
+const AddProduct = ({ list, setList, onClose, withFreebies, isReplacing }: SearchProps) => {
+    const userProfile = JSON.parse(localStorage.getItem("profile")!);
+    const { company } = userProfile;
+    const pageSize = 100;
+    const isSingleItem = withFreebies || isReplacing;
+    const [form] = Form.useForm()
+
+    const productList = useRecoilValue(productState);
+    const setProductList = useSetRecoilState(productState);
+
     const [products, setProducts] = useState<ProductEntity[]>([]);
+    const [freebies, setFreebies] = useState<ProductEntity[]>([]);
+    const [productCount, setProductCount] = useState(0);
+    const [freebieCount, setFreebieCount] = useState(0);
     const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
     const [selectedProductId, setSelectedProdId] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState<number>(1);
+    const [productGroups, setProductGroups] = useState([]);
+    const [productCategories, setProductCategories] = useState([]);
+    const [productFreebieGroups, setProductFreebieGroups] = useState([]);
+    const [showFreebie, setShowFreeie] = useState('false');
+    const [filter, setFilter] = useState({
+        productGroup: '',
+        productCategory: '',
+        searchText: '',
+    })
+
+    const resetPage = () => {
+        setPage(1);
+        setFilter({
+            productGroup: '',
+            productCategory: '',
+            searchText: '',
+        });
+        form.resetFields();
+    }
 
     useEffect(() => {
         fetchProduct();
-    },[])
+    },[filter, showFreebie])
 
     useEffect(() => {
         setSelectedProdId(list.map((item) => item.productId));
     },[list])
 
-    const fetchProduct = () => {
-        const mockData = Array.from({ length: 20 }).map((_, i) => ({
-            key: i.toString(),
-            productId: i.toString(),
-            productName: `ชื่อสินค้า ${i + 1}`,
-            packSize: '15 kg',
-            commonName: 'This is common name',
-            productGroup: 'productGroup',
-            packingUOM: 'ลัง',
+    const fetchFreebieList = async () => {
+        const { data, count } = await getProductFreebies({
+            company,
+            take: pageSize,
+            productGroup: filter.productGroup,
+            searchText: filter.searchText,
+            page,
+        });
+        const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }))
+        setFreebies(newData);
+        setFreebieCount(count);
+    }
+    const fetchProductList = async () => {
+        const { data, count } = await getProductList({
+            company,
+            take: pageSize,
+            productGroup: filter.productGroup,
+            searchText: filter.searchText,
+            productCategoryId: filter.productCategory,
+            page,
+        });
+        const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productId }));
+        setProducts(newData);
+        setProductCount(count)
+  
+        setProductList((oldList: any) => ({ 
+            page,
+            pageSize,
+            count,
+            data,
+            allData: oldList?.data?.length > 0 ? oldList.data.concat(data) : data
         }));
-        setProducts(mockData);
+    }
+    const fetchProduct = async () => {
+        try {
+            setLoading(true);
+            await fetchProductList();
+            await fetchFreebieList();
+      
+            if(!productGroups || !productGroups.length){
+                const { responseData } = await getProductGroup(company);
+                setProductGroups(responseData);
+            }
+            
+            if(!productCategories || !productCategories.length){
+                const categories = await getProductCategory(company);
+                setProductCategories(categories);
+            }
+
+            if(!productFreebieGroups || !productFreebieGroups.length){
+                const { responseData } = await getProductFreebieGroup(company);
+                setProductFreebieGroups(responseData);
+            }
+          } catch (e) {
+            console.log(e);
+          } finally {
+            setLoading(false);
+          }
     }
 
     const rowSelection = {
@@ -135,72 +229,146 @@ const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
           ),
         },
         {
-          title: `${20} สินค้า`,
+          title: `${showFreebie === 'true' ? freebieCount : productCount} สินค้า`,
           dataIndex: 'packSize',
           align: 'right' as AlignType,
         }
     ];
 
+    const onRow = (record: ProductEntity) => ({
+        onClick: () => {
+            setSelectedProd([record]);
+        }
+    })
+
     const onSave = () => {
-        setList(products.filter((item) => selectedProductId.includes(item.productId)))
+        if(isSingleItem){
+            setList(selectedProduct[0]);
+        } else {
+            setList(products.filter((item) => selectedProductId.includes(item.productId)));
+        }
         onClose();
     }
 
+    const rowClassName = (r: ProductEntity) => {
+        const isSelectedProduct = selectedProduct[0]?.productId && r.productId === selectedProduct[0]?.productId;
+        const isSelectedFreebie = selectedProduct[0]?.productFreebiesId && r.productFreebiesId === selectedProduct[0]?.productFreebiesId;
+
+        return isSingleItem && (isSelectedProduct || isSelectedFreebie) ? 'table-row-highlight table-row-clickable' : 'table-row-clickable';
+    }
+
+    const tabsItems = [
+        { label: `สินค้าแบรนด์ตัวเอง`, key: 'false' },
+        { label: `สินค้าอื่นๆ`, key: 'true' },
+    ];
+
     return (
         <>
-            <Form layout='vertical'>
+            <Form layout='vertical' form={form}>
                 <Row gutter={8} align='bottom'>
                     <Col span={7}>
                         <Form.Item
                             label='Product Group'
                             name='productGroup'
                         >
-                            <Select data={[]}/>
+                            <Select 
+                                data={[{
+                                    key: '', 
+                                    value: '', 
+                                    label: 'ทั้งหมด' 
+                                }, ...(showFreebie === 'true' ? productFreebieGroups : productGroups).map((g: any) => ({ 
+                                    key: g.product_group, 
+                                    value: g.product_group, 
+                                    label: g.product_group 
+                                }))]}
+                                onChange={(v) => setFilter({ ...filter, productGroup: v })}
+                                value={filter.productGroup}
+                            />
                         </Form.Item>
                     </Col>
-                    <Col span={7}>
+                    <Col span={showFreebie === 'true' ? 0 : 7}>
                         <Form.Item
                             label='Startegy Group'
-                            name='strategyGroup'
+                            name='productCategory'
                         >
-                            <Select data={[]}/>
+                            <Select 
+                                data={[{
+                                        key: '', 
+                                        value: '', 
+                                        label: 'ทั้งหมด' 
+                                    }, ...productCategories.map((g: any) => ({ 
+                                        key: g.productCategoryId, 
+                                        value: g.productCategoryId, 
+                                        label: g.productCategoryName 
+                                    }))
+                                ]}
+                                onChange={(v) => setFilter({ ...filter, productCategory: v })}
+                                value={filter.productCategory}
+                            />
                         </Form.Item>
                     </Col>
-                    <Col span={7}>
+                    <Col span={showFreebie === 'true' ? 14 : 7}>
                         <Form.Item
                             label='ค้นหาสินค้า'
-                            name='keyword'
+                            name='searchText'
                         >
                             <Input 
                                 suffix={<SearchOutlined/>}
                                 placeholder={'ระบุชื่อสินค้า'}
+                                onPressEnter={(e) => {
+                                    const searchText = (e.target as HTMLTextAreaElement).value;
+                                    setFilter({ ...filter, searchText })
+                                }}
+                                value={filter.searchText}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={3}>
                         <Form.Item
                             label=''
-                            name='keyword'
+                            name='clear'
                         >
                             <Button
                                 title="ล้างการค้นหา"
                                 typeButton="primary-light"
+                                onClick={() => {
+                                    form.setFieldsValue({
+                                        productGroup: '',
+                                        productCategory: '',
+                                        searchText: '',
+                                    })
+                                    setFilter({
+                                        productGroup: '',
+                                        productCategory: '',
+                                        searchText: '',
+                                    })
+                                }}
                             />
                         </Form.Item>
                     </Col>
                 </Row>
             </Form>
+            {withFreebies && (
+                <Tabs
+                    items={tabsItems}
+                    onChange={(key: string) => {
+                        setShowFreeie(key)
+                        resetPage();
+                    }}
+                    defaultValue={showFreebie}
+                />
+            )}
             <TableContainer>
                 <Table 
-                    rowSelection={{
-                        type: 'checkbox',
-                        ...rowSelection,
-                    }}
+                    rowSelection={isSingleItem ? undefined : { type: 'checkbox', ...rowSelection }}
+                    rowClassName={rowClassName}
+                    onRow={onRow}
                     columns={columns}
-                    dataSource={products}
+                    dataSource={showFreebie === 'true' ? freebies : products}
                     pagination={false}
                     scroll={{ y: 360 }}
-            />
+                    loading={loading}
+                />
             </TableContainer>
             <Divider style={{ margin: '12px 0px' }} />
             <Row justify='end'>
@@ -214,9 +382,147 @@ const AddProduct = ({ list, setList, onClose, isReplacing }: SearchProps) => {
     )
 }
 
-export const PromotionCreateStep3 = ({ form }: Props) => {
+const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
+    const [showModal, setModal] = useState(false);
 
-    const [items, setItems] = useState<ProductEntity[]>([]);
+    const toggleModal = () => {
+        setModal(!showModal);
+    }
+
+    const getValue = () => {
+        // Format: {unit: 'ลัง', quantity: '10'}, { unit: 'ลัง'}
+        return form.getFieldValue(`promotion-${productId}`)[itemIndex]?.freebies || [];
+    }
+
+    const onAdd = (product: ProductEntity) => {
+        const promo = form.getFieldValue(`promotion-${productId}`);
+        const list = getValue() || [];
+        list.push({ ...product, product, quantity: 0 });
+        promo[itemIndex] = { ...promo[itemIndex], freebies: list };
+        form.setFieldValue(`promotion-${productId}`, promo);
+        console.log('onAdd', product)
+    }
+
+    const onDelete = (i: number) => {
+        const promo = form.getFieldValue(`promotion-${productId}`);
+        const list = getValue() || [];
+        list.splice(i,1);
+        promo[itemIndex] = { ...promo[itemIndex], freebies: list };
+        form.setFieldValue(`promotion-${productId}`, promo);
+    }
+
+    const onSetQuantity = (i: number, quantity: string) => {
+        const promo = form.getFieldValue(`promotion-${productId}`);
+        const list = getValue() || [];
+        list[i] = { ...list[i], quantity: parseInt(quantity) }
+        promo[itemIndex] = { ...promo[itemIndex], freebies: list };
+        form.setFieldValue(`promotion-${productId}`, promo);
+    }
+
+    return (
+        <>
+            {getValue().map(({ product, quantity }:any, i:number) => 
+                <Row key={i} gutter={12} align='middle'>
+                    <Col>
+                        <FlexCol align="center" style={{ width: 64, overflow: 'hidden' }}>
+                            <Avatar 
+                                src={product?.productImage || product?.productFreebiesImage} 
+                                size={64} 
+                                shape='square' 
+                            />
+                            <Tooltip title={product?.productName}>
+                                <Text 
+                                    level={6} 
+                                    style={{
+                                        display: 'block',
+                                        width: 64, 
+                                        height: 22,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        wordWrap: 'break-word',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {product?.productName}
+                                </Text>
+                            </Tooltip>
+                        </FlexCol>
+                    </Col>
+                    <Col span={9}>
+                        <Form.Item 
+                            label='จำนวนของแถม' 
+                            rules={[
+                                {
+                                    required: true,
+                                    message: '*โปรดระบุจำนวนของแถม'
+                                }
+                            ]}
+                            initialValue={quantity}
+                        >
+                            <Input 
+                                type='number' 
+                                placeholder="ระบุจำนวนของแถม"
+                                onChange={(e) => onSetQuantity(i, e?.target?.value)}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={9}>
+                        <Form.Item label='หน่วย' initialValue={product?.saleUOM || product?.baseUnitOfMeaEn}>
+                            <Input disabled value={product?.saleUOM || product?.baseUnitOfMeaEn}/>
+                        </Form.Item>
+                    </Col>
+                    <Col>
+                        <FlexCol align='center' justify='center' style={{ height: '100%', paddingBottom: 12 }}>
+                            <CloseIconContainer>
+                                <CloseOutlined 
+                                    style={{ color: 'white' }}
+                                    onClick={() => onDelete(i)}
+                                />
+                            </CloseIconContainer>
+                    </FlexCol>
+                    </Col>
+                </Row>
+            )}
+            <AddProductContainer 
+                style={{ background: 'white', color: color.primary, padding: '8px 24px' }}
+                onClick={toggleModal}
+            >
+                +&nbsp;เพิ่มของแถม
+            </AddProductContainer>
+            <Modal 
+                visible={showModal}
+                width={'80vw'}
+                closable={false}
+                footer={null}
+            >
+                <Row align='middle' justify='space-between'>
+                    <Col span={20}>
+                        <FlexRow align='end'>
+                            <Text level={5} fontWeight={600}>เลือกของแถม</Text>
+                        </FlexRow>
+                    </Col>
+                    <Col span={4}>
+                        <FlexRow justify='end'>
+                            <CloseOutlined onClick={toggleModal}/>
+                        </FlexRow>
+                    </Col>
+                </Row>
+                <br/>
+                <AddProduct
+                    list={[]}
+                    setList={onAdd}
+                    onClose={toggleModal}
+                    withFreebies
+                />
+            </Modal>
+            
+        </>
+    )
+}
+
+export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
+
+    const [items, setItems] = useState<ProductEntity[]>(form.getFieldValue('items') || []);
     const [itemPromo, setItemPromo] = useState<any[]>([]);
     const [showModal, setModal] = useState(false);
     const [isReplacing, setReplace] = useState<string | undefined>(undefined);
@@ -242,14 +548,16 @@ export const PromotionCreateStep3 = ({ form }: Props) => {
     }
 
     const setProd = (list: ProductEntity[]) => {
+        console.log(list)
         setItems(list);
+        form.setFieldValue('items', list);
         setActiveKeys(list.map((item) => item.productId))
         setItemPromo(list.map((item) => ({
             item,
             promo: [
                 {
                     unit: item.packingUOM,
-                    qty: 1,
+                    quantity: 1,
                     discountAmount: 0
                 }
             ]
@@ -312,6 +620,7 @@ export const PromotionCreateStep3 = ({ form }: Props) => {
                     )}
                 >
                     {items.map((item, i) => {
+                        const currentKey = `promotion-${item.productId}`;
                         return (
                             <Collapse.Panel
                                 header={
@@ -322,8 +631,8 @@ export const PromotionCreateStep3 = ({ form }: Props) => {
                                         <Col span={5}>
                                             <Text>{item.packSize}</Text>
                                         </Col>
-                                        <Col span={8}>
-                                            <Text>จำนวน&nbsp;{0}&nbsp;ขั้นบันได</Text>
+                                        <Col span={8} >
+                                            <Text>จำนวน&nbsp;{form.getFieldValue(currentKey)?.length}&nbsp;ขั้นบันได</Text>
                                         </Col>
                                         <Col span={2}>
                                             <FlexCol 
@@ -343,7 +652,7 @@ export const PromotionCreateStep3 = ({ form }: Props) => {
                                                         }}
                                                     />
                                                 </IconContainer>
-                                                <IconContainer>
+                                                <IconContainer >
                                                     <DeleteOutlined 
                                                         onClick={() => onDeleteProduct(item.productId)}
                                                     />
@@ -354,7 +663,7 @@ export const PromotionCreateStep3 = ({ form }: Props) => {
                                 }
                                 key={item.productId}
                             >
-                                <Form.List name={`${item.productId}-qty`}>
+                                <Form.List name={currentKey}>
                                     {(fields, { add, remove }) => {
                                         if(fields.length <=0){
                                             add();
@@ -362,63 +671,100 @@ export const PromotionCreateStep3 = ({ form }: Props) => {
                                         return (
                                             <>
                                                 {fields.map(({ key, name, ...restField }, i) => (
-                                                    <Row key={key} gutter={16} style={{ padding: '20px 16px' }}>
-                                                        <Col span={8}>
-                                                            <Form.Item
-                                                                {...restField}
-                                                                label='จำนวนที่ซื้อครบ'
-                                                                name={[name, 'qty']}
-                                                                rules={[{ required: true, message: 'Missing qty' }]}
-                                                            >
-                                                                <Input placeholder="ระบุจำนวนที่ซื้อครบ" />
-                                                            </Form.Item>
-                                                        </Col>
-                                                        <Col span={4}>
-                                                            <Form.Item
-                                                                {...restField}
-                                                                label='หน่วย'
-                                                                name={[name, 'unit']}
-                                                                initialValue={item.packingUOM}
-                                                            >
-                                                                <Input disabled />
-                                                            </Form.Item>
-                                                        </Col>
-                                                        <Col span={6}>
-                                                            <Form.Item
-                                                                {...restField}
-                                                                label='ราคาที่ต้องการลด'
-                                                                name={[name, 'discountAmount']}
-                                                                rules={[{ required: true, message: 'Missing discount amount' }]}
-                                                            >
-                                                                <Input 
-                                                                    placeholder="ระบุราคา" 
-                                                                    suffix='บาท'
-                                                                />
-                                                            </Form.Item>
-                                                        </Col>
-                                                        <Col span={4}>
-                                                            <Form.Item
-                                                                {...restField}
-                                                                label='ต่อหน่วย SKU'
-                                                                name={[name, 'perUnit']}
-                                                                initialValue={item.packingUOM}
-                                                            >
-                                                                <Input disabled />
-                                                            </Form.Item>
-                                                        </Col>
-                                                        <Col span={2}>
-                                                            {i > 0 && (
-                                                                <FlexRow align='center' justify='center' style={{ height: '100%', paddingBottom: 9 }}>
-                                                                    <CloseIconContainer>
-                                                                        <CloseOutlined 
-                                                                            style={{ color: 'white' }}
-                                                                            onClick={() => remove(name)} 
-                                                                        />
-                                                                    </CloseIconContainer>
-                                                                </FlexRow>
-                                                            )}
-                                                        </Col>
-                                                    </Row>
+                                                    <>
+                                                        <Row key={key} gutter={16} style={{ padding: '20px 16px' }}>
+                                                            <Col span={8}>
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    label='จำนวนที่ซื้อครบ'
+                                                                    name={[name, 'quantity']}
+                                                                    rules={[{ required: true, message: 'โปรดระบุจำนวนที่ซื้อครบ' }]}
+                                                                >
+                                                                    <Input type='number' placeholder="ระบุจำนวนที่ซื้อครบ" />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col span={4}>
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    label='หน่วย'
+                                                                    name={[name, 'saleUnit']}
+                                                                    initialValue={item.saleUOM}
+                                                                >
+                                                                    <Input disabled />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            {promotionType === PromotionType.FREEBIES_NOT_MIX ?
+                                                                (   <>
+                                                                        <Col span={10} style={{ borderLeft: `1px solid ${color.background2}` }}>
+                                                                            <Form.Item
+                                                                                {...restField}
+                                                                                noStyle
+                                                                                name={[name, 'freebies']}
+                                                                            >
+                                                                                <FreebieList form={form} productId={item.productId} itemIndex={i}/>
+                                                                            </Form.Item>
+                                                                        </Col>
+                                                                        <Col span={2}>
+                                                                            {i > 0 && (
+                                                                                <FlexRow align='center' justify='end' style={{ height: '100%', padding: '0px 18px' }}>
+                                                                                    <FlexCol  
+                                                                                        align="center"
+                                                                                        justify="center"
+                                                                                        style={{ height: '100%', width: 32, background: color.background1, borderRadius: 4, padding: 8, cursor: 'pointer' }}
+                                                                                        onClick={() => remove(name)} 
+                                                                                    >
+                                                                                        <DeleteOutlined 
+                                                                                            style={{ fontSize: 18, color: color.secondary }}
+                                                                                        />
+                                                                                    </FlexCol>
+                                                                                </FlexRow>
+                                                                            )}
+                                                                        </Col>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Col span={6}>
+                                                                            <Form.Item
+                                                                                {...restField}
+                                                                                label='ราคาที่ต้องการลด'
+                                                                                name={[name, 'discountPrice']}
+                                                                                rules={[{ required: true, message: 'โปรดระบุราคาที่ต้องการลด' }]}
+                                                                            >
+                                                                                <Input 
+                                                                                    placeholder="ระบุราคา" 
+                                                                                    suffix='บาท'
+                                                                                    type='number'
+                                                                                />
+                                                                            </Form.Item>
+                                                                        </Col>
+                                                                        <Col span={4}>
+                                                                            <Form.Item
+                                                                                {...restField}
+                                                                                label='ต่อหน่วย SKU'
+                                                                                name={[name, 'saleUnitDiscount']}
+                                                                                initialValue={item.saleUOM}
+                                                                            >
+                                                                                <Input disabled />
+                                                                            </Form.Item>
+                                                                        </Col>
+                                                                        <Col span={2}>
+                                                                            {i > 0 && (
+                                                                                <FlexRow align='center' justify='center' style={{ height: '100%', paddingBottom: 9 }}>
+                                                                                    <CloseIconContainer>
+                                                                                        <CloseOutlined 
+                                                                                            style={{ color: 'white' }}
+                                                                                            onClick={() => remove(name)} 
+                                                                                        />
+                                                                                    </CloseIconContainer>
+                                                                                </FlexRow>
+                                                                            )}
+                                                                        </Col>
+                                                                    </>
+                                                                )
+                                                            }
+                                                        </Row>
+                                                        {promotionType === PromotionType.FREEBIES_NOT_MIX && <Divider/>}
+                                                    </>
                                                 ))}
                                                 <Form.Item>
                                                     <AddProductContainer onClick={() => add()} style={{ background: 'white' }}>
@@ -468,7 +814,16 @@ export const PromotionCreateStep3 = ({ form }: Props) => {
                 <br/>
                 <AddProduct
                     list={items}
-                    setList={setProd}
+                    setList={isReplacing ? (
+                            (p: ProductEntity) => {
+                                setProd(items.map((item: ProductEntity) => 
+                                    item.productId === isReplacing ? p : item
+                                ))
+                            } 
+                        ): (
+                            setProd
+                        )
+                    }
                     onClose={toggleModal}
                     isReplacing={isReplacing}
                 />

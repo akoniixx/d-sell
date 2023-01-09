@@ -33,7 +33,7 @@ const getProductBrand = async (company: string) => {
 
 const getProductDetail = async (productId: number) => {
   return await httpClient
-    .get(`${baseUrl}/product/${productId}`)
+    .get(`${baseUrl}/product//product-by-id`, { params: { productId } })
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };

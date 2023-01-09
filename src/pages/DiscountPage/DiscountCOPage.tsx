@@ -177,7 +177,7 @@ export const DiscountCOPage: React.FC = () => {
           <PageTitle />
           <div className='d-flex justify-content-between'>
             <TabFilter
-              all={memoListData ? memoListData.length : 0}
+              // all={memoListData ? memoListData.length : 0}
               // active={memoListData ? memoListData.filter()}
               // inactive={memoListData ? memoListData.filter()}
             />

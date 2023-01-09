@@ -22,7 +22,7 @@ import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import { useEffectOnce } from "react-use";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
-import icon from "../../resource/icon";
+import image from "../../resource/image";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import { ProductEntity } from "../../entities/PoductEntity";
 import styled from "styled-components";
@@ -66,6 +66,8 @@ export const DistributionPageDetail: React.FC = (props: any) => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
   const isFreebie = pathSplit[2] === 'freebies';
+
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState<ProductEntity>();
@@ -139,10 +141,12 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     {
       label: "รหัสสินค้า",
       value: isFreebie ? productFreebiesCodeNAV : productCodeNAV,
+      freebieHide: true
     },
     {
       label: "ชื่อทางการค้า (Tradename)",
       value: productName,
+      freebieHide: true
     },
     {
       label: "ชื่อสามัญ",
@@ -163,18 +167,18 @@ export const DistributionPageDetail: React.FC = (props: any) => {
   const dataGroup2 = [
     {
       label: "ปริมาณสินค้า / หน่วย",
-      value: saleUOM,
+      value: qtySaleUnit + ' ' + baseUOM,
     },
     {
       label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(unitPrice || "")),
+      value: priceFormatter(parseFloat(unitPrice || "")) + '/' + baseUOM,
     },
   ];
 
   const dataGroup3 = [
     {
       label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(marketPrice || "")),
+      value: priceFormatter(parseFloat(marketPrice || "")) + '/' + baseUOM,
     },
   ];
 
@@ -190,11 +194,12 @@ export const DistributionPageDetail: React.FC = (props: any) => {
       <PageTitleNested
         title='รายละเอียดสินค้า'
         showBack
+        onBack={() => navigate(`/${pathSplit[1]}/${pathSplit[2]}`)}
         extra={
           <Button
             type='primary'
             onClick={() =>
-              (window.location.href = `/${pathSplit[1]}/${pathSplit[2]}/edit/${isFreebie ? productFreebiesId : productId}`)
+              navigate(`/${pathSplit[1]}/${pathSplit[2]}/edit/${isFreebie ? productFreebiesId : productId}`)
             }
           >
             <EditOutlined />
@@ -228,7 +233,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
         <CardContainer>
           <PageTitle />
           <Container>
-            <ProdImage src={isFreebie ? productFreebiesImage : productImage} />
+            <ProdImage src={(isFreebie ? productFreebiesImage : productImage) || image.product_no_image} />
           </Container>
           <Container>
             {dataGroup1.filter((e) => !isFreebie || !e.freebieHide).map((p: DescProps, i) => (

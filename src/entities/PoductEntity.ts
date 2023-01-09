@@ -1,6 +1,8 @@
 export interface ProductEntity {
   productId: string;
   baseUOM?: string;
+  baseUnitOfMeaEn?: string;
+  baseUnitOfMeaTh?: string;
   commonName?: string;
   company?: string;
   createDate?: string;

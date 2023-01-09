@@ -56,22 +56,24 @@ export const pathLists = [
     permission: null,
   },
   {
-    path: "/DiscountListPage",
+    path: "/discount",
     name: "discountList",
     title: "Discount (CO)",
-    permission: {
-      name: "discountCo",
-      action: "view",
-    },
+    permission: null,
+    // permission: {
+    //   name: "discountCo",
+    //   action: "view",
+    // },
     subMenu: [
       {
-        path: "/DiscountCOPage",
-        name: "discountCO",
-        title: "Discount CO",
-        permission: {
-          name: "discountCo",
-          action: "view",
-        },
+        path: "/list",
+        name: "discountList",
+        title: "Discount Lists"
+      },
+      {
+        path: "/edit",
+        name: "edit",
+        title: "Add / Edit Credit Memo"
       },
     ],
   },

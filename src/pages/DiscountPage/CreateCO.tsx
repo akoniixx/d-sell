@@ -6,9 +6,8 @@ import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import styled from "styled-components";
-import { PromotionCreateStep1 } from "./createPromotionSteptsx/PromotionCreateStep1";
-import { PromotionCreateStep2 } from "./createPromotionSteptsx/PromotionCreateStep2";
-import { PromotionCreateStep3 } from "./createPromotionSteptsx/PromotionCreateStep3";
+import { PromotionCreateStep1 } from "./CreateCOStep/CreateCOStep1";
+import { PromotionCreateStep2 } from "./CreateCOStep/CreateCOStep2";
 import { PromotionType } from "../../definitions/promotion";
 import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
@@ -45,7 +44,7 @@ const Steps = styled(AntdStep)`
     } 
 `;
 
-export const PromotionCreatePage: React.FC = () => {
+export const DiscountCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
@@ -126,26 +125,19 @@ export const PromotionCreatePage: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title={isEditing ? 'แก้ไขโปรโมชั่น' : 'เพิ่มโปรโมชั่น'}
+        title={isEditing ? 'แก้ไข Credit Memo' : 'สร้าง Credit Memo'}
         showBack
         extra={
             <>
                 <Steps
-                    // progressDot
                     current={step}
                     items={[
                         {
-                            title: <>ข้อมูลเบื้องต้น</>,
+                            title: <>รายละเอียด<br/>เบื้องต้น</>,
                         },
                         {
-                            title: <>เลือกเขต<br/>และร้านค้า</>,
+                            title: <>เลือกร้านค้า<br/>และระบุส่วนลด</>,
                         },
-                        {
-                            title: <>รายละเอียด<br/>โปรโมชั่น</>,
-                        },
-                        // {
-                        //     title: <>เงื่อนไข&nbsp;/<br/>สิทธิประโยชน์</>,
-                        // },
                     ]}
                 />
             </>
@@ -153,8 +145,8 @@ export const PromotionCreatePage: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการโปรโมชั่น", path: "/PromotionPage/promotion" },
-              { text: isEditing ? 'แก้ไขโปรโมชั่น' : 'เพิ่มโปรโมชั่น', path: window.location.pathname },
+              { text: "รายการ เพิ่ม/ลด Credit Memo", path: "/discount/list" },
+              { text: isEditing ? 'แก้ไข Credit Memo' : 'สร้าง Credit Memo', path: window.location.pathname },
             ]}
           />
         }
@@ -184,12 +176,7 @@ export const PromotionCreatePage: React.FC = () => {
       showError={showStep2Error}
       setError={setStep2Error}
       key={1}
-    />,
-    <PromotionCreateStep3 
-      form={form3} 
-      promotionType={form1.getFieldValue('promotionType')}
-      key={2}
-    />,
+    />
   ]
 
   const onNext = () => {
@@ -216,37 +203,12 @@ export const PromotionCreatePage: React.FC = () => {
           ...promotionData,
           stores
         })
-        setStep(step+1);
+        // onSubmit(true);
+        // setPromotionData({
+        //   ...promotionData,
+        //   items: form3.getFieldsValue()
+        // });
       }
-    } else if (step === 2) {
-        form3.validateFields()
-        .then((values) => {
-          console.log(values);
-          if(promotionData.promotionType === PromotionType.FREEBIES_NOT_MIX){
-            const promoList = form3.getFieldsValue();
-            const pass = Object.entries(promoList).every(([key, value]) => {
-              return (value as any[]).every((val: any) => 
-                val?.freebies && val?.freebies?.length > 0 && (val?.freebies as any[]).every((freebie: any) => 
-                  freebie?.quantity && freebie?.quantity > 0
-                )
-              )
-            });
-            if(!pass){
-              Modal.error({
-                title: 'กรุณาระบุจำนวนของแถมให้ครบถ้วน'
-              });
-              return;
-            }
-          }
-          onSubmit(true);
-          setPromotionData({
-            ...promotionData,
-            items: form3.getFieldsValue()
-          });
-        })
-        .catch((errInfo) => {
-          console.log('errInfo', errInfo, form3.getFieldsValue());
-        })
     }
   }
 
@@ -387,19 +349,11 @@ export const PromotionCreatePage: React.FC = () => {
               onClick={() => setStep(step-1)}
             />}
           </Col>
-          <Col xl={15} sm={6}></Col>
-          <Col xl={3} sm={6}>
-            {(!isEditing || defaultData?.isDraft) && <Button 
-              typeButton='primary-light'
-              title="บันทึกแบบร่าง"
-              disabled={isCreating}
-              onClick={() => onSubmit(false)}
-            />}
-          </Col>
+          <Col xl={18} sm={12}></Col>
           <Col xl={3} sm={6}>
             <Button 
               typeButton='primary'
-              title={step===2 ? "บันทึก" : "ถัดไป"}
+              title={step===1 ? "บันทึก" : "ถัดไป"}
               onClick={onNext}
               disabled={isCreating}
             />

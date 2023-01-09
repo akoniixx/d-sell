@@ -1,7 +1,13 @@
 export interface StoreEntity {
-    storeId: string;
-    storeLogo?: string;
-    storeName: string;
+    customerCompanyId: string;
+    customerImage?: string;
+    customerName: string;
     zone: string;
-  }
+}
+
+export interface ZoneEntity {
+    zoneId: string;
+    zoneName: string;
+    company?: string;
+}
   
