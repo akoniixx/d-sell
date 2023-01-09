@@ -36,6 +36,7 @@ import { PromotionListPage } from "./pages/promotionPage/promotionList";
 import { PromotionCreatePage } from "./pages/promotionPage/createPromotion";
 import DetailRole from "./pages/UserPage/RolesManagementPage/DetailRole";
 import { DiscountCreatePage } from "./pages/DiscountPage/CreateCO";
+import HomePage from "./pages/HomePage/HomePage";
 
 interface IRoute {
   path: string;
@@ -55,6 +56,13 @@ interface IRoute {
   index?: boolean;
 }
 export const protectRoutesData: IRoute[] = [
+  {
+    path: "/home",
+    element: <HomePage />,
+    permission: null,
+    nestedRoutes: [],
+    index: false,
+  },
   {
     path: "/OrderPage",
     element: <OrderPage />,
