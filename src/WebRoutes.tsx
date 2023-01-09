@@ -5,7 +5,6 @@ import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage"
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
 import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
 import { AuthPage } from "./pages/AuthPage/AuthPage";
-import { DiscountCOPage } from "./pages/DiscountPage/DiscountCOPage";
 import { DiscountListPage } from "./pages/DiscountPage/DiscountListPage";
 import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
@@ -36,6 +35,7 @@ import { FreebieListPage } from "./pages/promotionPage/freebieList";
 import { PromotionListPage } from "./pages/promotionPage/promotionList";
 import { PromotionCreatePage } from "./pages/promotionPage/createPromotion";
 import DetailRole from "./pages/UserPage/RolesManagementPage/DetailRole";
+import { DiscountCreatePage } from "./pages/DiscountPage/CreateCO";
 
 interface IRoute {
   path: string;
@@ -86,19 +86,8 @@ export const protectRoutesData: IRoute[] = [
     index: false,
   },
   {
-    path: "/DiscountListPage",
-    element: <DiscountListPage />,
-    permission: {
-      name: "discountList",
-      action: "view",
-    },
-
-    nestedRoutes: [],
-    index: false,
-  },
-  {
-    path: "/discount",
-    element: <DiscountCOPage />,
+    path: "/discount/*",
+    element: <RedirectPathPage />,
     permission: {
       name: "discountCo",
       action: "view",
@@ -107,6 +96,11 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "list",
         element: <DiscountListPage />,
+        permission: null,
+      },
+      {
+        path: "create",
+        element: <DiscountCreatePage />,
         permission: null,
       },
     ],
@@ -252,6 +246,11 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
+        path: "promotion/edit/:id",
+        element: <PromotionCreatePage />,
+        permission: null,
+      },
+      {
         path: "freebies",
         element: <FreebieListPage />,
         permission: null,
@@ -264,18 +263,6 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "freebies/edit/:id",
         element: <DistributionPageEdit />,
-        permission: null,
-      },
-    ],
-  },
-  {
-    path: "/discount",
-    element: <RedirectPathPage />,
-    permission: null,
-    nestedRoutes: [
-      {
-        path: "promotion",
-        element: <PromotionListPage />,
         permission: null,
       },
     ],

@@ -92,6 +92,12 @@ interface Props  {
     setFile1: (file: Blob | undefined) => void;
     setFile2: (file: Blob | undefined) => void;
     setFileMemo: (file: Blob | undefined) => void;
+    imageUrl1: string | undefined;
+    imageUrl2: string | undefined;
+    fileMemoUrl?: string;
+    setImgUrl1: (setImgUrl1: string) => void;
+    setImgUrl2: (setImgUrl2: string) => void;
+    isEditing?: boolean;
 }
 
 export const PromotionCreateStep1 = ({ 
@@ -101,17 +107,17 @@ export const PromotionCreateStep1 = ({
     fileMemo,
     setFile1,
     setFile2,
-    setFileMemo 
+    setFileMemo,
+    imageUrl1,
+    imageUrl2,
+    fileMemoUrl,
+    setImgUrl1,
+    setImgUrl2,
+    isEditing
 }: Props) => {
     const userProfile = JSON.parse(localStorage.getItem("profile")!);
     const { company } = userProfile;
 
-    // const [file1, setFile1] = useState<Blob>();
-    // const [file2, setFile2] = useState<Blob>();
-    // const [fileMemo, setFileMemo] = useState<Blob>();
-    const [imageUrl1, setImgUrl1] = useState<string>();
-    const [imageUrl2, setImgUrl2] = useState<string>();
-    const [imageMemo, setImageMemo] = useState<string>();
     const [promotions, setPromotions] = useState();
 
     const imgCropProps = {
@@ -129,8 +135,8 @@ export const PromotionCreateStep1 = ({
             const { data } = await getPromotion({ company });
             setPromotions(
                 data.map((p: any) => ({
-                    label: `${p.promotionName} (${p.promotionId})`,
-                    value: `${p.promotionId}`
+                    label: `${p.promotionName} (${p.promotionCode})`,
+                    value: `${p.promotionCode}`
                 }))
             );
             console.log(data)
@@ -182,6 +188,7 @@ export const PromotionCreateStep1 = ({
                                         console.log("customRequest", file);
                                     }}
                                     onChange={({ file }: any) => {
+                                        console.log(file)
                                         return "success";
                                     }}
                                     onRemove={() => {
@@ -189,7 +196,7 @@ export const PromotionCreateStep1 = ({
                                     }}
                                     showUploadList={false}
                                 >
-                                    {!file1 ? (
+                                    {!file1 && !imageUrl1 ? (
                                         <UploadArea 
                                             style={{ 
                                                 width: '120px',
@@ -255,7 +262,7 @@ export const PromotionCreateStep1 = ({
                                     }}
                                     showUploadList={false}
                                 >
-                                    {!file2 ? (
+                                    {!file2 && !imageUrl2 ? (
                                         <UploadArea 
                                             style={{ 
                                                 width: '160px',
@@ -345,6 +352,7 @@ export const PromotionCreateStep1 = ({
                                 },
                                 {
                                     validator: async (rule, value) => {
+                                        if(isEditing) return;
                                         const { success } = await checkPromotionCode({
                                             promotionCode: value,
                                             company
@@ -361,7 +369,7 @@ export const PromotionCreateStep1 = ({
                                 }
                             ]}
                         >
-                            <Input placeholder="ระบุรหัสโปรโมชัน"/>
+                            <Input placeholder="ระบุรหัสโปรโมชัน" disabled={isEditing}/>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -469,14 +477,15 @@ export const PromotionCreateStep1 = ({
                             >
                                 <Upload
                                     beforeUpload={(file) => {
-                                        const isPNG = file.type === 'application/pdf';
-                                        if (!isPNG) {
-                                        message.error(`อัปโหลดเฉพาะไฟล์ pdf เท่านั้น`);
+                                        const isPDF = file.type === 'application/pdf';
+                                        if (!isPDF) {
+                                            message.error(`อัปโหลดเฉพาะไฟล์ pdf เท่านั้น`);
                                         }
-                                        return isPNG || Upload.LIST_IGNORE;
+                                        return isPDF || Upload.LIST_IGNORE;
                                     }}
                                     customRequest={() => {
                                         console.log("customRequest");
+
                                     }}
                                     onChange={({ file }: any) => {
                                         setFileMemo(file);
@@ -486,13 +495,14 @@ export const PromotionCreateStep1 = ({
                                     onRemove={() => {
                                         setFileMemo(undefined);
                                     }}
+                                    maxCount={1}
                                 >
                                     <Button type='primary' icon={<UploadOutlined />}>เลือกไฟล์</Button>
                                 </Upload>
                             </Form.Item>
                             &nbsp;&nbsp;&nbsp;
                             <Text level={6} color='Text3'>
-                                โปรดเลือกไฟล์ .PDF
+                                {fileMemo || fileMemoUrl ? '' : 'โปรดเลือกไฟล์ .PDF'}
                             </Text>
                         </MemoArea>       
                     </Col>

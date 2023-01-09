@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Select, Avatar, Tag, Switch } from "antd";
+import { Table, Tabs, Row, Col, Select, Avatar, Tag, Switch, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
@@ -12,14 +12,14 @@ import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
-import * as _ from "lodash";
 import Button from "../../components/Button/Button";
 import moment from "moment";
 import Input from "../../components/Input/Input";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
 import { useNavigate } from "react-router-dom";
-import { getPromotion } from "../../datasource/PromotionDatasource";
+import { deletePromotion, getPromotion } from "../../datasource/PromotionDatasource";
 import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
+import { Dayjs } from "dayjs";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -31,13 +31,13 @@ export const PromotionListPage: React.FC = () => {
 
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
+  const { company, firstname, lastname } = userProfile;
 
   const navigate = useNavigate();
 
   const [keyword, setKeyword] = useState<string>();
   const [statusFilter, setStatusFilter] = useState<string>();
-  const [dateFilter, setDateFilter] = useState<string>();
+  const [dateFilter, setDateFilter] = useState<any>();
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState({
@@ -48,7 +48,7 @@ export const PromotionListPage: React.FC = () => {
 
   useEffect(() => {
     if (!loading) fetchProduct();
-  }, [keyword, statusFilter, page]);
+  }, [keyword, statusFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
 
@@ -57,10 +57,10 @@ export const PromotionListPage: React.FC = () => {
       setLoading(true);
       const { data, count, count_status } = await getPromotion({
         company,
-        promotionStatus: undefined,
-        startDate: undefined,
-        endDate: undefined,
-        searchText: undefined,
+        promotionStatus: statusFilter,
+        startDate: dateFilter && dateFilter[0] ? moment(dateFilter[0]).subtract(543, 'years').format(SLASH_DMY) : undefined,
+        endDate: dateFilter && dateFilter[1] ? moment(dateFilter[1]).subtract(543, 'years').format(SLASH_DMY) : undefined,
+        searchText: keyword,
         take: pageSize,
         page,
       });
@@ -109,6 +109,10 @@ export const PromotionListPage: React.FC = () => {
           <RangePicker
             allowEmpty={[true, true]}
             enablePast
+            value={dateFilter}
+            onChange={(dates, dateString) => {
+              setDateFilter(dates);
+            }}
           />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
@@ -125,8 +129,8 @@ export const PromotionListPage: React.FC = () => {
 
   const tabsItems = [
         { label: "ทั้งหมด", key: "ALL" },
-        { label: "Active", key: "active" },
-        { label: "Inactive", key: "inactive" },
+        { label: "Active", key: "true" },
+        { label: "Inactive", key: "false" },
     ]
 
   const columns = [
@@ -145,7 +149,7 @@ export const PromotionListPage: React.FC = () => {
               <FlexCol>
                 <Text level={5}>{value}</Text>
                 <Text level={6} color='Text3'>
-                  {row.memo}
+                  {row.promotionCode}
                 </Text>
               </FlexCol>
             </FlexRow>
@@ -173,13 +177,19 @@ export const PromotionListPage: React.FC = () => {
     },
     {
       title: "เลขที่อ้างอิง",
-      dataIndex: "refNo",
-      key: "refNo",
-      render: (value: any, row: any, index: number) => {
+      dataIndex: "referencePromotion",
+      key: "referencePromotion",
+      render: (value: string[], row: any, index: number) => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{value}</Text>
+              {value && value.length >= 0 ? 
+                value.map((v) => (
+                  <Text level={5} key={v}>
+                    {v.length >= 10 ? v.slice(0, 9) + '...' : v}
+                  </Text>
+                )) : '-'
+              }
             </FlexCol>
           ),
         };
@@ -227,8 +237,9 @@ export const PromotionListPage: React.FC = () => {
           return {
             children: (
               <Switch 
-                defaultChecked={value} 
+                checked={value} 
                 onChange={(checked: boolean) => {console.log('onToggleSwitch', checked)}}
+                disabled
               />
             ),
           };
@@ -245,20 +256,10 @@ export const PromotionListPage: React.FC = () => {
             children: (
               <>
                 <div className='d-flex flex-row justify-content-between'>
-                <div
-                    className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                    onClick={() =>
-                      (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)
-                    }
-                  >
-                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                      <CopyOutlined style={{ color: color["primary"] }} />
-                    </span>
-                  </div>
                   <div
                     className='btn btn-icon btn-light btn-hover-primary btn-sm'
                     onClick={() =>
-                      (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)
+                      navigate("/PromotionPage/promotion/edit/" + row.promotionId)
                     }
                   >
                     <span className='svg-icon svg-icon-primary svg-icon-2x'>
@@ -268,7 +269,22 @@ export const PromotionListPage: React.FC = () => {
                   <div
                     className='btn btn-icon btn-light btn-hover-primary btn-sm'
                     onClick={() =>
-                      (window.location.href = "/PriceListPage/DistributionPage/" + row.productId)
+                      Modal.confirm({
+                        title: 'ยืนยันการลบโปรโมชั่น',
+                        okText: '',
+                        cancelText: '',
+                        onOk: async () => {
+                          await deletePromotion({
+                            promotionId: row.promotionId,
+                            updateBy: firstname + ' ' + lastname
+                          })
+                          .then((res) => {
+                            // console.log(res)
+                            // navigate(0)
+                          })
+                          .catch(() => message.error('ลบโปรโมชั่นไม่สำเร็จ'))
+                        }
+                      })
                     }
                   >
                     <span className='svg-icon svg-icon-primary svg-icon-2x'>

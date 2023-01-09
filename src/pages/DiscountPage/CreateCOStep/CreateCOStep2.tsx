@@ -260,15 +260,23 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
 
     const columns = [
         {
-          title: 'ชื่อร้านค้า',
-          dataIndex: 'customerName',
-          align: 'center' as AlignType,
-          render: (text: string) => <a>{text}</a>,
+            title: 'ชื่อร้านค้า',
+            dataIndex: 'customerName',
+            align: 'center' as AlignType,
+            render: (text: string) => <a>{text}</a>,
         },
         {
-          title: 'เขตการขาย',
-          dataIndex: 'zone',
-          align: 'center' as AlignType,
+            title: 'เขตการขาย',
+            dataIndex: 'zone',
+            align: 'center' as AlignType,
+            width: '25%'
+        },
+        {
+            title: 'ส่วนลดดูแลราคา',
+            dataIndex: 'zone',
+            align: 'center' as AlignType,
+            width: '25%',
+            render: () => <Input style={{ width: '100%' }}/>
         }
     ];
 

@@ -1,4 +1,4 @@
-import { Avatar, Col, Divider, Form, FormInstance, Modal, Row, Table, Tabs, Upload } from "antd";
+import { Avatar, Col, Divider, Form, FormInstance, Modal, Row, Table, Tabs, Tooltip, Upload } from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
@@ -15,10 +15,11 @@ import Button from "../../../components/Button/Button";
 import Collapse from "../../../components/Collapse/collapse";
 import { PromotionEntity } from "../../../entities/PromotionEntity";
 import { PromotionType } from "../../../definitions/promotion";
-import { getProductGroup, getProductList } from "../../../datasource/ProductDatasource";
+import { getProductCategory, getProductGroup, getProductList } from "../../../datasource/ProductDatasource";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import productState from "../../../store/productList";
-import { getProductFreebies } from "../../../datasource/PromotionDatasource";
+import { getProductFreebieGroup, getProductFreebies } from "../../../datasource/PromotionDatasource";
+import { format } from "path";
 
 const AddProductContainer = styled.div`
     display: flex;
@@ -84,7 +85,7 @@ const ProductName = ({ product, size }: ProdNameProps) => {
     return (
         <FlexRow align='center'>
             <div style={{ marginRight: 16 }}>
-                <Avatar src={product.productImage} size={size || 50} shape='square' />
+                <Avatar src={product.productImage || product.productFreebiesImage} size={size || 50} shape='square' />
             </div>
             <FlexCol>
                 <Text level={5}>
@@ -106,67 +107,100 @@ const AddProduct = ({ list, setList, onClose, withFreebies, isReplacing }: Searc
     const { company } = userProfile;
     const pageSize = 100;
     const isSingleItem = withFreebies || isReplacing;
+    const [form] = Form.useForm()
 
     const productList = useRecoilValue(productState);
     const setProductList = useSetRecoilState(productState);
 
     const [products, setProducts] = useState<ProductEntity[]>([]);
     const [freebies, setFreebies] = useState<ProductEntity[]>([]);
+    const [productCount, setProductCount] = useState(0);
+    const [freebieCount, setFreebieCount] = useState(0);
     const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
     const [selectedProductId, setSelectedProdId] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState<number>(1);
     const [productGroups, setProductGroups] = useState([]);
+    const [productCategories, setProductCategories] = useState([]);
+    const [productFreebieGroups, setProductFreebieGroups] = useState([]);
     const [showFreebie, setShowFreeie] = useState('false');
     const [filter, setFilter] = useState({
         productGroup: '',
+        productCategory: '',
         searchText: '',
     })
 
-    const resetPage = () => setPage(1);
+    const resetPage = () => {
+        setPage(1);
+        setFilter({
+            productGroup: '',
+            productCategory: '',
+            searchText: '',
+        });
+        form.resetFields();
+    }
 
     useEffect(() => {
         fetchProduct();
-    },[])
+    },[filter, showFreebie])
 
     useEffect(() => {
         setSelectedProdId(list.map((item) => item.productId));
     },[list])
 
+    const fetchFreebieList = async () => {
+        const { data, count } = await getProductFreebies({
+            company,
+            take: pageSize,
+            productGroup: filter.productGroup,
+            searchText: filter.searchText,
+            page,
+        });
+        const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }))
+        setFreebies(newData);
+        setFreebieCount(count);
+    }
+    const fetchProductList = async () => {
+        const { data, count } = await getProductList({
+            company,
+            take: pageSize,
+            productGroup: filter.productGroup,
+            searchText: filter.searchText,
+            productCategoryId: filter.productCategory,
+            page,
+        });
+        const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productId }));
+        setProducts(newData);
+        setProductCount(count)
+  
+        setProductList((oldList: any) => ({ 
+            page,
+            pageSize,
+            count,
+            data,
+            allData: oldList?.data?.length > 0 ? oldList.data.concat(data) : data
+        }));
+    }
     const fetchProduct = async () => {
         try {
             setLoading(true);
-            const { data, count } = await getProductList({
-              company,
-              take: pageSize,
-              productGroup: filter.productGroup,
-              searchText: filter.searchText,
-              page,
-            });
-
-            if(withFreebies){
-                const { data, count } = await getProductFreebies({
-                    company,
-                    take: pageSize,
-                    productGroup: filter.productGroup,
-                    searchText: filter.searchText,
-                    page,
-                });
-                const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }))
-                setFreebies(newData)
-            } 
+            await fetchProductList();
+            await fetchFreebieList();
       
-            const { responseData } = await getProductGroup(company);
-            const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productId }))
-            setProductGroups(responseData);
-            setProducts(newData);
+            if(!productGroups || !productGroups.length){
+                const { responseData } = await getProductGroup(company);
+                setProductGroups(responseData);
+            }
+            
+            if(!productCategories || !productCategories.length){
+                const categories = await getProductCategory(company);
+                setProductCategories(categories);
+            }
 
-            setProductList((oldList: any) => ({ 
-                page,
-                pageSize,
-                count,
-                data
-            }));
+            if(!productFreebieGroups || !productFreebieGroups.length){
+                const { responseData } = await getProductFreebieGroup(company);
+                setProductFreebieGroups(responseData);
+            }
           } catch (e) {
             console.log(e);
           } finally {
@@ -195,7 +229,7 @@ const AddProduct = ({ list, setList, onClose, withFreebies, isReplacing }: Searc
           ),
         },
         {
-          title: `${20} สินค้า`,
+          title: `${showFreebie === 'true' ? freebieCount : productCount} สินค้า`,
           dataIndex: 'packSize',
           align: 'right' as AlignType,
         }
@@ -209,9 +243,9 @@ const AddProduct = ({ list, setList, onClose, withFreebies, isReplacing }: Searc
 
     const onSave = () => {
         if(isSingleItem){
-            console.log('onSave')
+            setList(selectedProduct[0]);
         } else {
-            setList(products.filter((item) => selectedProductId.includes(item.productId)))
+            setList(products.filter((item) => selectedProductId.includes(item.productId)));
         }
         onClose();
     }
@@ -230,43 +264,85 @@ const AddProduct = ({ list, setList, onClose, withFreebies, isReplacing }: Searc
 
     return (
         <>
-            <Form layout='vertical'>
+            <Form layout='vertical' form={form}>
                 <Row gutter={8} align='bottom'>
                     <Col span={7}>
                         <Form.Item
                             label='Product Group'
                             name='productGroup'
                         >
-                            <Select data={[]}/>
+                            <Select 
+                                data={[{
+                                    key: '', 
+                                    value: '', 
+                                    label: 'ทั้งหมด' 
+                                }, ...(showFreebie === 'true' ? productFreebieGroups : productGroups).map((g: any) => ({ 
+                                    key: g.product_group, 
+                                    value: g.product_group, 
+                                    label: g.product_group 
+                                }))]}
+                                onChange={(v) => setFilter({ ...filter, productGroup: v })}
+                                value={filter.productGroup}
+                            />
                         </Form.Item>
                     </Col>
-                    <Col span={7}>
+                    <Col span={showFreebie === 'true' ? 0 : 7}>
                         <Form.Item
                             label='Startegy Group'
-                            name='strategyGroup'
+                            name='productCategory'
                         >
-                            <Select data={[]}/>
+                            <Select 
+                                data={[{
+                                        key: '', 
+                                        value: '', 
+                                        label: 'ทั้งหมด' 
+                                    }, ...productCategories.map((g: any) => ({ 
+                                        key: g.productCategoryId, 
+                                        value: g.productCategoryId, 
+                                        label: g.productCategoryName 
+                                    }))
+                                ]}
+                                onChange={(v) => setFilter({ ...filter, productCategory: v })}
+                                value={filter.productCategory}
+                            />
                         </Form.Item>
                     </Col>
-                    <Col span={7}>
+                    <Col span={showFreebie === 'true' ? 14 : 7}>
                         <Form.Item
                             label='ค้นหาสินค้า'
-                            name='keyword'
+                            name='searchText'
                         >
                             <Input 
                                 suffix={<SearchOutlined/>}
                                 placeholder={'ระบุชื่อสินค้า'}
+                                onPressEnter={(e) => {
+                                    const searchText = (e.target as HTMLTextAreaElement).value;
+                                    setFilter({ ...filter, searchText })
+                                }}
+                                value={filter.searchText}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={3}>
                         <Form.Item
                             label=''
-                            name='keyword'
+                            name='clear'
                         >
                             <Button
                                 title="ล้างการค้นหา"
                                 typeButton="primary-light"
+                                onClick={() => {
+                                    form.setFieldsValue({
+                                        productGroup: '',
+                                        productCategory: '',
+                                        searchText: '',
+                                    })
+                                    setFilter({
+                                        productGroup: '',
+                                        productCategory: '',
+                                        searchText: '',
+                                    })
+                                }}
                             />
                         </Form.Item>
                     </Col>
@@ -314,45 +390,85 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
     }
 
     const getValue = () => {
-        // {unit: 'ลัง', qty: '10'}, { unit: 'ลัง'}
-        return form.getFieldValue(`promotion-${productId}`)[itemIndex]?.freebieList || [];
+        // Format: {unit: 'ลัง', quantity: '10'}, { unit: 'ลัง'}
+        return form.getFieldValue(`promotion-${productId}`)[itemIndex]?.freebies || [];
     }
 
-    const onAdd = () => {
-
-        // const promo = form.getFieldValue(`promotion-${productId}`);
-        // const list = getValue() || [];
-        // list.push({ product: {}, qty: 0 });
-        // promo[itemIndex] = { ...promo[itemIndex], freebieList: list };
-        // form.setFieldValue(`promotion-${productId}`, promo);
+    const onAdd = (product: ProductEntity) => {
+        const promo = form.getFieldValue(`promotion-${productId}`);
+        const list = getValue() || [];
+        list.push({ ...product, product, quantity: 0 });
+        promo[itemIndex] = { ...promo[itemIndex], freebies: list };
+        form.setFieldValue(`promotion-${productId}`, promo);
+        console.log('onAdd', product)
     }
 
     const onDelete = (i: number) => {
         const promo = form.getFieldValue(`promotion-${productId}`);
         const list = getValue() || [];
         list.splice(i,1);
-        promo[itemIndex] = { ...promo[itemIndex], freebieList: list };
+        promo[itemIndex] = { ...promo[itemIndex], freebies: list };
+        form.setFieldValue(`promotion-${productId}`, promo);
+    }
+
+    const onSetQuantity = (i: number, quantity: string) => {
+        const promo = form.getFieldValue(`promotion-${productId}`);
+        const list = getValue() || [];
+        list[i] = { ...list[i], quantity: parseInt(quantity) }
+        promo[itemIndex] = { ...promo[itemIndex], freebies: list };
         form.setFieldValue(`promotion-${productId}`, promo);
     }
 
     return (
         <>
-            {getValue().map(({ product, qty }:any, i:number) => 
+            {getValue().map(({ product, quantity }:any, i:number) => 
                 <Row key={i} gutter={12} align='middle'>
                     <Col>
-                        <FlexCol align="center" style={{ width: 64 }}>
-                            <Avatar src={''} size={64} shape='square' />
-                            <Text level={6}>name</Text>
+                        <FlexCol align="center" style={{ width: 64, overflow: 'hidden' }}>
+                            <Avatar 
+                                src={product?.productImage || product?.productFreebiesImage} 
+                                size={64} 
+                                shape='square' 
+                            />
+                            <Tooltip title={product?.productName}>
+                                <Text 
+                                    level={6} 
+                                    style={{
+                                        display: 'block',
+                                        width: 64, 
+                                        height: 22,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        wordWrap: 'break-word',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {product?.productName}
+                                </Text>
+                            </Tooltip>
                         </FlexCol>
                     </Col>
                     <Col span={9}>
-                        <Form.Item label='จำนวนของแถม' >
-                            <Input placeholder="ระบุจำนวนของแถม"/>
+                        <Form.Item 
+                            label='จำนวนของแถม' 
+                            rules={[
+                                {
+                                    required: true,
+                                    message: '*โปรดระบุจำนวนของแถม'
+                                }
+                            ]}
+                            initialValue={quantity}
+                        >
+                            <Input 
+                                type='number' 
+                                placeholder="ระบุจำนวนของแถม"
+                                onChange={(e) => onSetQuantity(i, e?.target?.value)}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={9}>
-                        <Form.Item label='หน่วย'>
-                            <Input disabled/>
+                        <Form.Item label='หน่วย' initialValue={product?.saleUOM || product?.baseUnitOfMeaEn}>
+                            <Input disabled value={product?.saleUOM || product?.baseUnitOfMeaEn}/>
                         </Form.Item>
                     </Col>
                     <Col>
@@ -432,6 +548,7 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
     }
 
     const setProd = (list: ProductEntity[]) => {
+        console.log(list)
         setItems(list);
         form.setFieldValue('items', list);
         setActiveKeys(list.map((item) => item.productId))
@@ -440,7 +557,7 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
             promo: [
                 {
                     unit: item.packingUOM,
-                    qty: 1,
+                    quantity: 1,
                     discountAmount: 0
                 }
             ]
@@ -561,9 +678,9 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                                                     {...restField}
                                                                     label='จำนวนที่ซื้อครบ'
                                                                     name={[name, 'quantity']}
-                                                                    rules={[{ required: true, message: 'Missing qty' }]}
+                                                                    rules={[{ required: true, message: 'โปรดระบุจำนวนที่ซื้อครบ' }]}
                                                                 >
-                                                                    <Input placeholder="ระบุจำนวนที่ซื้อครบ" />
+                                                                    <Input type='number' placeholder="ระบุจำนวนที่ซื้อครบ" />
                                                                 </Form.Item>
                                                             </Col>
                                                             <Col span={4}>
@@ -611,11 +728,12 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                                                                                 {...restField}
                                                                                 label='ราคาที่ต้องการลด'
                                                                                 name={[name, 'discountPrice']}
-                                                                                rules={[{ required: true, message: 'Missing discount amount' }]}
+                                                                                rules={[{ required: true, message: 'โปรดระบุราคาที่ต้องการลด' }]}
                                                                             >
                                                                                 <Input 
                                                                                     placeholder="ระบุราคา" 
                                                                                     suffix='บาท'
+                                                                                    type='number'
                                                                                 />
                                                                             </Form.Item>
                                                                         </Col>
@@ -696,7 +814,16 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
                 <br/>
                 <AddProduct
                     list={items}
-                    setList={setProd}
+                    setList={isReplacing ? (
+                            (p: ProductEntity) => {
+                                setProd(items.map((item: ProductEntity) => 
+                                    item.productId === isReplacing ? p : item
+                                ))
+                            } 
+                        ): (
+                            setProd
+                        )
+                    }
                     onClose={toggleModal}
                     isReplacing={isReplacing}
                 />

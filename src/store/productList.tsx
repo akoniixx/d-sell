@@ -6,7 +6,8 @@ const productState = atom({
         page: 1,
         pageSize: 100,
         count: 0,
-        data: []
+        data: [],
+        allData: []
     }
 });
 

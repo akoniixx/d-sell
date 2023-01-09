@@ -19,7 +19,7 @@ import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
-import * as _ from "lodash";
+import image from "../../resource/image";
 import { useNavigate } from "react-router-dom";
 
 type FixedType = "left" | "right" | boolean;
@@ -166,7 +166,7 @@ export const DistributionPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar src={row.productImage} size={50} shape='square' />
+                <Avatar src={row.productImage || image.product_no_image} size={50} shape='square' />
               </div>
               <FlexCol>
                 <Text level={5}>{row.productName}</Text>

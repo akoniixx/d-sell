@@ -73,7 +73,7 @@ function DatePicker({
 }
 
 interface RangeProps {
-  onChange?: () => void;
+  onChange?: (dates: any, dateString: [string, string]) => void;
   timer?: boolean;
   value?: [Dayjs, Dayjs];
   picker?: "year";

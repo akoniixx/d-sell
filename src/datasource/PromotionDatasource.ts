@@ -38,6 +38,13 @@ const getPromotion = async (params: object) => {
     .catch((err) => console.log(err));
 };
 
+const getPromotionById = async (promotionId: string) => {
+  return await httpClient
+    .get(`${baseUrl}/promotion/${promotionId}`, { params: { promotionId } })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const checkPromotionCode = async (params: object) => {
   return await httpClient
     .post(`${baseUrl}/promotion/check-promotion-code`, null, { params })
@@ -52,12 +59,37 @@ const createPromotion = async (data: object) => {
     .catch((err) => console.log(err));
 };
 
+const updatePromotion = async (data: object) => {
+  return await httpClient
+    .post(`${baseUrl}/promotion/update`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const updatePromotionFile = async (data: object) => {
+  return await httpClient
+    .post(`${baseUrl}/promotion/update-file`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const deletePromotion = async (data: object) => {
+  return await httpClient
+    .delete(`${baseUrl}/promotion`, { data })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductFreebies,
   getProductFreebieDetail,
   getProductFreebieGroup,
   updateProductFreebie,
   getPromotion,
+  getPromotionById,
   checkPromotionCode,
-  createPromotion
+  createPromotion,
+  updatePromotion,
+  updatePromotionFile,
+  deletePromotion
 };

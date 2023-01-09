@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Switch } from "antd";
+import { Table, Tabs, Row, Col, Avatar, Tag, Switch } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
@@ -17,11 +17,14 @@ import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
+import image from "../../resource/image";
 
 type FixedType = "left" | "right" | boolean;
 import * as _ from "lodash";
 import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
 import { useNavigate } from "react-router-dom";
+import Select from "../../components/Select/Select";
+import Input from "../../components/Input/Input";
 const SLASH_DMY = "DD/MM/YYYY";
 
 export const FreebieListPage: React.FC = () => {
@@ -105,9 +108,26 @@ export const FreebieListPage: React.FC = () => {
           </div>
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
+          <Select
+            defaultValue={prodGroup}
+            style={style}
+            allowClear
+            onChange={(value: string) => {
+              setProdGroup(value);
+              resetPage();
+            }}
+            placeholder='หมวดของแถมทั้งหมด'
+            data={dataState.groups.map((group: ProductGroupEntity) => ({
+              key: group.product_group,
+              label: group.product_group,
+              value: group.product_group,
+            }))}
+          />
+        </Col>
+        <Col className='gutter-row' xl={4} sm={6}>
           <div style={style}>
             <Input
-              placeholder='ค้นหาชื่อสินค้า'
+              placeholder='ค้นหาของแถม'
               prefix={<SearchOutlined style={{ color: "grey" }} />}
               defaultValue={keyword}
               onPressEnter={(e) => {
@@ -118,38 +138,22 @@ export const FreebieListPage: React.FC = () => {
             />
           </div>
         </Col>
-        <Col className='gutter-row' xl={4} sm={6}>
-          <Select
-            defaultValue={prodGroup}
-            style={style}
-            allowClear
-            onChange={(value: string) => {
-              setProdGroup(value);
-              resetPage();
-            }}
-            placeholder='เลือกกลุ่มสินค้า'
-            options={dataState.groups.map((group: ProductGroupEntity) => ({
-              label: group.product_group,
-              value: group.product_group,
-            }))}
-          />
-        </Col>
       </Row>
     );
   };
 
 
   const tabsItems = [
-    { label: "ทั้งหมด", key: "ALL" },
+    { label: `ทั้งหมด(${dataState.count || 0})`, key: "ALL" },
     ...(dataState?.count_status?.map(({ product_freebies_status, count }) => ({
-      label: product_freebies_status + `(${count})`,
+      label: nameFormatter(product_freebies_status) + `(${count})`,
       key: product_freebies_status,
-    })) || []),
+    })) || []).reverse(),
   ];
 
   const columns = [
     {
-      title: "ชื่อสินค้า",
+      title: "ชื่อของแถม",
       dataIndex: "commonName",
       key: "commonName",
       // width: "12%",
@@ -158,7 +162,11 @@ export const FreebieListPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar src={row.productFreebiesImage} size={50} shape='square' />
+                <Avatar 
+                  src={row.productFreebiesImage || image.product_no_image} 
+                  size={50} 
+                  shape='square'
+                />
               </div>
               <FlexCol>
                 <Text level={5}>{row.productName}</Text>
@@ -171,23 +179,23 @@ export const FreebieListPage: React.FC = () => {
         };
       },
     },
+    // {
+    //   title: "รหัสสินค้า",
+    //   dataIndex: "productFreebiesCodeNAV",
+    //   key: "productFreebiesCodeNAV",
+    //   // width: "18%",
+    //   render: (value: any, row: any, index: number) => {
+    //     return {
+    //       children: (
+    //         <FlexCol>
+    //           <Text level={5}>{value}</Text>
+    //         </FlexCol>
+    //       ),
+    //     };
+    //   },
+    // },
     {
-      title: "รหัสสินค้า",
-      dataIndex: "productFreebiesCodeNAV",
-      key: "productFreebiesCodeNAV",
-      // width: "18%",
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: (
-            <FlexCol>
-              <Text level={5}>{value}</Text>
-            </FlexCol>
-          ),
-        };
-      },
-    },
-    {
-      title: "กลุ่มสินค้า",
+      title: "หมวด",
       dataIndex: "productGroup",
       key: "productGroup",
       render: (value: any, row: any, index: number) => {
@@ -230,7 +238,7 @@ export const FreebieListPage: React.FC = () => {
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() =>
-                    navigate("/PromotionPage/freebies/" + row.productFreebiesId)
+                    navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)
                   }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
