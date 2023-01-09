@@ -54,20 +54,36 @@ export default function RolesManagementPage(): JSX.Element {
   const onClickDelete = useCallback(
     async (id: string) => {
       try {
-        await roleDatasource.deleteRole(id);
-        await Swal.fire({
-          title: "ลบข้อมูลสำเร็จ",
-          text: "",
-          width: 250,
-          timer: 2000,
-          icon: "success",
-          customClass: {
-            title: "custom-title",
-          },
-          showConfirmButton: false,
-        }).then(() => {
-          getAllRoles();
-        });
+        const res = await roleDatasource.deleteRole(id);
+        if (res && res.success) {
+          await Swal.fire({
+            title: "ลบข้อมูลสำเร็จ",
+            text: "",
+            width: 250,
+            timer: 2000,
+            icon: "success",
+            customClass: {
+              title: "custom-title",
+            },
+            showConfirmButton: false,
+          }).then(() => {
+            getAllRoles();
+          });
+        } else {
+          await Swal.fire({
+            title: res.userMessage,
+            text: "",
+            width: 250,
+            timer: 2000,
+            icon: "error",
+            customClass: {
+              title: "custom-title",
+            },
+            showConfirmButton: false,
+          }).then(() => {
+            getAllRoles();
+          });
+        }
       } catch (e) {
         console.log(e);
       }

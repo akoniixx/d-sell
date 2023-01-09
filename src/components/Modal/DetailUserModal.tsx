@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { SaleEntity } from "../../entities/SaleEntity";
 import color from "../../resource/color";
 import icon from "../../resource/icon";
-import { RolesObj } from "../../utility/StaticRoles";
 import Text from "../Text/Text";
 
 const ModalStyled = styled(Modal)`
@@ -152,9 +151,7 @@ function DetailUserModal({ visible, bodyStyle, data, onCancel }: Props) {
                   </Text>
                 </Col>
                 <Col span={14}>
-                  <Text fontFamily='Sarabun'>
-                    {data?.role ? `${RolesObj[data.role as keyof typeof RolesObj]}` : "-"}
-                  </Text>
+                  <Text fontFamily='Sarabun'>{data?.role ? data.role : "-"}</Text>
                 </Col>
               </Row>
               <Row gutter={16}>
