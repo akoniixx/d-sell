@@ -143,7 +143,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   };
 
   const updateData = async () => {
-    const { description, productCategory, productStatus } = form.getFieldsValue();
+    const { description, productCategoryId, productStatus } = form.getFieldsValue();
     const data = new FormData();
     if(isFreebie) {
       data.append("productFreebiesId", `${productFreebiesId}`);
@@ -151,7 +151,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     }else {
       data.append("productId", `${productId}`);
       data.append("description", description);
-      data.append("categoryId", productCategory);
+      data.append("productCategoryId", productCategoryId);
     }
 
     if(!isRemoved && productImage){
