@@ -1,5 +1,11 @@
 
 ## [Version - 0]
+
+## Features [v0.2.9] - Release Date: 2022-01-10
+- Added Create CO UI
+- fix defect FreebieList
+- fix defect ProductList
+
 ## Features [v0.2.8] - Release Date: 2022-01-09
 - Added Homepage
 - fix defect UserManagement Sale & Role

@@ -144,7 +144,7 @@ export const FreebieListPage: React.FC = () => {
 
 
   const tabsItems = [
-    { label: `ทั้งหมด(${dataState.count || 0})`, key: "ALL" },
+    { label: `ทั้งหมด(${dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0})`, key: "ALL" },
     ...(dataState?.count_status?.map(({ product_freebies_status, count }) => ({
       label: nameFormatter(product_freebies_status) + `(${count})`,
       key: product_freebies_status,

@@ -1,4 +1,4 @@
-import { Col, DatePicker, Divider, Form, FormInstance, Modal, Row, Spin, Table, TimePicker, Upload } from "antd";
+import { Col, DatePicker, Divider, Form as AntdForm, FormInstance, Modal, Row, Spin, Table, TimePicker, Upload } from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
@@ -14,6 +14,12 @@ import type { TransferDirection } from 'antd/es/transfer';
 import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../components/Table/TableContainer";
 import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
+
+const Form = styled(AntdForm)`
+    .table-form-item.ant-form-item {
+        margin-bottom: 0px !important;
+    }
+`;
 
 interface SearchProps  {
     list: StoreEntity[];
@@ -273,10 +279,29 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
         },
         {
             title: 'ส่วนลดดูแลราคา',
-            dataIndex: 'zone',
+            dataIndex: 'customerCompanyId',
             align: 'center' as AlignType,
             width: '25%',
-            render: () => <Input style={{ width: '100%' }}/>
+            render: (customerCompanyId: string, row: any, index: number) => (
+                <Form.Item
+                    className='table-form-item'
+                    name={`co-${customerCompanyId}`}
+                    rules={[{
+                        required: true,
+                        message: 'โปรดระบุส่วนลดดูแลราคา'
+                    }]}
+                >
+                    <Input 
+                        type='number'
+                        align='center'
+                        style={{ width: '100%' }}
+                        onChange={(e) => {
+                            console.log(e.target.value);
+                        }}
+                        step={100}
+                    />
+                </Form.Item>
+            )
         }
     ];
 
@@ -385,18 +410,19 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
                 </Col>
             </Row>
             <br/>
-            <TableContainer>
-                <Table
-                    rowSelection={{
-                        type: 'checkbox',
-                        ...rowSelection,
-                    }}
-                    columns={columns}
-                    dataSource={storeListFiltered?.map((s, i) => ({ ...s, key: i }))}
-                    pagination={false}
-                    
-            />
-            </TableContainer>
+            <Form form={form}>
+                <TableContainer>
+                    <Table
+                        rowSelection={{
+                            type: 'checkbox',
+                            ...rowSelection,
+                        }}
+                        columns={columns}
+                        dataSource={storeListFiltered?.map((s, i) => ({ ...s, key: i }))}
+                        pagination={false}
+                />
+                </TableContainer>
+            </Form>
             <Modal
                 open={showSearch}
                 footer={null}

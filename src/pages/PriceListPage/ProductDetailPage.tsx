@@ -119,6 +119,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     productStrategy,
     qtySaleUnit,
     saleUOM,
+    saleUOMTH,
     unitPrice,
     updateBy,
     updateDate,
@@ -167,18 +168,18 @@ export const DistributionPageDetail: React.FC = (props: any) => {
   const dataGroup2 = [
     {
       label: "ปริมาณสินค้า / หน่วย",
-      value: qtySaleUnit + ' ' + baseUOM,
+      value: qtySaleUnit + ' ' + (saleUOMTH || saleUOM),
     },
     {
       label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(unitPrice || "")) + '/' + baseUOM,
+      value: priceFormatter(parseFloat(unitPrice || "")) + '/' + (saleUOMTH || saleUOM),
     },
   ];
 
   const dataGroup3 = [
     {
       label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(marketPrice || "")) + '/' + baseUOM,
+      value: priceFormatter(parseFloat(marketPrice || "")) + '/' + (saleUOMTH || saleUOM),
     },
   ];
 

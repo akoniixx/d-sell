@@ -5,6 +5,10 @@ import { SearchOutlined } from "@ant-design/icons";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
+import { useNavigate } from "react-router-dom";
+import { getCreditMemoList } from "../../datasource/CreditMemoDatasource";
+import moment from "moment";
+import { nameFormatter } from "../../utility/Formatter";
 
 const SLASH_DMY = "DD/MM/YYYY";
 
@@ -12,13 +16,53 @@ export const DiscountListPage: React.FC = () => {
   const style: React.CSSProperties = {
     width: "180px",
   };
-  const [memoList, setMemoList] = useState([]);
+  const pageSize = 8;
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company, firstname, lastname } = userProfile;
+
+  const navigate = useNavigate();
+
   const [keyword, setKeyword] = useState("");
   const [dateFilter, setDateFilter] = useState<any>();
   const [statusFilter, setStatusFilter] = useState<string>();
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
+  const [dataState, setDataState] = useState({
+    count: 0,
+    count_status: [],
+    data: [],
+  });
+
+  useEffect(() => {
+    if (!loading) fetchProduct();
+  }, [keyword, statusFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const { data, count, count_status } = await getCreditMemoList({
+        company,
+        creditMemoStatus: statusFilter,
+        startDate: dateFilter && dateFilter[0] ? moment(dateFilter[0]).subtract(543, 'years').format(SLASH_DMY) : undefined,
+        endDate: dateFilter && dateFilter[1] ? moment(dateFilter[1]).subtract(543, 'years').format(SLASH_DMY) : undefined,
+        searchText: keyword,
+        take: pageSize,
+        page,
+      });
+      setDataState({
+        data,
+        count,
+        count_status
+      });
+      console.log({ data });
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const PageTitle = () => {
     return (
@@ -62,7 +106,7 @@ export const DiscountListPage: React.FC = () => {
             type='primary'
             title='+ สร้าง Credit Memo'
             height={40}
-            onClick={() => window.location.pathname = '/PromotionPage/promotion/create'}
+            onClick={() => navigate(`/discount/create`)}
           />
         </Col>
       </Row>
@@ -70,10 +114,12 @@ export const DiscountListPage: React.FC = () => {
   };
 
   const tabsItems = [
-    { label: `ทั้งหมด (53)`, key: "ALL" },
-    { label: `Active (22)`, key: "true" },
-    { label: `Inactive (31)`, key: "false" },
-  ]
+    { label: `ทั้งหมด(${dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0})`, key: "ALL" },
+    ...(dataState?.count_status?.map(({ product_freebies_status, count }) => ({
+      label: nameFormatter(product_freebies_status) + `(${count})`,
+      key: product_freebies_status,
+    })) || []).reverse(),
+  ];
 
   const columns = [
     {
@@ -135,8 +181,12 @@ export const DiscountListPage: React.FC = () => {
           <Table
             className='rounded-lg'
             columns={columns}
-            dataSource={memoList}
-            pagination={{ position: ["bottomCenter"] }}
+            dataSource={dataState.data}
+            pagination={{ 
+              pageSize,
+              current: page,
+              position: ["bottomCenter"] 
+            }}
             size='large'
             tableLayout='fixed'
           />

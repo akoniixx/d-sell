@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Divider, Steps as AntdStep, Form, message, Modal, Spin } from "antd";
+import { Row, Col, Divider, Form, message, Modal, Spin } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
@@ -11,38 +11,14 @@ import { PromotionCreateStep2 } from "./CreateCOStep/CreateCOStep2";
 import { PromotionType } from "../../definitions/promotion";
 import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
-import { createPromotion, getPromotionById, updatePromotion, updatePromotionFile } from "../../datasource/PromotionDatasource";
+import { createCreditMemo, getCreditMemoById, updateCreditMemo } from "../../datasource/CreditMemoDatasource";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import color from "../../resource/color";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-
-const Steps = styled(AntdStep)`
-    .ant-steps-item-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .ant-steps-item-title {
-      height: 48px;
-      width: 96px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      line-height: 20px;
-      text-align: center;
-    }
-    .ant-steps-item-title::after {
-      position: absolute;
-      top: 16px;
-      left: 100%;
-      display: block;
-      width: 100px;
-    } 
-`;
+import Steps from "../../components/StepAntd/steps";
 
 export const DiscountCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -87,7 +63,7 @@ export const DiscountCreatePage: React.FC = () => {
   const fetchPromotion = async () => {
     setLoading(true);
     const id = pathSplit[4];
-    await getPromotionById(id)
+    await getCreditMemoById(id)
       .then((res) => {
         console.log('promo', res);
         setDefaultData(res);
@@ -194,88 +170,44 @@ export const DiscountCreatePage: React.FC = () => {
         console.log('errInfo', errInfo);
       })
     } else if (step === 1) {
-      const stores = form2.getFieldValue('stores');
-      console.log(stores)
-      if(!stores || stores.length <= 0){
-        setStep2Error(true);
-      }else{
-        setPromotionData({
-          ...promotionData,
-          stores
-        })
-        // onSubmit(true);
-        // setPromotionData({
-        //   ...promotionData,
-        //   items: form3.getFieldsValue()
-        // });
-      }
+      form2.validateFields()
+      .then((values) => {
+        console.log('values', values);
+        const stores = form2.getFieldValue('stores');
+        if(!stores || stores.length <= 0){
+          setStep2Error(true);
+        }else{
+          setPromotionData({
+            ...promotionData,
+            stores
+          })
+          // onSubmit(true);
+          // setPromotionData({
+          //   ...promotionData,
+          //   items: form3.getFieldsValue()
+          // });
+        }
+      })
+      .catch((errInfo) => {
+        console.log('errInfo', errInfo);
+      });
     }
   }
 
   const onSubmit = async (promotionStatus: boolean) => {
     setCreating(true);
-    const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
+    const { promotionType, startDate, startTime } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
     const submitData = {
       ...promotionData,
-      promotionId: id,
-      promotionStatus,
-      isDraft: promotionStatus,
+      // promotionId: id,
+      // promotionStatus,
+      // isDraft: promotionStatus,
       company,
-      stores: undefined,
-      items: undefined,
-      memoFile: undefined,
-      horizontalImage: undefined,
-      verticalImage: undefined,
-      promotionShop: stores,
-      conditionDetailDiscount: [{}],
-      conditionDetailFreebies: undefined,
       startDate: `${startDate.format('YYYY-MM-DD')}T${startTime.format('HH:mm')}:00.000Z`,
-      endDate: `${endDate.format('YYYY-MM-DD')}T${endTime.format('HH:mm')}:00.000Z`,
       startTime: undefined,
-      endTime: undefined
     };
-    const promoList = form3.getFieldsValue();
-    if(promotionType === PromotionType.FREEBIES_NOT_MIX){
-      submitData.conditionDetailDiscount = undefined;
-      submitData.conditionDetailFreebies = Object.entries(promoList).map(([key, value]) => {
-        const [pKey, productId] = key.split('-');
-        const {
-          productName,
-          productCategory,
-          productImage,
-          packSize,
-        } = productList?.allData?.find((p: ProductEntity) => p.productId === productId) || {} as ProductEntity
-        return ({
-          productId,
-          productName,
-          productCategory,
-          productImage,
-          packsize: packSize,
-          condition: value
-        })
-      });
-    } else {
-      submitData.conditionDetailDiscount = Object.entries(promoList).map(([key, value]) => {
-        const [pKey, productId] = key.split('-');
-        const {
-          productName,
-          productCategory,
-          productImage,
-          packSize,
-        } = productList?.allData?.find((p: ProductEntity) => p.productId === productId) || {} as ProductEntity
-        return ({
-          productId,
-          productName,
-          productCategory,
-          productImage,
-          packsize: packSize,
-          condition: value
-        })
-      });
-    }
 
-    console.log({ promoList, submitData, file1, file2, fileMemo });
     const callback = (res: any) => {
       const { success, responseData, developerMessage, userMessage } = res;
       const promotionId = responseData?.promotionId || id;
@@ -295,21 +227,7 @@ export const DiscountCreatePage: React.FC = () => {
       }
 
       if(success) {
-        if(!hasFile) {
-          onDone();
-        } else {
-          const formData = new FormData();
-          formData.append('promotionId', promotionId);
-          if(file1) formData.append('promotionImageFirst', file1);
-          if(file2) formData.append('promotionImageSecond', file2);
-          if(fileMemo) formData.append('fileMemo', fileMemo);
-          updatePromotionFile(formData)
-            .then((res) => onDone())
-            .catch((err) => {
-              console.log('updatePromotionFile', err);
-              throw err;
-            });
-        }
+        onDone();
       } else {
         message.error(userMessage || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
         console.log(developerMessage);
@@ -317,14 +235,14 @@ export const DiscountCreatePage: React.FC = () => {
     }
     return;
     if(!isEditing) {
-      await createPromotion(submitData)
+      await createCreditMemo(submitData)
       .then(callback).catch((err) => {
         console.log(err);
       }).finally(() => {
         setCreating(false);
       });
     } else {
-      await updatePromotion(submitData)
+      await updateCreditMemo(submitData)
       .then(callback).catch((err) => {
         console.log(err);
       }).finally(() => {
