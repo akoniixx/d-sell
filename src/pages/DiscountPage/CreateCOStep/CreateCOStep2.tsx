@@ -285,20 +285,23 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
             render: (customerCompanyId: string, row: any, index: number) => (
                 <Form.Item
                     className='table-form-item'
-                    name={`co-${customerCompanyId}`}
-                    rules={[{
-                        required: true,
-                        message: 'โปรดระบุส่วนลดดูแลราคา'
-                    }]}
+                    name={`${customerCompanyId}`}
+                    rules={[
+                        {
+                            required: true,
+                            message: 'โปรดระบุส่วนลดดูแลราคา'
+                        },
+                        {
+                            min: 1,
+                            message: 'โปรดระบุส่วนลดดูแลราคา'
+                        }
+                    ]}
                 >
                     <Input 
                         type='number'
                         align='center'
                         style={{ width: '100%' }}
-                        onChange={(e) => {
-                            console.log(e.target.value);
-                        }}
-                        step={100}
+                        min={1}
                     />
                 </Form.Item>
             )
