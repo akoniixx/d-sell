@@ -107,6 +107,11 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
+        path: "edit",
+        element: <DiscountListPage />,
+        permission: null,
+      },
+      {
         path: "create",
         element: <DiscountCreatePage />,
         permission: null,

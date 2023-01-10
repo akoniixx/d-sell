@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Divider, Steps as AntdStep, Form, message, Modal, Spin } from "antd";
+import { Row, Col, Divider, Form, message, Modal, Spin } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
@@ -19,31 +19,7 @@ import color from "../../resource/color";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-
-const Steps = styled(AntdStep)`
-    .ant-steps-item-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .ant-steps-item-title {
-      height: 48px;
-      width: 96px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      line-height: 20px;
-      text-align: center;
-    }
-    .ant-steps-item-title::after {
-      position: absolute;
-      top: 16px;
-      left: 100%;
-      display: block;
-      width: 100px;
-    } 
-`;
+import Steps from "../../components/StepAntd/steps";
 
 export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -313,7 +289,7 @@ export const PromotionCreatePage: React.FC = () => {
       });
     }
 
-    console.log({ promoList, submitData, file1, file2, fileMemo });
+    // console.log({ promoList, submitData, file1, file2, fileMemo });
     const callback = (res: any) => {
       const { success, responseData, developerMessage, userMessage } = res;
       const promotionId = responseData?.promotionId || id;
@@ -353,7 +329,7 @@ export const PromotionCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     }
-    return;
+    
     if(!isEditing) {
       await createPromotion(submitData)
       .then(callback).catch((err) => {
@@ -374,6 +350,7 @@ export const PromotionCreatePage: React.FC = () => {
   return (
     <>
       <div className='container '>
+      {
       <CardContainer>
         <PageTitle />
         <Divider />
@@ -405,7 +382,7 @@ export const PromotionCreatePage: React.FC = () => {
             />
           </Col> 
         </Row>
-      </CardContainer>    
+      </CardContainer>  }  
       </div>
       <Modal
         open={isCreating || isDone}

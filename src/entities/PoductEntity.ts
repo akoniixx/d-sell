@@ -24,6 +24,7 @@ export interface ProductEntity {
   productStrategy?: string;
   qtySaleUnit?: number;
   saleUOM?: string;
+  saleUOMTH?: string;
   unitPrice?: string;
   updateBy?: string;
   updateDate?: string;

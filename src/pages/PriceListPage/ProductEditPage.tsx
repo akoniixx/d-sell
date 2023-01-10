@@ -119,9 +119,9 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       setCategories(categories);
 
       form.setFieldsValue({
-        saleUOM: data.qtySaleUnit + ' ' + data.baseUOM,
-        unitPrice: priceFormatter(parseFloat(data.unitPrice || "")) + '/' + data.baseUOM,
-        basePrice: priceFormatter(parseFloat(data.marketPrice || "")) + '/' + data.baseUOM,
+        saleUOM: data.qtySaleUnit + ' ' + (data.saleUOMTH || data.saleUOM),
+        unitPrice: priceFormatter(parseFloat(data.unitPrice || "")) + '/' + (data.saleUOMTH || data.saleUOM),
+        basePrice: priceFormatter(parseFloat(data.marketPrice || "")) + '/' + (data.saleUOMTH || data.saleUOM),
       })
 
       const url = isFreebie ? data.productFreebiesImage : data.productImage
@@ -205,6 +205,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     productStrategy,
     qtySaleUnit,
     saleUOM,
+    saleUOMTH,
     unitPrice,
     updateBy,
     updateDate,
@@ -265,15 +266,15 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       freebieHide: true
     },
     {
-      name: "productBrandName",
+      name: "productBrand",
       label: "Product Brands",
       value: (productBrand as BrandEntity)?.productBrandName,
       freebieHide: true
     },
     {
-      name: "productCategory",
+      name: "productCategoryId",
       label: "กลุ่มสินค้า (Product Category)",
-      value: (productCategory as ProductCategoryEntity)?.productCategoryId,
+      value: productCategoryId,
       enable: true,
       freebieHide: true,
       customInput: (
@@ -315,7 +316,11 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       <PageTitleNested
         title={isFreebie ? 'แก้ไขของแถม' : 'แก้ไขสินค้า'}
         showBack
-        onBack={() => navigate(`/${pathSplit[1]}/${pathSplit[2]}/${isFreebie ? productFreebiesId : productId}`)}
+        onBack={
+          isFreebie ? 
+          () => navigate(`/${pathSplit[1]}/${pathSplit[2]}`) : 
+          () => navigate(`/${pathSplit[1]}/${pathSplit[2]}/${productId}`)
+        }
         customBreadCrumb={
           <BreadCrumb
             data={
