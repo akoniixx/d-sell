@@ -174,6 +174,7 @@ export const DiscountCreatePage: React.FC = () => {
       .then((values) => {
         console.log('values', values);
         const stores = form2.getFieldValue('stores');
+        console.log({stores})
         if(!stores || stores.length <= 0){
           setStep2Error(true);
         }else{
