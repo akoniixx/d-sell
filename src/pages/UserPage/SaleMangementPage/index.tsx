@@ -72,7 +72,7 @@ function SaleManagementPage() {
   const onChangeStatus = async (id: string, currentStatus: string) => {
     await SaleListDatasource.updateUserStaff(id, {
       status: currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE",
-      updateBy: `${profile?.firstName} ${profile?.lastName}`,
+      updateBy: `${profile?.firstname} ${profile?.lastname}`,
     });
     getUserStaff();
   };
