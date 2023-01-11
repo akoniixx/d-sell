@@ -151,7 +151,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       data.append("productFreebiesStatus", `${productStatus}`)
     }else {
       data.append("productId", `${productId}`);
-      data.append("description", description);
+      data.append("description", description || '');
       data.append("productCategoryId", productCategoryId);
     }
 
@@ -172,7 +172,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         navigate(`/PromotionPage/freebies`);
       }else {
         const res = await updateProduct(data);
-        // navigate(`/PriceListPage/DistributionPage/${productId}`);
+        navigate(`/PriceListPage/DistributionPage/${productId}`);
       }
       // message.success('บันทึกข้อมูลสำเร็จ');
     } catch (e) {
