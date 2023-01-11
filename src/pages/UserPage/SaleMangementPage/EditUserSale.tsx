@@ -243,15 +243,15 @@ export function EditUserSale() {
             <Col span={12}>
               <Form.Item
                 name='role'
-                label='ตำแหน่ง*'
+                label='บทบาท*'
                 rules={[
                   {
                     required: true,
-                    message: "กรุณาเลือกตำแหน่ง",
+                    message: "กรุณาเลือกบทบาท",
                   },
                 ]}
               >
-                <Select data={roleList} placeholder='เลือกตำแหน่ง' />
+                <Select data={roleList} placeholder='เลือกบทบาท' />
               </Form.Item>
             </Col>
             <Form.Item
