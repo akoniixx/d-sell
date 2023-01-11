@@ -47,10 +47,10 @@ const ProtectRoute = ({ isAuth, children }: { isAuth: boolean; children?: JSX.El
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (roleData && currentPath === "/") {
-      navigate(`${redirectByRole(roleData?.menus)}`);
+      navigate(`/home`);
     }
     if (roleData && !checkPermission(roleData?.menus, currentPath)) {
-      navigate(`${redirectByRole(roleData?.menus)}`);
+      navigate(`/home`);
     }
   }, [roleData, currentPath, navigate]);
 
