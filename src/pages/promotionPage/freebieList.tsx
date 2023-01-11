@@ -135,6 +135,13 @@ export const FreebieListPage: React.FC = () => {
                 setKeyword(value);
                 resetPage();
               }}
+              onChange={(e) => {
+                const value = (e.target as HTMLTextAreaElement).value;
+                if(!value) {
+                  setKeyword('');
+                  resetPage();
+                }
+              }}
             />
           </div>
         </Col>

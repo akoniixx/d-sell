@@ -65,12 +65,13 @@ interface DescProps {
   customInput?: ReactNode;
   withSpace?: boolean;
   customSpan?: number;
+  required?: boolean;
 }
 
-const ProdFormItem = ({ name, label, value, enable, customInput, withSpace, customSpan }: DescProps) => {
+const ProdFormItem = ({ name, label, value, enable, customInput, withSpace, customSpan, required }: DescProps) => {
   return (<>
     <Col xl={customSpan ? customSpan : 12} sm={24}>
-      <Form.Item label={label} initialValue={value} name={name}>
+      <Form.Item label={label} initialValue={value} name={name} rules={[{ required }]}>
         {customInput ? customInput : <Input disabled={!enable} />}
       </Form.Item>
     </Col>
@@ -90,7 +91,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState<ProductEntity>();
   const [categories, setCategories] = useState<Array<ProductCategoryEntity>>();
-  const [file, setFile] = useState<Blob>();
+  const [file, setFile] = useState<any>();
   const [uploading, setUploading] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>();
   const [isRemoved, setRemoved] = useState(false);
@@ -160,7 +161,9 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     if(!isRemoved && productFreebiesImage){
       data.append("productFreebiesImage", productFreebiesImage);
     }
-    data.append("file", file!);
+    if(file && file.uid !== '-1'){
+      data.append("file", file!);
+    }
 
     try {
       setUploading(true);
@@ -169,7 +172,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         navigate(`/PromotionPage/freebies`);
       }else {
         const res = await updateProduct(data);
-        navigate(`/PriceListPage/DistributionPage/${productId}`);
+        // navigate(`/PriceListPage/DistributionPage/${productId}`);
       }
       // message.success('บันทึกข้อมูลสำเร็จ');
     } catch (e) {
@@ -273,10 +276,11 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     },
     {
       name: "productCategoryId",
-      label: "กลุ่มสินค้า (Product Category)",
+      label: "หมวดสินค้า (Product Category)",
       value: productCategoryId,
       enable: true,
       freebieHide: true,
+      required: true,
       customInput: (
         <Select
           data={categories?.map((cat: ProductCategoryEntity) => ({
@@ -375,6 +379,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                     onRemove={() => {
                       console.log('onremove')
                       setFile(undefined);
+                      setFileList([]);
                       setRemoved(true);
                     }}
                   >

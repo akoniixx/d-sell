@@ -159,7 +159,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
       value: productGroup,
     },
     {
-      label: "กลุ่มสินค้า (Product Category)",
+      label: "หมวดสินค้า (Product Category)",
       value: (productCategory as ProductCategoryEntity)?.productCategoryName,
       freebieHide: true
     },

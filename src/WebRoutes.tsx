@@ -37,6 +37,7 @@ import { PromotionCreatePage } from "./pages/promotionPage/createPromotion";
 import DetailRole from "./pages/UserPage/RolesManagementPage/DetailRole";
 import { DiscountCreatePage } from "./pages/DiscountPage/CreateCO";
 import HomePage from "./pages/HomePage/HomePage";
+import { CreditMemoDetail } from "./pages/DiscountPage/CreditMemoDetail";
 
 interface IRoute {
   path: string;
@@ -114,6 +115,16 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "create",
         element: <DiscountCreatePage />,
+        permission: null,
+      },
+      {
+        path: "edit/:id",
+        element: <DiscountCreatePage />,
+        permission: null,
+      },
+      {
+        path: "detail/:id",
+        element: <CreditMemoDetail />,
         permission: null,
       },
     ],
