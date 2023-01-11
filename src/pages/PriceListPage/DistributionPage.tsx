@@ -124,6 +124,13 @@ export const DistributionPage: React.FC = () => {
                 setKeyword(value);
                 resetPage();
               }}
+              onChange={(e) => {
+                const value = (e.target as HTMLInputElement).value;
+                if(!value) {
+                  setKeyword('');
+                  resetPage();
+                }
+              }}
             />
           </div>
         </Col>

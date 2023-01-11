@@ -19,6 +19,7 @@ import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import Steps from "../../components/StepAntd/steps";
+import { StoreEntity } from "../../entities/StoreEntity";
 
 export const DiscountCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -45,8 +46,7 @@ export const DiscountCreatePage: React.FC = () => {
 
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState(false)
-  const [promotionData, setPromotionData] = useState<any>({
-    promotionType: undefined,
+  const [creditMemoData, setCreditMemoData] = useState<any>({
     stores: undefined,
     items: undefined,
   });
@@ -160,8 +160,8 @@ export const DiscountCreatePage: React.FC = () => {
       form1.validateFields()
       .then((values) => {
           setStep(step+1);
-          setPromotionData({
-            ...promotionData,
+          setCreditMemoData({
+            ...creditMemoData,
             ...values
           });
           console.log('values', values);
@@ -178,15 +178,16 @@ export const DiscountCreatePage: React.FC = () => {
         if(!stores || stores.length <= 0){
           setStep2Error(true);
         }else{
-          setPromotionData({
-            ...promotionData,
-            stores
+          setCreditMemoData({
+            ...creditMemoData,
+            creditMemoShop: stores?.map((s: StoreEntity) => ({ 
+              ...s,
+              receiveAmount: parseFloat(values[s.customerCompanyId]),
+              usedAmount: 0,
+              balance: 0,
+            }))
           })
-          // onSubmit(true);
-          // setPromotionData({
-          //   ...promotionData,
-          //   items: form3.getFieldsValue()
-          // });
+          onSubmit(true);
         }
       })
       .catch((errInfo) => {
@@ -195,31 +196,28 @@ export const DiscountCreatePage: React.FC = () => {
     }
   }
 
-  const onSubmit = async (promotionStatus: boolean) => {
+  const onSubmit = async (creditMemoStatus: boolean) => {
     setCreating(true);
-    const { promotionType, startDate, startTime } = promotionData;
+    const { startDate, startTime } = creditMemoData;
     const id = isEditing ? pathSplit[4] : undefined;
     const submitData = {
-      ...promotionData,
-      // promotionId: id,
-      // promotionStatus,
-      // isDraft: promotionStatus,
+      ...creditMemoData,
       company,
       startDate: `${startDate.format('YYYY-MM-DD')}T${startTime.format('HH:mm')}:00.000Z`,
       startTime: undefined,
+      creditMemoStatus
     };
 
     const callback = (res: any) => {
       const { success, responseData, developerMessage, userMessage } = res;
-      const promotionId = responseData?.promotionId || id;
-      const hasFile = file1 || file2 || fileMemo;
+      // const promotionId = responseData?.promotionId || id;
       const onDone = () => {
         setDone(true);
         setTimeout(() => {
-          if(promotionStatus){
-            navigate('/PromotionPage/promotion');
+          if(creditMemoStatus){
+            navigate('/discount/');
           }else {
-            navigate(`/PromotionPage/promotion/edit/${promotionId}`);
+            // navigate(`/PromotionPage/promotion/edit/${promotionId}`);
           }
         }, 2000);
         setTimeout(() => {
@@ -234,7 +232,7 @@ export const DiscountCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     }
-    return;
+    
     if(!isEditing) {
       await createCreditMemo(submitData)
       .then(callback).catch((err) => {
@@ -243,12 +241,12 @@ export const DiscountCreatePage: React.FC = () => {
         setCreating(false);
       });
     } else {
-      await updateCreditMemo(submitData)
-      .then(callback).catch((err) => {
-        console.log(err);
-      }).finally(() => {
-        setCreating(false);
-      });
+      // await updateCreditMemo(submitData)
+      // .then(callback).catch((err) => {
+      //   console.log(err);
+      // }).finally(() => {
+      //   setCreating(false);
+      // });
     }
   }
 

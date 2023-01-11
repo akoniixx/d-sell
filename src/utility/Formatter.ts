@@ -11,11 +11,12 @@ export const priceFormatter = (price: number | string, fractionDigits?: number) 
 };
 
 export const nameFormatter = (input: string) => {
+  if(!input) return '';
   const upperCaseFirstLetter = `${input.slice(0, 1).toUpperCase().slice(1)}`;
 
-  const lowerCaseAllWordsExceptFirstLetters = input.replaceAll(
+  const lowerCaseAllWordsExceptFirstLetters = input?.replaceAll(
     /\S*/g,
-    (word) => `${word.slice(0, 1)}${word.slice(1).toLowerCase()}`,
+    (word) => `${word?.slice(0, 1)}${word.slice(1).toLowerCase()}`,
   );
 
   return upperCaseFirstLetter + lowerCaseAllWordsExceptFirstLetters;

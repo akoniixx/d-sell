@@ -135,8 +135,8 @@ export const PromotionCreateStep1 = ({
             const { data } = await getPromotion({ company });
             setPromotions(
                 data.map((p: any) => ({
-                    label: `${p.promotionName} (${p.promotionCode})`,
-                    value: `${p.promotionCode}`
+                    label: `${p.creditMemoName} (${p.creditMemoCode})`,
+                    value: `${p.creditMemoCode}`
                 }))
             );
             console.log(data)
@@ -159,7 +159,7 @@ export const PromotionCreateStep1 = ({
                 <Row align='middle' gutter={16}>
                     <Col span={24}>
                         <Form.Item
-                            name='promotionName'
+                            name='creditMemoName'
                             label='ชื่อรายการ'
                             rules={[
                                 {
@@ -201,7 +201,7 @@ export const PromotionCreateStep1 = ({
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <Form.Item name="comment" label='หมายเหตุเพิ่มเติม'>
+                        <Form.Item name="remark" label='หมายเหตุเพิ่มเติม'>
                             <TextArea/>
                         </Form.Item>
                     </Col>
