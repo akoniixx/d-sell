@@ -93,7 +93,7 @@ export function EditUserSale() {
         updateBy: `${profile?.firstname} ${profile?.lastname}`,
       });
 
-      if (res) {
+      if (res && res.success) {
         Swal.fire({
           title: "บันทึกข้อมูลสำเร็จ",
           text: "",
