@@ -168,11 +168,11 @@ export const DistributionPageDetail: React.FC = (props: any) => {
   const dataGroup2 = [
     {
       label: "ปริมาณสินค้า / หน่วย",
-      value: qtySaleUnit + ' ' + (saleUOMTH || saleUOM),
+      value: qtySaleUnit + ' ' + (company === 'ICPL' ? baseUOM : packingUOM),
     },
     {
       label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(unitPrice || "")) + '/' + (saleUOMTH || saleUOM),
+      value: priceFormatter(parseFloat(unitPrice || "")) + '/' + (company === 'ICPL' ? baseUOM : packingUOM),
     },
   ];
 
