@@ -111,7 +111,7 @@ export function EditUserSale() {
         });
       } else {
         Swal.fire({
-          title: "บันทึกข้อมูลไม่สำเร็จ",
+          title: res.userMessage,
           text: "",
           width: 250,
           icon: "error",
