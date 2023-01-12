@@ -1,6 +1,7 @@
 
 ## [Version - 0]
-
+## Features [v0.2.11] - Release Date: 2022-01-10
+- Edit UserStaff response catching error
 ## Features [v0.2.10] - Release Date: 2022-01-10
 - Add UpdateBy in switch change status UserManagement
 ## Features [v0.2.9] - Release Date: 2022-01-10
