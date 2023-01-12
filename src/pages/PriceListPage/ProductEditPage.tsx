@@ -120,8 +120,8 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       setCategories(categories);
 
       form.setFieldsValue({
-        saleUOM: data.qtySaleUnit + ' ' + (data.saleUOMTH || data.saleUOM),
-        unitPrice: priceFormatter(parseFloat(data.unitPrice || "")) + '/' + (data.saleUOMTH || data.saleUOM),
+        saleUOM: data.qtySaleUnit + ' ' + (company === 'ICPL' ? data.baseUOM : data.packingUOM),
+        unitPrice: priceFormatter(parseFloat(data.unitPrice || "")) + '/' + (company === 'ICPL' ? data.baseUOM : data.packingUOM),
         basePrice: priceFormatter(parseFloat(data.marketPrice || "")) + '/' + (data.saleUOMTH || data.saleUOM),
       })
 
