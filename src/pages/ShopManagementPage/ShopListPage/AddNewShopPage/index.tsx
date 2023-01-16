@@ -1,5 +1,5 @@
 import { Divider, Form } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import StepAntd from "../../../../components/StepAntd/StepAntd";
 import { CardContainer } from "../../../../components/Card/CardContainer";
 import PageTitleNested from "../../../../components/PageTitle/PageTitleNested";
@@ -9,12 +9,131 @@ import { defaultPropsForm } from "../../../../utility/DefaultProps";
 import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../../../store/ProfileAtom";
 import Swal from "sweetalert2";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
+import { shopDatasource } from "../../../../datasource/ShopDatasource";
+import {
+  CustomerDetailEntity,
+  FormStepCustomerEntity,
+  PayloadCustomerEntity,
+} from "../../../../entities/CustomerEntity";
+import { zoneDatasource } from "../../../../datasource/ZoneDatasource";
+import dayjs from "dayjs";
 
 function AddNewShopPage(): JSX.Element {
   const [current, setCurrent] = React.useState(0);
   const profile = useRecoilValue(profileAtom);
-
+  const [searchValue] = useSearchParams();
+  const navigate = useNavigate();
+  const taxId = searchValue.get("taxId");
   const [form] = Form.useForm();
+
+  const [dataDetail, setDataDetail] = React.useState<CustomerDetailEntity | null>(null);
+  const [zoneList, setZoneList] = React.useState<
+    {
+      label: string;
+      value: string;
+      key: string;
+    }[]
+  >([]);
+  useEffect(() => {
+    const getShopDetailByTaxId = async () => {
+      try {
+        const res = await shopDatasource.getCustomerByTaxId({
+          taxNo: taxId || "",
+          company: profile?.company || "",
+        });
+        setDataDetail(res);
+        if (res) {
+          const {
+            userShop: {
+              nametitle,
+              firstname,
+              lastname,
+              nickname,
+              telephone,
+              secondtelephone,
+              isActive,
+              isPrimary,
+              idCard,
+              position,
+              email,
+            },
+            userShopId,
+          } =
+            res?.data?.customerToUserShops?.length > 0
+              ? res.data.customerToUserShops[0]
+              : {
+                  userShop: {
+                    nametitle: "",
+                    firstname: "",
+                    lastname: "",
+                    nickname: "",
+                    telephone: "",
+                    secondtelephone: "",
+                    isActive: false,
+                    isPrimary: false,
+                    idCard: "",
+                    position: "",
+                    email: "",
+                  },
+                  userShopId: "",
+                };
+
+          const { customerName } =
+            res?.data?.customerCompany?.length > 0
+              ? res.data.customerCompany[0]
+              : { customerName: "" };
+          form.setFieldsValue({
+            createDate: dayjs(),
+            updateBy: res.data.updateBy,
+            updateDate: res.data.updateDate,
+            lat: res.data.lat,
+            lag: res.data.lag,
+            address: res.data.address,
+            postcode: res.data.postcode,
+            subdistrict: res.data.subdistrict,
+            district: res.data.district,
+            province: res.data.province,
+            nametitle,
+            firstname,
+            lastname,
+            nickname,
+            telephone,
+            secondtelephone,
+            isActive,
+            isPrimary,
+            idCard,
+            position,
+            email,
+            userShopId,
+            customerName,
+            taxId,
+            isActiveCustomer: true,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const getShopZoneByCompany = async () => {
+      try {
+        const res = await zoneDatasource.getAllZoneByCompany(profile?.company || "");
+        const formatPattern = res.map((el: any) => {
+          return {
+            label: el.zoneName,
+            value: el.zoneName,
+            key: el.zoneId,
+          };
+        });
+        setZoneList(formatPattern);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getShopZoneByCompany();
+    getShopDetailByTaxId();
+  }, [taxId, profile?.company, form]);
   const onClickNextStep = () => {
     setCurrent(current + 1);
   };
@@ -24,7 +143,14 @@ function AddNewShopPage(): JSX.Element {
   const renderStep = () => {
     switch (current) {
       case 0: {
-        return <StepOne form={form} company={profile?.company} />;
+        return (
+          <StepOne
+            form={form}
+            company={profile?.company}
+            zoneList={zoneList}
+            dataDetail={dataDetail}
+          />
+        );
       }
       case 1: {
         return <StepTwo form={form} onClickBack={onClickPrevStep} />;
@@ -32,25 +158,118 @@ function AddNewShopPage(): JSX.Element {
     }
   };
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: FormStepCustomerEntity) => {
     if (current === 0) {
       onClickNextStep();
       return form.setFieldsValue({
         ...values,
       });
     } else {
-      console.log(form.getFieldsValue(true));
+      const {
+        address,
+        district,
+        email,
+        firstname,
+        idCard,
+        lag,
+        lastname,
+        lat,
+        nametitle,
+        nickname,
+        postcode,
+        province,
+        secondtelephone,
+        subdistrict,
+        taxId,
+        telephone,
+        updateBy,
+        isActive,
+        isPrimary,
+        position,
+        primaryId,
+        customerName,
+        isActiveCustomer,
+        // memberId,
+        typeShop,
+        userShopId,
+        zone,
+      }: FormStepCustomerEntity = form.getFieldsValue(true);
+      const payload: PayloadCustomerEntity = {
+        customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
+        address,
+        district,
+        lag,
+        lat,
+        postcode,
+        province,
+        subdistrict,
+        taxNo: taxId,
+        updateBy,
+        telephone,
+        customerCompany: [
+          {
+            customerName: customerName || "",
+            company: profile?.company || "",
+            customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
+            isActive: isActiveCustomer,
+            zone,
+            customerType: typeShop,
+            isNav: false,
+            updateBy: `${profile?.firstname} ${profile?.lastname}`,
+            salePersonCode: "",
+            termPayment: "",
+            creditLimit: 0,
+          },
+        ],
+        userShop: {
+          email,
+          firstname,
+          idCard,
+          isActive,
+          isPrimary,
+          lastname,
+          nametitle,
+          nickname,
+          position,
+          secondtelephone,
+          primaryId,
+          telephone,
+          updateBy,
+        },
+      };
+      if (userShopId) {
+        payload.userShop.userShopId = userShopId;
+      }
+      const res = await shopDatasource.postCustomer(payload);
+      if (res && res.success) {
+        Swal.fire({
+          title: "บันทึกข้อมูลสำเร็จ",
+          text: "",
+          width: 250,
+          timer: 2000,
+          icon: "success",
+          customClass: {
+            title: "custom-title",
+          },
+          showConfirmButton: false,
+        }).then(() => {
+          navigate(`ShopManagementPage/ShopListPage`);
+        });
+      } else {
+        Swal.fire({
+          title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
+          text: "",
+          width: 250,
+          icon: "error",
+          customClass: {
+            title: "custom-title",
+          },
+          timer: 2000,
+
+          showConfirmButton: false,
+        });
+      }
     }
-    Swal.fire({
-      title: "บันทึกข้อมูลสำเร็จ",
-      text: "",
-      width: 250,
-      icon: "success",
-      customClass: {
-        title: "custom-title",
-      },
-      showConfirmButton: false,
-    });
   };
   return (
     <CardContainer

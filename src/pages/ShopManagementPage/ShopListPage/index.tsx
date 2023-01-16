@@ -56,14 +56,35 @@ function ShopListPage(): JSX.Element {
       });
     },
   );
-  const onFinish = (values: { taxId: string }) => {
-    setVisible(false);
-    navigate({
-      pathname: "AddNewShop",
-      search: createSearchParams({
-        taxId: values.taxId,
-      }).toString(),
-    });
+
+  const onFinish = async (values: { taxId: string }) => {
+    try {
+      const res = await shopDatasource.getCustomerByTaxId({
+        taxNo: values.taxId,
+        company: profile?.company || "",
+      });
+      setVisible(false);
+      if (res && res.action === "Create") {
+        navigate({
+          pathname: "AddNewShop",
+          search: createSearchParams({
+            taxId: values.taxId,
+          }).toString(),
+        });
+      }
+
+      if (res && res.action === "Edit") {
+        const { customerId } = res.data;
+        navigate({
+          pathname: `DetailPage/${customerId}/EditShopPage`,
+          search: createSearchParams({
+            taxId: values.taxId,
+          }).toString(),
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   const onClickDetail = useCallback(
     (id: string) => {
@@ -78,6 +99,7 @@ function ShopListPage(): JSX.Element {
       return [{ label: "เขต : ทั้งหมด", value: "all", key: "all" }];
     }
   }, [zone]);
+  console.log("data", data);
   const defaultTableColumns = useMemo(() => {
     const staticData = [
       {
@@ -135,7 +157,7 @@ function ShopListPage(): JSX.Element {
         key: item.key,
 
         dataIndex: item.dataIndex,
-        title: <Text>{item.title}</Text>,
+        title: item.title,
 
         fixed: item.key === "action" ? "right" : undefined,
         width: item.key === "action" ? 200 : undefined,
@@ -148,7 +170,9 @@ function ShopListPage(): JSX.Element {
           const { customerName } = isActive ? isActive : data.customerCompany[0];
           const convertStatus = (status: boolean) => {
             return status ? (
-              <Text fontWeight={600}>Active</Text>
+              <Text fontWeight={600} color='success'>
+                Active
+              </Text>
             ) : (
               <Text color='error' fontWeight={600}>
                 In Active
@@ -341,6 +365,10 @@ function ShopListPage(): JSX.Element {
                   required: true,
                   message: "กรุณากรอกเลขประจำตัวผู้เสียภาษี",
                 },
+                {
+                  pattern: /^[0-9]{13}$/,
+                  message: "กรุณากรอกเลขประจำตัวผู้เสียภาษีให้ถูกต้อง",
+                },
               ]}
             >
               <Input
@@ -352,6 +380,7 @@ function ShopListPage(): JSX.Element {
                   justifyContent: "center",
                   alignItems: "center",
                 }}
+                maxLength={13}
               />
             </Form.Item>
           </div>

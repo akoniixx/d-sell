@@ -10,6 +10,7 @@ import { Col, Form, FormInstance, Row } from "antd";
 import color from "../../../../resource/color";
 import Button from "../../../../components/Button/Button";
 import { getCompanyImage, getCompanyName } from "../../../../utility/CompanyName";
+import { CustomerDetailEntity } from "../../../../entities/CustomerEntity";
 
 const BottomSection = styled.div`
   padding: 8px 24px 24px;
@@ -27,25 +28,17 @@ const Footer = styled(Row)`
 function StepOne({
   form,
   company,
+  dataDetail,
+  zoneList = [],
 }: {
+  dataDetail: CustomerDetailEntity | null;
+  zoneList?: { label: string; value: string; key: string }[];
   form: FormInstance<any>;
   company?: "ICPL" | "ICPI" | "ICPF" | "ICK";
 }) {
   const typeShop = Form.useWatch("typeShop", form);
-  const listSDMock = [
-    {
-      title: "ICP Fertilizer",
-      type: "Dealer",
-      idShop: "ICP001",
-      zone: "C01",
-    },
-    {
-      title: "ICP International",
-      type: "Sub Dealer",
-      idShop: "ICP002",
-      zone: "C02",
-    },
-  ];
+  const listSD =
+    (dataDetail?.data?.customerCompany || []).filter((el) => el.company !== company) || [];
 
   const listRadio = [
     {
@@ -73,15 +66,7 @@ function StepOne({
                   },
                 ]}
               >
-                <Select
-                  data={[
-                    {
-                      label: "C01",
-                      value: "C01",
-                      key: "C01",
-                    },
-                  ]}
-                />
+                <Select data={zoneList} />
               </Form.Item>
             </Col>
           </Row>
@@ -101,15 +86,7 @@ function StepOne({
                   },
                 ]}
               >
-                <Select
-                  data={[
-                    {
-                      label: "C01",
-                      value: "C01",
-                      key: "C01",
-                    },
-                  ]}
-                />
+                <Select data={zoneList} />
               </Form.Item>
             </Col>
             <Col span={10}>
@@ -138,7 +115,7 @@ function StepOne({
                 ]}
               >
                 <Select
-                  data={[]}
+                  data={zoneList}
                   style={{
                     width: "45%",
                   }}
@@ -177,13 +154,7 @@ function StepOne({
                 ]}
               >
                 <Select
-                  data={[
-                    {
-                      label: "C01",
-                      value: "C01",
-                      key: "C01",
-                    },
-                  ]}
+                  data={zoneList}
                   style={{
                     width: "45%",
                   }}
@@ -245,7 +216,7 @@ function StepOne({
               <Text fontFamily='Sarabun' level={6}>
                 เปิดใช้งาน
               </Text>
-              <Form.Item noStyle name='isActive'>
+              <Form.Item noStyle name='isActiveCustomer'>
                 <Switch />
               </Form.Item>
             </div>
@@ -280,28 +251,45 @@ function StepOne({
             }}
           >
             <Text fontWeight={700}>คู่ค้าบริษัทในเครือ ICP Group</Text>
-            {listSDMock.map((item, idx) => {
+            {listSD.map((item, idx) => {
               return (
-                <Row key={idx}>
-                  <Col span={2}>
-                    <Text>Image Maybe</Text>
+                <Row key={idx} gutter={16}>
+                  <Col span={1.5}>
+                    <div
+                      style={{
+                        height: 52,
+                        width: 52,
+                        padding: item.company === "ICPL" ? 8 : 0,
+                        borderRadius: 8,
+                        backgroundColor: "#F5F5F5",
+                      }}
+                    >
+                      <img
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                          objectFit: "contain",
+                        }}
+                        src={getCompanyImage(item.company)}
+                      />
+                    </div>
                   </Col>
                   <Col
-                    span={22}
+                    span={22.5}
                     style={{
                       display: "flex",
                       flexDirection: "column",
                     }}
                   >
-                    <Text fontWeight={700}>{item.title}</Text>
+                    <Text fontWeight={700}>{item.customerName}</Text>
                     <div style={{ display: "flex", gap: 16 }}>
                       <Text fontFamily='Sarabun'>
                         {`ประเภทคู่ค้า: `}
                         <Text color='primary' fontWeight={600}>
-                          {item.type}
+                          {item.customerType}
                         </Text>
                       </Text>
-                      <Text fontFamily='Sarabun'>{`รหัสร้านค้า: ${item.idShop}`}</Text>
+                      <Text fontFamily='Sarabun'>{`รหัสร้านค้า: ${item.customerNo}`}</Text>
                       <Text fontFamily='Sarabun'>{`เขต: ${item.zone || "-"}`}</Text>
                     </div>
                   </Col>

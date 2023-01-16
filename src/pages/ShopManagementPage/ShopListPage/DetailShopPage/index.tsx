@@ -8,9 +8,36 @@ import AntdTabs from "../../../../components/AntdTabs/AntdTabs";
 import DetailTab from "./DetailTab";
 import HistoryTab from "./HistoryTab";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "react-query";
+import { shopDatasource } from "../../../../datasource/ShopDatasource";
+import { Spin } from "antd";
+import { useRecoilValue } from "recoil";
+import { profileAtom } from "../../../../store/ProfileAtom";
 function DetailShopPage(): JSX.Element {
   const { shopId } = useParams();
   const navigate = useNavigate();
+  const profile = useRecoilValue(profileAtom);
+
+  const { data, isLoading } = useQuery(["detailShop", shopId], async () => {
+    return await shopDatasource.getCustomerById(shopId, profile?.company || "");
+  });
+  console.log(data);
+
+  if (isLoading || !data) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <Spin size='large' />
+      </div>
+    );
+  }
+
   const dataTabs: { key: string; label: React.ReactNode; children?: JSX.Element | undefined }[] = [
     {
       key: "detail",
@@ -42,7 +69,10 @@ function DetailShopPage(): JSX.Element {
         extra={
           <Button
             onClick={() => {
-              navigate(`EditShopPage`);
+              navigate({
+                pathname: `EditShopPage`,
+                search: `?taxId=11009388577`,
+              });
             }}
             icon={
               <FormOutlined
