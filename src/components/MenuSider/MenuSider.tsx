@@ -144,6 +144,13 @@ const iconsInActive = {
       }}
     />
   ),
+  price: (
+    <ShopOutlined
+      style={{
+        fontSize: "20px",
+      }}
+    />
+  ),
   shopManagement: (
     <ShopOutlined
       style={{

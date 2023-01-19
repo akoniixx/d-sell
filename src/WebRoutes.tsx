@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
 import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
 import { AuthPage } from "./pages/AuthPage/AuthPage";
-import { DiscountListPage } from "./pages/DiscountPage/DiscountListPage";
 import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
 import { OrderPage } from "./pages/OrderPage/OrderPage";
@@ -34,9 +32,14 @@ import { FreebieListPage } from "./pages/promotionPage/freebieList";
 import { PromotionListPage } from "./pages/promotionPage/promotionList";
 import { PromotionCreatePage } from "./pages/promotionPage/createPromotion";
 import DetailRole from "./pages/UserPage/RolesManagementPage/DetailRole";
-import { DiscountCreatePage } from "./pages/DiscountPage/CreateCO";
+import { DiscountCreatePage } from "./pages/DiscountPage/DiscountCO/CreateCO";
+import { DiscountListPage } from "./pages/DiscountPage/DiscountCO/DiscountListPage";
+import { CreditMemoDetail } from "./pages/DiscountPage/DiscountCO/CreditMemoDetail";
 import HomePage from "./pages/HomePage/HomePage";
-import { CreditMemoDetail } from "./pages/DiscountPage/CreditMemoDetail";
+import { PriceListX10 } from "./pages/PriceListX10/PriceList";
+import { PriceListCreatePage } from "./pages/PriceListX10/CreatePriceList";
+import { CustomerDiscountListPage } from "./pages/DiscountPage/CustomerDiscount/CustomerList";
+import { CustomerCreditMemoDetail } from "./pages/DiscountPage/CustomerDiscount/CustomerDetail";
 import DetailApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage/DetailApproveTelPage";
 
 interface IRoute {
@@ -125,6 +128,16 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "detail/:id",
         element: <CreditMemoDetail />,
+        permission: null,
+      },
+      {
+        path: "customerList",
+        element: <CustomerDiscountListPage />,
+        permission: null,
+      },
+      {
+        path: "customerDetail/:id",
+        element: <CustomerCreditMemoDetail />,
         permission: null,
       },
     ],
@@ -292,6 +305,33 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "freebies/edit/:id",
         element: <DistributionPageEdit />,
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/price/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "list",
+        element: <PriceListX10 />,
+        permission: null,
+      },
+      {
+        path: "create",
+        element: <PriceListCreatePage />,
+        permission: null,
+      },
+      {
+        path: "edit/:id",
+        element: <DiscountCreatePage />,
+        permission: null,
+      },
+      {
+        path: "detail/:id",
+        element: <CreditMemoDetail />,
         permission: null,
       },
     ],

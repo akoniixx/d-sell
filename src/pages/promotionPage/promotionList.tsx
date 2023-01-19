@@ -1,7 +1,13 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { Table, Tabs, Row, Col, Select, Avatar, Tag, Switch, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { UnorderedListOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
+import {
+  UnorderedListOutlined,
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CopyOutlined,
+} from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
 import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
@@ -20,9 +26,11 @@ import { useNavigate } from "react-router-dom";
 import { deletePromotion, getPromotion } from "../../datasource/PromotionDatasource";
 import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
 import { Dayjs } from "dayjs";
+import image from "../../resource/image";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
+const REQUEST_DMY = "YYYY-MM-DD";
 
 export const PromotionListPage: React.FC = () => {
   const style: React.CSSProperties = {
@@ -58,8 +66,8 @@ export const PromotionListPage: React.FC = () => {
       const { data, count, count_status } = await getPromotion({
         company,
         promotionStatus: statusFilter,
-        startDate: dateFilter && dateFilter[0] ? moment(dateFilter[0]).subtract(543, 'years').format(SLASH_DMY) : undefined,
-        endDate: dateFilter && dateFilter[1] ? moment(dateFilter[1]).subtract(543, 'years').format(SLASH_DMY) : undefined,
+        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format(REQUEST_DMY) : undefined,
+        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format(REQUEST_DMY) : undefined,
         searchText: keyword,
         take: pageSize,
         page,
@@ -67,10 +75,9 @@ export const PromotionListPage: React.FC = () => {
       setDataState({
         data,
         count,
-        count_status
+        count_status,
       });
-      console.log({ data })
-
+      console.log({ data, count, count_status, dateFilter });
     } catch (e) {
       console.log(e);
     } finally {
@@ -104,8 +111,8 @@ export const PromotionListPage: React.FC = () => {
               }}
               onChange={(e) => {
                 const value = (e.target as HTMLTextAreaElement).value;
-                if(!value) {
-                  setKeyword('');
+                if (!value) {
+                  setKeyword("");
                   resetPage();
                 }
               }}
@@ -127,7 +134,7 @@ export const PromotionListPage: React.FC = () => {
             type='primary'
             title='+ สร้างโปรโมชัน'
             height={40}
-            onClick={() => window.location.pathname = '/PromotionPage/promotion/create'}
+            onClick={() => (window.location.pathname = "/PromotionPage/promotion/create")}
           />
         </Col>
       </Row>
@@ -135,10 +142,10 @@ export const PromotionListPage: React.FC = () => {
   };
 
   const tabsItems = [
-        { label: "ทั้งหมด", key: "ALL" },
-        { label: "Active", key: "true" },
-        { label: "Inactive", key: "false" },
-    ]
+    { label: "ทั้งหมด", key: "ALL" },
+    { label: "Active", key: "true" },
+    { label: "Inactive", key: "false" },
+  ];
 
   const columns = [
     {
@@ -151,7 +158,11 @@ export const PromotionListPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar src={row.promotionImageSecond} size={50} shape='square' />
+                <Avatar
+                  src={row.promotionImageSecond || image.product_no_image}
+                  size={50}
+                  shape='square'
+                />
               </div>
               <FlexCol>
                 <Text level={5}>{value}</Text>
@@ -190,13 +201,13 @@ export const PromotionListPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              {value && value.length >= 0 ? 
-                value.map((v) => (
-                  <Text level={5} key={v}>
-                    {v.length >= 10 ? v.slice(0, 9) + '...' : v}
-                  </Text>
-                )) : '-'
-              }
+              {value && value.length >= 0
+                ? value.map((v) => (
+                    <Text level={5} key={v}>
+                      {v.length >= 10 ? v.slice(0, 9) + "..." : v}
+                    </Text>
+                  ))
+                : "-"}
             </FlexCol>
           ),
         };
@@ -211,98 +222,100 @@ export const PromotionListPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{moment(row.startDate).format(SLASH_DMY)}-{moment(row.endDate).format(SLASH_DMY)}</Text>
+              <Text level={5}>
+                {moment(row.startDate).format(SLASH_DMY)}-{moment(row.endDate).format(SLASH_DMY)}
+              </Text>
             </FlexCol>
           ),
         };
       },
     },
     {
-        title: "อัปเดทโดย",
-        dataIndex: "updateBy",
-        key: "updateBy",
-        // width: "15%",
-        render: (value: any, row: any, index: number) => {
-          return {
-            children: (
-              <FlexCol>
-                <Text level={5}>{value || '-'}</Text>
-                <Text level={6} color='Text3'>
-                    {moment(row.updatedAt).format(SLASH_DMY)}
-                </Text>
-              </FlexCol>
-            ),
-          };
-        },
+      title: "อัปเดทโดย",
+      dataIndex: "updateBy",
+      key: "updateBy",
+      // width: "15%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5}>{value || "-"}</Text>
+              <Text level={6} color='Text3'>
+                {moment(row.updatedAt).format(SLASH_DMY)}
+              </Text>
+            </FlexCol>
+          ),
+        };
+      },
     },
     {
-        title: "สถานะ",
-        dataIndex: "status",
-        key: "status",
-        // width: "15%",
-        render: (value: any, row: any, index: number) => {
-          return {
-            children: (
-              <Switch 
-                checked={value} 
-                onChange={(checked: boolean) => {console.log('onToggleSwitch', checked)}}
-                disabled
-              />
-            ),
-          };
-        },
+      title: "สถานะ",
+      dataIndex: "promotionStatus",
+      key: "promotionStatus",
+      // width: "15%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <Switch
+              checked={value}
+              onChange={(checked: boolean) => {
+                console.log("onToggleSwitch", checked);
+              }}
+              disabled
+            />
+          ),
+        };
+      },
     },
     {
-        title: "จัดการ",
-        dataIndex: "action",
-        key: "action",
-        width: "10%",
-        fixed: "right" as FixedType | undefined,
-        render: (value: any, row: any, index: number) => {
-          return {
-            children: (
-              <>
-                <div className='d-flex flex-row justify-content-between'>
-                  <div
-                    className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                    onClick={() =>
-                      navigate("/PromotionPage/promotion/edit/" + row.promotionId)
-                    }
-                  >
-                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                      <EditOutlined style={{ color: color["primary"] }} />
-                    </span>
-                  </div>
-                  <div
-                    className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                    onClick={() =>
-                      Modal.confirm({
-                        title: 'ยืนยันการลบโปรโมชั่น',
-                        okText: '',
-                        cancelText: '',
-                        onOk: async () => {
-                          await deletePromotion({
-                            promotionId: row.promotionId,
-                            updateBy: firstname + ' ' + lastname
-                          })
+      title: "จัดการ",
+      dataIndex: "action",
+      key: "action",
+      width: "10%",
+      fixed: "right" as FixedType | undefined,
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <>
+              <div className='d-flex flex-row justify-content-between'>
+                <div
+                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                  onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
+                >
+                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                    <EditOutlined style={{ color: color["primary"] }} />
+                  </span>
+                </div>
+                <div
+                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                  onClick={() =>
+                    Modal.confirm({
+                      title: "ยืนยันการลบโปรโมชั่น",
+                      okText: "",
+                      cancelText: "",
+                      onOk: async () => {
+                        await deletePromotion({
+                          promotionId: row.promotionId,
+                          updateBy: firstname + " " + lastname,
+                        })
                           .then((res) => {
                             // console.log(res)
                             // navigate(0)
                           })
-                          .catch(() => message.error('ลบโปรโมชั่นไม่สำเร็จ'))
-                        }
-                      })
-                    }
-                  >
-                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                      <DeleteOutlined style={{ color: color["primary"] }} />
-                    </span>
-                  </div>
+                          .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                      },
+                    })
+                  }
+                >
+                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                    <DeleteOutlined style={{ color: color["primary"] }} />
+                  </span>
                 </div>
-              </>
-            ),
-          };
-        },
+              </div>
+            </>
+          ),
+        };
+      },
     },
   ];
 
