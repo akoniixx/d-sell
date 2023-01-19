@@ -1,5 +1,8 @@
 
 ## [Version - 0]
+## Features [v0.3.0] - Release Date: 2022-01-12
+- Feature: ShopManagement & ApproveTel SoftLaunch
+
 ## Features [v0.2.11] - Release Date: 2022-01-12
 - Edit UserStaff response catching error
 - Edit Product's unit size
