@@ -4,6 +4,7 @@ import React from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import Text from "../../../../components/Text/Text";
+import { CustomerCompanyName, CustomerEntityShopList } from "../../../../entities/CustomerEntity";
 import color from "../../../../resource/color";
 import { profileAtom } from "../../../../store/ProfileAtom";
 import { getCompanyImage, getCompanyName } from "../../../../utility/CompanyName";
@@ -23,70 +24,113 @@ const Image = styled.img`
   background-color: white;
   border-radius: 8px;
 `;
-function DetailTab(): JSX.Element {
+interface Props {
+  data: {
+    address: string;
+    createDate: string;
+    customerCompany: CustomerCompanyName[];
+    customerId: string;
+    customerToUserShops: CustomerEntityShopList[];
+    district: string;
+    lag: string | null;
+    lat: string | null;
+    postcode: string;
+    province: string;
+    subdistrict: string;
+    telephone: string;
+    taxNo: string;
+    updateBy: string;
+    updateDate: string;
+    approveTel: {
+      action: string;
+      isApprove: boolean;
+      newSecondTelephone: string | null;
+      newTelephone: string | null;
+    };
+  };
+}
+const mappingCustomerType = {
+  SD: "Sub Dealer",
+  DL: "Dealer",
+};
+function DetailTab({ data }: Props): JSX.Element {
   const profile = useRecoilValue(profileAtom);
+  const currentCompany = (data.customerCompany || []).find(
+    (item) => item.company === profile?.company,
+  );
+  const filterOtherCompany = (data.customerCompany || []).filter(
+    (el) => el.company !== profile?.company,
+  );
+  const isApproveMain =
+    data.approveTel && !data.approveTel.isApprove && data.approveTel.newTelephone;
+  const isApproveSecond =
+    data.approveTel && !data.approveTel.isApprove && data.approveTel.newSecondTelephone;
+
+  const userShop =
+    data.customerToUserShops?.length > 0 ? data.customerToUserShops[0].userShop : null;
 
   const listData = {
     shopName: {
       label: "ชื่อร้าน",
-      value: "หจก.พืชสิน",
+      value: currentCompany?.customerName || "-",
+      isApproving: false,
     },
     shopOwner: {
       label: "เจ้าของร้าน",
-      value: "นาย พิชญ์ พิชญ์",
+      value: `${userShop?.nametitle || "-"} ${userShop?.firstname || "-"} ${
+        userShop?.lastname || "-"
+      } `,
+      isApproving: false,
     },
     zone: {
       label: "พื้นที่",
-      value: "C01",
+      value: currentCompany?.zone || "-",
+      isApproving: false,
     },
     addressShop: {
       label: "ที่อยู่ร้านค้า",
-      value: "123/456 ถนน สุขุมวิท แขวง บางกอกใหญ่ เขต บางกอกใหญ่ กรุงเทพมหานคร 10700",
+      value: data.address || "-",
+      isApproving: false,
     },
     addressLatLong: {
       label: "ตำแหน่ง ละติจูด / ลองจิจูด",
-      value: "13.736717 / 100.523186",
+      value: `${data.lat || "-"} / ${data.lag || "-"}`,
+      isApproving: false,
     },
     personalShopId: {
       label: "หมายเลขนิติบุคคล",
-      value: Math.random().toString(36).substring(7),
+      value: data.taxNo || "-",
+      isApproving: false,
     },
     personalId: {
       label: "หมายเลขบัตรประชาชน",
-      value: Math.random().toString(36).substring(7),
+      value: userShop?.idCard || "-",
+      isApproving: false,
     },
     dateStartMember: {
       label: "วันที่เริ่มเป็นสมาชิก",
-      value: dayjs().format("D/MMM/BBBB"),
+      value: currentCompany
+        ? dayjs(currentCompany?.createDate).locale("th").format("D MMM BBBB")
+        : "-",
+      isApproving: false,
     },
     email: {
       label: "อีเมล",
-      value: "mockingJ@iconkaset.com",
+      value: userShop?.email || "-",
+      isApproving: false,
     },
     telMain: {
       label: "เบอร์โทรศัพท์ (หลัก)",
-      value: "0812345678",
+      value: userShop?.telephone || "-",
+      isApproving: isApproveMain,
     },
     telSub: {
       label: "เบอร์โทรศัพท์ (รอง)",
-      value: "0812345679",
+      value: userShop?.secondtelephone || "-",
+      isApproving: isApproveSecond,
     },
   };
   const listDataKey = Object.keys(listData);
-  const mockData = [
-    {
-      company: "ICPL",
-      companyType: "Dealer",
-      companyCode: "ICPL000002",
-      zone: "C01",
-    },
-    {
-      company: "ICPF",
-      companyType: "Sub Dealer",
-      companyCode: "ICPF000002",
-      zone: "C02",
-    },
-  ];
   return (
     <Container>
       <Header>
@@ -113,18 +157,20 @@ function DetailTab(): JSX.Element {
                     marginLeft: 4,
                   }}
                 >
-                  Dealer
+                  {mappingCustomerType[
+                    currentCompany?.customerType as keyof typeof mappingCustomerType
+                  ] || "-"}
                 </Text>
               </Text>
             </Col>
             <Col>
               <Text level={6} fontFamily='Sarabun'>
-                รหัสร้านค้า : ICPL000002
+                รหัสร้านค้า : {currentCompany?.customerNo || "-"}
               </Text>
             </Col>
             <Col>
               <Text level={6} fontFamily='Sarabun'>
-                เขต : C01
+                เขต : {currentCompany?.zone}
               </Text>
             </Col>
           </Row>
@@ -146,93 +192,112 @@ function DetailTab(): JSX.Element {
               <Col span={4}>
                 <Text color='Text3'>{listData[el as keyof typeof listData].label}</Text>
               </Col>
-              <Col span={20}>
+              <Col span={20} style={{ display: "flex", gap: 16, alignItems: "center" }}>
                 <Text>{listData[el as keyof typeof listData].value}</Text>
+                {listData[el as keyof typeof listData].isApproving && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      marginLeft: 24,
+                      backgroundColor: color.warning,
+                      borderRadius: 8,
+                      padding: "0 10px",
+                    }}
+                  >
+                    <Text fontSize={14} color='white'>
+                      รออนุมัติ
+                    </Text>
+                  </div>
+                )}
               </Col>
             </Row>
           );
         })}
       </div>
-      <div
-        style={{
-          marginTop: 32,
-          paddingBottom: 16,
-        }}
-      >
-        <Text fontWeight={700}>คู่ค้าบริษัทในเครือ ICP Group</Text>
+      {filterOtherCompany.length > 0 && (
         <div
           style={{
-            padding: "0 16px",
+            marginTop: 32,
+            paddingBottom: 16,
           }}
         >
-          {mockData.map((el, idx) => {
-            return (
-              <Row
-                key={idx}
-                gutter={16}
-                style={{
-                  marginTop: 24,
-                }}
-              >
-                <Col span={2}>
-                  <div
-                    style={{
-                      backgroundColor: color.background2,
-                      borderRadius: 8,
-                      width: 54,
-                      height: 50,
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <img
-                      alt='img_company'
-                      src={getCompanyImage(el.company)}
+          <Text fontWeight={700}>คู่ค้าบริษัทในเครือ ICP Group</Text>
+          <div
+            style={{
+              padding: "0 16px",
+            }}
+          >
+            {filterOtherCompany.map((el, idx) => {
+              return (
+                <Row
+                  key={idx}
+                  gutter={16}
+                  style={{
+                    marginTop: 24,
+                  }}
+                >
+                  <Col span={2}>
+                    <div
                       style={{
-                        maxWidth: 40,
-                        maxHeight: 40,
+                        backgroundColor: color.background2,
+                        borderRadius: 8,
+                        width: 54,
+                        height: 50,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
-                    />
-                  </div>
-                </Col>
-                <Col span={22}>
-                  <Text level={6} fontWeight={700}>
-                    {getCompanyName(el.company || "")}
-                  </Text>
-                  <Row gutter={16}>
-                    <Col>
-                      <Text level={6} fontFamily='Sarabun'>
-                        ประเภทคู่ค้า :
-                        <Text
-                          level={6}
-                          color='primary'
-                          fontFamily='Sarabun'
-                          style={{
-                            marginLeft: 4,
-                          }}
-                        >
-                          {el.companyType}
+                    >
+                      <img
+                        alt='img_company'
+                        src={getCompanyImage(el.company)}
+                        style={{
+                          maxWidth: 40,
+                          maxHeight: 40,
+                        }}
+                      />
+                    </div>
+                  </Col>
+                  <Col span={22}>
+                    <Text level={6} fontWeight={700}>
+                      {getCompanyName(el.company || "")}
+                    </Text>
+                    <Row gutter={16}>
+                      <Col>
+                        <Text level={6} fontFamily='Sarabun'>
+                          ประเภทคู่ค้า :
+                          <Text
+                            level={6}
+                            color='primary'
+                            fontFamily='Sarabun'
+                            style={{
+                              marginLeft: 4,
+                            }}
+                          >
+                            {mappingCustomerType[
+                              el.customerType as keyof typeof mappingCustomerType
+                            ] || "-"}
+                          </Text>
                         </Text>
-                      </Text>
-                    </Col>
-                    <Col>
-                      <Text level={6} fontFamily='Sarabun'>
-                        รหัสร้านค้า : {el.companyCode}
-                      </Text>
-                    </Col>
-                    <Col>
-                      <Text level={6} fontFamily='Sarabun'>
-                        เขต : {el.zone}
-                      </Text>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-            );
-          })}
+                      </Col>
+                      <Col>
+                        <Text level={6} fontFamily='Sarabun'>
+                          รหัสร้านค้า : {el.customerNo}
+                        </Text>
+                      </Col>
+                      <Col>
+                        <Text level={6} fontFamily='Sarabun'>
+                          เขต : {el.zone}
+                        </Text>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </Container>
   );
 }

@@ -35,6 +35,8 @@ const ConvertTitleObj = {
   DetailPage: "รายละเอียดร้านค้า",
   EditShopPage: "แก้ไขรายละเอียดร้านค้า",
   DetailRole: "รายละเอียดบทบาท",
+  ApproveTelPage: "รายชื่อร้านค้า",
+  DetailApproveTelPage: "รายละเอียดร้านค้า",
 };
 const ExtraTitleContainer = styled.div`
   margin-left: 12px;

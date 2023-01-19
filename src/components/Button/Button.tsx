@@ -5,7 +5,14 @@ import color from "../../resource/color";
 import Text from "../Text/Text";
 
 interface StyledButton {
-  $typeButton?: "primary" | "secondary" | "danger" | "default" | "primary-light" | "border-light";
+  $typeButton?:
+    | "primary"
+    | "secondary"
+    | "danger"
+    | "default"
+    | "primary-light"
+    | "border-light"
+    | "disabled";
   height?: number;
 }
 const ButtonStyled = styled(AntButton)<StyledButton>`
@@ -44,6 +51,12 @@ const ButtonStyled = styled(AntButton)<StyledButton>`
         border: 1px solid ${color.background2} !important;
       `;
     }
+    if ($typeButton === "disabled") {
+      return css`
+        background-color: ${color.placeholder} !important;
+        border: 1px solid ${color.Disable} !important;
+      `;
+    }
     return css`
       background-color: ${color.primary} !important;
       color: white;
@@ -53,7 +66,14 @@ const ButtonStyled = styled(AntButton)<StyledButton>`
 `;
 interface Props extends ButtonProps, StyledButton {
   title?: string;
-  typeButton?: "primary" | "secondary" | "danger" | "default" | "primary-light" | "border-light";
+  typeButton?:
+    | "primary"
+    | "secondary"
+    | "danger"
+    | "default"
+    | "primary-light"
+    | "border-light"
+    | "disabled";
   icon?: React.ReactNode;
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
@@ -82,6 +102,8 @@ export default function Button({
                 ? "white"
                 : typeButton === "primary-light"
                 ? "primary"
+                : typeButton === "disabled" || typeButton === "danger"
+                ? "white"
                 : "Text1"
             }
           >

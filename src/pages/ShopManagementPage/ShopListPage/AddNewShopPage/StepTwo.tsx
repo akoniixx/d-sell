@@ -1,5 +1,6 @@
 import { Col, Form, Row } from "antd";
 import { FormInstance } from "antd/es/form/Form";
+import moment from "moment";
 import { Fragment } from "react";
 import styled from "styled-components";
 import Button from "../../../../components/Button/Button";
@@ -57,7 +58,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
         >
           <Col span={4}>
             <Form.Item
-              name='prefixName'
+              name='nametitle'
               label='คำนำหน้าชื่อ*'
               rules={[
                 {
@@ -99,7 +100,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           </Col>
           <Col span={10}>
             <Form.Item
-              name='personalId'
+              name='idCard'
               label='เลขบัตรประชาชน*'
               rules={[
                 {
@@ -141,19 +142,21 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Form.Item
               name='memberId'
               label='รหัสสมาชิก*'
-              rules={[
-                {
-                  required: true,
-                  message: "กรุณากรอกรหัสสมาชิก",
-                },
-              ]}
+              rules={
+                [
+                  // {
+                  //   required: true,
+                  //   message: "กรุณากรอกรหัสสมาชิก",
+                  // },
+                ]
+              }
             >
               <Input />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              name='memberStartDate'
+              name='createDate'
               label='วันที่เริ่มเป็นสมาชิก*'
               rules={[
                 {
@@ -162,7 +165,13 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 },
               ]}
             >
-              <DatePicker enablePast />
+              <DatePicker
+                enablePast
+                disabled
+                disabledDate={(current) => {
+                  return current && current > moment().endOf("day");
+                }}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -187,7 +196,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           >
             <Col span={12} style={{ position: "relative" }}>
               <Form.Item
-                name='telMain'
+                name='telephone'
                 label='เบอร์โทรศัพท์ (หลัก)*'
                 rules={[
                   {
@@ -215,7 +224,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 <Text fontFamily='Sarabun' level={6}>
                   เปิดใช้งาน :
                 </Text>
-                <Form.Item noStyle name='isActiveMain'>
+                <Form.Item noStyle name='isActive'>
                   <Switch size='small' />
                 </Form.Item>
               </div>
@@ -223,7 +232,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Col span={12}>
               <Form.Item
                 label='เบอร์โทรศัพท์ (สำรอง)*'
-                name='telSub'
+                name='secondtelephone'
                 rules={[
                   {
                     required: true,
@@ -232,6 +241,14 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   {
                     pattern: /^[0-9]{10}$/,
                     message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
+                  },
+                  {
+                    validator: (_, value) => {
+                      if (value !== form.getFieldValue("telephone")) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error("เบอร์โทรศัพท์ซ้ำกัน"));
+                    },
                   },
                 ]}
               >
@@ -250,7 +267,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 <Text fontFamily='Sarabun' level={6}>
                   เปิดใช้งาน :
                 </Text>
-                <Form.Item noStyle name='isActiveSub'>
+                <Form.Item noStyle name='isPrimary'>
                   <Switch size='small' />
                 </Form.Item>
               </div>
@@ -276,7 +293,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Col span={12}>
               <Form.Item
                 label='ชื่อร้านค้า*'
-                name='shopName'
+                name='customerName'
                 rules={[
                   {
                     required: true,
@@ -342,7 +359,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Col span={6}>
               <Form.Item
                 label='ตำบล/แขวง*'
-                name='subDistrict'
+                name='subdistrict'
                 rules={[
                   {
                     required: true,
@@ -356,7 +373,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Col span={6}>
               <Form.Item
                 label='รหัสไปษณีย์*'
-                name='postalCode'
+                name='postcode'
                 rules={[
                   {
                     required: true,
@@ -388,7 +405,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Col span={12}>
               <Form.Item
                 label='ตำแหน่ง Latitude*'
-                name='latitude'
+                name='lat'
                 rules={[
                   {
                     required: true,
@@ -402,7 +419,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Col span={12}>
               <Form.Item
                 label='ตำแหน่ง Longitude*'
-                name='longtitude'
+                name='lag'
                 rules={[
                   {
                     required: true,

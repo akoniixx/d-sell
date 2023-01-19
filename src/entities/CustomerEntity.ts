@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 export interface CustomerEntity {
   customerId: number;
   companyId: number;
@@ -40,12 +42,28 @@ export interface CustomerCompanyName {
   isActive: boolean;
   isNav: boolean;
   salePersonCode: string;
-  productBrand: [];
+  productBrand: {
+    company: string;
+    product_brand_id: string;
+    product_brand_name: string;
+  }[];
+  updateDate: string;
+  updateBy: string;
+  createDate: string;
 }
 export interface CustomerEntityShopList {
   address?: string;
   createDate?: string;
   customerCompany: CustomerCompanyName[];
+  userShop?: {
+    email: string;
+    firstname: string;
+    idCard: string;
+    lastname: string;
+    nametitle: string;
+    secondtelephone: string | null;
+    telephone: string | null;
+  };
   province?: string;
   telephone?: string;
   postcode?: string;
@@ -55,4 +73,113 @@ export interface CustomerEntityShopList {
   taxNo?: string;
   updateBy?: string;
   updateDate?: string;
+}
+
+export interface CustomerDetailEntity {
+  action: string;
+  data: {
+    address: string;
+    createDate: string;
+    customerCompany: CustomerCompanyName[];
+    customerId: string;
+    customerToUserShops: CustomerEntityShopList[];
+    district: string;
+    lag: string | null;
+    lat: string | null;
+    postcode: string;
+    province: string;
+    subdistrict: string;
+    telephone: string;
+    taxNo: string;
+    updateBy: string;
+    updateDate: string;
+  };
+}
+export interface FormStepCustomerEntity {
+  address: string;
+  createDate: Dayjs;
+  district: string;
+  email: string;
+  firstname: string;
+  lastname: string;
+  idCard: string;
+  lat: string;
+  lag: string;
+  memberId: string;
+  nametitle: string;
+  nickname: string;
+  postcode: string;
+  province: string;
+  subdistrict: string;
+  secondtelephone: string;
+  telephone: string;
+  taxId: string;
+  updateBy: string;
+  updateDate: string;
+  customerName: string;
+  isActive: boolean;
+  isActiveCustomer: boolean;
+  isPrimary: boolean;
+  position: string;
+  typeShop: string;
+  primaryId: string;
+  zone: string;
+  userShopId: string;
+  productBrand: any;
+  salePersonCode: string;
+  termPayment: string;
+  customerCompanyId?: number;
+  customerNo?: string | null;
+}
+export interface PayloadCustomerEntity {
+  customerId: number;
+  address: string;
+  province: string;
+  district: string;
+  subdistrict: string;
+  postcode: string;
+  telephone: string;
+  taxNo: string;
+  updateBy: string;
+  lat: string;
+  lag: string;
+  customerCompany: {
+    customerId: number;
+    isNav: boolean;
+    customerName: string;
+    company: string;
+    customerType: string;
+    creditLimit: number;
+    zone: string;
+    termPayment: string;
+    isActive: boolean;
+    salePersonCode: string;
+    updateBy: string;
+    customerCompanyId?: number;
+    customerNo?: string | null;
+  }[];
+  userShop: {
+    firstname: string;
+    lastname: string;
+    nickname: string;
+    telephone: string;
+    isActive: boolean;
+    isPrimary: boolean;
+    primaryId?: string;
+    position: string;
+    idCard: string;
+    updateBy: string;
+    nametitle: string;
+    secondtelephone: string;
+    email: string;
+    userShopId?: string;
+  };
+}
+export interface PayloadApproveCustomerEntity {
+  text?: string;
+  page: number;
+  take: number;
+  isApprove: string;
+  company: string;
+  zone?: string;
 }

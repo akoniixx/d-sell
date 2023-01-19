@@ -1,27 +1,37 @@
+import dayjs from "dayjs";
 import React from "react";
 import styled from "styled-components";
-import TablePagination from "../../../../components/Table/TablePagination";
 import TableSecondary from "../../../../components/Table/TableSecondary";
 import Text from "../../../../components/Text/Text";
 
 const Container = styled.div`
   padding: 16px;
 `;
-function HistoryTab(): JSX.Element {
-  const take = 10;
+interface Props {
+  historyData: {
+    action: string;
+    actionBy: string;
+    actionDate: string;
+    cusId: string;
+    shopHisId: string;
+    shopSecondTelephone: string | null;
+    shopTelephone: string | null;
+  }[];
+}
+function HistoryTab({ historyData }: Props): JSX.Element {
   const [page, setPage] = React.useState(1);
 
   const defaultColumn = React.useMemo(() => {
     const staticColumn = [
       {
         title: "วันเวลาที่อัปเดท",
-        dataIndex: "updateDate",
-        key: "updateDate",
+        dataIndex: "actionDate",
+        key: "actionDate",
       },
       {
         title: "ผู้ใช้งาน",
-        dataIndex: "user",
-        key: "user",
+        dataIndex: "actionBy",
+        key: "actionBy",
       },
       {
         title: "กิจกรรม",
@@ -30,44 +40,34 @@ function HistoryTab(): JSX.Element {
       },
       {
         title: "เบอร์โทรศัพท์ (หลัก)",
-        dataIndex: "phoneMain",
-        key: "phoneMain",
+        dataIndex: "shopTelephone",
+        key: "shopTelephone",
       },
       {
         title: "เบอร์โทรศัพท์ (รอง)",
-        dataIndex: "phoneSub",
-        key: "phoneSub",
+        dataIndex: "shopSecondTelephone",
+        key: "shopSecondTelephone",
       },
-      {
-        title: "ผู้ตรวจสอบเบอร์โทรศัพท์",
-        dataIndex: "phoneChecker",
-        key: "phoneChecker",
-      },
+      // {
+      //   title: "ผู้ตรวจสอบเบอร์โทรศัพท์",
+      //   dataIndex: "phoneChecker",
+      //   key: "phoneChecker",
+      // },
     ];
     const column = staticColumn.map((item) => {
       return {
         ...item,
         render: (value: any) => {
-          return <Text>{value}</Text>;
+          if (item.dataIndex === "actionDate") {
+            return <Text>{dayjs(value).locale("th").format("DD/MM/BBBB HH:mm น.")}</Text>;
+          }
+          return <Text>{value || "-"}</Text>;
         },
       };
     });
     return column;
   }, []);
 
-  const data = {
-    data: [
-      {
-        updateDate: "2021-08-01 10:00:00",
-        user: "นาย ธนพล ศรีสุข",
-        action: "เพิ่มข้อมูล",
-        phoneMain: "0812345678",
-        phoneSub: "0812345678",
-        phoneChecker: "นาย ธนพล ศรีสุข",
-      },
-    ],
-    count: 0,
-  };
   return (
     <Container>
       <Text fontWeight={700}>ประวัติการบันทึกข้อมูล</Text>
@@ -76,11 +76,11 @@ function HistoryTab(): JSX.Element {
         style={{
           marginTop: 32,
         }}
-        data={data?.data || []}
+        data={historyData || []}
         pagination={{
-          total: data.count,
+          total: historyData.length,
           current: page,
-
+          pageSize: 10,
           onChange: (page) => {
             setPage(page);
           },

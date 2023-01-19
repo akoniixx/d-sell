@@ -10,11 +10,11 @@ import { OrderPage } from "./pages/OrderPage/OrderPage";
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
 import { DistributionPageDetail } from "./pages/PriceListPage/ProductDetailPage";
 import { DistributionPageEdit } from "./pages/PriceListPage/ProductEditPage";
-import { AddNewSale } from "./pages/UserPage/SaleMangementPage/AddNewSale";
+import { AddNewSale } from "./pages/UserPage/SaleManagementPage/SaleManagementPage";
+import SaleManagementPage from "./pages/UserPage/SaleManagementPage";
+import { EditUserSale } from "./pages/UserPage/SaleManagementPage/EditUserSale";
 import ProtectRoute from "./ProtectRoute";
-import SaleManagementPage from "./pages/UserPage/SaleMangementPage";
 import RedirectPathPage from "./pages/RedirectPathPage";
-import { EditUserSale } from "./pages/UserPage/SaleMangementPage/EditUserSale";
 import RolesManagementPage from "./pages/UserPage/RolesManagementPage";
 import AddNewRole from "./pages/UserPage/RolesManagementPage/AddNewRole";
 import ShopListPage from "./pages/ShopManagementPage/ShopListPage";
@@ -40,6 +40,7 @@ import { PriceListX10 } from "./pages/PriceListX10/PriceList";
 import { PriceListCreatePage } from "./pages/PriceListX10/CreatePriceList";
 import { CustomerDiscountListPage } from "./pages/DiscountPage/CustomerDiscount/CustomerList";
 import { CustomerCreditMemoDetail } from "./pages/DiscountPage/CustomerDiscount/CustomerDetail";
+import DetailApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage/DetailApproveTelPage";
 
 interface IRoute {
   path: string;
@@ -194,14 +195,19 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
-        path: "ShopListPage/DetailPage/EditShopPage/:shopId",
+        path: "ShopListPage/DetailPage/:shopId/EditShopPage",
         element: <EditShopPage />,
         permission: null,
       },
 
       {
-        path: "ApproveTelPage",
+        path: "ApproveTelPage/*",
         element: <ApproveTelPage />,
+        permission: null,
+      },
+      {
+        path: "ApproveTelPage/DetailApproveTelPage",
+        element: <DetailApproveTelPage />,
         permission: null,
       },
     ],
