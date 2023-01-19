@@ -68,12 +68,30 @@ export const pathLists = [
       {
         path: "/list",
         name: "discountList",
-        title: "Discount Lists"
+        title: "Discount Lists",
       },
       {
         path: "/edit",
         name: "edit",
-        title: "Add / Edit Credit Memo"
+        title: "Add / Edit Credit Memo",
+      },
+      {
+        path: "/customerList",
+        name: "customerList",
+        title: "Discount CO รายร้าน",
+      },
+    ],
+  },
+  {
+    path: "/price",
+    name: "price",
+    title: "ราคาสินค้า",
+    permission: null,
+    subMenu: [
+      {
+        path: "/list",
+        name: "discountList",
+        title: "ราคาสินค้าเฉพาะร้าน X+10",
       },
     ],
   },

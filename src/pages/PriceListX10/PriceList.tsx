@@ -1,7 +1,12 @@
 import React, { useEffect, useState, memo } from "react";
 import { Table, Tabs, Modal, Switch, Row, Col, Pagination } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { DeleteOutlined, EditOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  SearchOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
@@ -12,11 +17,12 @@ import { nameFormatter } from "../../utility/Formatter";
 import { FlexCol } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import color from "../../resource/color";
+import Select from "../../components/Select/Select";
 
 const SLASH_DMY = "DD/MM/YYYY";
 type FixedType = "left" | "right" | boolean;
 
-export const DiscountListPage: React.FC = () => {
+export const PriceListX10: React.FC = () => {
   const style: React.CSSProperties = {
     width: "180px",
   };
@@ -38,7 +44,7 @@ export const DiscountListPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!loading) fetchProduct();
+    // if (!loading) fetchProduct();
   }, [keyword, statusFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
@@ -49,8 +55,14 @@ export const DiscountListPage: React.FC = () => {
       const { data, count, count_status } = await getCreditMemoList({
         company,
         creditMemoStatus: statusFilter,
-        startDate: dateFilter && dateFilter[0] ? moment(dateFilter[0]).subtract(543, 'years').format(SLASH_DMY) : undefined,
-        endDate: dateFilter && dateFilter[1] ? moment(dateFilter[1]).subtract(543, 'years').format(SLASH_DMY) : undefined,
+        startDate:
+          dateFilter && dateFilter[0]
+            ? moment(dateFilter[0]).subtract(543, "years").format(SLASH_DMY)
+            : undefined,
+        endDate:
+          dateFilter && dateFilter[1]
+            ? moment(dateFilter[1]).subtract(543, "years").format(SLASH_DMY)
+            : undefined,
         searchText: keyword,
         take: pageSize,
         page,
@@ -58,7 +70,7 @@ export const DiscountListPage: React.FC = () => {
       setDataState({
         data: data?.map((e: any, i: number) => ({ ...e, key: i })),
         count,
-        count_status
+        count_status,
       });
       console.log({ data, count, count_status });
     } catch (e) {
@@ -71,20 +83,20 @@ export const DiscountListPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
-        <Col className='gutter-row' xl={10} sm={6}>
+        <Col className='gutter-row' xl={12} sm={6}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              รายการ เพิ่ม/ลด Credit Memo
+              รายการสินค้าเฉพาะร้าน
             </span>
           </div>
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
           <div style={style}>
             <Input
-              placeholder='ค้นหา Credit Memo'
+              placeholder='ค้นหาร้านค้า...'
               prefix={<SearchOutlined style={{ color: "grey" }} />}
               defaultValue={keyword}
               onPressEnter={(e) => {
@@ -94,30 +106,23 @@ export const DiscountListPage: React.FC = () => {
               }}
               onChange={(e) => {
                 const value = (e.target as HTMLInputElement).value;
-                if(!value) {
-                  setKeyword('');
+                if (!value) {
+                  setKeyword("");
                   // resetPage();
                 }
               }}
             />
           </div>
         </Col>
-        <Col className='gutter-row' xl={6} sm={6}>
-          <RangePicker
-            allowEmpty={[true, true]}
-            enablePast
-            value={dateFilter}
-            onChange={(dates, dateString) => {
-              setDateFilter(dates);
-            }}
-          />
+        <Col className='gutter-row' xl={4} sm={6}>
+          <Select data={[]} placeholder='เขตร้านค้า : ทั้งหมด' style={{ width: "100%" }} />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
           <Button
             type='primary'
-            title='+ สร้าง Credit Memo'
+            title='+ เพิ่มราคาเฉพาะร้าน'
             height={40}
-            onClick={() => navigate(`/discount/create`)}
+            onClick={() => navigate(`/price/create`)}
           />
         </Col>
       </Row>
@@ -125,49 +130,71 @@ export const DiscountListPage: React.FC = () => {
   };
 
   const tabsItems = [
-    { label: `ทั้งหมด (${dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0 })`, key: "ALL" },
-    { label: `Active (${(dataState?.count_status?.find((s: any) => s.credit_memo_status ) as any)?.count || 0 })`, key: 'true' },
-    { label: `Inactive (${(dataState?.count_status?.find((s: any) => !s.credit_memo_status ) as any)?.count || 0 })`, key: 'false' },
+    {
+      label: `ทั้งหมด (${
+        dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0
+      })`,
+      key: "ALL",
+    },
+    {
+      label: `ราคาเฉพาะร้าน (${
+        (dataState?.count_status?.find((s: any) => s.credit_memo_status) as any)?.count || 0
+      })`,
+      key: "true",
+    },
+    {
+      label: `ราคาปกติ (${
+        (dataState?.count_status?.find((s: any) => !s.credit_memo_status) as any)?.count || 0
+      })`,
+      key: "false",
+    },
   ];
 
   const columns = [
     {
-      title: "Credit Memo Code",
-      dataIndex: "creditMemoCode",
-      key: "creditMemoCode",
+      title: "No. Member",
+      dataIndex: "memberCode",
+      key: "memberCode",
       width: "15%",
     },
     {
-      title: "ชื่อรายการ Credit Memo",
+      title: "ชื่อร้านค้า",
       dataIndex: "creditMemoName",
       key: "creditMemoName",
-      width: "20%",
+      width: "25%",
     },
     {
-      title: "ระยะเวลา",
-      dataIndex: "time",
-      key: "time",
-      width: "15%",
+      title: "รายชื่อสมาชิก",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: "25%",
+      render: (value: string) => {
+        return moment(value).format(SLASH_DMY);
+      },
     },
     {
-      title: "อัปเดทโดย",
+      title: "เขต",
       dataIndex: "updateBy",
       key: "updateBy",
       width: "10%",
       render: (value: string, row: any) => {
-        return <>
-          <FlexCol>
-            <Text>{row.updatedAt ? moment(row.updatedAt).format(SLASH_DMY) : '-'}</Text>
-            <Text color='Text3' level={6}>{value || '-'}</Text>
-          </FlexCol>
-        </>
-      }
+        return (
+          <>
+            <FlexCol>
+              <Text level={6}>{row.updatedAt ? moment(row.updatedAt).format(SLASH_DMY) : "-"}</Text>
+              <Text color='Text3' level={6}>
+                {value || "-"}
+              </Text>
+            </FlexCol>
+          </>
+        );
+      },
     },
     {
       title: "สถานะ",
       dataIndex: "status",
       key: "status",
-      width: "10%",
+      width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
           children: <Switch checked={row.is_active} />,
@@ -187,9 +214,7 @@ export const DiscountListPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
-                    navigate("/discount/detail/" + row.creditMemoId)
-                  }
+                  onClick={() => navigate("/discount/detail/" + row.creditMemoId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
@@ -197,9 +222,7 @@ export const DiscountListPage: React.FC = () => {
                 </div>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
-                    navigate("/discount/edit/" + row.creditMemoId)
-                  }
+                  onClick={() => navigate("/discount/edit/" + row.creditMemoId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <EditOutlined style={{ color: color["primary"] }} />
@@ -207,9 +230,7 @@ export const DiscountListPage: React.FC = () => {
                 </div>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
-                    navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)
-                  }
+                  onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <DeleteOutlined style={{ color: color["primary"] }} />
@@ -227,7 +248,7 @@ export const DiscountListPage: React.FC = () => {
     <>
       <div className='container '>
         <CardContainer>
-        <PageTitle />
+          <PageTitle />
           <br />
           <Tabs
             items={tabsItems}
@@ -240,13 +261,14 @@ export const DiscountListPage: React.FC = () => {
             className='rounded-lg'
             columns={columns}
             dataSource={dataState.data}
-            pagination={{ 
+            pagination={{
               pageSize,
               current: page,
-              position: ["bottomCenter"] 
+              position: ["bottomCenter"],
             }}
             size='large'
             tableLayout='fixed'
+            loading={loading}
           />
         </CardContainer>
       </div>

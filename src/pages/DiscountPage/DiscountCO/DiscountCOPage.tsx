@@ -1,7 +1,7 @@
 import React, { useEffect, useState, memo } from "react";
 import { Table, Tabs, Modal, DatePicker, Switch } from "antd";
 import moment from "moment";
-import { CardContainer } from "../../components/Card/CardContainer";
+import { CardContainer } from "../../../components/Card/CardContainer";
 import { DeleteOutlined, FormOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import * as _ from "lodash";
 const { RangePicker } = DatePicker;
@@ -177,9 +177,9 @@ export const DiscountCOPage: React.FC = () => {
           <PageTitle />
           <div className='d-flex justify-content-between'>
             <TabFilter
-              // all={memoListData ? memoListData.length : 0}
-              // active={memoListData ? memoListData.filter()}
-              // inactive={memoListData ? memoListData.filter()}
+            // all={memoListData ? memoListData.length : 0}
+            // active={memoListData ? memoListData.filter()}
+            // inactive={memoListData ? memoListData.filter()}
             />
             <div className='mr-10 d-flex align-items-center'>
               <div className='d-flex align-items-center'>
