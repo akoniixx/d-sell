@@ -476,8 +476,9 @@ export const PromotionCreateStep1 = ({
                     }
                     return isPDF || Upload.LIST_IGNORE;
                   }}
-                  customRequest={() => {
+                  customRequest={({ file, onSuccess }) => {
                     console.log("customRequest");
+                    if (onSuccess) onSuccess(file);
                   }}
                   onChange={({ file }: any) => {
                     setFileMemo(file);

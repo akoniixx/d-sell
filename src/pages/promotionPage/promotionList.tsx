@@ -23,7 +23,11 @@ import moment from "moment";
 import Input from "../../components/Input/Input";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
 import { useNavigate } from "react-router-dom";
-import { deletePromotion, getPromotion } from "../../datasource/PromotionDatasource";
+import {
+  deletePromotion,
+  getPromotion,
+  updatePromotionStatus,
+} from "../../datasource/PromotionDatasource";
 import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
 import { Dayjs } from "dayjs";
 import image from "../../resource/image";
@@ -257,11 +261,23 @@ export const PromotionListPage: React.FC = () => {
         return {
           children: (
             <Switch
-              checked={value}
-              onChange={(checked: boolean) => {
+              defaultChecked={value}
+              onChange={async (checked: boolean) => {
                 console.log("onToggleSwitch", checked);
+                await updatePromotionStatus({
+                  promotionId: row.promotionId,
+                  isDraft: row.isDraft,
+                  promotionStatus: checked,
+                  updateBy: firstname + " " + lastname,
+                })
+                  .then((res) => {
+                    // console.log(res)
+                    // navigate(0);
+                    message.success("แก้ไขสถานะโปรโมชั่นสำเร็จ");
+                  })
+                  .catch(() => message.error("แก้ไขสถานะโปรโมชั่นไม่สำเร็จ"));
               }}
-              disabled
+              disabled={moment(row.endDate).isBefore(moment())}
             />
           ),
         };
@@ -300,7 +316,7 @@ export const PromotionListPage: React.FC = () => {
                         })
                           .then((res) => {
                             // console.log(res)
-                            // navigate(0)
+                            navigate(0);
                           })
                           .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
                       },
