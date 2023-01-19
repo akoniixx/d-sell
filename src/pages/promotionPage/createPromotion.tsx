@@ -296,6 +296,7 @@ export const PromotionCreatePage: React.FC = () => {
         const [pKey, productId] = key.split("-");
         const { productName, productCategory, productImage, packSize } =
           productList?.allData?.find((p: ProductEntity) => p.productId === productId) ||
+          defaultData?.conditionDetail?.find((p: any) => p.productId === productId) ||
           ({} as ProductEntity);
         return {
           productId,
@@ -309,6 +310,7 @@ export const PromotionCreatePage: React.FC = () => {
     }
 
     // console.log({ promoList, submitData, file1, file2, fileMemo });
+    // return;
     const callback = (res: any) => {
       const { success, responseData, developerMessage, userMessage } = res;
       const promotionId = responseData?.promotionId || id;
@@ -348,7 +350,6 @@ export const PromotionCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
-
     if (!isEditing) {
       await createPromotion(submitData)
         .then(callback)
@@ -423,13 +424,13 @@ export const PromotionCreatePage: React.FC = () => {
           <Text level={4} align='center'>
             {isDone ? (
               <>
-                สร้างโปรโมชั่น
+                {isEditing ? "แก้ไข" : "สร้าง"}โปรโมชั่น
                 <br />
                 สำเร็จ
               </>
             ) : (
               <>
-                กำลังสร้าง
+                กำลัง{isEditing ? "แก้ไข" : "สร้าง"}
                 <br />
                 โปรโมชั่น
               </>
