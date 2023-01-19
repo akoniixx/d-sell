@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useEffectOnce } from "react-use";
 import { useRecoilValue } from "recoil";
+import Swal from "sweetalert2";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import Input from "../../../components/Input/Input";
@@ -21,9 +22,13 @@ import useDebounce from "../../../hook/useDebounce";
 import { profileAtom } from "../../../store/ProfileAtom";
 
 function ShopListPage(): JSX.Element {
+  const [visibleCreate, setVisibleCreate] = React.useState(false);
+  const [visibleEdit, setVisibleEdit] = React.useState(false);
+  const [cusId, setCusId] = React.useState("");
   const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
   const [currentZone, setCurrentZone] = React.useState<string>("all");
   const profile = useRecoilValue(profileAtom);
+
   const [keyword, setKeyword] = React.useState<string>("");
   const [page, setPage] = React.useState(1);
   const navigate = useNavigate();
@@ -63,23 +68,47 @@ function ShopListPage(): JSX.Element {
         taxNo: values.taxId,
         company: profile?.company || "",
       });
+
       setVisible(false);
-      if (res && res.action === "Create") {
-        navigate({
-          pathname: "AddNewShop",
-          search: createSearchParams({
-            taxId: values.taxId,
-          }).toString(),
+
+      if (res && res?.action === "Create") {
+        setVisibleCreate(true);
+        return null;
+      }
+
+      if (res && res?.action === "Edit") {
+        const { customerId } = res.data;
+        setVisibleEdit(true);
+        setCusId(customerId);
+        return null;
+      }
+      if (res && res?.action === "Waiting") {
+        return Swal.fire({
+          title: "ร้านค้านี้ยังไม่ถูกยืนยันเบอร์โทรศัพท์ กรุณายืนยันเบอร์โทรศัพท์ให้เรียบร้อย",
+          text: "",
+          width: 350,
+          icon: "error",
+          customClass: {
+            title: "custom-title",
+          },
+          timer: 2000,
+
+          showConfirmButton: false,
         });
       }
 
-      if (res && res.action === "Edit") {
-        const { customerId } = res.data;
-        navigate({
-          pathname: `DetailPage/${customerId}/EditShopPage`,
-          search: createSearchParams({
-            taxId: values.taxId,
-          }).toString(),
+      if (res && !res.success) {
+        return Swal.fire({
+          title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
+          text: "",
+          width: 250,
+          icon: "error",
+          customClass: {
+            title: "custom-title",
+          },
+          timer: 2000,
+
+          showConfirmButton: false,
         });
       }
     } catch (error) {
@@ -99,7 +128,6 @@ function ShopListPage(): JSX.Element {
       return [{ label: "เขต : ทั้งหมด", value: "all", key: "all" }];
     }
   }, [zone]);
-  console.log("data", data);
   const defaultTableColumns = useMemo(() => {
     const staticData = [
       {
@@ -113,7 +141,7 @@ function ShopListPage(): JSX.Element {
         key: "shopName",
       },
       {
-        title: "รายชื่อสมาชิก",
+        title: "ชื่อเจ้าของร้าน",
         dataIndex: "zone",
         key: "zone",
       },
@@ -398,9 +426,119 @@ function ShopListPage(): JSX.Element {
                 setVisible(false);
               }}
             />
-            <Button title='ตกลง' htmlType='submit' />
+            <Button
+              title='ตกลง'
+              onClick={() => {
+                form.submit();
+              }}
+            />
           </div>
         </Form>
+      </Modal>
+      <Modal
+        visible={visibleCreate}
+        onCancel={() => {
+          setVisibleCreate(false);
+        }}
+        bodyStyle={{
+          minHeight: 150,
+          padding: 32,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingBottom: 24,
+            paddingTop: 24,
+          }}
+        >
+          <Text fontWeight={700} align='center' fontSize={20}>
+            ไม่พบหมายเลขประจำตัวผู้เสียภาษีนี้ คุณต้องการสร้างร้านค้าใหม่หรือไม่
+          </Text>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 16,
+          }}
+        >
+          <Button
+            typeButton='primary-light'
+            title='ยกเลิก'
+            onClick={() => {
+              setVisibleCreate(false);
+            }}
+          />
+          <Button
+            title='สร้างร้านค้าใหม่'
+            onClick={() => {
+              const { taxId } = form.getFieldsValue();
+              setVisibleCreate(false);
+              navigate({
+                pathname: "AddNewShop",
+                search: createSearchParams({
+                  taxId,
+                }).toString(),
+              });
+            }}
+          />
+        </div>
+      </Modal>
+      <Modal
+        visible={visibleEdit}
+        onCancel={() => {
+          setVisibleEdit(false);
+        }}
+        bodyStyle={{
+          minHeight: 150,
+          padding: 32,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingBottom: 24,
+            paddingTop: 24,
+          }}
+        >
+          <Text fontWeight={700} align='center' fontSize={20}>
+            เลขประจำตัวผู้เสียภาษีนี้มีข้อมูลร้านคู่ค้า ICP Ladda ICP Fertilizer และ ICP
+            International แล้วท่านต้องการแก้ไขข้อมูลหรือไม่
+          </Text>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 16,
+          }}
+        >
+          <Button
+            typeButton='primary-light'
+            title='แก้ไขข้อมูล'
+            onClick={() => {
+              const { taxId } = form.getFieldsValue();
+              setVisibleEdit(false);
+              return navigate({
+                pathname: `DetailPage/${cusId}/EditShopPage`,
+                search: createSearchParams({
+                  taxId,
+                }).toString(),
+              });
+            }}
+          />
+          <Button
+            title='ยกเลิก'
+            onClick={() => {
+              setVisibleEdit(false);
+            }}
+          />
+        </div>
       </Modal>
     </CardContainer>
   );

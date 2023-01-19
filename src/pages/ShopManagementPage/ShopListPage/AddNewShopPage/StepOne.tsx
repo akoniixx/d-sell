@@ -36,9 +36,11 @@ function StepOne({
   form: FormInstance<any>;
   company?: "ICPL" | "ICPI" | "ICPF" | "ICK";
 }) {
-  const typeShop = Form.useWatch("typeShop", form);
   const listSD =
     (dataDetail?.data?.customerCompany || []).filter((el) => el.company !== company) || [];
+  const findCurrentCompany = (dataDetail?.data?.customerCompany || []).find(
+    (el) => el.company === company,
+  );
 
   const listRadio = [
     {
@@ -213,12 +215,16 @@ function StepOne({
                 gap: 8,
               }}
             >
-              <Text fontFamily='Sarabun' level={6}>
-                เปิดใช้งาน
-              </Text>
-              <Form.Item noStyle name='isActiveCustomer'>
-                <Switch />
-              </Form.Item>
+              {form.getFieldValue("typeShop") !== "DL" && (
+                <>
+                  <Text fontFamily='Sarabun' level={6}>
+                    เปิดใช้งาน
+                  </Text>
+                  <Form.Item noStyle name='isActiveCustomer'>
+                    <Switch />
+                  </Form.Item>
+                </>
+              )}
             </div>
           }
         >
@@ -227,22 +233,56 @@ function StepOne({
               padding: 16,
             }}
           >
-            <Form.Item
-              name='typeShop'
-              label='ประเภทคู่ค้า*'
-              rules={[
-                {
-                  required: true,
-                  message: "กรุณาเลือกประเภทคู่ค้า",
-                },
-              ]}
-            >
-              <Radio items={company && company === "ICPL" ? listRadio.slice(1) : listRadio} />
-            </Form.Item>
-            {renderByCompany()}
+            {form.getFieldValue("typeShop") === "SD" ? (
+              <>
+                <Form.Item
+                  name='typeShop'
+                  label='ประเภทคู่ค้า*'
+                  rules={[
+                    {
+                      required: true,
+                      message: "กรุณาเลือกประเภทคู่ค้า",
+                    },
+                  ]}
+                >
+                  <Radio items={listRadio.slice(1)} />
+                </Form.Item>
+                {renderByCompany()}
+              </>
+            ) : (
+              <div
+                style={{
+                  minHeight: 50,
+                }}
+              >
+                {findCurrentCompany && (
+                  <Row>
+                    <Col
+                      span={22.5}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Text fontWeight={700}>{findCurrentCompany?.customerName}</Text>
+                      <div style={{ display: "flex", gap: 16 }}>
+                        <Text fontFamily='Sarabun'>
+                          {`ประเภทคู่ค้า: `}
+                          <Text color='primary' fontWeight={600}>
+                            {findCurrentCompany.customerType}
+                          </Text>
+                        </Text>
+                        <Text fontFamily='Sarabun'>{`รหัสร้านค้า: ${findCurrentCompany.customerNo}`}</Text>
+                        <Text fontFamily='Sarabun'>{`เขต: ${findCurrentCompany.zone || "-"}`}</Text>
+                      </div>
+                    </Col>
+                  </Row>
+                )}
+              </div>
+            )}
           </div>
         </CardSection>
-        {typeShop === "SD" && (
+        {form.getFieldValue("typeShop") && (
           <div
             style={{
               display: "flex",

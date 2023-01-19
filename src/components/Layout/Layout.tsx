@@ -68,12 +68,12 @@ export const pathLists = [
       {
         path: "/list",
         name: "discountList",
-        title: "Discount Lists"
+        title: "Discount Lists",
       },
       {
         path: "/edit",
         name: "edit",
-        title: "Add / Edit Credit Memo"
+        title: "Add / Edit Credit Memo",
       },
     ],
   },
@@ -217,18 +217,16 @@ const Layouts: React.FC<any> = ({ children }) => {
           </div>
           <MenuSider lists={pathLists} isOpenSidebar={isOpenSidebar} />
         </Sider>
-        <Layout>
-          <Content
-            className='site-layout-background'
-            style={{
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-            }}
-          >
-            {children}
-          </Content>
-        </Layout>
+        <Content
+          style={{
+            padding: 24,
+            margin: 0,
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          {children}
+        </Content>
       </Layout>
     </Layout>
   );

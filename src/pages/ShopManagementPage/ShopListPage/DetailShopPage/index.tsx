@@ -19,10 +19,8 @@ function DetailShopPage(): JSX.Element {
   const profile = useRecoilValue(profileAtom);
 
   const { data, isLoading } = useQuery(["detailShop", shopId], async () => {
-    return await shopDatasource.getCustomerById(shopId, profile?.company || "");
+    return await shopDatasource.getCustomerById(shopId);
   });
-  console.log(data);
-
   if (isLoading || !data) {
     return (
       <div
@@ -42,12 +40,12 @@ function DetailShopPage(): JSX.Element {
     {
       key: "detail",
       label: "รายละเอียดร้านค้า",
-      children: <DetailTab />,
+      children: <DetailTab data={data} />,
     },
     {
       key: "history",
       label: "ประวัติการบันทึกข้อมูล",
-      children: <HistoryTab />,
+      children: <HistoryTab historyData={data.history || []} />,
     },
   ];
   return (
@@ -63,15 +61,17 @@ function DetailShopPage(): JSX.Element {
               marginTop: 8,
             }}
           >
-            รหัสสมาชิก: 11009388577
+            รหัสสมาชิก: {data?.taxNo}
           </Text>
         }
         extra={
           <Button
+            typeButton={data && data.approveTel ? "disabled" : "primary"}
+            disabled={data && data.approveTel}
             onClick={() => {
               navigate({
                 pathname: `EditShopPage`,
-                search: `?taxId=11009388577`,
+                search: `?taxId=${data?.taxNo}`,
               });
             }}
             icon={

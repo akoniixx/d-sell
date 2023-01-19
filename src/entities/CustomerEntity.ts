@@ -49,11 +49,21 @@ export interface CustomerCompanyName {
   }[];
   updateDate: string;
   updateBy: string;
+  createDate: string;
 }
 export interface CustomerEntityShopList {
   address?: string;
   createDate?: string;
   customerCompany: CustomerCompanyName[];
+  userShop?: {
+    email: string;
+    firstname: string;
+    idCard: string;
+    lastname: string;
+    nametitle: string;
+    secondtelephone: string | null;
+    telephone: string | null;
+  };
   province?: string;
   telephone?: string;
   postcode?: string;

@@ -6,8 +6,8 @@ import {
   PayloadCustomerEntity,
 } from "../entities/CustomerEntity";
 
-const getCustomerById = async (id?: string, company?: string) => {
-  const url = `${BASE_URL}/auth/customer/get-customer?customerId=${id}&company=${company}`;
+const getCustomerById = async (id?: string) => {
+  const url = `${BASE_URL}/auth/customer/get-customer?customerId=${id}`;
   return await httpClient.get(url).then((res: AxiosResponse) => res.data);
 };
 const getAllDealerZoneBySaleId = async (id?: string) => {
@@ -81,7 +81,24 @@ const getApproveTel = async ({
 
   return await httpClient.get(url).then((res: AxiosResponse) => res.data);
 };
+const getApproveTelById = async (id: string) => {
+  const url = `${BASE_URL}/auth/shop-approve-tel/${id}`;
 
+  return await httpClient.get(url).then((res: AxiosResponse) => res.data);
+};
+const updateApproveTel = async ({
+  approveBy,
+  id,
+  isApprove,
+}: {
+  isApprove: boolean;
+  approveBy: string;
+  id: string;
+}) => {
+  const url = `${BASE_URL}/auth/shop-approve-tel?id=${id}&isApprove=${isApprove}&approveBy=${approveBy}`;
+  console.log(url);
+  return await httpClient.patch(url).then((res: AxiosResponse) => res.data);
+};
 export const shopDatasource = {
   getAllDealerZoneBySaleId,
   getCustomerById,
@@ -90,4 +107,6 @@ export const shopDatasource = {
   postCustomer,
   updateCustomer,
   getApproveTel,
+  getApproveTelById,
+  updateApproveTel,
 };

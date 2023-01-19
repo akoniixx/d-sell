@@ -44,7 +44,6 @@ export default function EditShopPage() {
           company: profile?.company || "",
         });
         setDataDetail(res);
-        console.log(res);
 
         if (res && res?.data) {
           const {
@@ -170,7 +169,6 @@ export default function EditShopPage() {
         subdistrict,
         taxId,
         telephone,
-        updateBy,
         isActive,
         isPrimary,
         position,
@@ -193,7 +191,7 @@ export default function EditShopPage() {
         province,
         subdistrict,
         taxNo: taxId,
-        updateBy,
+        updateBy: `${profile?.firstname} ${profile?.lastname}`,
         telephone,
         customerCompany: [
           {
@@ -228,10 +226,8 @@ export default function EditShopPage() {
           userShopId,
         },
       };
-      console.log(JSON.stringify(payload, null, 2));
       try {
         const res = await shopDatasource.updateCustomer(payload);
-        console.log("res", res);
         if (res && res.success) {
           Swal.fire({
             title: "บันทึกข้อมูลสำเร็จ",

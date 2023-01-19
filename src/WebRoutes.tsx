@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import AdvancePromotionPage from "./pages/ApproveOrderPage/AdvancePromotionPage";
 import SpecialPromotionPage from "./pages/ApproveOrderPage/SpecialPromotionPage";
@@ -12,12 +12,11 @@ import { OrderPage } from "./pages/OrderPage/OrderPage";
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
 import { DistributionPageDetail } from "./pages/PriceListPage/ProductDetailPage";
 import { DistributionPageEdit } from "./pages/PriceListPage/ProductEditPage";
-import ShopPage from "./pages/PriceListPage/ShopPage";
-import { AddNewSale } from "./pages/UserPage/SaleMangementPage/AddNewSale";
+import { AddNewSale } from "./pages/UserPage/SaleManagementPage/SaleManagementPage";
+import SaleManagementPage from "./pages/UserPage/SaleManagementPage";
+import { EditUserSale } from "./pages/UserPage/SaleManagementPage/EditUserSale";
 import ProtectRoute from "./ProtectRoute";
-import SaleManagementPage from "./pages/UserPage/SaleMangementPage";
 import RedirectPathPage from "./pages/RedirectPathPage";
-import { EditUserSale } from "./pages/UserPage/SaleMangementPage/EditUserSale";
 import RolesManagementPage from "./pages/UserPage/RolesManagementPage";
 import AddNewRole from "./pages/UserPage/RolesManagementPage/AddNewRole";
 import ShopListPage from "./pages/ShopManagementPage/ShopListPage";
@@ -38,6 +37,7 @@ import DetailRole from "./pages/UserPage/RolesManagementPage/DetailRole";
 import { DiscountCreatePage } from "./pages/DiscountPage/CreateCO";
 import HomePage from "./pages/HomePage/HomePage";
 import { CreditMemoDetail } from "./pages/DiscountPage/CreditMemoDetail";
+import DetailApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage/DetailApproveTelPage";
 
 interface IRoute {
   path: string;
@@ -188,8 +188,13 @@ export const protectRoutesData: IRoute[] = [
       },
 
       {
-        path: "ApproveTelPage",
+        path: "ApproveTelPage/*",
         element: <ApproveTelPage />,
+        permission: null,
+      },
+      {
+        path: "ApproveTelPage/DetailApproveTelPage",
+        element: <DetailApproveTelPage />,
         permission: null,
       },
     ],
