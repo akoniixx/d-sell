@@ -11,11 +11,15 @@ import { RangePicker } from "../../../components/DatePicker/DatePicker";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
-import { getCreditMemoList } from "../../../datasource/CreditMemoDatasource";
+import {
+  getCreditMemoList,
+  getCustomerCreditMemoList,
+} from "../../../datasource/CreditMemoDatasource";
 import moment from "moment";
 import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import color from "../../../resource/color";
+import { priceFormatter } from "../../../utility/Formatter";
 
 type FixedType = "left" | "right" | boolean;
 
@@ -37,17 +41,17 @@ export const CustomerDiscountListPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!loading) fetchProduct();
+    if (!loading) fetchData();
   }, [keyword, statusFilter, page]);
 
   const resetPage = () => setPage(1);
 
-  const fetchProduct = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, count, count_status } = await getCreditMemoList({
+      const { data, count, count_status } = await getCustomerCreditMemoList({
         company,
-        creditMemoStatus: statusFilter,
+        creditMemoShopStatus: statusFilter,
         searchText: keyword,
         take: pageSize,
         page,
@@ -133,57 +137,42 @@ export const CustomerDiscountListPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Referance",
-      dataIndex: "creditMemoCode",
-      key: "creditMemoCode",
-      width: "10%",
-      render: () => "864A48FF84",
+      title: "Customer Company ID",
+      dataIndex: "customercompanyid",
+      key: "customercompanyid",
+      width: "15%",
     },
     {
       title: "ชื่อร้านค้า",
-      dataIndex: "customerName",
-      key: "customerName",
+      dataIndex: "customername",
+      key: "customername",
       width: "20%",
       render: (value: string) => {
         return (
           <>
             <FlexCol>
-              <Text level={6}>{"หจก.พืชสิน"}</Text>
-              <Text color='Text3' level={6}>
+              <Text level={6}>{value}</Text>
+              {/* <Text color='Text3' level={6}>
                 {"จ.อุตรดิตถ์" || "-"}
-              </Text>
+              </Text> */}
             </FlexCol>
           </>
         );
       },
     },
     {
-      title: "รายชื่อสมาชิก",
-      dataIndex: "createdAt",
-      key: "createdAt",
+      title: "โซน",
+      dataIndex: "zone",
+      key: "zone",
       width: "15%",
-      render: (value: string) => {
-        return "คุณวรนิษฐ พิศักดิ์ศิริ";
-      },
     },
     {
-      title: "รวม Discount CO",
-      dataIndex: "updateBy",
-      key: "updateBy",
+      title: "ยอดคงเหลือ",
+      dataIndex: "balance",
+      key: "balance",
       width: "10%",
       render: (value: string, row: any) => {
-        return "361,600 ฿";
-      },
-    },
-    {
-      title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
-      width: "10%",
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: <Switch checked={row.is_active} />,
-        };
+        return priceFormatter(value, undefined, true);
       },
     },
     {
@@ -219,13 +208,14 @@ export const CustomerDiscountListPage: React.FC = () => {
         <CardContainer>
           <PageTitle />
           <br />
-          <Tabs
+          {/* <Tabs
             items={tabsItems}
             onChange={(key: string) => {
               setStatusFilter(key === "ALL" ? undefined : key);
               resetPage();
             }}
-          />
+          /> */}
+          <br />
           <Table
             className='rounded-lg'
             columns={columns}

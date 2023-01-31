@@ -54,7 +54,7 @@ const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
   const [data, setData] = useState<StoreEntity[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [targetKeys, setTargetKeys] = useState<string[]>([]);
+  const [targetKeys, setTargetKeys] = useState<string[]>(list.map((e) => `${e.customerCompanyId}`));
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [filter, setFilter] = useState({
     zone: "",
@@ -214,6 +214,9 @@ const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
 export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+  const { pathname } = window.location;
+  const pathSplit = pathname.split("/") as Array<string>;
+  const isEditing = pathSplit[2] === "edit";
 
   const defaultFilter = {
     zone: "",
@@ -288,8 +291,18 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
               message: "โปรดระบุส่วนลดดูแลราคา",
             },
             {
-              min: 1,
-              message: "โปรดระบุส่วนลดดูแลราคา",
+              // message: `ส่วนลดดูแลราคาน้อยกว่ายอดคงเหลือ ยอดคงเหลือ = ${row.balance} บาท โปรดระบุใหม่`,
+              validator: (rule, value, callback) => {
+                if (isEditing && row.balance && parseFloat(row.balance) > parseFloat(value)) {
+                  callback(
+                    `ส่วนลดดูแลราคาน้อยกว่ายอดคงเหลือ ยอดคงเหลือ = ${row.balance} บาท โปรดระบุใหม่`,
+                  );
+                }
+                if (parseFloat(value) <= 0) {
+                  callback("โปรดระบุส่วนลดดูแลราคาที่ถูกต้อง");
+                }
+                callback();
+              },
             },
           ]}
         >
