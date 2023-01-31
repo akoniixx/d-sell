@@ -86,7 +86,7 @@ const ProductName = ({ product, size }: ProdNameProps) => {
   );
 };
 
-const AddProduct = ({ list, setList, onClose, withFreebies, isReplacing }: SearchProps) => {
+export const AddProduct = ({ list, setList, onClose, withFreebies, isReplacing }: SearchProps) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
   const pageSize = 100;
@@ -357,11 +357,14 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
     {
       title: "ชื่อสินค้า",
       dataIndex: "productName",
+      ellipsis: true,
       render: (value: string, row: ProductEntity) => <ProductName product={row} />,
     },
     {
       title: "ขนาด",
       dataIndex: "packSize",
+      ellipsis: true,
+      width: 144,
       render: (value: string, row: ProductEntity) => {
         return {
           children: (
@@ -378,6 +381,8 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
     {
       title: "UNIT PRICE",
       dataIndex: "unitPrice",
+      ellipsis: true,
+      width: 144,
       render: (value: string, row: ProductEntity) => {
         return {
           children: (
@@ -394,6 +399,8 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
     {
       title: "PACK PRICE",
       dataIndex: "marketPrice",
+      ellipsis: true,
+      width: 148,
       render: (value: string, row: ProductEntity) => {
         return {
           children: (
@@ -411,6 +418,7 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
     },
     {
       title: "TYPE",
+      width: 126,
       render: (value: string, row: ProductEntity) => {
         return (
           <Form.Item name={`${row.productId}-type`} initialValue={1} noStyle>
@@ -426,21 +434,31 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
     },
     {
       title: "SPECIAL PRICE",
+      width: 192,
       render: (value: string, row: ProductEntity) => {
         return (
           <Form.Item name={`${row.productId}-price`} initialValue={1} noStyle>
-            <Input placeholder='ระบุราคา' suffix='บาท' />
+            <Input placeholder='ระบุราคา' suffix='บาท' style={{ width: 160 }} />
           </Form.Item>
         );
       },
     },
     {
       title: "จัดการ",
+      width: 80,
+      align: "center" as AlignType,
       render: (value: string, row: ProductEntity) => {
         return (
           <div
             className='btn btn-icon btn-light btn-hover-primary btn-sm'
-            // onClick={() => }
+            onClick={() =>
+              Modal.confirm({
+                title: "ต้องการลบราคาสินค้าพิเศษนี้",
+                okText: "ยืนยัน",
+                cancelText: "ยกเลิก",
+                onOk: () => setItems(items.filter((e) => e.productId !== row.productId)),
+              })
+            }
           >
             <span className='svg-icon svg-icon-primary svg-icon-2x'>
               <DeleteOutlined style={{ color: color["primary"] }} />
@@ -460,14 +478,14 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
           </Text>
         </Col>
         <Col span={5}>
-          <Input
+          {/* <Input
             placeholder='ค้นหาสินค้า...'
             suffix={<SearchOutlined />}
             style={{ width: "100%" }}
-          />
+          /> */}
         </Col>
         <Col span={5}>
-          <Select data={[]} placeholder='Product Group : ทั้งหมด' style={{ width: "100%" }} />
+          {/* <Select data={[]} placeholder='Product Group : ทั้งหมด' style={{ width: "100%" }} /> */}
         </Col>
         <Col span={5}>
           <Button title='+ เพิ่มรายการสินค้าราคาพิเศษ' onClick={toggleModal} />

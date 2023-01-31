@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo } from "react";
-import { Table, Tabs, Modal, Switch, Row, Col, Pagination } from "antd";
+import { Table, Tabs, Modal, Switch, Row, Col, Pagination, Tag } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import {
   DeleteOutlined,
@@ -13,14 +13,18 @@ import Input from "../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
 import { getCreditMemoList } from "../../datasource/CreditMemoDatasource";
 import moment from "moment";
-import { nameFormatter } from "../../utility/Formatter";
 import { FlexCol } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import color from "../../resource/color";
 import Select from "../../components/Select/Select";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import customerCompanyState from "../../store/customerCompany";
+import { getCustomers, getZones } from "../../datasource/CustomerDatasource";
+import { getSpecialPriceList } from "../../datasource/SpecialPriceDatasource";
+import { StoreEntity, ZoneEntity } from "../../entities/StoreEntity";
+import { AlignType } from "rc-table/lib/interface";
 
 const SLASH_DMY = "DD/MM/YYYY";
-type FixedType = "left" | "right" | boolean;
 
 export const PriceListX10: React.FC = () => {
   const style: React.CSSProperties = {
@@ -28,51 +32,101 @@ export const PriceListX10: React.FC = () => {
   };
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company, firstname, lastname } = userProfile;
+  const { company } = userProfile;
 
   const navigate = useNavigate();
 
+  const customerCompanyValue = useRecoilValue(customerCompanyState);
+  const setCustomerCompanyState = useSetRecoilState(customerCompanyState);
+
   const [keyword, setKeyword] = useState("");
-  const [dateFilter, setDateFilter] = useState<any>();
+  const [zoneFilter, setZoneFilter] = useState<any>();
+  const [zones, setZones] = useState<ZoneEntity[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
+  const [statusCount, setStatusCount] = useState({
+    ALL: 0,
+    true: 0,
+    false: 0,
+  });
   const [dataState, setDataState] = useState({
-    count: 0,
-    count_status: [],
-    data: [],
+    data: customerCompanyValue.specialPrice,
+    specialPrice: customerCompanyValue.specialPriceCount,
+    filteredData: customerCompanyValue.specialPrice,
   });
 
   useEffect(() => {
-    // if (!loading) fetchProduct();
-  }, [keyword, statusFilter, dateFilter, page]);
+    if (!loading && customerCompanyValue.data.length <= 0) fetchData();
+  }, []);
+
+  useEffect(() => {
+    let data = [...customerCompanyValue.specialPrice];
+    if (keyword) {
+      data = data.filter((d: any) => `${d?.customerName || ""}`.includes(keyword));
+    }
+    if (zoneFilter) {
+      data = data.filter((d: any) => d?.zone === zoneFilter);
+    }
+    const newStatusCount = {
+      ...statusCount,
+      ALL: data.length,
+    };
+    if (statusFilter) {
+      data = data.filter((d: any) => !!d?.status === (statusFilter === "true"));
+      if (statusFilter === "true") {
+        statusCount.true = data.length;
+        statusCount.false = newStatusCount.ALL - data.length;
+      } else {
+        statusCount.false = data.length;
+        statusCount.true = newStatusCount.ALL - data.length;
+      }
+    } else {
+      newStatusCount.true = data.reduce((acc, d: any) => (d?.status ? acc + 1 : acc), 0);
+      newStatusCount.false = newStatusCount.ALL - newStatusCount.true;
+    }
+    setDataState({
+      ...dataState,
+      filteredData: data,
+    });
+    setStatusCount(newStatusCount);
+  }, [keyword, zoneFilter, statusFilter]);
 
   const resetPage = () => setPage(1);
 
-  const fetchProduct = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, count, count_status } = await getCreditMemoList({
+      const { data, count, count_status } = await getCustomers({
         company,
-        creditMemoStatus: statusFilter,
-        startDate:
-          dateFilter && dateFilter[0]
-            ? moment(dateFilter[0]).subtract(543, "years").format(SLASH_DMY)
-            : undefined,
-        endDate:
-          dateFilter && dateFilter[1]
-            ? moment(dateFilter[1]).subtract(543, "years").format(SLASH_DMY)
-            : undefined,
-        searchText: keyword,
-        take: pageSize,
-        page,
       });
+      const { responseData } = await getSpecialPriceList({});
+      const specialPriceData = data?.map((d: StoreEntity, i: number) => {
+        const found = responseData.find((r: any) => d.customerCompanyId === r.customer_company_id);
+        return {
+          ...d,
+          status: found && found.count && parseInt(found.count) > 0,
+          key: i,
+        };
+      });
+      const zoneData = await getZones(company);
+      setZones(zoneData.map((d: StoreEntity, i: number) => ({ ...d, key: i })));
       setDataState({
-        data: data?.map((e: any, i: number) => ({ ...e, key: i })),
-        count,
-        count_status,
+        data: specialPriceData,
+        specialPrice: responseData,
+        filteredData: specialPriceData,
       });
-      console.log({ data, count, count_status });
+      setStatusCount({
+        ALL: specialPriceData?.length || 0,
+        true: responseData?.length || 0,
+        false: (specialPriceData?.length || 0) - (responseData?.length || 0),
+      });
+      setCustomerCompanyState({
+        data,
+        specialPrice: specialPriceData,
+        specialPriceCount: responseData,
+      });
+      console.log({ data, count, count_status, responseData, specialPriceData });
     } catch (e) {
       console.log(e);
     } finally {
@@ -115,7 +169,16 @@ export const PriceListX10: React.FC = () => {
           </div>
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
-          <Select data={[]} placeholder='เขตร้านค้า : ทั้งหมด' style={{ width: "100%" }} />
+          <Select
+            data={[
+              { label: "ทั้งหมด", key: "" },
+              ...zones.map((z) => ({ label: z.zoneName, key: z.zoneName })),
+            ]}
+            placeholder='เขตร้านค้า : ทั้งหมด'
+            style={{ width: "100%" }}
+            onChange={(val) => setZoneFilter(val)}
+            value={zoneFilter}
+          />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
           <Button
@@ -131,21 +194,15 @@ export const PriceListX10: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `ทั้งหมด (${
-        dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0
-      })`,
+      label: `ทั้งหมด (${statusCount.ALL})`,
       key: "ALL",
     },
     {
-      label: `ราคาเฉพาะร้าน (${
-        (dataState?.count_status?.find((s: any) => s.credit_memo_status) as any)?.count || 0
-      })`,
+      label: `ราคาเฉพาะร้าน (${statusCount.true})`,
       key: "true",
     },
     {
-      label: `ราคาปกติ (${
-        (dataState?.count_status?.find((s: any) => !s.credit_memo_status) as any)?.count || 0
-      })`,
+      label: `ราคาปกติ (${statusCount.false})`,
       key: "false",
     },
   ];
@@ -153,51 +210,40 @@ export const PriceListX10: React.FC = () => {
   const columns = [
     {
       title: "No. Member",
-      dataIndex: "memberCode",
-      key: "memberCode",
-      width: "15%",
+      dataIndex: "customerCompanyId",
+      key: "customerCompanyId",
+      width: "20%",
     },
     {
       title: "ชื่อร้านค้า",
-      dataIndex: "creditMemoName",
-      key: "creditMemoName",
-      width: "25%",
+      dataIndex: "customerName",
+      key: "customerName",
+      width: "30%",
     },
-    {
-      title: "รายชื่อสมาชิก",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      width: "25%",
-      render: (value: string) => {
-        return moment(value).format(SLASH_DMY);
-      },
-    },
+    // {
+    //   title: "รายชื่อสมาชิก",
+    //   dataIndex: "createdAt",
+    //   key: "createdAt",
+    //   width: "25%",
+    //   render: (value: string) => {
+    //     return moment(value).format(SLASH_DMY);
+    //   },
+    // },
     {
       title: "เขต",
-      dataIndex: "updateBy",
-      key: "updateBy",
-      width: "10%",
-      render: (value: string, row: any) => {
-        return (
-          <>
-            <FlexCol>
-              <Text level={6}>{row.updatedAt ? moment(row.updatedAt).format(SLASH_DMY) : "-"}</Text>
-              <Text color='Text3' level={6}>
-                {value || "-"}
-              </Text>
-            </FlexCol>
-          </>
-        );
-      },
+      dataIndex: "zone",
+      key: "zone",
+      width: "20%",
     },
     {
       title: "สถานะ",
       dataIndex: "status",
       key: "status",
-      width: "15%",
+      width: "20%",
+      align: "center" as AlignType,
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Switch checked={row.is_active} />,
+          children: value ? <Tag color={color.primary}>ราคาเฉพาะร้าน</Tag> : <Tag>ราคาปกติ</Tag>,
         };
       },
     },
@@ -205,38 +251,25 @@ export const PriceListX10: React.FC = () => {
       title: "จัดการ",
       dataIndex: "action",
       key: "action",
-      width: "10%",
-      fixed: "right" as FixedType | undefined,
+      width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: (
+          children: row.status ? (
             <>
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/discount/detail/" + row.creditMemoId)}
+                  onClick={() => navigate("/price/detail/" + row.customerCompanyId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/discount/edit/" + row.creditMemoId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <EditOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <DeleteOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
               </div>
+            </>
+          ) : (
+            <>
+              <div style={{ height: 32 }} />
             </>
           ),
         };
@@ -260,10 +293,11 @@ export const PriceListX10: React.FC = () => {
           <Table
             className='rounded-lg'
             columns={columns}
-            dataSource={dataState.data}
+            dataSource={dataState.filteredData}
             pagination={{
               pageSize,
-              current: page,
+              // current: page,
+              showSizeChanger: false,
               position: ["bottomCenter"],
             }}
             size='large'

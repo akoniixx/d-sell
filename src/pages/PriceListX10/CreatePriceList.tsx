@@ -10,25 +10,18 @@ import { CreatePriceListStep1 } from "./CreatePriceListStep/CreatePriceListStep1
 import { CreatePriceListStep2 } from "./CreatePriceListStep/CreatePriceListStep2";
 import { PromotionType } from "../../definitions/promotion";
 import productState from "../../store/productList";
-import { ProductEntity } from "../../entities/PoductEntity";
-import {
-  createCreditMemo,
-  getCreditMemoById,
-  updateCreditMemo,
-} from "../../datasource/CreditMemoDatasource";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import color from "../../resource/color";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
 import Steps from "../../components/StepAntd/steps";
 import { StoreEntity } from "../../entities/StoreEntity";
-import { CreditMemoShopEntity } from "../../entities/CreditMemoEntity";
+import { createSpecialPrice } from "../../datasource/SpecialPriceDatasource";
 
 export const PriceListCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
+  const { company, firstname, lastname } = userProfile;
 
   const navigate = useNavigate();
   const { pathname } = window.location;
@@ -40,7 +33,7 @@ export const PriceListCreatePage: React.FC = () => {
 
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  const [creditMemoData, setCreditMemoData] = useState<any>({
+  const [specialPriceData, setSpecialPriceData] = useState<any>({
     stores: undefined,
     items: undefined,
   });
@@ -50,40 +43,12 @@ export const PriceListCreatePage: React.FC = () => {
   const [isCreating, setCreating] = useState(false);
   const [isDone, setDone] = useState(false);
 
-  useEffect(() => {
-    if (isEditing && !loading) fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    const id = pathSplit[3];
-    await getCreditMemoById(id)
-      .then((res) => {
-        console.log("creditMemo", res);
-        setDefaultData(res);
-        form1.setFieldsValue({
-          ...res,
-        });
-        form2.setFieldsValue({
-          stores: res.creditMemoShop,
-        });
-        res?.creditMemoShop?.forEach((s: CreditMemoShopEntity) => {
-          form2.setFieldValue(s.customerCompanyId, s.receiveAmount);
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title={isEditing ? "แก้ไข Credit Memo" : "เพิ่มราคาเฉพาะร้าน"}
+        title={isEditing ? "แก้ไขราคาเฉพาะร้าน" : "เพิ่มราคาเฉพาะร้าน"}
         showBack
+        onBack={() => navigate(`/price/list`)}
         extra={
           <>
             <Steps
@@ -114,9 +79,9 @@ export const PriceListCreatePage: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการ เพิ่ม/ลด Credit Memo", path: "/discount/list" },
+              { text: "รายการสินค้าเฉพาะร้าน", path: "/price/list" },
               {
-                text: isEditing ? "แก้ไข Credit Memo" : "สร้าง Credit Memo",
+                text: isEditing ? "แก้ไขราคาเฉพาะร้าน" : "เพิ่มราคาเฉพาะร้าน",
                 path: window.location.pathname,
               },
             ]}
@@ -141,11 +106,23 @@ export const PriceListCreatePage: React.FC = () => {
       form1
         .validateFields()
         .then((values) => {
-          setStep(step + 1);
-          setCreditMemoData({
-            ...creditMemoData,
-            ...values,
-          });
+          console.log("values", values);
+          const stores = form1.getFieldValue("stores");
+          console.log({ stores });
+          if (!stores || stores.length <= 0) {
+            setStep2Error(true);
+          } else {
+            const data = {
+              ...specialPriceData,
+              stores: stores?.map((s: StoreEntity) => ({
+                ...s,
+                receiveAmount: parseFloat(values[s.customerCompanyId]),
+                usedAmount: 0,
+              })),
+            };
+            setSpecialPriceData(data);
+            setStep(step + 1);
+          }
           console.log("values", values);
         })
         .catch((errInfo) => {
@@ -155,24 +132,45 @@ export const PriceListCreatePage: React.FC = () => {
       form2
         .validateFields()
         .then((values) => {
-          console.log("values", values);
-          const stores = form2.getFieldValue("stores");
-          console.log({ stores });
-          if (!stores || stores.length <= 0) {
-            setStep2Error(true);
-          } else {
-            const data = {
-              ...creditMemoData,
-              creditMemoShop: stores?.map((s: StoreEntity) => ({
-                ...s,
-                receiveAmount: parseFloat(values[s.customerCompanyId]),
-                usedAmount: 0,
-                balance: 0,
-              })),
-            };
-            setCreditMemoData(data);
-            onSubmit(true, data);
-          }
+          const stores = form1.getFieldValue("stores");
+          const priceList: { productId: number; value: number }[] = [];
+          Object.keys(values).forEach((key) => {
+            const [productId, type] = key.split("-");
+            if (type === "price") {
+              priceList.push({
+                productId: parseInt(productId),
+                value: parseFloat(values[key]) * values[`${productId}-type`],
+              });
+            }
+          });
+          console.log("values", values, stores);
+          const data: {
+            customerId: any;
+            customerCompanyId: any;
+            customerName: any;
+            zone: any;
+            productId: number;
+            value: number;
+            company: string;
+            createBy: string;
+            updateBy: string;
+          }[] = [];
+          const loginName = firstname + " " + lastname;
+          stores.forEach(({ customerId, customerCompanyId, customerName, zone }: any) => {
+            priceList.forEach((price) => {
+              data.push({
+                ...price,
+                customerId,
+                customerCompanyId,
+                customerName,
+                zone,
+                company,
+                createBy: loginName,
+                updateBy: loginName,
+              });
+            });
+          });
+          onSubmit(true, data);
         })
         .catch((errInfo) => {
           console.log("errInfo", errInfo);
@@ -180,14 +178,12 @@ export const PriceListCreatePage: React.FC = () => {
     }
   };
 
-  const onSubmit = async (creditMemoStatus: boolean, data: any) => {
+  const onSubmit = async (status: boolean, data: any) => {
     setCreating(true);
-    const { startDate, startTime } = creditMemoData;
-    const id = isEditing ? pathSplit[4] : undefined;
     const submitData = {
-      ...data,
+      specialPriceShop: data,
       company,
-      creditMemoStatus,
+      status,
     };
 
     const callback = (res: any) => {
@@ -196,7 +192,7 @@ export const PriceListCreatePage: React.FC = () => {
       const onDone = () => {
         setDone(true);
         setTimeout(() => {
-          navigate("/discount/edit");
+          navigate("/price/list");
         }, 2000);
         setTimeout(() => {
           setDone(false);
@@ -211,26 +207,14 @@ export const PriceListCreatePage: React.FC = () => {
       }
     };
     console.log({ submitData });
-
-    if (!isEditing) {
-      await createCreditMemo(submitData)
-        .then(callback)
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          setCreating(false);
-        });
-    } else {
-      await updateCreditMemo(submitData)
-        .then(callback)
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          setCreating(false);
-        });
-    }
+    await createSpecialPrice(submitData)
+      .then(callback)
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setCreating(false);
+      });
   };
 
   return (
@@ -274,7 +258,7 @@ export const PriceListCreatePage: React.FC = () => {
           <Text level={4} align='center'>
             {isDone ? (
               <>
-                สร้าง Credit Memo
+                สร้างราคาเฉพาะร้าน
                 <br />
                 สำเร็จ
               </>
@@ -282,7 +266,7 @@ export const PriceListCreatePage: React.FC = () => {
               <>
                 กำลังสร้าง
                 <br />
-                Credit Memo
+                ราคาเฉพาะร้าน
               </>
             )}
           </Text>

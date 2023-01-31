@@ -34,6 +34,7 @@ export const DiscountCreatePage: React.FC = () => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
   const isEditing = pathSplit[2] === "edit";
+  const id = pathSplit[3];
 
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
@@ -56,7 +57,6 @@ export const DiscountCreatePage: React.FC = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const id = pathSplit[3];
     await getCreditMemoById(id)
       .then((res: any) => {
         console.log("creditMemo", res);
@@ -132,6 +132,7 @@ export const DiscountCreatePage: React.FC = () => {
   ];
 
   const onNext = () => {
+    console.log("onNext", step);
     if (step === 0) {
       form1
         .validateFields()
@@ -147,6 +148,7 @@ export const DiscountCreatePage: React.FC = () => {
           console.log("errInfo", errInfo);
         });
     } else if (step === 1) {
+      console.log("onNext s1", form2.getFieldsValue());
       form2
         .validateFields()
         .then((values) => {
@@ -160,9 +162,9 @@ export const DiscountCreatePage: React.FC = () => {
               ...creditMemoData,
               creditMemoShop: stores?.map((s: StoreEntity) => ({
                 ...s,
+                creditMemoId: isEditing ? id : undefined,
                 receiveAmount: parseFloat(values[s.customerCompanyId]),
                 usedAmount: 0,
-                balance: 0,
               })),
             };
             setCreditMemoData(data);
@@ -178,9 +180,10 @@ export const DiscountCreatePage: React.FC = () => {
   const onSubmit = async (creditMemoStatus: boolean, data: any) => {
     setCreating(true);
     const { startDate, startTime } = creditMemoData;
-    const id = isEditing ? pathSplit[4] : undefined;
+    const id = isEditing ? pathSplit[3] : undefined;
     const submitData = {
       ...data,
+      creditMemoId: id,
       company,
       creditMemoStatus,
     };
@@ -269,13 +272,13 @@ export const DiscountCreatePage: React.FC = () => {
           <Text level={4} align='center'>
             {isDone ? (
               <>
-                สร้าง Credit Memo
+                {isEditing ? "แก้ไข" : "สร้าง"} Credit Memo
                 <br />
                 สำเร็จ
               </>
             ) : (
               <>
-                กำลังสร้าง
+                กำลัง{isEditing ? "แก้ไข" : "สร้าง"}
                 <br />
                 Credit Memo
               </>

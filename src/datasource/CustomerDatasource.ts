@@ -10,6 +10,13 @@ const getCustomers = async (params: object) => {
     .catch((err) => console.log(err));
 };
 
+const getCustomersById = async (id: string) => {
+  return await httpClient
+    .get(`${baseUrl}/customer-company/${id}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const getZones = async (company: string) => {
   return await httpClient
     .get(`${baseUrl}/zone/${company}`)
@@ -17,7 +24,4 @@ const getZones = async (company: string) => {
     .catch((err) => console.log(err));
 };
 
-export {
-  getCustomers,
-  getZones
-};
+export { getCustomers, getCustomersById, getZones };
