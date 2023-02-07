@@ -6,7 +6,7 @@ import color from "../../resource/color";
 
 interface TextType {
   fontWeight?: 400 | 500 | 600 | 700;
-  fontSize?: 14 | 16 | 18 | 20 | 22 | 24 | 26 | 28 | 30 | 32 | 34 | 36 | 38 | 40 | 46 | 50;
+  fontSize?: 12 | 14 | 16 | 18 | 20 | 22 | 24 | 26 | 28 | 30 | 32 | 34 | 36 | 38 | 40 | 46 | 50;
   color?:
     | "primary"
     | "secondary"

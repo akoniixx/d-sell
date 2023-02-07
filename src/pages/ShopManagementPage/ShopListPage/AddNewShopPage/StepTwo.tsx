@@ -108,12 +108,12 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   message: "กรุณากรอกเลขบัตรประชาชน",
                 },
                 {
-                  pattern: /^[0-9]{1}-[0-9]{5}-[0-9]{4}-[0-9]{3}$/,
+                  pattern: new RegExp(/^[0-9]{13}$/),
                   message: "กรุณากรอกเลขบัตรประชาชนให้ถูกต้อง",
                 },
               ]}
             >
-              <InputHyphen maxLength={16} />
+              <InputHyphen />
             </Form.Item>
           </Col>
         </Row>

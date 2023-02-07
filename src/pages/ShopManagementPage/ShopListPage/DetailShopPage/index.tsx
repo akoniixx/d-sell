@@ -48,6 +48,8 @@ function DetailShopPage(): JSX.Element {
       children: <HistoryTab historyData={data.history || []} />,
     },
   ];
+  const isDisabled = data && data.isPending;
+
   return (
     <CardContainer>
       <PageTitleNested
@@ -66,8 +68,8 @@ function DetailShopPage(): JSX.Element {
         }
         extra={
           <Button
-            typeButton={data && data.approveTel ? "disabled" : "primary"}
-            disabled={data && data.approveTel}
+            typeButton={isDisabled ? "disabled" : "primary"}
+            disabled={isDisabled}
             onClick={() => {
               navigate({
                 pathname: `EditShopPage`,

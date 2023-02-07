@@ -54,6 +54,7 @@ export interface CustomerCompanyName {
 export interface CustomerEntityShopList {
   address?: string;
   createDate?: string;
+
   customerCompany: CustomerCompanyName[];
   userShop?: {
     email: string;
@@ -94,6 +95,23 @@ export interface CustomerDetailEntity {
     updateBy: string;
     updateDate: string;
   };
+}
+export interface CustomerEntityShopListIndex {
+  address: string;
+  createDate: string;
+  customerCompany: CustomerCompanyName[];
+  customerId: string;
+  customerToUserShops: CustomerEntityShopList[];
+  district: string;
+  lag: string | null;
+  lat: string | null;
+  postcode: string;
+  province: string;
+  subdistrict: string;
+  telephone: string;
+  taxNo: string;
+  updateBy: string;
+  updateDate: string;
 }
 export interface FormStepCustomerEntity {
   address: string;
@@ -172,7 +190,7 @@ export interface PayloadCustomerEntity {
     nametitle: string;
     secondtelephone: string;
     email: string;
-    userShopId?: string;
+    userShopId?: string | null;
   };
 }
 export interface PayloadApproveCustomerEntity {

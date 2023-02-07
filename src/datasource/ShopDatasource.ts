@@ -90,14 +90,30 @@ const updateApproveTel = async ({
   approveBy,
   id,
   isApprove,
+  reasonApprove,
 }: {
   isApprove: boolean;
   approveBy: string;
   id: string;
+  reasonApprove?: string;
 }) => {
-  const url = `${BASE_URL}/auth/shop-approve-tel?id=${id}&isApprove=${isApprove}&approveBy=${approveBy}`;
-  console.log(url);
-  return await httpClient.patch(url).then((res: AxiosResponse) => res.data);
+  const payload: any = {
+    id,
+    approveBy,
+    isApprove,
+  };
+  if (reasonApprove) {
+    payload.reasonApprove = reasonApprove;
+  }
+
+  const url = `${BASE_URL}/auth/shop-approve-tel`;
+
+  return await httpClient
+    .patch(url, payload)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => {
+      throw err;
+    });
 };
 export const shopDatasource = {
   getAllDealerZoneBySaleId,
