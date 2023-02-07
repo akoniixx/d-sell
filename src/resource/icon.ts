@@ -13,4 +13,5 @@ export default {
   trashIcon: require("./media/icons/trashIcon.png"),
   backLeft: require("./media/icons/backLeft.png"),
   iconClose: require("./media/icons/iconClose.png"),
+  iconAddImage: require("./media/icons/iconAddImage.png"),
 };

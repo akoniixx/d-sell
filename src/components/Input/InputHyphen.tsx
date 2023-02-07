@@ -26,17 +26,10 @@ interface Props extends InputProps, InputPropsStyled {
 function InputHyphen({ onChange, value, ...props }: Props): JSX.Element {
   const onChangeWithHyphen = (e: any) => {
     const values: string = e.target.value;
-    const isDelete = value && value?.toString().length > values.length;
 
-    const newValue = values.replace(/[^0-9-]/g, "").toString();
-
-    if ((newValue.length === 1 || newValue.length === 7 || newValue.length === 12) && !isDelete) {
-      onChange?.(newValue + "-");
-    } else {
-      onChange?.(newValue);
-    }
+    onChange?.(values);
   };
-  return <InputStyled {...props} onChange={onChangeWithHyphen} value={value} />;
+  return <InputStyled maxLength={13} {...props} onChange={onChangeWithHyphen} value={value} />;
 }
 
 export default InputHyphen;

@@ -47,6 +47,7 @@ interface Props {
       newSecondTelephone: string | null;
       newTelephone: string | null;
     };
+    isPending: boolean;
   };
 }
 const mappingCustomerType = {
@@ -61,10 +62,10 @@ function DetailTab({ data }: Props): JSX.Element {
   const filterOtherCompany = (data.customerCompany || []).filter(
     (el) => el.company !== profile?.company,
   );
-  const isApproveMain =
-    data.approveTel && !data.approveTel.isApprove && data.approveTel.newTelephone;
-  const isApproveSecond =
-    data.approveTel && !data.approveTel.isApprove && data.approveTel.newSecondTelephone;
+  // const isApproveMain =
+  //   data.approveTel && !data.approveTel.isApprove && data.approveTel.newTelephone;
+  // const isApproveSecond =
+  //   data.approveTel && !data.approveTel.isApprove && data.approveTel.newSecondTelephone;
 
   const userShop =
     data.customerToUserShops?.length > 0 ? data.customerToUserShops[0].userShop : null;
@@ -122,12 +123,12 @@ function DetailTab({ data }: Props): JSX.Element {
     telMain: {
       label: "เบอร์โทรศัพท์ (หลัก)",
       value: userShop?.telephone || "-",
-      isApproving: isApproveMain,
+      isApproving: data.isPending,
     },
     telSub: {
       label: "เบอร์โทรศัพท์ (รอง)",
       value: userShop?.secondtelephone || "-",
-      isApproving: isApproveSecond,
+      isApproving: data.isPending,
     },
   };
   const listDataKey = Object.keys(listData);
@@ -187,6 +188,7 @@ function DetailTab({ data }: Props): JSX.Element {
               key={el}
               style={{
                 marginBottom: 8,
+                padding: "8px 0",
               }}
             >
               <Col span={4}>
@@ -197,7 +199,6 @@ function DetailTab({ data }: Props): JSX.Element {
                 {listData[el as keyof typeof listData].isApproving && (
                   <div
                     style={{
-                      position: "absolute",
                       marginLeft: 24,
                       backgroundColor: color.warning,
                       borderRadius: 8,

@@ -17,7 +17,10 @@ import TablePagination from "../../../components/Table/TablePagination";
 import Text from "../../../components/Text/Text";
 import { shopDatasource } from "../../../datasource/ShopDatasource";
 import { zoneDatasource } from "../../../datasource/ZoneDatasource";
-import { CustomerEntityShopList } from "../../../entities/CustomerEntity";
+import {
+  CustomerEntityShopList,
+  CustomerEntityShopListIndex,
+} from "../../../entities/CustomerEntity";
 import useDebounce from "../../../hook/useDebounce";
 import { profileAtom } from "../../../store/ProfileAtom";
 
@@ -190,7 +193,12 @@ function ShopListPage(): JSX.Element {
         fixed: item.key === "action" ? "right" : undefined,
         width: item.key === "action" ? 200 : undefined,
         // sorter: item.key === "contact" ? undefined : (a: any, b: any) => a[item.key] - b[item.key],
-        render: (value: any, data: CustomerEntityShopList) => {
+        render: (value: any, data: CustomerEntityShopListIndex) => {
+          const userShop = data?.customerToUserShops[0]?.userShop || {
+            nametitle: "",
+            firstname: "",
+            lastname: "",
+          };
           const isActive = data.customerCompany?.find((el) => el.isActive);
           const ICPL = data.customerCompany?.find((el) => el.company === "ICPL");
           const ICPF = data.customerCompany?.find((el) => el.company === "ICPF");
@@ -276,6 +284,15 @@ function ShopListPage(): JSX.Element {
                     -
                   </Text>
                 )}
+              </div>
+            );
+          }
+          if (item.key === "zone") {
+            const isHasValue = Object.values(userShop).some((el) => el);
+            if (!isHasValue) return <Text>-</Text>;
+            return (
+              <div>
+                <Text>{`${userShop.firstname} ${userShop.lastname}`}</Text>
               </div>
             );
           }

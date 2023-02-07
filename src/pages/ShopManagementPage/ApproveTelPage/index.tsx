@@ -148,7 +148,7 @@ function ApproveTelPage(): JSX.Element {
           const findCurrentCompany = data?.customer?.customerCompany.find(
             (el: any) => el.company === profile?.company,
           );
-          const userShop = data.customer.customerToUserShops[0].userShop;
+          const userShop = data?.customer?.customerToUserShops[0]?.userShop;
           if (item.key === "contact") {
             const telList = [];
             if (data.newTelephone) {

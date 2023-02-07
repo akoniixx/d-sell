@@ -1,4 +1,4 @@
-import { Col, Row, Spin } from "antd";
+import { Col, Form, Row, Spin, Upload } from "antd";
 import dayjs from "dayjs";
 import React, { useMemo } from "react";
 import { useQuery } from "react-query";
@@ -8,14 +8,18 @@ import styled from "styled-components";
 import Swal from "sweetalert2";
 import Button from "../../../../components/Button/Button";
 import { CardContainer } from "../../../../components/Card/CardContainer";
+import TextArea from "../../../../components/Input/TextArea";
 import ConfirmModal from "../../../../components/Modal/ConfirmModal";
+import CustomConfirmModal from "../../../../components/Modal/CustomConfirmModal";
 import PageTitle from "../../../../components/PageTitle/PageTitle";
 import PageTitleNested from "../../../../components/PageTitle/PageTitleNested";
 import Text from "../../../../components/Text/Text";
 import { shopDatasource } from "../../../../datasource/ShopDatasource";
 import color from "../../../../resource/color";
+import icon from "../../../../resource/icon";
 import { profileAtom } from "../../../../store/ProfileAtom";
 import { getCompanyImage, getCompanyName } from "../../../../utility/CompanyName";
+import { defaultPropsForm } from "../../../../utility/DefaultProps";
 const Container = styled.div``;
 const Header = styled(Row)`
   border-radius: 8px;
@@ -43,18 +47,29 @@ const mappingCustomerType = {
 };
 function DetailApproveTelPage() {
   const [searchValue] = useSearchParams();
+  const [form] = Form.useForm();
+  const [formReject] = Form.useForm();
+  const fileList: {
+    file: any;
+    fileList: {
+      uid: string;
+      name: string;
+    }[];
+  } = Form.useWatch("fileList", form);
+
   const navigate = useNavigate();
   const id = searchValue.get("id");
   const { data, isLoading } = useQuery(["detailApproveTel", id], async () => {
     return await shopDatasource.getApproveTelById(id || "");
   });
 
-  const onUpdateApprove = async (isApprove: boolean) => {
+  const onUpdateApprove = async (isApprove: boolean, reason?: string) => {
     try {
       const res = await shopDatasource.updateApproveTel({
         id: id || "",
         isApprove,
         approveBy: `${profile?.firstname} ${profile?.lastname}`,
+        reasonApprove: reason || undefined,
       });
       if (res && res.success) {
         Swal.fire({
@@ -95,10 +110,12 @@ function DetailApproveTelPage() {
 
   const isApprovedMain = data && data?.newTelephone;
   const isApprovedSecond = data && data?.newSecondTelephone;
-  const { listApprove, textModal, listApproved } = useMemo(() => {
+
+  const { listApprove, listApproved } = useMemo(() => {
     const listApprove = [];
     const listApproved = [];
-    const userShop = data?.customer.customerToUserShops[0].userShop;
+    const reasonApprove = data?.reasonApprove ? data.reasonApprove : "";
+    // const userShop = data?.customer.customerToUserShops[0].userShop;
     const updateBy = `${data?.createBy} , ${dayjs(data?.createDate).format(
       "DD/MM/BBBB , HH:mm น.",
     )}`;
@@ -131,6 +148,7 @@ function DetailApproveTelPage() {
 
         statusApprove: data?.isApprove,
         approveBy: data?.approveBy,
+        reasonApprove,
       });
     }
     if (isApprovedSecond && !!data.approveBy) {
@@ -142,6 +160,7 @@ function DetailApproveTelPage() {
 
         statusApprove: data?.isApprove,
         approveBy: data?.approveBy,
+        reasonApprove,
       });
     }
 
@@ -223,6 +242,15 @@ function DetailApproveTelPage() {
     },
   };
   const listDataKey = Object.keys(listData);
+  const onFinish = async (values: { reason: string }) => {
+    try {
+      setVisibleApprove(false);
+      await onUpdateApprove(true, values.reason);
+      form.resetFields();
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <>
@@ -396,7 +424,7 @@ function DetailApproveTelPage() {
         </Container>
       </CardContainer>
 
-      {data && !data.isApprove && (
+      {data && !data.isApprove && !data.approveBy && (
         <CardContainer
           style={{
             marginTop: 16,
@@ -448,7 +476,7 @@ function DetailApproveTelPage() {
                       <Text color='Text3'>เบอร์โทรศัพท์เดิม</Text>
                     </Col>
                     <Col span={20}>
-                      <Text>{el.oldTelephone ? el.oldTelephone : "-"}</Text>
+                      <Text>{el.oldTelephone}</Text>
                     </Col>
                   </Row>
                   <Row
@@ -564,20 +592,39 @@ function DetailApproveTelPage() {
                       <Text>{el.updateBy}</Text>
                     </Col>
                   </Row>
-                  <Row
+                  <div
                     style={{
-                      padding: "8px 16px",
+                      borderRadius: 8,
+                      border: `1px solid ${color.background2}`,
                     }}
                   >
-                    <Col span={4}>
-                      <Text color='Text3'>สถานะการตรวจสอบ</Text>
-                    </Col>
-                    <Col span={20}>
-                      <Text color={el.statusApprove ? "success" : "error"}>
-                        {el.statusApprove ? "อนุมัติ" : "ไม่อนุมัติ"}
-                      </Text>
-                    </Col>
-                  </Row>
+                    <Row
+                      style={{
+                        padding: "8px 16px",
+                      }}
+                    >
+                      <Col span={4}>
+                        <Text color='Text3'>สถานะการตรวจสอบ</Text>
+                      </Col>
+                      <Col span={20}>
+                        <Text color={el.statusApprove ? "success" : "error"}>
+                          {el.statusApprove ? "อนุมัติ" : "ไม่อนุมัติ"}
+                        </Text>
+                      </Col>
+                    </Row>
+                    <Row
+                      style={{
+                        padding: "8px 16px",
+                      }}
+                    >
+                      <Col span={4}>
+                        <Text color='Text3'>เหตุผลการอนุมัติ</Text>
+                      </Col>
+                      <Col span={20}>
+                        <Text>{el.reasonApprove}</Text>
+                      </Col>
+                    </Row>
+                  </div>
                   <Row
                     style={{
                       padding: "8px 16px",
@@ -596,29 +643,123 @@ function DetailApproveTelPage() {
           </div>
         </CardContainer>
       )}
-      <ConfirmModal
+      <CustomConfirmModal
+        bodyComponent={
+          <Form {...defaultPropsForm} form={form} onFinish={onFinish}>
+            <Text fontFamily='Sarabun' fontWeight={400} fontSize={12}>
+              เหตุผลการอนุมัติ*
+            </Text>
+            <Form.Item
+              name='reason'
+              rules={[
+                {
+                  required: true,
+                  message: "โปรดระบุเหตุผล",
+                },
+              ]}
+            >
+              <TextArea placeholder='โปรดระบุเหตุผล' />
+            </Form.Item>
+            {/* <div
+              style={{
+                marginTop: 24,
+              }}
+            >
+              <Text fontFamily='Sarabun' fontWeight={400} fontSize={12}>
+                รูปหลักฐานการอนุมัติ
+              </Text>
+              <Form.Item name='fileList'>
+                <Upload
+                  maxCount={3}
+                  accept='image/*'
+                  listType='picture-card'
+                  multiple
+                  beforeUpload={async (file) => {
+                    if (file.size > 1024 * 1024 * 5) {
+                      await Swal.fire({
+                        icon: "error",
+                        title: "ขออภัย",
+                        text: "ไฟล์ขนาดใหญ่เกินไป",
+                        timer: 2000,
+                      });
+                      return false;
+                    }
+                    return true;
+                  }}
+                >
+                  {fileList && fileList.fileList.length >= 3 ? null : (
+                    <div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          backgroundColor: color.background2,
+                          width: 46,
+                          height: 46,
+                          borderRadius: "50%",
+                        }}
+                      >
+                        <img
+                          src={icon.iconAddImage}
+                          style={{
+                            width: 22,
+                            height: 22,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </Upload>
+              </Form.Item>
+            </div> */}
+          </Form>
+        }
         visible={visibleApprove}
-        onConfirm={async () => {
-          setVisibleApprove(false);
-          await onUpdateApprove(true);
+        onConfirm={() => {
+          form.submit();
         }}
         onCancel={() => {
           setVisibleApprove(false);
         }}
         title='ยืนยันการอนุมัติ'
-        desc={`โปรดยืนยันการอนุมัติ${textModal}`}
+        desc={`โปรดระบุเหตุผลยืนยันการอนุมัติ เบอร์โทรศัพท์`}
       />
-      <ConfirmModal
+      <CustomConfirmModal
+        bodyComponent={
+          <Form
+            {...defaultPropsForm}
+            form={formReject}
+            onFinish={async (values: { reason: string }) => {
+              setVisibleReject(false);
+              await onUpdateApprove(false, values.reason);
+            }}
+          >
+            <Text fontFamily='Sarabun' fontWeight={400} fontSize={12}>
+              เหตุผลการอนุมัติ*
+            </Text>
+            <Form.Item
+              name='reason'
+              rules={[
+                {
+                  required: true,
+                  message: "โปรดระบุเหตุผล",
+                },
+              ]}
+            >
+              <TextArea placeholder='โปรดระบุเหตุผล' />
+            </Form.Item>
+          </Form>
+        }
         visible={visibleReject}
-        onConfirm={async () => {
-          setVisibleReject(false);
-          await onUpdateApprove(false);
+        onConfirm={() => {
+          formReject.submit();
         }}
         onCancel={() => {
           setVisibleReject(false);
         }}
         title='ยืนยันการไม่อนุมัติ'
-        desc={`โปรดยืนยันการไม่อนุมัติ${textModal}`}
+        desc={`โปรดระบุเหตุผลยืนยันการไม่อนุมัติ เบอร์โทรศัพท์`}
       />
     </>
   );
