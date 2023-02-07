@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Features [v0.3.1] - Release Date: 2022-02-01
+
+- Feature: Discount CO
+- Feature: SpecialPrice
+
 ## Features [v0.3.0] - Release Date: 2022-01-12
 
 - Feature: ShopManagement & ApproveTel SoftLaunch

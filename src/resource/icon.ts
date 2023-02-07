@@ -13,4 +13,8 @@ export default {
   trashIcon: require("./media/icons/trashIcon.png"),
   backLeft: require("./media/icons/backLeft.png"),
   iconClose: require("./media/icons/iconClose.png"),
+  iconWaiting: require("./media/icons/hourglass.png"),
+  iconCliboard: require("./media/icons/clipboard.png"),
+  iconTruck: require("./media/icons/truck.png"),
+  iconCheckedTruck: require("./media/icons/checked-truck.png"),
 };
