@@ -151,7 +151,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 ]
               }
             >
-              <Input />
+              <Input disabled />
             </Form.Item>
           </Col>
           <Col span={12}>

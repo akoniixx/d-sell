@@ -55,6 +55,7 @@ const mappingCustomerType = {
   DL: "Dealer",
 };
 function DetailTab({ data }: Props): JSX.Element {
+  console.log("🚀 ~ file: DetailTab.tsx ~ line 85 ~ DetailTab ~ data", data);
   const profile = useRecoilValue(profileAtom);
   const currentCompany = (data.customerCompany || []).find(
     (item) => item.company === profile?.company,
@@ -75,38 +76,45 @@ function DetailTab({ data }: Props): JSX.Element {
       label: "ชื่อร้าน",
       value: currentCompany?.customerName || "-",
       isApproving: false,
+      isActive: true,
     },
     shopOwner: {
       label: "เจ้าของร้าน",
-      value: `${userShop?.nametitle || "-"} ${userShop?.firstname || "-"} ${
+      value: `${userShop?.nametitle || ""} ${userShop?.firstname || ""} ${
         userShop?.lastname || "-"
       } `,
       isApproving: false,
+      isActive: true,
     },
     zone: {
       label: "พื้นที่",
       value: currentCompany?.zone || "-",
       isApproving: false,
+      isActive: true,
     },
     addressShop: {
       label: "ที่อยู่ร้านค้า",
       value: data.address || "-",
       isApproving: false,
+      isActive: true,
     },
     addressLatLong: {
       label: "ตำแหน่ง ละติจูด / ลองจิจูด",
       value: `${data.lat || "-"} / ${data.lag || "-"}`,
       isApproving: false,
+      isActive: true,
     },
     personalShopId: {
       label: "หมายเลขนิติบุคคล",
       value: data.taxNo || "-",
       isApproving: false,
+      isActive: true,
     },
     personalId: {
       label: "หมายเลขบัตรประชาชน",
       value: userShop?.idCard || "-",
       isApproving: false,
+      isActive: true,
     },
     dateStartMember: {
       label: "วันที่เริ่มเป็นสมาชิก",
@@ -114,21 +122,25 @@ function DetailTab({ data }: Props): JSX.Element {
         ? dayjs(currentCompany?.createDate).locale("th").format("D MMM BBBB")
         : "-",
       isApproving: false,
+      isActive: true,
     },
     email: {
       label: "อีเมล",
       value: userShop?.email || "-",
       isApproving: false,
+      isActive: true,
     },
     telMain: {
       label: "เบอร์โทรศัพท์ (หลัก)",
       value: userShop?.telephone || "-",
       isApproving: data.isPending,
+      isActive: userShop?.isActive,
     },
     telSub: {
       label: "เบอร์โทรศัพท์ (รอง)",
       value: userShop?.secondtelephone || "-",
       isApproving: data.isPending,
+      isActive: userShop?.isPrimary,
     },
   };
   const listDataKey = Object.keys(listData);
@@ -207,6 +219,20 @@ function DetailTab({ data }: Props): JSX.Element {
                   >
                     <Text fontSize={14} color='white'>
                       รออนุมัติ
+                    </Text>
+                  </div>
+                )}
+                {!listData[el as keyof typeof listData].isActive && (
+                  <div
+                    style={{
+                      marginLeft: 24,
+                      backgroundColor: color.placeholder,
+                      borderRadius: 8,
+                      padding: "0 10px",
+                    }}
+                  >
+                    <Text fontSize={14} color='white'>
+                      ปิดการใช้งาน
                     </Text>
                   </div>
                 )}

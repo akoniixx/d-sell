@@ -86,15 +86,15 @@ function AddNewShopPage(): JSX.Element {
               : { customerName: "" };
           form.setFieldsValue({
             createDate: dayjs(),
-            updateBy: res.data.updateBy,
-            updateDate: res.data.updateDate,
-            lat: res.data.lat,
-            lag: res.data.lag,
-            address: res.data.address,
-            postcode: res.data.postcode,
-            subdistrict: res.data.subdistrict,
-            district: res.data.district,
-            province: res.data.province,
+            updateBy: res.data.updateBy || "",
+            updateDate: res.data.updateDate || "",
+            lat: res.data.lat || "",
+            lag: res.data.lag || "",
+            address: res.data.address || "",
+            postcode: res.data.postcode || "",
+            subdistrict: res.data.subdistrict || "",
+            district: res.data.district || "",
+            province: res.data.province || "",
             nametitle,
             firstname,
             lastname,
@@ -109,6 +109,7 @@ function AddNewShopPage(): JSX.Element {
             userShopId,
             customerName,
             taxId,
+            typeShop: "SD",
             isActiveCustomer: true,
           });
         }

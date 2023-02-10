@@ -34,9 +34,7 @@ const AntTable = styled(Table)`
   }
   .ant-table-thead
     > tr
-    > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not(
-      [colspan]
-    )::before {
+    > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
     display: none;
   }
   .ant-table-cell {
@@ -203,7 +201,7 @@ function TablePagination({
             },
           };
         }}
-        scroll={scroll}
+        scroll={data.length > 0 ? scroll : undefined}
         dataSource={data}
         {...props}
         pagination={
