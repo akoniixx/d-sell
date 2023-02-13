@@ -288,7 +288,7 @@ function StepOne({
             )}
           </div>
         </CardSection>
-        {form.getFieldValue("typeShop") && (
+        {form.getFieldValue("typeShop") && listSD.length > 0 && (
           <div
             style={{
               display: "flex",

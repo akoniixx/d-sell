@@ -158,7 +158,7 @@ export interface PayloadCustomerEntity {
   district: string;
   subdistrict: string;
   postcode: string;
-  telephone: string;
+  telephone?: string;
   taxNo: string;
   updateBy: string;
   lat: string;

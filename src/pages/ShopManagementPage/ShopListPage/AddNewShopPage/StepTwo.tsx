@@ -234,10 +234,10 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 label='เบอร์โทรศัพท์ (สำรอง)*'
                 name='secondtelephone'
                 rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกเบอร์โทรศัพท์",
-                  },
+                  // {
+                  //   required: true,
+                  //   message: "กรุณากรอกเบอร์โทรศัพท์",
+                  // },
                   {
                     pattern: /^[0-9]{10}$/,
                     message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",

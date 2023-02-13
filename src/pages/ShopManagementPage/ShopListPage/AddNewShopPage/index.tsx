@@ -44,7 +44,7 @@ function AddNewShopPage(): JSX.Element {
           company: profile?.company || "",
         });
         setDataDetail(res);
-        if (res) {
+        if (res && res.data) {
           const {
             userShop: {
               nametitle,
@@ -86,8 +86,8 @@ function AddNewShopPage(): JSX.Element {
               : { customerName: "" };
           form.setFieldsValue({
             createDate: dayjs(),
-            updateBy: res.data.updateBy || "",
-            updateDate: res.data.updateDate || "",
+            updateBy: res?.data.updateBy || "",
+            updateDate: res?.data.updateDate || "",
             lat: res.data.lat || "",
             lag: res.data.lag || "",
             address: res.data.address || "",
@@ -111,6 +111,12 @@ function AddNewShopPage(): JSX.Element {
             taxId,
             typeShop: "SD",
             isActiveCustomer: true,
+          });
+        } else {
+          form.setFieldsValue({
+            typeShop: "SD",
+            isActiveCustomer: true,
+            createDate: dayjs(),
           });
         }
       } catch (error) {
@@ -236,6 +242,7 @@ function AddNewShopPage(): JSX.Element {
           primaryId,
           telephone,
           updateBy,
+          userShopId: userShopId ? userShopId : null,
         },
       };
       if (userShopId) {

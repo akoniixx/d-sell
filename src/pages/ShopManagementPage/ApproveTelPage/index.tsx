@@ -52,7 +52,7 @@ function ApproveTelPage(): JSX.Element {
   useEffectOnce(() => {
     getZoneByCompany();
   });
-  const { data } = useQuery(["approve", debouncedValue, page, tab, zone], async () => {
+  const { data } = useQuery(["approve", debouncedValue, page, tab, currentZone], async () => {
     const res = await shopDatasource.getApproveTel({
       company: profile?.company || "",
       text: keyword,

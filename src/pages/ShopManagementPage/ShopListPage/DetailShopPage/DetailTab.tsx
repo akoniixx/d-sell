@@ -55,7 +55,6 @@ const mappingCustomerType = {
   DL: "Dealer",
 };
 function DetailTab({ data }: Props): JSX.Element {
-  console.log("🚀 ~ file: DetailTab.tsx ~ line 85 ~ DetailTab ~ data", data);
   const profile = useRecoilValue(profileAtom);
   const currentCompany = (data.customerCompany || []).find(
     (item) => item.company === profile?.company,
