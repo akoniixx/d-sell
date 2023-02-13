@@ -2,6 +2,7 @@
 
 ## Features [v0.3.1] - Release Date: 2022-02-01
 
+- Feature: Order Management
 - Feature: Discount CO
 - Feature: SpecialPrice
 - Feature: ShopManagement & ApproveTel
