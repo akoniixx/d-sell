@@ -74,6 +74,7 @@ export const OrderList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string[]>();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
+  const [dateFilter, setDateFilter] = useState<any>();
   const [dataState, setDataState] = useState({
     data: [],
     dashboard: {
@@ -85,8 +86,6 @@ export const OrderList: React.FC = () => {
     count: 0,
   });
 
-  const [dateFilter, setDateFilter] = useState<any>();
-
   useEffect(() => {
     if (!loading) fetchData();
   }, []);
@@ -94,7 +93,7 @@ export const OrderList: React.FC = () => {
   useEffect(() => {
     console.log("change filter");
     fetchData();
-  }, [keyword, statusFilter]);
+  }, [keyword, statusFilter, dateFilter]);
 
   const resetPage = () => setPage(1);
 
@@ -106,8 +105,10 @@ export const OrderList: React.FC = () => {
         status: statusFilter,
         page,
         take: pageSize,
+        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
+        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
       });
-      // startDate endDate
+      console.log({ dateFilter });
       setDataState({ data, dashboard, count });
     } catch (e) {
       console.log(e);
@@ -251,7 +252,7 @@ export const OrderList: React.FC = () => {
       key: "status",
       width: "15%",
       align: "center" as AlignType,
-      render: (value: OrderStatusKey, row: any, index: number) => {
+      render: (value: OrderStatusKey, row: OrderEntity, index: number) => {
         return (
           <FlexCol align='center' justify='center'>
             <Text
@@ -263,9 +264,14 @@ export const OrderList: React.FC = () => {
             </Text>
             <Text
               level={6}
-              style={{ color: ORDER_PAYMENT_STATUS.STATUS_1.color, textAlign: "center" }}
+              style={{
+                color: row?.paidStatus
+                  ? ORDER_PAYMENT_STATUS[row?.paidStatus].name_default
+                  : undefined,
+                textAlign: "center",
+              }}
             >
-              {ORDER_PAYMENT_STATUS.STATUS_1.name_default}
+              {row?.paidStatus ? ORDER_PAYMENT_STATUS[row?.paidStatus].name_default : "-"}
             </Text>
             <Text level={6} color='Text3' style={{ textAlign: "center" }}>
               {moment(row.updateAt).format(SLASH_DMY)}

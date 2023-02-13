@@ -1,4 +1,8 @@
-import { OrderPaymentMethodName, OrderStatusKey } from "../definitions/orderStatus";
+import {
+  OrderPaymentMethodName,
+  OrderPaymentStatusKey,
+  OrderStatusKey,
+} from "../definitions/orderStatus";
 import { ProductEntity } from "./PoductEntity";
 
 export interface OrderEntity {
@@ -10,12 +14,16 @@ export interface OrderEntity {
   customerCompanyId: number | string;
   customerName?: string;
   customerNo?: string;
+  deliveryAddress: string;
+  deliveryDest: string;
+  deliveryRemark: string;
   discount?: number;
   isUseCOD?: boolean;
   navNo?: string;
   orderId: string;
   orderNo?: string;
   orderProducts?: ProductEntity[];
+  paidStatus?: OrderPaymentStatusKey;
   paymentMethod?: OrderPaymentMethodName;
   price?: number;
   saleCoRemark?: string;

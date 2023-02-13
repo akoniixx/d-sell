@@ -46,6 +46,7 @@ export default function EditShopPage() {
         setDataDetail(res);
 
         if (res && res?.data) {
+          console.log("res?.data", res?.data);
           const {
             userShop: {
               nametitle,
@@ -223,9 +224,10 @@ export default function EditShopPage() {
           nametitle,
           secondtelephone,
           email,
-          userShopId,
+          userShopId: userShopId ? userShopId : null,
         },
       };
+
       try {
         const res = await shopDatasource.updateCustomer(payload);
         if (res && res.success) {

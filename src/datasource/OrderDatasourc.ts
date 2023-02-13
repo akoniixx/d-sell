@@ -17,11 +17,11 @@ const getOrderDetail = async (id: string) => {
     .catch((err) => console.log(err));
 };
 
-const updateOrder = async (id: string, data: object) => {
+const updateOrderStatus = async (data: object) => {
   return await httpClient
-    .patch(`${baseUrl}/order/${id}`, data)
+    .post(`${baseUrl}/order/update-order-status`, data)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
 
-export { getOrders, getOrderDetail, updateOrder };
+export { getOrders, getOrderDetail, updateOrderStatus };

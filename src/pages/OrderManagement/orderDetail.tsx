@@ -33,6 +33,7 @@ import {
 } from "@ant-design/icons";
 import color from "../../resource/color";
 import image from "../../resource/image";
+import icons from "../../resource/icon";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
@@ -52,9 +53,12 @@ import {
   ORDER_STATUS,
   ORDER_PAYMENT_STATUS,
   ORDER_PAYMENT_METHOD_NAME,
+  OrderStatusKey,
 } from "../../definitions/orderStatus";
-import { getOrderDetail } from "../../datasource/OrderDatasourc";
+import { getOrderDetail, updateOrderStatus } from "../../datasource/OrderDatasourc";
 import { OrderEntity } from "../../entities/OrderEntity";
+import { getOrderStatus } from "../../utility/OrderStatus";
+import TextArea from "../../components/Input/TextArea";
 
 const SLASH_DMY = "DD/MM/YYYY";
 
@@ -66,6 +70,13 @@ const DetailBox = styled.div`
   border: 1px solid ${color.background2};
   border-radius: 16px;
 `;
+
+const NavResponseBox = styled(CardContainer)`
+  border-width: ${(props) => (props.color ? "1px 1px 1px 13px" : "0px")};
+  border-style: solid;
+  border-color: ${(props) => props.color};
+`;
+
 const DetailItem = ({
   label,
   value,
@@ -121,6 +132,11 @@ export const OrderDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState<OrderEntity>();
 
+  const [updating, setUpdating] = useState(false);
+
+  const [form] = Form.useForm();
+  const [navForm] = Form.useForm();
+
   useEffect(() => {
     if (!loading) fetchData();
   }, []);
@@ -141,6 +157,41 @@ export const OrderDetail: React.FC = () => {
       });
   };
 
+  const updateStatus = async (nextStatus?: OrderStatusKey) => {
+    const { status } = form.getFieldsValue();
+    const onSubmit = async () => {
+      setUpdating(true);
+      const id = pathSplit[2];
+      await updateOrderStatus({
+        orderId: id,
+        status: nextStatus ? nextStatus : status,
+      })
+        .then((res: any) => {
+          navigate(0);
+          console.log(res);
+        })
+        .catch((e: any) => {
+          console.log(e);
+        })
+        .finally(() => {
+          setUpdating(false);
+        });
+    };
+    Modal.confirm({
+      title: `ยืนยันการปรับสถานะ "${getOrderStatus(
+        nextStatus ? nextStatus : (status as OrderStatusKey),
+        company,
+      )}"`,
+      icon: null,
+      content: (
+        <Text color='Text3' level={6}>
+          โปรดยืนยันรายการ
+        </Text>
+      ),
+      onOk: onSubmit,
+    });
+  };
+
   const PageTitle = () => {
     return (
       <PageTitleNested
@@ -157,14 +208,18 @@ export const OrderDetail: React.FC = () => {
                 fontWeight: 700,
               }}
             >
-              {orderData?.status ? ORDER_STATUS[orderData?.status].name_default : "-"}
+              {orderData?.status ? getOrderStatus(orderData?.status, company) : "-"}
             </Text>
             <Text
               style={{
-                color: ORDER_PAYMENT_STATUS.STATUS_1.color,
+                color: orderData?.paidStatus
+                  ? ORDER_PAYMENT_STATUS[orderData?.paidStatus].name_default
+                  : undefined,
               }}
             >
-              {ORDER_PAYMENT_STATUS.STATUS_1.name_default}
+              {orderData?.paidStatus
+                ? ORDER_PAYMENT_STATUS[orderData?.paidStatus].name_default
+                : "-"}
             </Text>
             <Text level={7}>วันที่อัปเดท&nbsp;{moment(orderData?.updateAt).format(SLASH_DMY)}</Text>
           </FlexCol>
@@ -261,6 +316,156 @@ export const OrderDetail: React.FC = () => {
     },
   ];
 
+  const orderStatusOption = (
+    <CardContainer>
+      <Form form={form} onFinish={() => updateStatus()}>
+        <Row gutter={16} justify='end'>
+          <Col span={4}>
+            {orderData?.status !== "WAIT_CONFIRM_ORDER" && (
+              <Button
+                title='ยกเลิกคำสั่งซื้อ'
+                typeButton='danger'
+                onClick={() => updateStatus("COMPANY_CANCLE_ORDER")}
+              />
+            )}
+          </Col>
+          <Col span={8} />
+          <Col span={4}>
+            <Form.Item name='status' noStyle initialValue={orderData?.status}>
+              <Select
+                data={[
+                  "WAIT_CONFIRM_ORDER",
+                  "CONFIRM_ORDER",
+                  "OPEN_ORDER",
+                  "IN_DELIVERY",
+                  "DELIVERY_SUCCESS",
+                ].map((key) => ({
+                  key,
+                  value: key,
+                  label: getOrderStatus(key as OrderStatusKey, company),
+                }))}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Form.Item name='paymentStatus' noStyle>
+              <Select
+                data={Object.entries(ORDER_PAYMENT_STATUS).map(([key, { name_default }]) => ({
+                  key,
+                  value: key,
+                  label: name_default,
+                }))}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Button title='ปรับสถานะคำสั่งซื้อ' htmlType='submit' loading={updating} />
+          </Col>
+        </Row>
+      </Form>
+    </CardContainer>
+  );
+
+  const OrderNavOption = () => {
+    const step = "wait"; //"success" 'wait' 'failed';
+    const info = {
+      wait: {
+        borderColor: undefined,
+        icon: undefined,
+        title: (
+          <Row align='middle' justify='space-between'>
+            <Col span={20}>
+              <div>
+                <Text level={2}>
+                  ส่งคำสั่งซื้อไปที่ระบบ <span style={{ color: color.primary }}>Navistion</span>
+                </Text>
+                &nbsp;
+                <Text level={5}>
+                  เมื่อตรวจสอบคำสั่งซื้อเรียบร้อยให้กดปุ่ม “ส่งการสั่งซื้อทันที”
+                </Text>
+              </div>
+            </Col>
+            <Col span={4}>
+              <Row justify='end'>
+                <Button title='ส่งการสั่งซื้อทันที' style={{ width: "180px" }} />
+              </Row>
+            </Col>
+          </Row>
+        ),
+      },
+      success: {
+        borderColor: color.success,
+        icon: icons.resultSuccess,
+        title: (
+          <>
+            <Text level={2} color='success'>
+              ส่งคำสั่งซื้อไปยังระบบ Navistion แล้ว
+            </Text>
+          </>
+        ),
+      },
+      failed: {
+        borderColor: color.warning,
+        icon: icons.resultFailed,
+        title: (
+          <>
+            <Text level={2} color='warning'>
+              ส่งคำสั่งซื้อไปยังระบบ Navistion ไม่สำเร็จ “โปรดติดต่อทีม Support”
+            </Text>
+          </>
+        ),
+      },
+    };
+    const { borderColor, icon, title } = info[step];
+    return (
+      <NavResponseBox color={borderColor}>
+        <FlexRow style={{ width: "100%" }}>
+          {icon && (
+            <div>
+              <img src={icon} />
+            </div>
+          )}
+          <div style={{ width: "100%" }}>
+            {title}
+            <br />
+            <Form form={navForm} layout='vertical'>
+              <Form.Item label='เงื่อนไข Memo'>
+                <TextArea />
+              </Form.Item>
+            </Form>
+          </div>
+        </FlexRow>
+      </NavResponseBox>
+    );
+  };
+  const getOption = () => {
+    switch (orderData?.status) {
+      case "WAIT_CONFIRM_ORDER":
+        return (
+          <>
+            <br />
+            {orderStatusOption}
+          </>
+        );
+      case "CONFIRM_ORDER":
+      case "OPEN_ORDER":
+      case "IN_DELIVERY":
+      case "DELIVERY_SUCCESS":
+        return (
+          <>
+            <br />
+            <OrderNavOption />
+            <br />
+            {orderStatusOption}
+          </>
+        );
+      default:
+        return <></>;
+    }
+  };
+
   return loading ? (
     <CardContainer>{<PageSpin />}</CardContainer>
   ) : (
@@ -298,12 +503,9 @@ export const OrderDetail: React.FC = () => {
               </Text>
               <DetailBox style={{ height: 220 }}>
                 {/* TODO */}
-                <DetailItem label='การจัดส่ง' value='รับที่โรงงาน' />
-                <DetailItem
-                  label='ที่อยู่'
-                  value='เลขที่ 2/1 หมู่ที่ 3 แม่ลา นครหลวง พระนครศรีอยุธยา 13260'
-                />
-                <DetailItem label='หมายเหตุการจัดส่ง' value='ส่งไว้ที่เดิม' />
+                <DetailItem label='การจัดส่ง' value={orderData?.deliveryDest} />
+                <DetailItem label='ที่อยู่' value={orderData?.deliveryAddress} />
+                <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} />
               </DetailBox>
             </CardContainer>
           </Col>
@@ -324,12 +526,12 @@ export const OrderDetail: React.FC = () => {
               <Text level={5} fontWeight={700}>
                 หมายเหตุ (สำหรับ Sale Co)
               </Text>
-              <DetailBox>-</DetailBox>
+              <DetailBox>{orderData?.saleCoRemark || "-"}</DetailBox>
               <br />
               <Text level={5} fontWeight={700}>
                 หมายเหตุ (ขอส่วนลดพิเศษเพิ่ม)
               </Text>
-              <DetailBox>-</DetailBox>
+              <DetailBox>{orderData?.specialRequestRemark || "-"}</DetailBox>
             </CardContainer>
           </Col>
           <Col span={12}>
@@ -395,6 +597,7 @@ export const OrderDetail: React.FC = () => {
             </CardContainer>
           </Col>
         </Row>
+        {getOption()}
       </div>
     </>
   );
