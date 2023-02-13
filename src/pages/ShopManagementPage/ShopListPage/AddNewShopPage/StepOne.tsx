@@ -12,6 +12,11 @@ import Button from "../../../../components/Button/Button";
 import { getCompanyImage, getCompanyName } from "../../../../utility/CompanyName";
 import { CustomerDetailEntity } from "../../../../entities/CustomerEntity";
 
+const mappingCompany = {
+  ICPL: "ICP Ladda",
+  ICPF: "ICP Fertilizer",
+  ICPI: "ICP International",
+};
 const BottomSection = styled.div`
   padding: 8px 24px 24px;
   display: flex;
@@ -52,6 +57,7 @@ function StepOne({
       value: "SD",
     },
   ];
+
   const renderByCompany = () => {
     switch (company) {
       case "ICPL": {
@@ -269,7 +275,7 @@ function StepOne({
                         <Text fontFamily='Sarabun'>
                           {`ประเภทคู่ค้า: `}
                           <Text color='primary' fontWeight={600}>
-                            {findCurrentCompany.customerType}
+                            {findCurrentCompany.customerType === "DL" ? "Dealer" : "Sub Dealer"}
                           </Text>
                         </Text>
                         <Text fontFamily='Sarabun'>{`รหัสร้านค้า: ${findCurrentCompany.customerNo}`}</Text>
@@ -321,12 +327,14 @@ function StepOne({
                       flexDirection: "column",
                     }}
                   >
-                    <Text fontWeight={700}>{item.customerName}</Text>
+                    <Text fontWeight={700}>
+                      {mappingCompany[item.company as keyof typeof mappingCompany]}
+                    </Text>
                     <div style={{ display: "flex", gap: 16 }}>
                       <Text fontFamily='Sarabun'>
                         {`ประเภทคู่ค้า: `}
                         <Text color='primary' fontWeight={600}>
-                          {item.customerType}
+                          {item.customerType === "DL" ? "Dealer" : "Sub Dealer"}
                         </Text>
                       </Text>
                       <Text fontFamily='Sarabun'>{`รหัสร้านค้า: ${item.customerNo}`}</Text>

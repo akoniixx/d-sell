@@ -64,6 +64,8 @@ export interface CustomerEntityShopList {
     nametitle: string;
     secondtelephone: string | null;
     telephone: string | null;
+    isActive: boolean;
+    isPrimary: boolean;
   };
   province?: string;
   telephone?: string;

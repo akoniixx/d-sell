@@ -736,7 +736,7 @@ function DetailApproveTelPage() {
             }}
           >
             <Text fontFamily='Sarabun' fontWeight={400} fontSize={12}>
-              เหตุผลการอนุมัติ*
+              เหตุผลการไม่อนุมัติ*
             </Text>
             <Form.Item
               name='reason'
