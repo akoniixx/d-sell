@@ -52,7 +52,7 @@ function ApproveTelPage(): JSX.Element {
   useEffectOnce(() => {
     getZoneByCompany();
   });
-  const { data } = useQuery(["approve", debouncedValue, page, tab], async () => {
+  const { data } = useQuery(["approve", debouncedValue, page, tab, zone], async () => {
     const res = await shopDatasource.getApproveTel({
       company: profile?.company || "",
       text: keyword,
@@ -84,12 +84,11 @@ function ApproveTelPage(): JSX.Element {
       key: "UNAPPROVE",
     },
   ];
-  console.log(data);
 
   const defaultTableColumns = useMemo(() => {
     const staticData = [
       {
-        title: "No. Member",
+        title: "Customer No.",
         dataIndex: "customerId",
         key: "customerId",
       },

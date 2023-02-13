@@ -17,10 +17,7 @@ import TablePagination from "../../../components/Table/TablePagination";
 import Text from "../../../components/Text/Text";
 import { shopDatasource } from "../../../datasource/ShopDatasource";
 import { zoneDatasource } from "../../../datasource/ZoneDatasource";
-import {
-  CustomerEntityShopList,
-  CustomerEntityShopListIndex,
-} from "../../../entities/CustomerEntity";
+import { CustomerEntityShopListIndex } from "../../../entities/CustomerEntity";
 import useDebounce from "../../../hook/useDebounce";
 import { profileAtom } from "../../../store/ProfileAtom";
 
@@ -134,7 +131,7 @@ function ShopListPage(): JSX.Element {
   const defaultTableColumns = useMemo(() => {
     const staticData = [
       {
-        title: "No. Member",
+        title: "Customer No.",
         dataIndex: "customerId",
         key: "customerId",
       },
@@ -524,8 +521,8 @@ function ShopListPage(): JSX.Element {
           }}
         >
           <Text fontWeight={700} align='center' fontSize={20}>
-            เลขประจำตัวผู้เสียภาษีนี้มีข้อมูลร้านคู่ค้า ICP Ladda ICP Fertilizer และ ICP
-            International แล้วท่านต้องการแก้ไขข้อมูลหรือไม่
+            เลขประจำตัวผู้เสียภาษีนี้มีข้อมูลร้านคู่ค้าของท่านอยู่แล้ว
+            ท่านต้องการแก้ไขข้อมูลหรือไม่?
           </Text>
         </div>
         <div

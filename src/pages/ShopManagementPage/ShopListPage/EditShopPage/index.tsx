@@ -46,7 +46,6 @@ export default function EditShopPage() {
         setDataDetail(res);
 
         if (res && res?.data) {
-          console.log("res?.data", res?.data);
           const {
             userShop: {
               nametitle,
@@ -88,7 +87,7 @@ export default function EditShopPage() {
           form.setFieldsValue({
             customerNo: findDataByCompany?.customerNo || "",
             isActiveCustomer: findDataByCompany?.isActive || false,
-            typeShop: findDataByCompany?.customerType || "",
+            typeShop: findDataByCompany?.customerType || "SD",
             zone: findDataByCompany?.zone || "",
             createDate: dayjs(findDataByCompany?.createDate) || "",
             updateBy: res.data.updateBy,
@@ -286,7 +285,7 @@ export default function EditShopPage() {
   return (
     <CardContainer>
       <PageTitleNested
-        title='แก้ไขร้านค้า'
+        title='แก้ไขข้อมูลร้านค้า'
         extra={
           <div>
             <StepAntd

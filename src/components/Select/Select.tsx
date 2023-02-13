@@ -77,9 +77,14 @@ function Select({
   style,
   ...props
 }: Props): JSX.Element {
+  const [open, setOpen] = React.useState(false);
   return (
     <AntSelectCustom
       {...props}
+      open={open}
+      onClick={() => {
+        setOpen(!open);
+      }}
       dropdownStyle={{ fontFamily: "Sarabun" }}
       onChange={(e) => {
         onChange?.(e);
@@ -89,6 +94,9 @@ function Select({
       placeholder={placeholder}
       suffixIcon={
         <CaretDownOutlined
+          onClick={() => {
+            setOpen(!open);
+          }}
           style={{
             color: color.Text1,
             fontSize: "20px",
