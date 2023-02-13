@@ -20,6 +20,10 @@ export const priceFormatter = (
     : `฿ ${formatter.format(num)}`;
 };
 
+export const numberFormatter = (price: number | string) => {
+  return priceFormatter(price, undefined, false, true);
+};
+
 export const nameFormatter = (input: string) => {
   if (!input) return "";
   const upperCaseFirstLetter = `${input.slice(0, 1).toUpperCase().slice(1)}`;

@@ -1,10 +1,14 @@
 ## [Version - 0]
 
-## Features [v0.3.1] - Release Date: 2023-07-02
+## Features [v0.3.1] - Release Date: 2022-02-01
 
-- Feature: ShopManagement & ApproveTel 
+- Feature: Order Management
+- Feature: Discount CO
+- Feature: SpecialPrice
+- Feature: ShopManagement & ApproveTel
 - fix status ShopDetail
 - add ApproveTel reason field
+
 ## Features [v0.3.0] - Release Date: 2023-01-01
 
 - Feature: ShopManagement & ApproveTel SoftLaunch

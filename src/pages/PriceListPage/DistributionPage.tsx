@@ -79,20 +79,6 @@ export const DistributionPage: React.FC = () => {
         brands,
         categories,
       });
-      console.log({
-        company,
-        prodGroup,
-        keyword,
-        location,
-        page,
-        data,
-        count_location,
-        count,
-        responseData,
-        brands,
-        categories,
-        userProfile,
-      });
     } catch (e) {
       console.log(e);
     } finally {
@@ -126,8 +112,8 @@ export const DistributionPage: React.FC = () => {
               }}
               onChange={(e) => {
                 const value = (e.target as HTMLInputElement).value;
-                if(!value) {
-                  setKeyword('');
+                if (!value) {
+                  setKeyword("");
                   resetPage();
                 }
               }}
@@ -156,9 +142,9 @@ export const DistributionPage: React.FC = () => {
 
   const tabsItems = [
     { label: "ทั้งหมด", key: "ALL" },
-    ...(dataState?.count_location?.map(({ location, count }) => ({
-      label: LOCATION_FULLNAME_MAPPING[location] + `(${count})`,
-      key: location,
+    ...(dataState?.count_location?.map(({ product_location, count }) => ({
+      label: (LOCATION_FULLNAME_MAPPING[product_location] || "- ") + `(${count})`,
+      key: product_location,
     })) || []),
   ];
 
@@ -208,12 +194,15 @@ export const DistributionPage: React.FC = () => {
       title: "หมวดสินค้า",
       dataIndex: "productCategoryId",
       key: "productCategoryId",
-      width: '124px',
+      width: "124px",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{(dataState?.categories?.find((c: any) => c.productCategoryId === value) as any)?.productCategoryName || '-'}</Text>
+              <Text level={5}>
+                {(dataState?.categories?.find((c: any) => c.productCategoryId === value) as any)
+                  ?.productCategoryName || "-"}
+              </Text>
             </FlexCol>
           ),
         };
@@ -223,7 +212,7 @@ export const DistributionPage: React.FC = () => {
       title: "กลุ่มสินค้า",
       dataIndex: "productGroup",
       key: "productGroup",
-      width: '132px',
+      width: "132px",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -273,7 +262,7 @@ export const DistributionPage: React.FC = () => {
       title: "ราคา / หน่วย",
       dataIndex: "unitPrice",
       key: "unitPrice",
-      width: '132px',
+      width: "132px",
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
         return {
@@ -300,10 +289,10 @@ export const DistributionPage: React.FC = () => {
       },
     },
     {
-      title: "ราคาต่อแพ็ค",
+      title: "ราคาขาย",
       dataIndex: "marketPrice",
       key: "marketPrice",
-      width: '136px',
+      width: "136px",
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
         return {
@@ -333,9 +322,7 @@ export const DistributionPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
-                    navigate("/PriceListPage/DistributionPage/" + row.productId)
-                  }
+                  onClick={() => navigate("/PriceListPage/DistributionPage/" + row.productId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
@@ -373,7 +360,7 @@ export const DistributionPage: React.FC = () => {
               current: page,
               total: dataState?.count,
               onChange: (p) => setPage(p),
-              showSizeChanger: false
+              showSizeChanger: false,
             }}
             loading={loading}
             size='large'

@@ -26,13 +26,10 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
 
 export const pathLists = [
   {
-    path: "/OrderPage",
-    name: "คำสั่งซื้อ",
-    permission: {
-      name: "จัดการคำสั่งซื้อ",
-      action: "view",
-    },
-    title: "Order Management",
+    path: "/order",
+    name: "order",
+    permission: null,
+    title: "จัดการคำสั่งซื้อ",
     subMenu: [],
   },
   {
