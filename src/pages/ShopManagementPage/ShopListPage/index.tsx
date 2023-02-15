@@ -141,10 +141,16 @@ function ShopListPage(): JSX.Element {
         key: "shopName",
       },
       {
+        title: "Tax No.",
+        dataIndex: "taxNo",
+        key: "taxNo",
+      },
+      {
         title: "ชื่อเจ้าของร้าน",
         dataIndex: "zone",
         key: "zone",
       },
+
       {
         title: (
           <Text color='success' fontWeight={600}>
@@ -188,7 +194,7 @@ function ShopListPage(): JSX.Element {
         title: item.title,
 
         fixed: item.key === "action" ? "right" : undefined,
-        width: item.key === "action" ? 200 : undefined,
+        width: item.key === "action" ? "10%" : undefined,
         // sorter: item.key === "contact" ? undefined : (a: any, b: any) => a[item.key] - b[item.key],
         render: (value: any, data: CustomerEntityShopListIndex) => {
           const userShop = data?.customerToUserShops[0]?.userShop || {

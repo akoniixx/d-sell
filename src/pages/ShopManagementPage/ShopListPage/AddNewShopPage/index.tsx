@@ -189,7 +189,6 @@ function AddNewShopPage(): JSX.Element {
         subdistrict,
         taxId,
         telephone,
-        updateBy,
         isActive,
         isPrimary,
         position,
@@ -202,7 +201,7 @@ function AddNewShopPage(): JSX.Element {
         zone,
       }: FormStepCustomerEntity = form.getFieldsValue(true);
       const payload: PayloadCustomerEntity = {
-        customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
+        customerId: dataDetail?.data?.customerId ? +dataDetail?.data.customerId : 0,
         address,
         district,
         lag,
@@ -211,13 +210,14 @@ function AddNewShopPage(): JSX.Element {
         province,
         subdistrict,
         taxNo: taxId,
-        updateBy,
         telephone,
+        updateBy: `${profile?.firstname} ${profile?.lastname}`,
+
         customerCompany: [
           {
             customerName: customerName || "",
             company: profile?.company || "",
-            customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
+            customerId: dataDetail?.data?.customerId ? +dataDetail?.data.customerId : 0,
             isActive: isActiveCustomer,
             zone,
             customerType: typeShop,
@@ -238,10 +238,11 @@ function AddNewShopPage(): JSX.Element {
           nametitle,
           nickname,
           position,
-          secondtelephone,
+          secondtelephone: secondtelephone ? secondtelephone : null,
           primaryId,
           telephone,
-          updateBy,
+          updateBy: `${profile?.firstname} ${profile?.lastname}`,
+
           userShopId: userShopId ? userShopId : null,
         },
       };

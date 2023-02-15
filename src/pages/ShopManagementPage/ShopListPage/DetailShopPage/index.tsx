@@ -28,7 +28,7 @@ function DetailShopPage(): JSX.Element {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100%",
+          height: "80vh",
         }}
       >
         <Spin size='large' />

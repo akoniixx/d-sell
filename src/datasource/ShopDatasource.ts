@@ -49,6 +49,7 @@ const getCustomerByTaxId = async ({ taxNo, company }: { taxNo: string; company: 
 };
 
 const postCustomer = async (data: PayloadCustomerEntity) => {
+  console.log("data", data);
   const url = `${BASE_URL}/auth/customer`;
   return await httpClient.post(url, data).then((res: AxiosResponse) => res.data);
 };
