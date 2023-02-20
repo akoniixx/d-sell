@@ -188,13 +188,13 @@ function ShopListPage(): JSX.Element {
 
     const columns = staticData.map((item) => {
       return {
+        ...item,
         key: item.key,
 
         dataIndex: item.dataIndex,
         title: item.title,
 
         fixed: item.key === "action" ? "right" : undefined,
-        width: item.key === "action" ? "10%" : undefined,
         // sorter: item.key === "contact" ? undefined : (a: any, b: any) => a[item.key] - b[item.key],
         render: (value: any, data: CustomerEntityShopListIndex) => {
           const userShop = data?.customerToUserShops[0]?.userShop || {

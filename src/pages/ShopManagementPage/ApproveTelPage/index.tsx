@@ -238,7 +238,6 @@ function ApproveTelPage(): JSX.Element {
     });
     return columns;
   }, [tab]);
-
   return (
     <CardContainer>
       <PageTitle

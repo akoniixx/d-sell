@@ -376,7 +376,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             </Col>
             <Col span={6}>
               <Form.Item
-                label='รหัสไปษณีย์*'
+                label='รหัสไปรษณีย์*'
                 name='postcode'
                 rules={[
                   {

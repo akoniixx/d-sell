@@ -1,5 +1,7 @@
 ## [Version - 0]
-## Resolved [v0.3.3] - Release Date: 2023-10-03
+## Resolved [v0.3.4] - Release Date: 2023-14-02
+- Defect: ShopManagement & ApproveTel 
+## Resolved [v0.3.3] - Release Date: 2023-13-02
 - Defect: ShopManagement & ApproveTel 
 
 ## Resolved [v0.3.2] - Release Date: 2023-10-02

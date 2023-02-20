@@ -46,6 +46,8 @@ interface Props {
       isApprove: boolean;
       newSecondTelephone: string | null;
       newTelephone: string | null;
+      oldSecondTelephone: string | null;
+      oldTelephone: string | null;
     };
     isPending: boolean;
   };
@@ -131,14 +133,14 @@ function DetailTab({ data }: Props): JSX.Element {
     },
     telMain: {
       label: "เบอร์โทรศัพท์ (หลัก)",
-      value: userShop?.telephone || "-",
-      isApproving: data.isPending,
+      value: userShop?.telephone ? userShop?.telephone : "-",
+      isApproving: data.isPending && data?.approveTel?.newTelephone,
       isActive: userShop?.isActive,
     },
     telSub: {
       label: "เบอร์โทรศัพท์ (รอง)",
-      value: userShop?.secondtelephone || "-",
-      isApproving: data.isPending,
+      value: userShop?.secondtelephone ? userShop.secondtelephone : "-",
+      isApproving: data.isPending && data?.approveTel?.newSecondTelephone,
       isActive: userShop?.isPrimary,
     },
   };

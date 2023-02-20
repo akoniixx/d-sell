@@ -262,7 +262,7 @@ function AddNewShopPage(): JSX.Element {
           },
           showConfirmButton: false,
         }).then(() => {
-          navigate(`ShopManagementPage/ShopListPage`);
+          navigate(`/ShopManagementPage/ShopListPage`);
         });
       } else {
         Swal.fire({

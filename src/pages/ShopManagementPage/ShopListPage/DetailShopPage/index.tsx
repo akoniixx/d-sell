@@ -49,7 +49,7 @@ function DetailShopPage(): JSX.Element {
     },
   ];
   const isDisabled = data && data.isPending;
-
+  console.log("detail", data);
   return (
     <CardContainer>
       <PageTitleNested
