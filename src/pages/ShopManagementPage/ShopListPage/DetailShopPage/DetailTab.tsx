@@ -41,7 +41,7 @@ interface Props {
     taxNo: string;
     updateBy: string;
     updateDate: string;
-    approveTel: {
+    shopApproveTel: {
       action: string;
       isApprove: boolean;
       newSecondTelephone: string | null;
@@ -134,13 +134,13 @@ function DetailTab({ data }: Props): JSX.Element {
     telMain: {
       label: "เบอร์โทรศัพท์ (หลัก)",
       value: userShop?.telephone ? userShop?.telephone : "-",
-      isApproving: data.isPending && data?.approveTel?.newTelephone,
+      isApproving: data.isPending && data?.shopApproveTel?.newTelephone,
       isActive: userShop?.isActive,
     },
     telSub: {
       label: "เบอร์โทรศัพท์ (รอง)",
       value: userShop?.secondtelephone ? userShop.secondtelephone : "-",
-      isApproving: data.isPending && data?.approveTel?.newSecondTelephone,
+      isApproving: data.isPending && data?.shopApproveTel?.newSecondTelephone,
       isActive: userShop?.isPrimary,
     },
   };

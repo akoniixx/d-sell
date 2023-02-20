@@ -251,7 +251,6 @@ function DetailApproveTelPage() {
       console.log(e);
     }
   };
-  console.log("data", data);
 
   return (
     <>
