@@ -33,6 +33,13 @@ export const pathLists = [
     subMenu: [],
   },
   {
+    path: "/special-request",
+    name: "specialRequest",
+    permission: null,
+    title: "ยืนยันคำสั่งซื้อ",
+    subMenu: [],
+  },
+  {
     path: "/PromotionPage",
     name: "promotion",
     title: "ตั้งค่าโปรโมชั่น",
@@ -55,7 +62,7 @@ export const pathLists = [
   {
     path: "/discount",
     name: "discountList",
-    title: "Discount (CO)",
+    title: "ส่วนลด (CO)",
     permission: null,
     // permission: {
     //   name: "discountCo",
@@ -65,7 +72,7 @@ export const pathLists = [
       {
         path: "/list",
         name: "discountList",
-        title: "Discount Lists",
+        title: "รายการส่วนลด",
       },
       {
         path: "/edit",
@@ -75,7 +82,7 @@ export const pathLists = [
       {
         path: "/customerList",
         name: "customerList",
-        title: "Discount CO รายร้าน",
+        title: "ส่วนลด CO รายร้าน",
       },
     ],
   },

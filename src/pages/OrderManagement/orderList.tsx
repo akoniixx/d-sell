@@ -93,7 +93,7 @@ export const OrderList: React.FC = () => {
   useEffect(() => {
     console.log("change filter");
     fetchData();
-  }, [keyword, statusFilter, dateFilter]);
+  }, [keyword, statusFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
 
@@ -101,6 +101,7 @@ export const OrderList: React.FC = () => {
     try {
       setLoading(true);
       const { data, dashboard, count } = await getOrders({
+        company,
         search: keyword,
         status: statusFilter,
         page,
@@ -176,7 +177,7 @@ export const OrderList: React.FC = () => {
       title: "รหัสคำสั่งซื้อ",
       dataIndex: "orderNo",
       key: "orderNo",
-      width: "15%",
+      width: 168,
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
@@ -192,7 +193,7 @@ export const OrderList: React.FC = () => {
       title: "รหัส SO",
       dataIndex: "soNo",
       key: "soNo",
-      width: "15%",
+      width: 132,
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
@@ -205,7 +206,6 @@ export const OrderList: React.FC = () => {
       title: "รายชื่อร้านค้า",
       dataIndex: "customerName",
       key: "customerName",
-      width: "20%",
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
@@ -284,7 +284,7 @@ export const OrderList: React.FC = () => {
       title: "จัดการ",
       dataIndex: "action",
       key: "action",
-      width: "10%",
+      width: 72,
       render: (value: any, row: any, index: number) => {
         return {
           children: row.status ? (
@@ -374,6 +374,7 @@ export const OrderList: React.FC = () => {
               total: dataState.count,
               showSizeChanger: false,
               position: ["bottomCenter"],
+              onChange: (page) => setPage(page),
             }}
             size='large'
             tableLayout='fixed'

@@ -16,7 +16,8 @@ interface TextType {
     | "error"
     | "success"
     | "warning"
-    | "white";
+    | "white"
+    | "purple";
   level?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   fontFamily?: "Sarabun" | "IBM Plex Sans Thai" | "Helvetica";
   align?: "left" | "center" | "right";
@@ -33,7 +34,8 @@ interface Props extends TextProps, TextType {
     | "success"
     | "warning"
     | "error"
-    | "white";
+    | "white"
+    | "purple";
   fontFamily?: "Sarabun" | "IBM Plex Sans Thai" | "Helvetica";
   align?: "left" | "center" | "right";
 }

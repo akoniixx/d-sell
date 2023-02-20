@@ -23,7 +23,11 @@ import styled from "styled-components";
 import { PromotionType } from "../../definitions/promotion";
 import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
-import { FlexCol, FlexRow } from "../../components/Container/Container";
+import {
+  DetailBox as DetailBoxStyled,
+  FlexCol,
+  FlexRow,
+} from "../../components/Container/Container";
 import {
   CheckCircleTwoTone,
   CloseOutlined,
@@ -61,8 +65,9 @@ import { getOrderStatus } from "../../utility/OrderStatus";
 import TextArea from "../../components/Input/TextArea";
 
 const SLASH_DMY = "DD/MM/YYYY";
+type FixedType = "left" | "right" | boolean | undefined;
 
-const DetailBox = styled.div`
+const DetailBox = styled(DetailBoxStyled)`
   padding: 32px;
   margin-top: 12px;
 
@@ -85,6 +90,7 @@ const DetailItem = ({
   fontSize,
   color,
   style,
+  leftSpan,
 }: {
   label: string;
   value: string | ReactNode;
@@ -102,15 +108,16 @@ const DetailItem = ({
     | "warning"
     | "white";
   style?: any;
+  leftSpan?: number;
 }) => {
   return (
     <Row gutter={16} style={{ margin: "10px 0px" }}>
-      <Col span={alignRight ? 18 : 8}>
+      <Col span={leftSpan ? leftSpan : alignRight ? 18 : 9}>
         <Text fontWeight={fontWeight} fontSize={fontSize}>
           {label} :
         </Text>
       </Col>
-      <Col span={alignRight ? 6 : 16}>
+      <Col span={leftSpan ? 24 - leftSpan : alignRight ? 6 : 15}>
         <Row justify={alignRight ? "end" : "start"}>
           <Text fontWeight={fontWeight} color={color ? color : "Text2"} style={style}>
             {value || "-"}
@@ -239,8 +246,8 @@ export const OrderDetail: React.FC = () => {
   const columns = [
     {
       title: "ชื่อสินค้า",
-      dataIndex: "product",
-      key: "product",
+      dataIndex: "productName",
+      key: "productName",
       render: (productName: string, row: ProductEntity, index: number) => {
         return {
           children: (
@@ -281,14 +288,31 @@ export const OrderDetail: React.FC = () => {
       },
     },
     {
-      title: "UNIT PRICE",
-      dataIndex: "price",
-      key: "price",
-      render: (unitPrice: string, product: ProductEntity, index: number) => {
+      title: "จำนวน",
+      dataIndex: "quantity",
+      key: "quantity",
+      render: (quantity: string, product: ProductEntity, index: number) => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{priceFormatter(unitPrice || "", undefined, false, true)}</Text>
+              <Text level={5}>{quantity}</Text>
+              <Text level={6} color='Text3'>
+                {product?.saleUom}
+              </Text>
+            </FlexCol>
+          ),
+        };
+      },
+    },
+    {
+      title: "ราคา / หน่วย",
+      dataIndex: "marketPrice",
+      key: "marketPrice",
+      render: (marketPrice: number, product: ProductEntity, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5}>{priceFormatter(marketPrice || "0", undefined, false, true)}</Text>
               <Text level={6} color='Text3'>
                 {" บาท / " + product?.saleUom}
               </Text>
@@ -298,16 +322,79 @@ export const OrderDetail: React.FC = () => {
       },
     },
     {
-      title: "PACK PRICE",
-      dataIndex: "marketPrice",
-      key: "marketPrice",
-      render: (marketPrice: number, product: ProductEntity, index: number) => {
+      title: "โปรโมชัน",
+      dataIndex: "promotion",
+      key: "promotion",
+      render: (promotion: number, product: ProductEntity, index: number) => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{priceFormatter(marketPrice || "", undefined, false, true)}</Text>
+              <Text level={5}>{promotion || "-"}</Text>
+              <Text level={6} color='Text3'></Text>
+            </FlexCol>
+          ),
+        };
+      },
+    },
+    {
+      title: "ลำดับการขน",
+      dataIndex: "shipmentOrder",
+      key: "shipmentOrder",
+    },
+    {
+      title: "ส่วนลด",
+      dataIndex: "discount",
+      key: "discount",
+      fixed: "right" as FixedType,
+      render: (discount: number, product: ProductEntity, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5} color={discount ? "error" : "Text3"} fontWeight={700}>
+                {discount ? "- " + discount : "-"}
+              </Text>
               <Text level={6} color='Text3'>
-                {" บาท / " + product?.saleUom}
+                บาท
+              </Text>
+            </FlexCol>
+          ),
+        };
+      },
+    },
+    {
+      title: "Special REQ.",
+      dataIndex: "specialReq",
+      key: "specialReq",
+      fixed: "right" as FixedType,
+      render: (discount: number, product: ProductEntity, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5} color={discount ? "purple" : "Text3"} fontWeight={700}>
+                {discount ? "- " + discount : "-"}
+              </Text>
+              <Text level={6} color='Text3'>
+                บาท
+              </Text>
+            </FlexCol>
+          ),
+        };
+      },
+    },
+    {
+      title: "จำนวนรวม",
+      dataIndex: "price",
+      key: "price",
+      fixed: "right" as FixedType,
+      render: (price: number, product: ProductEntity, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5} color='primary' fontWeight={700}>
+                {priceFormatter(price || "0", undefined, false, true)}
+              </Text>
+              <Text level={6} color='Text3'>
+                {"บาท"}
               </Text>
             </FlexCol>
           ),
@@ -512,7 +599,12 @@ export const OrderDetail: React.FC = () => {
         </Row>
         <br />
         <CardContainer>
-          <Table columns={columns} dataSource={orderData?.orderProducts || []} pagination={false} />
+          <Table
+            columns={columns}
+            dataSource={orderData?.orderProducts || []}
+            pagination={false}
+            scroll={{ x: "max-content" }}
+          />
         </CardContainer>
         <br />
         <Row gutter={16}>
@@ -542,7 +634,7 @@ export const OrderDetail: React.FC = () => {
               <DetailBox>
                 <DetailItem
                   label='รวมเงิน'
-                  value={priceFormatter(orderData?.totalPrice || "", undefined, true)}
+                  value={priceFormatter(orderData?.price || "", undefined, true)}
                   alignRight
                   fontWeight={700}
                   fontSize={18}
@@ -592,6 +684,7 @@ export const OrderDetail: React.FC = () => {
                   fontWeight={700}
                   fontSize={24}
                   alignRight
+                  leftSpan={10}
                 />
               </DetailBox>
             </CardContainer>
