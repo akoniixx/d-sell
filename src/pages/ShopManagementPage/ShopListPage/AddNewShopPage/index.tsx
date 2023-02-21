@@ -44,7 +44,9 @@ function AddNewShopPage(): JSX.Element {
           company: profile?.company || "",
         });
         setDataDetail(res);
+
         if (res && res.data) {
+          const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
           const {
             userShop: {
               nametitle,
@@ -111,12 +113,14 @@ function AddNewShopPage(): JSX.Element {
             taxId,
             typeShop: "SD",
             isActiveCustomer: true,
+            isHaveDealer,
           });
         } else {
           form.setFieldsValue({
             typeShop: "SD",
             isActiveCustomer: true,
             createDate: dayjs(),
+            isHaveDealer: false,
           });
         }
       } catch (error) {

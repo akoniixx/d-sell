@@ -46,6 +46,8 @@ interface Props {
   onClickBack: () => void;
 }
 function StepTwo({ form, onClickBack }: Props): JSX.Element {
+  const isHaveDealer = form.getFieldValue("isHaveDealer");
+
   return (
     <Fragment>
       <BottomSection>
@@ -209,7 +211,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input maxLength={10} />
+                <Input maxLength={10} disabled={isHaveDealer} />
               </Form.Item>
               <div
                 style={{
@@ -252,7 +254,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input maxLength={10} />
+                <Input maxLength={10} disabled={isHaveDealer} />
               </Form.Item>
               <div
                 style={{
@@ -301,7 +303,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input />
+                <Input disabled={isHaveDealer} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -319,7 +321,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input maxLength={13} />
+                <Input maxLength={13} disabled={isHaveDealer} />
               </Form.Item>
             </Col>
           </Row>
@@ -343,7 +345,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input placeholder='กรอกจังหวัด' />
+                <Input disabled={isHaveDealer} placeholder='กรอกจังหวัด' />
               </Form.Item>
             </Col>
             <Col span={6}>
@@ -357,7 +359,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input placeholder='กรอกอำเภอ/เขต' />
+                <Input disabled={isHaveDealer} placeholder='กรอกอำเภอ/เขต' />
               </Form.Item>
             </Col>
             <Col span={6}>
@@ -371,7 +373,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input placeholder='กรอกตำบล/แขวง' />
+                <Input disabled={isHaveDealer} placeholder='กรอกตำบล/แขวง' />
               </Form.Item>
             </Col>
             <Col span={6}>
@@ -389,7 +391,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input placeholder='กรอกรหัสไปษณีย์' maxLength={5} />
+                <Input disabled={isHaveDealer} placeholder='กรอกรหัสไปษณีย์' maxLength={5} />
               </Form.Item>
             </Col>
           </Row>
@@ -405,7 +407,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   },
                 ]}
               >
-                <Input placeholder='ระบุที่อยู่' />
+                <Input disabled={isHaveDealer} placeholder='ระบุที่อยู่' />
               </Form.Item>
             </Col>
           </Row>
