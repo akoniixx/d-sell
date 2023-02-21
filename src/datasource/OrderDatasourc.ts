@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import { BASE_URL, httpClient } from "../config/develop-config";
+import { OrderPaymentStatusKey, OrderStatusKey } from "../definitions/orderStatus";
 
 const baseUrl = `${BASE_URL}/cart`;
 
@@ -17,7 +18,13 @@ const getOrderDetail = async (id: string) => {
     .catch((err) => console.log(err));
 };
 
-const updateOrderStatus = async (data: object) => {
+const updateOrderStatus = async (data: {
+  orderId: string;
+  status?: OrderStatusKey;
+  paidStatus?: OrderPaymentStatusKey;
+  cancleRemark?: string;
+  updateBy: string;
+}) => {
   return await httpClient
     .post(`${baseUrl}/order/update-order-status`, data)
     .then((res: AxiosResponse) => res.data)

@@ -11,7 +11,7 @@ export type OrderStatusKey =
 
 export type OrderPaymentMethodName = "CASH" | "CREDIT";
 
-export type OrderPaymentStatusKey = "WAITING_PAID" | "PAID";
+export type OrderPaymentStatusKey = "WAITING_PAID" | "ALREADY_PAID";
 
 export const ORDER_STATUS = {
   WAIT_APPROVE_ORDER: {
@@ -84,7 +84,7 @@ export const ORDER_PAYMENT_STATUS = {
     name_default: "ยังไม่ได้ชำระเงิน",
     color: "#FFC804",
   },
-  PAID: {
+  ALREADY_PAID: {
     name_default: "ชำระเงินแล้ว",
     color: "#FFC804",
   },

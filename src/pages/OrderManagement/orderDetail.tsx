@@ -28,36 +28,21 @@ import {
   FlexCol,
   FlexRow,
 } from "../../components/Container/Container";
-import {
-  CheckCircleTwoTone,
-  CloseOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
 import color from "../../resource/color";
 import image from "../../resource/image";
 import icons from "../../resource/icon";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import Steps from "../../components/StepAntd/steps";
-import TableContainer from "../../components/Table/TableContainer";
-import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../components/Spin/pageSpin";
-import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
-import { getCustomersById } from "../../datasource/CustomerDatasource";
-import {
-  getSpecialPriceByCustomerId,
-  updateSpecialPrice,
-} from "../../datasource/SpecialPriceDatasource";
 import { priceFormatter } from "../../utility/Formatter";
 import {
   ORDER_STATUS,
   ORDER_PAYMENT_STATUS,
   ORDER_PAYMENT_METHOD_NAME,
   OrderStatusKey,
+  OrderPaymentStatusKey,
 } from "../../definitions/orderStatus";
 import { getOrderDetail, updateOrderStatus } from "../../datasource/OrderDatasourc";
 import { OrderEntity } from "../../entities/OrderEntity";
@@ -138,8 +123,8 @@ export const OrderDetail: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState<OrderEntity>();
-
   const [updating, setUpdating] = useState(false);
+  const [showCancelModal, setCancelModal] = useState(false);
 
   const [form] = Form.useForm();
   const [navForm] = Form.useForm();
@@ -164,26 +149,44 @@ export const OrderDetail: React.FC = () => {
       });
   };
 
-  const updateStatus = async (nextStatus?: OrderStatusKey) => {
-    const { status } = form.getFieldsValue();
-    const onSubmit = async () => {
-      setUpdating(true);
-      const id = pathSplit[2];
-      await updateOrderStatus({
-        orderId: id,
-        status: nextStatus ? nextStatus : status,
+  const onSubmitStatus = async ({
+    status,
+    paidStatus,
+    cancleRemark,
+  }: {
+    status: OrderStatusKey;
+    paidStatus?: OrderPaymentStatusKey;
+    cancleRemark?: string;
+  }) => {
+    setUpdating(true);
+    const id = pathSplit[2];
+    await updateOrderStatus({
+      orderId: id,
+      status,
+      paidStatus,
+      cancleRemark,
+      updateBy: `${firstname} ${lastname}`,
+    })
+      .then((res: any) => {
+        navigate(0);
+        console.log("res", res);
       })
-        .then((res: any) => {
-          navigate(0);
-          console.log(res);
-        })
-        .catch((e: any) => {
-          console.log(e);
-        })
-        .finally(() => {
-          setUpdating(false);
-        });
-    };
+      .catch((e: any) => {
+        console.log(e);
+      })
+      .finally(() => {
+        setUpdating(false);
+      });
+  };
+
+  const updateStatus = async (nextStatus?: OrderStatusKey) => {
+    const { status, paidStatus } = form.getFieldsValue();
+    if (status === orderData?.status && paidStatus === orderData?.paidStatus) {
+      Modal.error({
+        title: "สถานะไม่มีการเปลี่ยนแปลง กรุณาตรวจสอบอีกครั้ง",
+      });
+      return;
+    }
     Modal.confirm({
       title: `ยืนยันการปรับสถานะ "${getOrderStatus(
         nextStatus ? nextStatus : (status as OrderStatusKey),
@@ -195,7 +198,7 @@ export const OrderDetail: React.FC = () => {
           โปรดยืนยันรายการ
         </Text>
       ),
-      onOk: onSubmit,
+      onOk: () => onSubmitStatus({ status: nextStatus ? nextStatus : status, paidStatus }),
     });
   };
 
@@ -412,7 +415,7 @@ export const OrderDetail: React.FC = () => {
               <Button
                 title='ยกเลิกคำสั่งซื้อ'
                 typeButton='danger'
-                onClick={() => updateStatus("COMPANY_CANCLE_ORDER")}
+                onClick={() => setCancelModal(true)}
               />
             )}
           </Col>
@@ -432,11 +435,12 @@ export const OrderDetail: React.FC = () => {
                   label: getOrderStatus(key as OrderStatusKey, company),
                 }))}
                 style={{ width: "100%" }}
+                placeholder='สถานะ'
               />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item name='paymentStatus' noStyle>
+            <Form.Item name='paidStatus' noStyle initialValue={orderData?.paidStatus}>
               <Select
                 data={Object.entries(ORDER_PAYMENT_STATUS).map(([key, { name_default }]) => ({
                   key,
@@ -444,6 +448,7 @@ export const OrderDetail: React.FC = () => {
                   label: name_default,
                 }))}
                 style={{ width: "100%" }}
+                placeholder='สถานะการชำระเงิน'
               />
             </Form.Item>
           </Col>
@@ -527,8 +532,30 @@ export const OrderDetail: React.FC = () => {
       </NavResponseBox>
     );
   };
+
   const getOption = () => {
     switch (orderData?.status) {
+      case "WAIT_APPROVE_ORDER":
+        return (
+          <>
+            <br />
+            <CardContainer>
+              <Row gutter={16} align='middle' justify='end'>
+                <Col span={3}>
+                  <Row justify='end'>
+                    <Text>จัดการคำสั่งซื้อ :</Text>
+                  </Row>
+                </Col>
+                <Col span={3}>
+                  <Button title='ปฎิเสธ' typeButton='danger' />
+                </Col>
+                <Col span={3}>
+                  <Button title='อนุมัติ' typeButton='primary' />
+                </Col>
+              </Row>
+            </CardContainer>
+          </>
+        );
       case "WAIT_CONFIRM_ORDER":
         return (
           <>
@@ -624,6 +651,11 @@ export const OrderDetail: React.FC = () => {
                 หมายเหตุ (ขอส่วนลดพิเศษเพิ่ม)
               </Text>
               <DetailBox>{orderData?.specialRequestRemark || "-"}</DetailBox>
+              <br />
+              <Text level={5} fontWeight={700}>
+                หมายเหตุการยกเลิก (บริษัท)
+              </Text>
+              <DetailBox>{orderData?.cancleRemark || "-"}</DetailBox>
             </CardContainer>
           </Col>
           <Col span={12}>
@@ -656,6 +688,12 @@ export const OrderDetail: React.FC = () => {
                     label='ส่วนลดดูแลราคา (CO. ดูแลราคา / วงเงินเคลม)'
                     value={priceFormatter(orderData?.coDiscount || "", undefined, true)}
                     color='success'
+                    alignRight
+                  />
+                  <DetailItem
+                    label='ส่วนลดเงินสด (Cash)'
+                    value={priceFormatter(orderData?.cashDiscount || "", undefined, true)}
+                    color='secondary'
                     alignRight
                   />
                   <DetailItem
@@ -692,6 +730,41 @@ export const OrderDetail: React.FC = () => {
         </Row>
         {getOption()}
       </div>
+      <Modal open={showCancelModal} footer={false} closable={false} width={420}>
+        <FlexCol align='center'>
+          <Text fontWeight={700}>เหตุผลยกเลิกคำสั่งซื้อ (โดยบริษัท)*</Text>
+          <br />
+        </FlexCol>
+        <Form form={form}>
+          <Form.Item noStyle name='cancleRemark'>
+            <TextArea rows={4} placeholder='โปรดระบุเหตุผล...' />
+          </Form.Item>
+        </Form>
+        <br />
+        <Row gutter={16}>
+          <Col span={12}>
+            <Button
+              title='ยกเลิก'
+              typeButton='primary-light'
+              style={{ width: "100%" }}
+              onClick={() => setCancelModal(false)}
+            />
+          </Col>
+          <Col span={12}>
+            <Button
+              title='ยืนยัน'
+              typeButton='primary'
+              style={{ width: "100%" }}
+              onClick={() =>
+                onSubmitStatus({
+                  status: "COMPANY_CANCLE_ORDER",
+                  cancleRemark: form.getFieldValue("cancleRemark"),
+                })
+              }
+            />
+          </Col>
+        </Row>
+      </Modal>
     </>
   );
 };
