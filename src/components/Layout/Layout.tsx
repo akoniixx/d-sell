@@ -10,6 +10,8 @@ import { getCompanyName } from "../../utility/CompanyName";
 import styled, { css } from "styled-components";
 import MenuSider from "../MenuSider/MenuSider";
 import Text from "../Text/Text";
+import jwtDecode from "jwt-decode";
+import moment from "moment";
 
 const ImageStyled = styled.img<{ isOpen: boolean }>`
   ${(props) =>
@@ -159,15 +161,25 @@ const Layouts: React.FC<any> = ({ children }) => {
 
   const logout = async () => {
     try {
+      const token = localStorage.getItem("token");
+      const decoded: {
+        exp: number;
+      } = await jwtDecode(JSON.parse(token || "") || "");
+      const isExpired = moment().isAfter(moment.unix(decoded.exp));
       localStorage.clear();
       sessionStorage.clear();
       const url = window.location.href;
       const arr = url.split("/");
       const resultUrlHost = arr[0] + "//" + arr[2];
-
-      window.location.href =
-        "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
-        resultUrlHost;
+      if (isExpired) {
+        window.location.href =
+          "https://login.microsoftonline.com/common/oauth2/v2.0/logout?redirect_uri=" +
+          resultUrlHost;
+      } else {
+        window.location.href =
+          "https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=" +
+          resultUrlHost;
+      }
     } catch (e) {
       console.log(e);
     }
