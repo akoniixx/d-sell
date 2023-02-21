@@ -131,10 +131,10 @@ export interface FormStepCustomerEntity {
   postcode: string;
   province: string;
   subdistrict: string;
-  secondtelephone: string;
+  secondtelephone: string | null;
   telephone: string;
   taxId: string;
-  updateBy: string;
+  updateBy?: string;
   updateDate: string;
   customerName: string;
   isActive: boolean;
@@ -152,19 +152,19 @@ export interface FormStepCustomerEntity {
   customerNo?: string | null;
 }
 export interface PayloadCustomerEntity {
-  customerId: number;
+  customerId?: number | null;
   address: string;
   province: string;
   district: string;
   subdistrict: string;
   postcode: string;
-  telephone: string;
+  telephone?: string;
   taxNo: string;
-  updateBy: string;
+  updateBy?: string;
   lat: string;
   lag: string;
   customerCompany: {
-    customerId: number;
+    customerId?: number | null;
     isNav: boolean;
     customerName: string;
     company: string;
@@ -174,7 +174,7 @@ export interface PayloadCustomerEntity {
     termPayment: string;
     isActive: boolean;
     salePersonCode: string;
-    updateBy: string;
+    updateBy?: string;
     customerCompanyId?: number;
     customerNo?: string | null;
   }[];
@@ -188,9 +188,9 @@ export interface PayloadCustomerEntity {
     primaryId?: string;
     position: string;
     idCard: string;
-    updateBy: string;
+    updateBy?: string;
     nametitle: string;
-    secondtelephone: string;
+    secondtelephone: string | null;
     email: string;
     userShopId?: string | null;
   };

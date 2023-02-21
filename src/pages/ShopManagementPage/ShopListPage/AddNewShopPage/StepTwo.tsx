@@ -231,13 +231,13 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             </Col>
             <Col span={12}>
               <Form.Item
-                label='เบอร์โทรศัพท์ (สำรอง)*'
+                label='เบอร์โทรศัพท์ (สำรอง)'
                 name='secondtelephone'
                 rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกเบอร์โทรศัพท์",
-                  },
+                  // {
+                  //   required: true,
+                  //   message: "กรุณากรอกเบอร์โทรศัพท์",
+                  // },
                   {
                     pattern: /^[0-9]{10}$/,
                     message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
@@ -313,9 +313,13 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                     required: true,
                     message: "กรุณากรอกหมายเลขนิติบุคคล",
                   },
+                  {
+                    pattern: /^[0-9]{13}$/,
+                    message: "กรุณากรอกหมายเลขนิติบุคคลให้ถูกต้อง",
+                  },
                 ]}
               >
-                <Input />
+                <Input maxLength={13} />
               </Form.Item>
             </Col>
           </Row>
@@ -372,16 +376,20 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             </Col>
             <Col span={6}>
               <Form.Item
-                label='รหัสไปษณีย์*'
+                label='รหัสไปรษณีย์*'
                 name='postcode'
                 rules={[
                   {
                     required: true,
                     message: "กรุณากรอกรหัสไปษณีย์",
                   },
+                  {
+                    pattern: /^[0-9]{5}$/,
+                    message: "กรุณากรอกรหัสไปษณีย์ให้ถูกต้อง",
+                  },
                 ]}
               >
-                <Input placeholder='กรอกรหัสไปษณีย์' />
+                <Input placeholder='กรอกรหัสไปษณีย์' maxLength={5} />
               </Form.Item>
             </Col>
           </Row>

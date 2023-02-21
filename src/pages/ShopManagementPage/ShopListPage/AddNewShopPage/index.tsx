@@ -44,7 +44,7 @@ function AddNewShopPage(): JSX.Element {
           company: profile?.company || "",
         });
         setDataDetail(res);
-        if (res) {
+        if (res && res.data) {
           const {
             userShop: {
               nametitle,
@@ -86,8 +86,8 @@ function AddNewShopPage(): JSX.Element {
               : { customerName: "" };
           form.setFieldsValue({
             createDate: dayjs(),
-            updateBy: res.data.updateBy || "",
-            updateDate: res.data.updateDate || "",
+            updateBy: res?.data.updateBy || "",
+            updateDate: res?.data.updateDate || "",
             lat: res.data.lat || "",
             lag: res.data.lag || "",
             address: res.data.address || "",
@@ -111,6 +111,12 @@ function AddNewShopPage(): JSX.Element {
             taxId,
             typeShop: "SD",
             isActiveCustomer: true,
+          });
+        } else {
+          form.setFieldsValue({
+            typeShop: "SD",
+            isActiveCustomer: true,
+            createDate: dayjs(),
           });
         }
       } catch (error) {
@@ -183,7 +189,6 @@ function AddNewShopPage(): JSX.Element {
         subdistrict,
         taxId,
         telephone,
-        updateBy,
         isActive,
         isPrimary,
         position,
@@ -196,7 +201,7 @@ function AddNewShopPage(): JSX.Element {
         zone,
       }: FormStepCustomerEntity = form.getFieldsValue(true);
       const payload: PayloadCustomerEntity = {
-        customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
+        customerId: dataDetail?.data?.customerId ? +dataDetail?.data.customerId : 0,
         address,
         district,
         lag,
@@ -205,13 +210,14 @@ function AddNewShopPage(): JSX.Element {
         province,
         subdistrict,
         taxNo: taxId,
-        updateBy,
         telephone,
+        updateBy: `${profile?.firstname} ${profile?.lastname}`,
+
         customerCompany: [
           {
             customerName: customerName || "",
             company: profile?.company || "",
-            customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
+            customerId: dataDetail?.data?.customerId ? +dataDetail?.data.customerId : 0,
             isActive: isActiveCustomer,
             zone,
             customerType: typeShop,
@@ -232,10 +238,12 @@ function AddNewShopPage(): JSX.Element {
           nametitle,
           nickname,
           position,
-          secondtelephone,
+          secondtelephone: secondtelephone ? secondtelephone : null,
           primaryId,
           telephone,
-          updateBy,
+          updateBy: `${profile?.firstname} ${profile?.lastname}`,
+
+          userShopId: userShopId ? userShopId : null,
         },
       };
       if (userShopId) {
@@ -254,7 +262,7 @@ function AddNewShopPage(): JSX.Element {
           },
           showConfirmButton: false,
         }).then(() => {
-          navigate(`ShopManagementPage/ShopListPage`);
+          navigate(`/ShopManagementPage/ShopListPage`);
         });
       } else {
         Swal.fire({

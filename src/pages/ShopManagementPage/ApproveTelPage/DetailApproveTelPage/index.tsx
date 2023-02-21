@@ -1,6 +1,6 @@
 import { Col, Form, Row, Spin, Upload } from "antd";
 import dayjs from "dayjs";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -234,7 +234,7 @@ function DetailApproveTelPage() {
     },
     telMain: {
       label: "เบอร์โทรศัพท์ (หลัก)",
-      value: data?.oldTelephone || "-",
+      value: data && data.isApprove ? data?.newTelephone : data?.oldTelephone,
     },
     telSub: {
       label: "เบอร์โทรศัพท์ (รอง)",
