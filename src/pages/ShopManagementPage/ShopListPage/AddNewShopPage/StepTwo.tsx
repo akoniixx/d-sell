@@ -69,7 +69,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 },
               ]}
             >
-              <Select data={staticData} />
+              <Select data={staticData} disabled={isHaveDealer} />
             </Form.Item>
           </Col>
           <Col span={5}>
@@ -83,7 +83,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 },
               ]}
             >
-              <Input />
+              <Input disabled={isHaveDealer} />
             </Form.Item>
           </Col>
           <Col span={5}>
@@ -97,7 +97,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 },
               ]}
             >
-              <Input />
+              <Input disabled={isHaveDealer} />
             </Form.Item>
           </Col>
           <Col span={10}>
@@ -115,7 +115,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 },
               ]}
             >
-              <InputHyphen />
+              <InputHyphen disabled={isHaveDealer} />
             </Form.Item>
           </Col>
         </Row>
@@ -135,7 +135,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 },
               ]}
             >
-              <Input />
+              <Input disabled={isHaveDealer} />
             </Form.Item>
           </Col>
         </Row>
