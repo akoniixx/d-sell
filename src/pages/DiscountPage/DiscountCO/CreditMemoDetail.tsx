@@ -13,6 +13,7 @@ import {
   createCreditMemo,
   getCreditHistory,
   getCreditMemoById,
+  getCustomerCreditMemo,
   updateCreditMemo,
 } from "../../../datasource/CreditMemoDatasource";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
@@ -28,6 +29,7 @@ import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../../components/Spin/pageSpin";
 
+const SLASH_DMY = "DD/MM/YYYY";
 export const CreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -47,8 +49,8 @@ export const CreditMemoDetail: React.FC = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const id = pathSplit[3];
-    await getCreditMemoById(id)
+    const id = pathSplit[3]; // parseInt(pathSplit[3]);
+    await getCustomerCreditMemo(id)
       .then((res: any) => {
         console.log("getCreditMemoById", res);
         setData(res);
@@ -153,6 +155,51 @@ export const CreditMemoDetail: React.FC = () => {
     },
   ];
 
+  const creditMemoHistoryColumn = [
+    {
+      title: "วันเวลาที่อัปเดท",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      align: "center" as AlignType,
+      render: (value: string) => {
+        return moment(value).format(SLASH_DMY);
+      },
+    },
+    {
+      title: "ผู้ใช้งาน",
+      dataIndex: "createBy",
+      key: "createBy",
+      align: "center" as AlignType,
+      render: (value: string) => {
+        return value || "-";
+      },
+    },
+    {
+      title: "กิจกรรม",
+      dataIndex: "action",
+      key: "action",
+      align: "center" as AlignType,
+    },
+    {
+      title: "ข้อมูลเดิม",
+      dataIndex: "beforeValue",
+      key: "beforeValue",
+      align: "center" as AlignType,
+      render: (value: string) => {
+        return value || "-";
+      },
+    },
+    {
+      title: "ข้อมูลใหม่",
+      dataIndex: "afterValue",
+      key: "afterValue",
+      align: "center" as AlignType,
+      render: (value: string) => {
+        return value || "-";
+      },
+    },
+  ];
+
   const tabsItems = [
     {
       label: `รายละเอียด Credit Memo`,
@@ -195,7 +242,7 @@ export const CreditMemoDetail: React.FC = () => {
             </Text>
           </Row>
           <TableContainer>
-            <Table dataSource={history} columns={[]} />
+            <Table dataSource={history} columns={creditMemoHistoryColumn} />
           </TableContainer>
         </>
       ),

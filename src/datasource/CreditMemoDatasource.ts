@@ -17,6 +17,15 @@ const getCustomerCreditMemoList = async (params: object) => {
     .catch((err) => console.log(err));
 };
 
+const getCustomerCreditMemo = async (customer_company_id: number | string) => {
+  return await httpClient
+    .get(`${baseUrl}/credit-memo-shop/history/${customer_company_id}`, {
+      params: { customer_company_id },
+    })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const getCreditMemoById = async (creditMemoId: string) => {
   return await httpClient
     .get(`${baseUrl}/credit-memo/${creditMemoId}`, { params: { credit_memo_id: creditMemoId } })
@@ -57,6 +66,7 @@ const deleteCreditMemo = async (data: object) => {
 export {
   getCreditMemoList,
   getCustomerCreditMemoList,
+  getCustomerCreditMemo,
   getCreditMemoById,
   getCreditHistory,
   createCreditMemo,

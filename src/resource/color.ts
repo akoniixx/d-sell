@@ -15,4 +15,5 @@ export default {
   error: "#EB5757",
   border: "#E8ECF3",
   placeholder: "#BABCBE",
+  purple: "#9B51E0",
 };

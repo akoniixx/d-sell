@@ -1,4 +1,5 @@
 import { OrderStatusKey, ORDER_STATUS } from "../definitions/orderStatus";
+import colors from "../resource/color";
 
 export const getOrderStatus = (statusKey: OrderStatusKey, company: string) => {
   let name;
@@ -15,4 +16,28 @@ export const getOrderStatus = (statusKey: OrderStatusKey, company: string) => {
   }
   if (name) return name;
   return ORDER_STATUS[statusKey]?.name_default;
+};
+
+export const getSpecialRequestStatus = (statusKey: OrderStatusKey) => {
+  let name, color;
+  switch (statusKey) {
+    case "WAIT_APPROVE_ORDER":
+      name = "รออนุมัติ";
+      color = colors.warning;
+      break;
+    case "REJECT_ORDER":
+      name = "ไม่อนุมัติ";
+      color = colors.Disable;
+      break;
+    case "SHOPAPP_CANCLE_ORDER":
+    case "COMPANY_CANCLE_ORDER":
+      name = "ถูกยกเลิก";
+      color = colors.Disable;
+      break;
+    default:
+      name = "อนุมัติ";
+      color = colors.success;
+      break;
+  }
+  return { name, color };
 };

@@ -13,9 +13,10 @@ import {
   createCreditMemo,
   getCreditHistory,
   getCreditMemoById,
+  getCustomerCreditMemo,
   updateCreditMemo,
 } from "../../../datasource/CreditMemoDatasource";
-import { FlexCol, FlexRow } from "../../../components/Container/Container";
+import { DetailBox, FlexCol, FlexRow } from "../../../components/Container/Container";
 import { CheckCircleTwoTone, EditOutlined } from "@ant-design/icons";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
@@ -27,6 +28,7 @@ import { CreditMemoEntity } from "../../../entities/CreditMemoEntity";
 import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../../components/Spin/pageSpin";
+import { priceFormatter } from "../../../utility/Formatter";
 
 export const CustomerCreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -48,7 +50,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     const id = pathSplit[3];
-    await getCreditMemoById(id)
+    await getCustomerCreditMemo(id)
       .then((res: any) => {
         console.log("getCreditMemoById", res);
         setData(res);
@@ -153,7 +155,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `ประวัติการใช้งาน Credit Meno`,
+      label: `ประวัติการใช้งาน Credit Memo`,
       key: "1",
       children: (
         <>
@@ -191,14 +193,34 @@ export const CustomerCreditMemoDetail: React.FC = () => {
 
   return (
     <>
-      <div className='container '>
-        <CardContainer>
-          {loading ? (
-            <PageSpin />
-          ) : (
+      {loading ? (
+        <PageSpin />
+      ) : (
+        <div className='container '>
+          <CardContainer>
+            <Row gutter={16}>
+              <Col span={12}>
+                <PageTitle />
+              </Col>
+              <Col span={12}>
+                <Row justify='end'>
+                  <DetailBox style={{ padding: "20px 32px" }}>
+                    <Text fontWeight={700} level={4}>
+                      ส่วนลดดูแลราคาคงเหลือ :
+                    </Text>
+                    &nbsp;&nbsp;&nbsp;
+                    <Text fontWeight={700} fontSize={32} color='primary'>
+                      {priceFormatter(361600, 0, true)}
+                    </Text>
+                  </DetailBox>
+                </Row>
+              </Col>
+            </Row>
+            <br />
+          </CardContainer>
+          <br />
+          <CardContainer>
             <>
-              <PageTitle />
-              <Divider />
               <Tabs
                 items={tabsItems}
                 onChange={(key: string) => {
@@ -208,9 +230,9 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                 }}
               />
             </>
-          )}
-        </CardContainer>
-      </div>
+          </CardContainer>
+        </div>
+      )}
     </>
   );
 };
