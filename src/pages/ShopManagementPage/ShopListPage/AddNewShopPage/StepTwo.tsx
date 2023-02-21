@@ -40,6 +40,11 @@ const staticData = [
     value: "นาย",
     key: "3",
   },
+  {
+    label: "คุณ",
+    value: "คุณ",
+    key: "4",
+  },
 ];
 interface Props {
   form: FormInstance<any>;

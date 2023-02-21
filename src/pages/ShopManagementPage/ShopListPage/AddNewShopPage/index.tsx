@@ -22,6 +22,13 @@ import dayjs from "dayjs";
 
 function AddNewShopPage(): JSX.Element {
   const [current, setCurrent] = React.useState(0);
+  const [brandData, setBrandData] = React.useState<
+    {
+      productBrandName: string;
+      productBrandId: string;
+      company: string;
+    }[]
+  >([]);
   const profile = useRecoilValue(profileAtom);
   const [searchValue] = useSearchParams();
   const navigate = useNavigate();
@@ -36,6 +43,7 @@ function AddNewShopPage(): JSX.Element {
       key: string;
     }[]
   >([]);
+
   useEffect(() => {
     const getShopDetailByTaxId = async () => {
       try {
@@ -43,7 +51,9 @@ function AddNewShopPage(): JSX.Element {
           taxNo: taxId || "",
           company: profile?.company || "",
         });
+        const brandData = await shopDatasource.getBrandList(profile?.company || "");
         setDataDetail(res);
+        setBrandData(brandData);
 
         if (res && res.data) {
           const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
@@ -86,6 +96,7 @@ function AddNewShopPage(): JSX.Element {
             res?.data?.customerCompany?.length > 0
               ? res.data.customerCompany[0]
               : { customerName: "" };
+
           form.setFieldsValue({
             createDate: dayjs(),
             updateBy: res?.data.updateBy || "",
@@ -160,6 +171,7 @@ function AddNewShopPage(): JSX.Element {
             company={profile?.company}
             zoneList={zoneList}
             dataDetail={dataDetail}
+            brandData={brandData}
           />
         );
       }
@@ -199,11 +211,20 @@ function AddNewShopPage(): JSX.Element {
         primaryId,
         customerName,
         isActiveCustomer,
+        customerNo,
         // memberId,
         typeShop,
         userShopId,
+        productBrand,
         zone,
       }: FormStepCustomerEntity = form.getFieldsValue(true);
+      const newProductBrand =
+        profile?.company === "ICPL" || profile?.company === "ICPI"
+          ? brandData[0]
+          : brandData.find((el) => {
+              return el.productBrandId === productBrand;
+            });
+      const stringifyProductBrand = JSON.stringify(newProductBrand);
       const payload: PayloadCustomerEntity = {
         customerId: dataDetail?.data?.customerId ? +dataDetail?.data.customerId : 0,
         address,
@@ -230,6 +251,8 @@ function AddNewShopPage(): JSX.Element {
             salePersonCode: "",
             termPayment: "",
             creditLimit: 0,
+            customerNo,
+            productBrand: [stringifyProductBrand],
           },
         ],
         userShop: {
@@ -266,7 +289,7 @@ function AddNewShopPage(): JSX.Element {
           },
           showConfirmButton: false,
         }).then(() => {
-          navigate(`/ShopManagementPage/ShopListPage`);
+          navigate("/ShopManagementPage/ShopListPage/DetailPage/" + res.responseData.customerId);
         });
       } else {
         Swal.fire({
@@ -291,6 +314,13 @@ function AddNewShopPage(): JSX.Element {
       }}
     >
       <PageTitleNested
+        onBack={() => {
+          if (current === 0) {
+            navigate(-1);
+          } else {
+            setCurrent(current - 1);
+          }
+        }}
         style={{
           padding: "0 24px",
         }}

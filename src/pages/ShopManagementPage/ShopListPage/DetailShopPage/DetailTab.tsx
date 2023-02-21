@@ -61,6 +61,7 @@ function DetailTab({ data }: Props): JSX.Element {
   const currentCompany = (data.customerCompany || []).find(
     (item) => item.company === profile?.company,
   );
+  const customerCompany = data.customerCompany.length > 0 ? data.customerCompany[0] : null;
   const filterOtherCompany = (data.customerCompany || []).filter(
     (el) => el.company !== profile?.company,
   );
@@ -75,7 +76,7 @@ function DetailTab({ data }: Props): JSX.Element {
   const listData = {
     shopName: {
       label: "ชื่อร้าน",
-      value: currentCompany?.customerName || "-",
+      value: currentCompany?.customerName || customerCompany?.customerName || "-",
       isApproving: false,
       isActive: true,
     },
@@ -184,7 +185,7 @@ function DetailTab({ data }: Props): JSX.Element {
             </Col>
             <Col>
               <Text level={6} fontFamily='Sarabun'>
-                เขต : {currentCompany?.zone}
+                เขต : {currentCompany?.zone || "-"}
               </Text>
             </Col>
           </Row>

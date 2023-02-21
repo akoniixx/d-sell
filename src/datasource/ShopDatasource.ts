@@ -86,6 +86,11 @@ const getApproveTelById = async (id: string) => {
 
   return await httpClient.get(url).then((res: AxiosResponse) => res.data);
 };
+const getBrandList = async (company: string) => {
+  const url = `${BASE_URL}/master/product-brand?company=${company}`;
+
+  return await httpClient.get(url).then((res: AxiosResponse) => res.data);
+};
 const updateApproveTel = async ({
   approveBy,
   id,
@@ -125,4 +130,5 @@ export const shopDatasource = {
   getApproveTel,
   getApproveTelById,
   updateApproveTel,
+  getBrandList,
 };
