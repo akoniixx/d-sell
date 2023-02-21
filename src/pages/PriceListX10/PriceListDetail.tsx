@@ -250,6 +250,7 @@ export const SpecialPriceDetail: React.FC = () => {
           key: "specialPrice",
           render: (product: ProductEntity, row: any, index: number) => {
             return (
+              // todo
               <Input
                 defaultValue={Math.abs(row.value)}
                 placeholder='ระบุราคา'

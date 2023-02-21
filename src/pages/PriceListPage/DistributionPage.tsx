@@ -1,13 +1,14 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag } from "antd";
+import { Table, Tabs, Row, Col, Avatar, Tag, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { UnorderedListOutlined, SearchOutlined } from "@ant-design/icons";
+import { UnorderedListOutlined, SearchOutlined, SyncOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
 import {
   getProductBrand,
   getProductCategory,
   getProductGroup,
   getProductList,
+  syncProduct,
 } from "../../datasource/ProductDatasource";
 import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
@@ -21,6 +22,9 @@ import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
 import image from "../../resource/image";
 import { useNavigate } from "react-router-dom";
+import Input from "../../components/Input/Input";
+import Select from "../../components/Select/Select";
+import Button from "../../components/Button/Button";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -41,6 +45,7 @@ export const DistributionPage: React.FC = () => {
   const [location, setLocation] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
+  const [loadingSyncProduct, setLoadingSyncProduct] = useState(false);
   const [dataState, setDataState] = useState({
     count: 0,
     count_location: [],
@@ -86,10 +91,30 @@ export const DistributionPage: React.FC = () => {
     }
   };
 
+  const onSyncProduct = async () => {
+    Modal.confirm({
+      title: "ยืนยันการเชื่อมต่อ Navision",
+      onOk: async () => {
+        setLoadingSyncProduct(true);
+        await syncProduct({ company })
+          .then((res) => {
+            const { success } = res;
+            if (success) {
+              navigate(0);
+            } else {
+              message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
+            }
+          })
+          .catch((err) => console.log("err", err))
+          .finally(() => console.log("sync product done"));
+      },
+    });
+  };
+
   const PageTitle = () => {
     return (
       <Row>
-        <Col className='gutter-row' xl={16} sm={10}>
+        <Col className='gutter-row' span={12}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -99,7 +124,24 @@ export const DistributionPage: React.FC = () => {
             </span>
           </div>
         </Col>
-        <Col className='gutter-row' xl={4} sm={7}>
+        <Col className='gutter-row' span={4}>
+          <Select
+            defaultValue={prodGroup}
+            style={style}
+            allowClear
+            onChange={(value: string) => {
+              setProdGroup(value);
+              resetPage();
+            }}
+            placeholder='เลือกกลุ่มสินค้า'
+            data={dataState.groups.map((group: ProductGroupEntity) => ({
+              key: group.product_group,
+              label: group.product_group,
+              value: group.product_group,
+            }))}
+          />
+        </Col>
+        <Col className='gutter-row' span={4}>
           <div style={style}>
             <Input
               placeholder='ค้นหาชื่อสินค้า'
@@ -120,21 +162,8 @@ export const DistributionPage: React.FC = () => {
             />
           </div>
         </Col>
-        <Col className='gutter-row' xl={4} sm={7}>
-          <Select
-            defaultValue={prodGroup}
-            style={style}
-            allowClear
-            onChange={(value: string) => {
-              setProdGroup(value);
-              resetPage();
-            }}
-            placeholder='เลือกกลุ่มสินค้า'
-            options={dataState.groups.map((group: ProductGroupEntity) => ({
-              label: group.product_group,
-              value: group.product_group,
-            }))}
-          />
+        <Col className='gutter-row' span={4}>
+          <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
         </Col>
       </Row>
     );
