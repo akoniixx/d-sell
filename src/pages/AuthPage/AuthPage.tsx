@@ -32,7 +32,6 @@ export const AuthPage: React.FC = () => {
   const authHandler = async (err: any, data: any) => {
     setLoading(true);
     await AuthDatasource.login(data.account.userName).then((res: any) => {
-      console.log({res})
       if (res.accessToken) {
         setTimeout(() => {
           setPersistedProfile({

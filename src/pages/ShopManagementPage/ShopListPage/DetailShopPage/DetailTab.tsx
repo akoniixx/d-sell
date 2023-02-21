@@ -41,11 +41,13 @@ interface Props {
     taxNo: string;
     updateBy: string;
     updateDate: string;
-    approveTel: {
+    shopApproveTel: {
       action: string;
       isApprove: boolean;
       newSecondTelephone: string | null;
       newTelephone: string | null;
+      oldSecondTelephone: string | null;
+      oldTelephone: string | null;
     };
     isPending: boolean;
   };
@@ -55,7 +57,6 @@ const mappingCustomerType = {
   DL: "Dealer",
 };
 function DetailTab({ data }: Props): JSX.Element {
-  console.log("🚀 ~ file: DetailTab.tsx ~ line 85 ~ DetailTab ~ data", data);
   const profile = useRecoilValue(profileAtom);
   const currentCompany = (data.customerCompany || []).find(
     (item) => item.company === profile?.company,
@@ -132,14 +133,14 @@ function DetailTab({ data }: Props): JSX.Element {
     },
     telMain: {
       label: "เบอร์โทรศัพท์ (หลัก)",
-      value: userShop?.telephone || "-",
-      isApproving: data.isPending,
+      value: userShop?.telephone ? userShop?.telephone : "-",
+      isApproving: data.isPending && data?.shopApproveTel?.newTelephone,
       isActive: userShop?.isActive,
     },
     telSub: {
       label: "เบอร์โทรศัพท์ (รอง)",
-      value: userShop?.secondtelephone || "-",
-      isApproving: data.isPending,
+      value: userShop?.secondtelephone ? userShop.secondtelephone : "-",
+      isApproving: data.isPending && data?.shopApproveTel?.newSecondTelephone,
       isActive: userShop?.isPrimary,
     },
   };

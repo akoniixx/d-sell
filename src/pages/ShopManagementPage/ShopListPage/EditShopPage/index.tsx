@@ -192,7 +192,6 @@ export default function EditShopPage() {
         subdistrict,
         taxNo: taxId,
         updateBy: `${profile?.firstname} ${profile?.lastname}`,
-        telephone,
         customerCompany: [
           {
             customerName: customerName || "",

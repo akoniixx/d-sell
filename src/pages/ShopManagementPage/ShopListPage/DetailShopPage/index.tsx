@@ -28,7 +28,7 @@ function DetailShopPage(): JSX.Element {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100%",
+          height: "80vh",
         }}
       >
         <Spin size='large' />
@@ -49,7 +49,6 @@ function DetailShopPage(): JSX.Element {
     },
   ];
   const isDisabled = data && data.isPending;
-
   return (
     <CardContainer>
       <PageTitleNested
