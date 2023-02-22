@@ -66,7 +66,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           <Col span={4}>
             <Form.Item
               name='nametitle'
-              label='คำนำหน้าชื่อ*'
+              label='คำนำหน้าชื่อ'
               rules={
                 [
                   // {
@@ -82,7 +82,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           <Col span={5}>
             <Form.Item
               name='firstname'
-              label='ชื่อจริง*'
+              label='ชื่อจริง'
               rules={
                 [
                   // {
@@ -98,7 +98,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           <Col span={5}>
             <Form.Item
               name='lastname'
-              label='นามสกุล*'
+              label='นามสกุล'
               // rules={[
               //   {
               //     required: true,
@@ -112,7 +112,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           <Col span={10}>
             <Form.Item
               name='idCard'
-              label='เลขบัตรประชาชน*'
+              label='เลขบัตรประชาชน'
               rules={[
                 // {
                 //   required: true,
@@ -132,7 +132,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           <Col span={12}>
             <Form.Item
               name='email'
-              label='อีเมล*'
+              label='อีเมล'
               rules={[
                 // {
                 //   required: true,
@@ -152,7 +152,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           <Col span={12}>
             <Form.Item
               name='memberId'
-              label='รหัสสมาชิก*'
+              label='รหัสสมาชิก'
               rules={
                 [
                   // {
@@ -425,28 +425,28 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label='ตำแหน่ง Latitude*'
+                label='ตำแหน่ง Latitude'
                 name='lat'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกตำแหน่ง Latitude",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกตำแหน่ง Latitude",
+                //   },
+                // ]}
               >
                 <Input placeholder='ระบุตำแหน่ง Latitude' />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                label='ตำแหน่ง Longitude*'
+                label='ตำแหน่ง Longitude'
                 name='lag'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกตำแหน่ง Longitude",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกตำแหน่ง Longitude",
+                //   },
+                // ]}
               >
                 <Input placeholder='ระบุตำแหน่ง Longitude' />
               </Form.Item>
