@@ -69,7 +69,31 @@ function DetailTab({ data }: Props): JSX.Element {
   //   data.approveTel && !data.approveTel.isApprove && data.approveTel.newTelephone;
   // const isApproveSecond =
   //   data.approveTel && !data.approveTel.isApprove && data.approveTel.newSecondTelephone;
-
+  const convertShopOwner = ({
+    nametitle,
+    firstname,
+    lastname,
+  }: {
+    nametitle?: string;
+    firstname?: string;
+    lastname?: string;
+  }) => {
+    let nameOwner = "";
+    if (nametitle) {
+      nameOwner = nametitle;
+    }
+    if (firstname) {
+      nameOwner = nameOwner + firstname;
+    }
+    if (lastname) {
+      nameOwner = nameOwner + `  ${lastname}`;
+    }
+    if (nameOwner === "") {
+      return "-";
+    } else {
+      return nameOwner;
+    }
+  };
   const userShop =
     data.customerToUserShops?.length > 0 ? data.customerToUserShops[0].userShop : null;
 
@@ -82,9 +106,11 @@ function DetailTab({ data }: Props): JSX.Element {
     },
     shopOwner: {
       label: "เจ้าของร้าน",
-      value: `${userShop?.nametitle || ""} ${userShop?.firstname || ""} ${
-        userShop?.lastname || "-"
-      } `,
+      value: convertShopOwner({
+        nametitle: userShop?.nametitle,
+        firstname: userShop?.firstname,
+        lastname: userShop?.lastname,
+      }),
       isApproving: false,
       isActive: true,
     },
