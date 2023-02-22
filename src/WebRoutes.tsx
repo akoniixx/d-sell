@@ -42,6 +42,9 @@ import { CustomerDiscountListPage } from "./pages/DiscountPage/CustomerDiscount/
 import { CustomerCreditMemoDetail } from "./pages/DiscountPage/CustomerDiscount/CustomerDetail";
 import DetailApproveTelPage from "./pages/ShopManagementPage/ApproveTelPage/DetailApproveTelPage";
 import { SpecialPriceDetail } from "./pages/PriceListX10/PriceListDetail";
+import { OrderList } from "./pages/OrderManagement/orderList";
+import { OrderDetail } from "./pages/OrderManagement/orderDetail";
+import { SpecialRequestList } from "./pages/SpecialRequest/specialRequestList";
 
 interface IRoute {
   path: string;
@@ -69,12 +72,27 @@ export const protectRoutesData: IRoute[] = [
     index: false,
   },
   {
-    path: "/OrderPage",
-    element: <OrderPage />,
-    permission: {
-      name: "orderManagement",
-      action: "view",
-    },
+    path: "/order",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "",
+        element: <OrderList />,
+        permission: null,
+      },
+      {
+        path: ":id",
+        element: <OrderDetail />,
+        permission: null,
+      },
+    ],
+    index: false,
+  },
+  {
+    path: "/special-request",
+    element: <SpecialRequestList />,
+    permission: null,
     nestedRoutes: [],
     index: false,
   },

@@ -1,20 +1,28 @@
 ## [Version - 0]
+
 ## Resolved [v0.3.4] - Release Date: 2023-21-02
 - Defect: ShopManagement & ApproveTel 
 - Disable Field ShopManagement if Dealer
-## Resolved [v0.3.4] - Release Date: 2023-14-02
-- Defect: ShopManagement & ApproveTel 
+- Add: Special request UI
+- Add: Order Management status API
+
 ## Resolved [v0.3.3] - Release Date: 2023-13-02
-- Defect: ShopManagement & ApproveTel 
+
+- Defect: ShopManagement & ApproveTel
 
 ## Resolved [v0.3.2] - Release Date: 2023-10-02
-- Defect: ShopManagement & ApproveTel 
 
-## Features [v0.3.1] - Release Date: 2023-07-02
+- Defect: ShopManagement & ApproveTel
 
-- Feature: ShopManagement & ApproveTel 
+## Features [v0.3.1] - Release Date: 2022-02-01
+
+- Feature: Order Management
+- Feature: Discount CO
+- Feature: SpecialPrice
+- Feature: ShopManagement & ApproveTel
 - fix status ShopDetail
 - add ApproveTel reason field
+
 ## Features [v0.3.0] - Release Date: 2023-01-01
 
 - Feature: ShopManagement & ApproveTel SoftLaunch

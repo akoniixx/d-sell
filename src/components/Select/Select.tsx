@@ -24,8 +24,10 @@ interface Props {
   onSearch?: (value: string) => void;
   filterOption?: boolean;
   notFoundContent?: JSX.Element | null;
-  mode?: string;
+  mode?: "multiple" | "tags" | undefined;
   allowClear?: boolean;
+  showArrow?: boolean;
+  maxTagCount?: number | "responsive";
 }
 
 export const AntSelectCustom = styled(AntSelect)`
@@ -106,6 +108,7 @@ function Select({
       value={value}
       defaultValue={defaultValue}
       disabled={disabled}
+      mode={mode}
     >
       {data.map((item) => {
         return (

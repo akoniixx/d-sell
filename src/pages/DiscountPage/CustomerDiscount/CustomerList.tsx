@@ -188,7 +188,7 @@ export const CustomerDiscountListPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/discount/customerDetail/" + row.creditMemoId)}
+                  onClick={() => navigate("/discount/customerDetail/" + row.customercompanyid)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />

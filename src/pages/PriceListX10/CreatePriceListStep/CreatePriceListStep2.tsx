@@ -437,8 +437,23 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
       width: 192,
       render: (value: string, row: ProductEntity) => {
         return (
-          <Form.Item name={`${row.productId}-price`} initialValue={1} noStyle>
-            <Input placeholder='ระบุราคา' suffix='บาท' style={{ width: 160 }} />
+          <Form.Item
+            name={`${row.productId}-price`}
+            initialValue={1}
+            // noStyle
+            rules={[
+              {
+                validator: (rule, value, callback) => {
+                  const type = form.getFieldValue(`${row.productId}-type`);
+                  if (type === -1 && parseFloat(value) > parseFloat(row.marketPrice || "")) {
+                    return Promise.reject("ส่วนลดมากกว่าราคาขาย โปรดระบุใหม่");
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input placeholder='ระบุราคา' suffix='บาท' style={{ width: 160 }} type='number' />
           </Form.Item>
         );
       },

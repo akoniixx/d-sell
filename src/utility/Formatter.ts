@@ -4,11 +4,12 @@ export const priceFormatter = (
   reverseUnit?: boolean,
   hideUnit?: boolean,
 ) => {
+  const digit = !fractionDigits && fractionDigits !== 0 ? 2 : fractionDigits;
   const formatter = new Intl.NumberFormat("th-TH", {
     // style: 'currency',
     currency: "THB",
-    minimumFractionDigits: fractionDigits || 2,
-    maximumFractionDigits: fractionDigits || 2,
+    minimumFractionDigits: digit,
+    maximumFractionDigits: digit,
   });
   const num = typeof price === "number" ? price : parseFloat(price);
   const result = formatter.format(num);
@@ -18,6 +19,10 @@ export const priceFormatter = (
     : reverseUnit
     ? `${formatter.format(num)} ฿`
     : `฿ ${formatter.format(num)}`;
+};
+
+export const numberFormatter = (price: number | string) => {
+  return priceFormatter(price, undefined, false, true);
 };
 
 export const nameFormatter = (input: string) => {

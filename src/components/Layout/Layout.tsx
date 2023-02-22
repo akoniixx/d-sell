@@ -28,13 +28,17 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
 
 export const pathLists = [
   {
-    path: "/OrderPage",
-    name: "คำสั่งซื้อ",
-    permission: {
-      name: "จัดการคำสั่งซื้อ",
-      action: "view",
-    },
-    title: "Order Management",
+    path: "/order",
+    name: "order",
+    permission: null,
+    title: "จัดการคำสั่งซื้อ",
+    subMenu: [],
+  },
+  {
+    path: "/special-request",
+    name: "specialRequest",
+    permission: null,
+    title: "ยืนยันคำสั่งซื้อ",
     subMenu: [],
   },
   {
@@ -60,7 +64,7 @@ export const pathLists = [
   {
     path: "/discount",
     name: "discountList",
-    title: "Discount (CO)",
+    title: "ส่วนลด (CO)",
     permission: null,
     // permission: {
     //   name: "discountCo",
@@ -70,7 +74,7 @@ export const pathLists = [
       {
         path: "/list",
         name: "discountList",
-        title: "Discount Lists",
+        title: "รายการส่วนลด",
       },
       {
         path: "/edit",
@@ -80,7 +84,7 @@ export const pathLists = [
       {
         path: "/customerList",
         name: "customerList",
-        title: "Discount CO รายร้าน",
+        title: "ส่วนลด CO รายร้าน",
       },
     ],
   },

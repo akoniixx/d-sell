@@ -110,13 +110,13 @@ export const TextStyled = styled(Text)<{ isFocus?: boolean }>`
 
 const iconsInActive = {
   order: (
-    <ShoppingCartOutlined
+    <FundOutlined
       style={{
         fontSize: "20px",
       }}
     />
   ),
-  approveOrder: (
+  specialRequest: (
     <ContainerOutlined
       style={{
         fontSize: "20px",
