@@ -67,12 +67,14 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Form.Item
               name='nametitle'
               label='คำนำหน้าชื่อ*'
-              rules={[
-                {
-                  required: true,
-                  message: "กรุณาเลือกคำนำหน้าชื่อ",
-                },
-              ]}
+              rules={
+                [
+                  // {
+                  //   required: true,
+                  //   message: "กรุณาเลือกคำนำหน้าชื่อ",
+                  // },
+                ]
+              }
             >
               <Select data={staticData} disabled={isHaveDealer} />
             </Form.Item>
@@ -81,12 +83,14 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Form.Item
               name='firstname'
               label='ชื่อจริง*'
-              rules={[
-                {
-                  required: true,
-                  message: "กรุณากรอกชื่อจริง",
-                },
-              ]}
+              rules={
+                [
+                  // {
+                  //   required: true,
+                  //   message: "กรุณากรอกชื่อจริง",
+                  // },
+                ]
+              }
             >
               <Input disabled={isHaveDealer} />
             </Form.Item>
@@ -95,12 +99,12 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Form.Item
               name='lastname'
               label='นามสกุล*'
-              rules={[
-                {
-                  required: true,
-                  message: "กรุณากรอกนามสกุล",
-                },
-              ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "กรุณากรอกนามสกุล",
+              //   },
+              // ]}
             >
               <Input disabled={isHaveDealer} />
             </Form.Item>
@@ -110,10 +114,10 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               name='idCard'
               label='เลขบัตรประชาชน*'
               rules={[
-                {
-                  required: true,
-                  message: "กรุณากรอกเลขบัตรประชาชน",
-                },
+                // {
+                //   required: true,
+                //   message: "กรุณากรอกเลขบัตรประชาชน",
+                // },
                 {
                   pattern: new RegExp(/^[0-9]{13}$/),
                   message: "กรุณากรอกเลขบัตรประชาชนให้ถูกต้อง",
@@ -130,10 +134,10 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               name='email'
               label='อีเมล*'
               rules={[
-                {
-                  required: true,
-                  message: "กรุณากรอกอีเมล",
-                },
+                // {
+                //   required: true,
+                //   message: "กรุณากรอกอีเมล",
+                // },
                 {
                   type: "email",
                   message: "กรุณากรอกอีเมลให้ถูกต้อง",
@@ -165,12 +169,14 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Form.Item
               name='createDate'
               label='วันที่เริ่มเป็นสมาชิก*'
-              rules={[
-                {
-                  required: true,
-                  message: "กรุณาเลือกวันที่เริ่มเป็นสมาชิก",
-                },
-              ]}
+              rules={
+                [
+                  // {
+                  //   required: true,
+                  //   message: "กรุณาเลือกวันที่เริ่มเป็นสมาชิก",
+                  // },
+                ]
+              }
             >
               <DatePicker
                 enablePast
