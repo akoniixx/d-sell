@@ -54,6 +54,9 @@ function DetailShopPage(): JSX.Element {
       <PageTitleNested
         title='รายละเอียดร้านค้า'
         cutParams
+        onBack={() => {
+          navigate("/ShopManagementPage/ShopListPage");
+        }}
         description={
           <Text
             fontWeight={500}
