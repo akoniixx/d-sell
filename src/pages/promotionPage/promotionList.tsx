@@ -147,8 +147,18 @@ export const PromotionListPage: React.FC = () => {
 
   const tabsItems = [
     { label: "ทั้งหมด", key: "ALL" },
-    { label: "Active", key: "true" },
-    { label: "Inactive", key: "false" },
+    {
+      label: `Active ${
+        (dataState?.count_status?.find((c: any) => c.promotion_status) as any)?.count || 0
+      }`,
+      key: "true",
+    },
+    {
+      label: `Inactive ${
+        (dataState?.count_status?.find((c: any) => !c.promotion_status) as any)?.count || 0
+      }`,
+      key: "false",
+    },
   ];
 
   const columns = [
