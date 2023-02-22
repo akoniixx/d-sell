@@ -253,6 +253,7 @@ function ApproveTelPage(): JSX.Element {
               <SearchInput
                 onChange={(e) => {
                   setKeyword(e.target.value);
+                  setPage(1);
                 }}
                 placeholder='ค้นหาร้านค้า, รายชื่อ...'
                 value={keyword}
