@@ -177,6 +177,7 @@ export interface PayloadCustomerEntity {
     updateBy?: string;
     customerCompanyId?: number;
     customerNo?: string | null;
+    productBrand?: string;
   }[];
   userShop: {
     firstname: string;

@@ -21,6 +21,13 @@ import StepTwo from "../AddNewShopPage/StepTwo";
 
 export default function EditShopPage() {
   const [current, setCurrent] = React.useState(0);
+  const [brandData, setBrandData] = React.useState<
+    {
+      productBrandName: string;
+      productBrandId: string;
+      company: string;
+    }[]
+  >([]);
   const profile = useRecoilValue(profileAtom);
   const navigate = useNavigate();
   const [dataDetail, setDataDetail] = React.useState<CustomerDetailEntity | null>(null);
@@ -43,9 +50,13 @@ export default function EditShopPage() {
           taxNo: taxId || "",
           company: profile?.company || "",
         });
+        const brandData = await shopDatasource.getBrandList(profile?.company || "");
+        setBrandData(brandData);
         setDataDetail(res);
 
         if (res && res?.data) {
+          const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
+
           const {
             userShop: {
               nametitle,
@@ -84,16 +95,22 @@ export default function EditShopPage() {
           const findDataByCompany = (res?.data?.customerCompany || []).find(
             (el: { company: string }) => el.company === profile?.company,
           );
+          const customerCompany =
+            res.data.customerCompany.length > 0 ? res.data.customerCompany[0] : null;
+
+          const findBrandCompany = (findDataByCompany?.productBrand || []).find(
+            (el: { company: string }) => el.company === profile?.company,
+          );
           form.setFieldsValue({
             customerNo: findDataByCompany?.customerNo || "",
             isActiveCustomer: findDataByCompany?.isActive || false,
             typeShop: findDataByCompany?.customerType || "SD",
             zone: findDataByCompany?.zone || "",
-            createDate: dayjs(findDataByCompany?.createDate) || "",
+            createDate: findDataByCompany ? dayjs(findDataByCompany?.createDate) : dayjs(),
             updateBy: res.data.updateBy,
             updateDate: res.data.updateDate,
-            lat: res.data.lat,
-            lag: res.data.lag,
+            lat: res.data.lat || "",
+            lag: res.data.lag || "",
             address: res.data.address,
             postcode: res.data.postcode,
             subdistrict: res.data.subdistrict,
@@ -111,9 +128,11 @@ export default function EditShopPage() {
             position,
             email,
             userShopId,
-            customerName: findDataByCompany?.customerName || "",
+            customerName: findDataByCompany?.customerName || customerCompany?.customerName || "",
             customerCompanyId: findDataByCompany?.customerCompanyId || 0,
             taxId,
+            productBrand: findBrandCompany ? `${findBrandCompany.productBrandId}` : "",
+            isHaveDealer,
           });
         }
       } catch (error) {
@@ -180,7 +199,15 @@ export default function EditShopPage() {
         userShopId,
         zone,
         customerNo,
+        productBrand,
       }: FormStepCustomerEntity = form.getFieldsValue(true);
+      const newProductBrand =
+        profile?.company === "ICPL" || profile?.company === "ICPI"
+          ? brandData[0]
+          : brandData.find((el) => {
+              return el.productBrandId === productBrand;
+            });
+      const stringifyProductBrand = JSON.stringify([newProductBrand]);
       const payload: PayloadCustomerEntity = {
         customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
         address,
@@ -207,6 +234,7 @@ export default function EditShopPage() {
             isActive: isActiveCustomer,
             salePersonCode: "",
             updateBy: `${profile?.firstname} ${profile?.lastname}`,
+            productBrand: stringifyProductBrand,
           },
         ],
         userShop: {
@@ -241,7 +269,7 @@ export default function EditShopPage() {
 
             showConfirmButton: false,
           }).then(() => {
-            navigate(-1);
+            navigate("/ShopManagementPage/ShopListPage/DetailPage/" + res.responseData.customerId);
           });
         } else {
           Swal.fire({
@@ -271,6 +299,7 @@ export default function EditShopPage() {
             form={form}
             company={profile?.company}
             dataDetail={dataDetail}
+            brandData={brandData}
             zoneList={zoneList}
           />
         );

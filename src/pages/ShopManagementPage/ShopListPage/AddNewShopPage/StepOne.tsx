@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useMemo } from "react";
 import Switch from "../../../../components/Switch/Switch";
 import Text from "../../../../components/Text/Text";
 import styled from "styled-components";
@@ -35,11 +35,17 @@ function StepOne({
   company,
   dataDetail,
   zoneList = [],
+  brandData = [],
 }: {
   dataDetail: CustomerDetailEntity | null;
   zoneList?: { label: string; value: string; key: string }[];
   form: FormInstance<any>;
   company?: "ICPL" | "ICPI" | "ICPF" | "ICK";
+  brandData?: {
+    productBrandName: string;
+    productBrandId: string;
+    company: string;
+  }[];
 }) {
   const listSD =
     (dataDetail?.data?.customerCompany || []).filter((el) => el.company !== company) || [];
@@ -47,6 +53,16 @@ function StepOne({
     (el) => el.company === company,
   );
 
+  const formatBrandData = useMemo(() => {
+    if (brandData) {
+      return brandData?.map((el: any) => ({
+        key: el.productBrandId,
+        value: el.productBrandId,
+        label: el.productBrandName,
+      }));
+    }
+    return [];
+  }, [brandData]);
   const listRadio = [
     {
       label: "Dealer",
@@ -60,26 +76,6 @@ function StepOne({
 
   const renderByCompany = () => {
     switch (company) {
-      case "ICPL": {
-        return (
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name='zone'
-                label='เขต*'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณาเลือกเขต",
-                  },
-                ]}
-              >
-                <Select data={zoneList} />
-              </Form.Item>
-            </Col>
-          </Row>
-        );
-      }
       case "ICPF": {
         return (
           <Row gutter={16}>
@@ -94,19 +90,19 @@ function StepOne({
                   },
                 ]}
               >
-                <Select data={zoneList} />
+                <Select data={formatBrandData} />
               </Form.Item>
             </Col>
             <Col span={10}>
               <Form.Item
-                name='shopId'
-                label='รหัสร้านค้า (ใน NAV)*'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกรหัสร้านค้า (ใน NAV)",
-                  },
-                ]}
+                name='customerNo'
+                label='รหัสร้านค้า'
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกรหัสร้านค้า (ใน NAV)",
+                //   },
+                // ]}
               >
                 <Input />
               </Form.Item>
@@ -137,16 +133,7 @@ function StepOne({
         return (
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                name='shopId'
-                label='รหัสร้านค้า (ใน NAV)*'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกรหัสร้านค้า (ใน NAV)",
-                  },
-                ]}
-              >
+              <Form.Item name='customerNo' label='รหัสร้านค้า'>
                 <Input />
               </Form.Item>
             </Col>
