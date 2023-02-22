@@ -103,7 +103,7 @@ export default function EditShopPage() {
           );
           form.setFieldsValue({
             customerNo: findDataByCompany?.customerNo || "",
-            isActiveCustomer: findDataByCompany?.isActive || false,
+            isActiveCustomer: findDataByCompany ? findDataByCompany?.isActive : true,
             typeShop: findDataByCompany?.customerType || "SD",
             zone: findDataByCompany?.zone || "",
             createDate: findDataByCompany ? dayjs(findDataByCompany?.createDate) : dayjs(),
