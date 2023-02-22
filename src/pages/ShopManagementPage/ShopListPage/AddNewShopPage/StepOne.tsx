@@ -76,26 +76,6 @@ function StepOne({
 
   const renderByCompany = () => {
     switch (company) {
-      case "ICPL": {
-        return (
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name='zone'
-                label='เขต*'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณาเลือกเขต",
-                  },
-                ]}
-              >
-                <Select data={zoneList} />
-              </Form.Item>
-            </Col>
-          </Row>
-        );
-      }
       case "ICPF": {
         return (
           <Row gutter={16}>

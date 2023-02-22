@@ -224,7 +224,7 @@ function AddNewShopPage(): JSX.Element {
           : brandData.find((el) => {
               return el.productBrandId === productBrand;
             });
-      const stringifyProductBrand = JSON.stringify(newProductBrand);
+      const stringifyProductBrand = JSON.stringify([newProductBrand]);
       const payload: PayloadCustomerEntity = {
         customerId: dataDetail?.data?.customerId ? +dataDetail?.data.customerId : 0,
         address,
@@ -252,7 +252,7 @@ function AddNewShopPage(): JSX.Element {
             termPayment: "",
             creditLimit: 0,
             customerNo,
-            productBrand: [stringifyProductBrand],
+            productBrand: stringifyProductBrand,
           },
         ],
         userShop: {

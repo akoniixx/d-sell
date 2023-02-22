@@ -89,7 +89,7 @@ function DetailTab({ data }: Props): JSX.Element {
       isActive: true,
     },
     zone: {
-      label: "พื้นที่",
+      label: "เขต",
       value: currentCompany?.zone || "-",
       isApproving: false,
       isActive: true,

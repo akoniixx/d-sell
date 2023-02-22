@@ -55,6 +55,8 @@ export default function EditShopPage() {
         setDataDetail(res);
 
         if (res && res?.data) {
+          const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
+
           const {
             userShop: {
               nametitle,
@@ -96,7 +98,7 @@ export default function EditShopPage() {
           const customerCompany =
             res.data.customerCompany.length > 0 ? res.data.customerCompany[0] : null;
 
-          const findBrandCompany = (findDataByCompany.productBrand || []).find(
+          const findBrandCompany = (findDataByCompany?.productBrand || []).find(
             (el: { company: string }) => el.company === profile?.company,
           );
           form.setFieldsValue({
@@ -129,9 +131,8 @@ export default function EditShopPage() {
             customerName: findDataByCompany?.customerName || customerCompany?.customerName || "",
             customerCompanyId: findDataByCompany?.customerCompanyId || 0,
             taxId,
-            productBrand: findBrandCompany?.product_brand_id
-              ? `${findBrandCompany.product_brand_id}`
-              : "",
+            productBrand: findBrandCompany ? `${findBrandCompany.productBrandId}` : "",
+            isHaveDealer,
           });
         }
       } catch (error) {
@@ -206,7 +207,7 @@ export default function EditShopPage() {
           : brandData.find((el) => {
               return el.productBrandId === productBrand;
             });
-      const stringifyProductBrand = JSON.stringify(newProductBrand);
+      const stringifyProductBrand = JSON.stringify([newProductBrand]);
       const payload: PayloadCustomerEntity = {
         customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
         address,
@@ -233,7 +234,7 @@ export default function EditShopPage() {
             isActive: isActiveCustomer,
             salePersonCode: "",
             updateBy: `${profile?.firstname} ${profile?.lastname}`,
-            productBrand: [stringifyProductBrand],
+            productBrand: stringifyProductBrand,
           },
         ],
         userShop: {
