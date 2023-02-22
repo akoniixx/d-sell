@@ -61,7 +61,31 @@ function ShopListPage(): JSX.Element {
       });
     },
   );
-
+  const convertShopOwner = ({
+    nametitle,
+    firstname,
+    lastname,
+  }: {
+    nametitle?: string;
+    firstname?: string;
+    lastname?: string;
+  }) => {
+    let nameOwner = "";
+    if (nametitle) {
+      nameOwner = nametitle;
+    }
+    if (firstname) {
+      nameOwner = nameOwner + firstname;
+    }
+    if (lastname) {
+      nameOwner = nameOwner + `  ${lastname}`;
+    }
+    if (nameOwner === "") {
+      return "-";
+    } else {
+      return nameOwner;
+    }
+  };
   const onFinish = async (values: { taxId: string }) => {
     try {
       const res = await shopDatasource.getCustomerByTaxId({
@@ -206,7 +230,7 @@ function ShopListPage(): JSX.Element {
           const ICPL = data.customerCompany?.find((el) => el.company === "ICPL");
           const ICPF = data.customerCompany?.find((el) => el.company === "ICPF");
           const ICPI = data.customerCompany?.find((el) => el.company === "ICPI");
-          const { customerName } = isActive ? isActive : data.customerCompany[0];
+          const customerName = isActive ? isActive : data.customerCompany[0];
           const convertStatus = (status: boolean) => {
             return status ? (
               <Text fontWeight={600} color='success'>
@@ -234,7 +258,7 @@ function ShopListPage(): JSX.Element {
             return (
               <div>
                 <Row>
-                  <Text>{customerName}</Text>
+                  <Text>{customerName?.customerName || "-"}</Text>
                 </Row>
                 <Text level={6} color='Text3'>
                   {`จ.${data.province}`}
@@ -295,7 +319,7 @@ function ShopListPage(): JSX.Element {
             if (!isHasValue) return <Text>-</Text>;
             return (
               <div>
-                <Text>{`${userShop.firstname} ${userShop.lastname}`}</Text>
+                <Text>{`${userShop.nametitle} ${userShop.firstname} ${userShop.lastname}`}</Text>
               </div>
             );
           }
@@ -324,6 +348,7 @@ function ShopListPage(): JSX.Element {
               <SearchInput
                 onChange={(e) => {
                   setKeyword(e.target.value);
+                  setPage(1);
                 }}
                 placeholder='ค้นหาร้านค้า, รายชื่อ...'
                 value={keyword}
