@@ -114,13 +114,28 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               name='idCard'
               label='เลขบัตรประชาชน'
               rules={[
-                // {
-                //   required: true,
-                //   message: "กรุณากรอกเลขบัตรประชาชน",
-                // },
                 {
-                  pattern: new RegExp(/^[0-9]{13}$/),
-                  message: "กรุณากรอกเลขบัตรประชาชนให้ถูกต้อง",
+                  validator: async (rule, value) => {
+                    const funcCheckIdCard = (idCard: string) => {
+                      if (idCard.length !== 13) {
+                        return false;
+                      }
+                      const sum = Array.from(idCard, Number).reduce(
+                        (acc, cur, i) => acc + cur * (13 - i),
+                        0,
+                      );
+                      return sum % 11 === 0;
+                    };
+
+                    if (!value) {
+                      return Promise.resolve();
+                    }
+                    if (!funcCheckIdCard(value)) {
+                      throw new Error("กรุณากรอกเลขบัตรประชาชนให้ถูกต้อง");
+                    } else {
+                      return Promise.resolve();
+                    }
+                  },
                 },
               ]}
             >
@@ -217,7 +232,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                     message: "กรุณากรอกเบอร์โทรศัพท์",
                   },
                   {
-                    pattern: /^[0-9]{10}$/,
+                    pattern: /^0\d{9}$/,
                     message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
                   },
                 ]}
@@ -252,7 +267,7 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                   //   message: "กรุณากรอกเบอร์โทรศัพท์",
                   // },
                   {
-                    pattern: /^[0-9]{10}$/,
+                    pattern: /^0\d{9}$/,
                     message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
                   },
                   {

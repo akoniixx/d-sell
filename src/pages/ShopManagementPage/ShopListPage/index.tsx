@@ -61,31 +61,31 @@ function ShopListPage(): JSX.Element {
       });
     },
   );
-  const convertShopOwner = ({
-    nametitle,
-    firstname,
-    lastname,
-  }: {
-    nametitle?: string;
-    firstname?: string;
-    lastname?: string;
-  }) => {
-    let nameOwner = "";
-    if (nametitle) {
-      nameOwner = nametitle;
-    }
-    if (firstname) {
-      nameOwner = nameOwner + firstname;
-    }
-    if (lastname) {
-      nameOwner = nameOwner + `  ${lastname}`;
-    }
-    if (nameOwner === "") {
-      return "-";
-    } else {
-      return nameOwner;
-    }
-  };
+  // const convertShopOwner = ({
+  //   nametitle,
+  //   firstname,
+  //   lastname,
+  // }: {
+  //   nametitle?: string;
+  //   firstname?: string;
+  //   lastname?: string;
+  // }) => {
+  //   let nameOwner = "";
+  //   if (nametitle) {
+  //     nameOwner = nametitle;
+  //   }
+  //   if (firstname) {
+  //     nameOwner = nameOwner + firstname;
+  //   }
+  //   if (lastname) {
+  //     nameOwner = nameOwner + `  ${lastname}`;
+  //   }
+  //   if (nameOwner === "") {
+  //     return "-";
+  //   } else {
+  //     return nameOwner;
+  //   }
+  // };
   const onFinish = async (values: { taxId: string }) => {
     try {
       const res = await shopDatasource.getCustomerByTaxId({
@@ -333,6 +333,7 @@ function ShopListPage(): JSX.Element {
     });
     return columns;
   }, [onClickDetail]);
+  // console.log("data", data);
   return (
     <CardContainer>
       <PageTitle

@@ -11,6 +11,7 @@ import color from "../../../../resource/color";
 import Button from "../../../../components/Button/Button";
 import { getCompanyImage, getCompanyName } from "../../../../utility/CompanyName";
 import { CustomerDetailEntity } from "../../../../entities/CustomerEntity";
+import SelectMultiple from "../../../../components/Select/SelectMultiple";
 
 const mappingCompany = {
   ICPL: "ICP Ladda",
@@ -90,7 +91,7 @@ function StepOne({
                   },
                 ]}
               >
-                <Select data={formatBrandData} />
+                <SelectMultiple data={formatBrandData} />
               </Form.Item>
             </Col>
             <Col span={10}>
