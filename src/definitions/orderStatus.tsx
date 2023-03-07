@@ -5,8 +5,8 @@ export type OrderStatusKey =
   | "OPEN_ORDER"
   | "IN_DELIVERY"
   | "DELIVERY_SUCCESS"
-  | "SHOPAPP_CANCLE_ORDER"
-  | "COMPANY_CANCLE_ORDER"
+  | "SHOPAPP_CANCEL_ORDER"
+  | "COMPANY_CANCEL_ORDER"
   | "REJECT_ORDER";
 
 export type OrderPaymentMethodName = "CASH" | "CREDIT";
@@ -56,14 +56,14 @@ export const ORDER_STATUS = {
     name_icpf: "ขึ้นสินค้าเรียบร้อยแล้ว",
     color: "#2ED477",
   },
-  SHOPAPP_CANCLE_ORDER: {
+  SHOPAPP_CANCEL_ORDER: {
     name_default: "ยกเลิกคำสั่งซื้อโดยร้านค้า",
     name_icpl: "ยกเลิกคำสั่งซื้อโดยร้านค้า",
     name_icpi: "ยกเลิกคำสั่งซื้อโดยร้านค้า",
     name_icpf: "ยกเลิกคำสั่งซื้อโดยร้านค้า",
     color: "#F46363",
   },
-  COMPANY_CANCLE_ORDER: {
+  COMPANY_CANCEL_ORDER: {
     name_default: "ยกเลิกคำสั่งซื้อโดยบริษัท",
     name_icpl: "ยกเลิกคำสั่งซื้อโดยบริษัท",
     name_icpi: "ยกเลิกคำสั่งซื้อโดยบริษัท",

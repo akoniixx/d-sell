@@ -97,7 +97,7 @@ export const pathLists = [
       {
         path: "/list",
         name: "discountList",
-        title: "ราคาสินค้าเฉพาะร้าน X+10",
+        title: "ราคาสินค้าเฉพาะร้าน",
       },
     ],
   },

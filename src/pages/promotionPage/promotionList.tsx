@@ -9,14 +9,9 @@ import {
   CopyOutlined,
 } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
-import { nameFormatter, priceFormatter } from "../../utility/Formatter";
+import { dateFormatter, nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
-import { BrandEntity } from "../../entities/BrandEntity";
-import { STATUS_COLOR_MAPPING } from "../../definitions/product";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "../../store/ProfileAtom";
-import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
 import Button from "../../components/Button/Button";
 import moment from "moment";
@@ -237,7 +232,7 @@ export const PromotionListPage: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5}>
-                {moment(row.startDate).format(SLASH_DMY)}-{moment(row.endDate).format(SLASH_DMY)}
+                {dateFormatter(row.startDate)} - {dateFormatter(row.endDate)}
               </Text>
             </FlexCol>
           ),
@@ -255,7 +250,7 @@ export const PromotionListPage: React.FC = () => {
             <FlexCol>
               <Text level={5}>{value || "-"}</Text>
               <Text level={6} color='Text3'>
-                {moment(row.updatedAt).format(SLASH_DMY)}
+                {dateFormatter(row.updatedAt)}
               </Text>
             </FlexCol>
           ),

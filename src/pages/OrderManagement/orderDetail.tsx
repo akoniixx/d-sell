@@ -471,7 +471,7 @@ export const OrderDetail: React.FC = () => {
             <Col span={20}>
               <div>
                 <Text level={2}>
-                  ส่งคำสั่งซื้อไปที่ระบบ <span style={{ color: color.primary }}>Navistion</span>
+                  ส่งคำสั่งซื้อไปที่ระบบ <span style={{ color: color.primary }}>Navision</span>
                 </Text>
                 &nbsp;
                 <Text level={5}>
@@ -493,7 +493,7 @@ export const OrderDetail: React.FC = () => {
         title: (
           <>
             <Text level={2} color='success'>
-              ส่งคำสั่งซื้อไปยังระบบ Navistion แล้ว
+              ส่งคำสั่งซื้อไปยังระบบ Navision แล้ว
             </Text>
           </>
         ),
@@ -504,7 +504,7 @@ export const OrderDetail: React.FC = () => {
         title: (
           <>
             <Text level={2} color='warning'>
-              ส่งคำสั่งซื้อไปยังระบบ Navistion ไม่สำเร็จ “โปรดติดต่อทีม Support”
+              ส่งคำสั่งซื้อไปยังระบบ Navision ไม่สำเร็จ “โปรดติดต่อทีม Support”
             </Text>
           </>
         ),
@@ -547,10 +547,18 @@ export const OrderDetail: React.FC = () => {
                   </Row>
                 </Col>
                 <Col span={3}>
-                  <Button title='ปฎิเสธ' typeButton='danger' />
+                  <Button
+                    title='ปฎิเสธ'
+                    typeButton='danger'
+                    onClick={() => updateStatus("REJECT_ORDER")}
+                  />
                 </Col>
                 <Col span={3}>
-                  <Button title='อนุมัติ' typeButton='primary' />
+                  <Button
+                    title='อนุมัติ'
+                    typeButton='primary'
+                    onClick={() => updateStatus("WAIT_CONFIRM_ORDER")}
+                  />
                 </Col>
               </Row>
             </CardContainer>
@@ -655,7 +663,7 @@ export const OrderDetail: React.FC = () => {
               <Text level={5} fontWeight={700}>
                 หมายเหตุการยกเลิก (บริษัท)
               </Text>
-              <DetailBox>{orderData?.cancleRemark || "-"}</DetailBox>
+              <DetailBox>{orderData?.cancelRemark || "-"}</DetailBox>
             </CardContainer>
           </Col>
           <Col span={12}>
@@ -670,11 +678,13 @@ export const OrderDetail: React.FC = () => {
                   alignRight
                   fontWeight={700}
                   fontSize={18}
+                  leftSpan={10}
                 />
                 <DetailItem
                   label='ภาษีมูลค่าเพิ่ม'
                   value={priceFormatter(0, undefined, true)}
                   alignRight
+                  leftSpan={10}
                 />
                 <DetailItem label='รวมเงิน' value=' ' fontWeight={700} fontSize={18} />
                 <DetailBox style={{ backgroundColor: "white", padding: 22 }}>
@@ -710,6 +720,7 @@ export const OrderDetail: React.FC = () => {
                   fontWeight={700}
                   fontSize={18}
                   alignRight
+                  leftSpan={10}
                 />
                 <Divider />
                 <DetailItem
@@ -757,7 +768,7 @@ export const OrderDetail: React.FC = () => {
               style={{ width: "100%" }}
               onClick={() =>
                 onSubmitStatus({
-                  status: "COMPANY_CANCLE_ORDER",
+                  status: "COMPANY_CANCEL_ORDER",
                   cancleRemark: form.getFieldValue("cancleRemark"),
                 })
               }

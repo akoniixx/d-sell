@@ -1,4 +1,14 @@
-import { Button, Col, Form, FormInstance, message, Row, Upload, Select as AntdSelect } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  FormInstance,
+  message,
+  Row,
+  Upload,
+  Select as AntdSelect,
+  Tooltip,
+} from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
@@ -14,6 +24,8 @@ import { PromotionType, PROMOTION_TYPE_NAME } from "../../../definitions/promoti
 import { checkPromotionCode, getPromotion } from "../../../datasource/PromotionDatasource";
 import ImgCrop from "../../../components/ImgCrop/ImgCrop";
 import { RcFile } from "antd/lib/upload";
+import icon from "../../../resource/icon";
+import { normFile } from "../../../utility/uploadHelper";
 
 const UploadHorizontal = styled(Upload)`
   .ant-upload,
@@ -456,9 +468,15 @@ export const PromotionCreateStep1 = ({
             </Row>
           </Col>
         </Row>
-        <Text level={5} fontWeight={700}>
-          ไฟล์ Memo Promotion
-        </Text>
+        <Row align='middle'>
+          <Text level={5} fontWeight={700}>
+            ไฟล์ Memo Promotion
+          </Text>
+          &nbsp;
+          <Tooltip title='ไฟล์ที่ต้องการแสดงในหน้า Application'>
+            <img style={{ width: 16, height: 16 }} src={icon.infoIcon} />
+          </Tooltip>
+        </Row>
         <br />
         <Text level={5} color='Text3'>
           โปรดเลือกไฟล์ Memo Promotion ที่ต้องการแสดงในหน้า Application
@@ -467,7 +485,12 @@ export const PromotionCreateStep1 = ({
         <Row>
           <Col span={12}>
             <MemoArea>
-              <Form.Item noStyle name='memoFile' valuePropName='file'>
+              <Form.Item
+                noStyle
+                name='memoFile'
+                valuePropName='fileList'
+                getValueFromEvent={normFile}
+              >
                 <Upload
                   beforeUpload={(file) => {
                     const isPDF = file.type === "application/pdf";

@@ -1,10 +1,16 @@
 ## [Version - 0]
 
 ## Resolved [v0.3.5] - Release Date: 2023-22-02
-- Defect: ShopManagement & ApproveTel 
+
+- Defect: Promotion seetting
+
+## Resolved [v0.3.5] - Release Date: 2023-22-02
+
+- Defect: ShopManagement & ApproveTel
 
 ## Resolved [v0.3.4] - Release Date: 2023-21-02
-- Defect: ShopManagement & ApproveTel 
+
+- Defect: ShopManagement & ApproveTel
 - Disable Field ShopManagement if Dealer
 - Add: Special request UI
 - Add: Order Management status API

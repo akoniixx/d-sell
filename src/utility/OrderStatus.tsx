@@ -29,8 +29,8 @@ export const getSpecialRequestStatus = (statusKey: OrderStatusKey) => {
       name = "ไม่อนุมัติ";
       color = colors.Disable;
       break;
-    case "SHOPAPP_CANCLE_ORDER":
-    case "COMPANY_CANCLE_ORDER":
+    case "SHOPAPP_CANCEL_ORDER":
+    case "COMPANY_CANCEL_ORDER":
       name = "ถูกยกเลิก";
       color = colors.Disable;
       break;

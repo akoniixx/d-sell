@@ -54,7 +54,9 @@ const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
   const [data, setData] = useState<StoreEntity[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [targetKeys, setTargetKeys] = useState<string[]>(list.map((e) => `${e.customerCompanyId}`));
+  const [targetKeys, setTargetKeys] = useState<string[]>(
+    list?.map((e) => `${e.customerCompanyId}`),
+  );
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [filter, setFilter] = useState({
     zone: "",
@@ -92,7 +94,7 @@ const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
         ร้านค้าทั้งหมด
       </Text>
       <Text level={6} color='white'>
-        {total - targetKeys.length}&nbsp;ร้านค้า
+        {total - (targetKeys?.length || 0)}&nbsp;ร้านค้า
       </Text>
     </Row>,
     <Row align='middle' justify='space-between' key={1}>
@@ -101,7 +103,7 @@ const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
       </Text>
       <div>
         <Text level={6} color='white'>
-          {targetKeys.length}&nbsp;ร้านค้า
+          {targetKeys?.length || 0}&nbsp;ร้านค้า
         </Text>
         <Divider type='vertical' style={{ borderColor: "white" }} />
         <Text level={6} color='white' style={{ cursor: "pointer" }} onClick={onClearTarget}>
