@@ -616,7 +616,7 @@ export const SpecialPriceDetail: React.FC = () => {
                 <Form form={form}>
                   <Table
                     columns={columns}
-                    dataSource={isEditing ? items : priceList[selectedTab]}
+                    dataSource={isEditing ? priceList.all : priceList[selectedTab]}
                     loading={priceListLoading}
                     pagination={{
                       pageSize: 8,
