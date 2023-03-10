@@ -296,8 +296,9 @@ export const PriceListX10: React.FC = () => {
             dataSource={dataState.filteredData}
             pagination={{
               pageSize,
-              // current: page,
+              current: page,
               showSizeChanger: false,
+              onChange: (p) => setPage(p),
               position: ["bottomCenter"],
             }}
             size='large'
