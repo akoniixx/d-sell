@@ -57,7 +57,7 @@ export const PriceListX10: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!loading && customerCompanyValue.data.length <= 0) fetchData();
+    if (!loading && (customerCompanyValue.data.length <= 0 || zones.length <= 0)) fetchData();
   }, []);
 
   useEffect(() => {
@@ -75,11 +75,11 @@ export const PriceListX10: React.FC = () => {
     if (statusFilter) {
       data = data.filter((d: any) => !!d?.status === (statusFilter === "true"));
       if (statusFilter === "true") {
-        statusCount.true = data.length;
-        statusCount.false = newStatusCount.ALL - data.length;
+        newStatusCount.true = data.length;
+        newStatusCount.false = newStatusCount.ALL - data.length;
       } else {
-        statusCount.false = data.length;
-        statusCount.true = newStatusCount.ALL - data.length;
+        newStatusCount.false = data.length;
+        newStatusCount.true = newStatusCount.ALL - data.length;
       }
     } else {
       newStatusCount.true = data.reduce((acc, d: any) => (d?.status ? acc + 1 : acc), 0);
@@ -90,6 +90,7 @@ export const PriceListX10: React.FC = () => {
       filteredData: data,
     });
     setStatusCount(newStatusCount);
+    resetPage();
   }, [keyword, zoneFilter, statusFilter]);
 
   const resetPage = () => setPage(1);
@@ -126,7 +127,6 @@ export const PriceListX10: React.FC = () => {
         specialPrice: specialPriceData,
         specialPriceCount: responseData,
       });
-      console.log({ data, count, count_status, responseData, specialPriceData });
     } catch (e) {
       console.log(e);
     } finally {

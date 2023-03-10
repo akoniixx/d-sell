@@ -48,7 +48,7 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [list]);
 
   useEffect(() => {
     onFilterAll();
@@ -104,10 +104,16 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
         // ...filter,
         company,
       });
-      const dataWithKey = data?.map((d: StoreEntity, i: number) => ({
-        ...d,
-        key: d.customerCompanyId,
-      }));
+      const dataWithKey = data
+        ?.filter(
+          (d: StoreEntity) =>
+            !list ||
+            !list.find((item: StoreEntity) => item.customerCompanyId === d.customerCompanyId),
+        )
+        .map((d: StoreEntity, i: number) => ({
+          ...d,
+          key: d.customerCompanyId,
+        }));
       setData(dataWithKey);
       setFilteredData(dataWithKey);
       setTotal(count_total || 0);
@@ -137,9 +143,9 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
       <Text fontWeight={700} color='white'>
         ร้านค้าทั้งหมด
       </Text>
-      <Text level={6} color='white'>
-        {filteredData.length - targetKeys.length}/{total}&nbsp;ร้านค้า
-      </Text>
+      {/* <Text level={6} color='white'>
+        {filteredData?.length - targetKeys?.length}/{total}&nbsp;ร้านค้า
+      </Text> */}
     </Row>,
     <Row align='middle' justify='space-between' key={1}>
       <Text fontWeight={700} color='white'>
@@ -147,13 +153,13 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
       </Text>
       <div>
         <Text level={6} color='white'>
-          {targetKeys.length}/{selectedTargetKeys.size || 0}&nbsp;ร้านค้า
+          {targetKeys?.length}/{selectedTargetKeys?.size || 0}&nbsp;ร้านค้า
         </Text>
         <Divider type='vertical' style={{ borderColor: "white" }} />
         <Text
           level={6}
           color='white'
-          style={{ cursor: targetKeys.length ? "pointer" : "default" }}
+          style={{ cursor: targetKeys?.length ? "pointer" : "default" }}
           onClick={onClearTarget}
         >
           <DeleteOutlined />
@@ -209,16 +215,22 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
   };
 
   const onSave = () => {
-    setList([...list, ...data.filter((item) => targetKeys.includes(item.customerCompanyId))]);
-
+    const newList = [
+      ...(list || []),
+      ...data.filter((item) => setToArray(selectedTargetKeys).includes(item.customerCompanyId)),
+    ];
     // clear state
     setFilter(defaultFilter);
     setFilterSelection(defaultFilter);
+    setSelectionData([]);
     setFilteredData(data);
     setFilteredSelection([]);
+    setSelectedTargetKeys(arrayToSet([]));
     setTargetKeys([]);
     setSelectedKeys([]);
+    form.resetFields();
 
+    setList(newList);
     onClose();
   };
 

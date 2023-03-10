@@ -1,32 +1,18 @@
-import {
-  Col,
-  DatePicker,
-  Divider,
-  Form as AntdForm,
-  FormInstance,
-  Modal,
-  Row,
-  Spin,
-  Table,
-  TimePicker,
-  Upload,
-} from "antd";
-import React, { useEffect, useState, memo, useMemo } from "react";
+import { Col, Form as AntdForm, FormInstance, Modal, Row, Table } from "antd";
+import React, { useEffect, useState } from "react";
 import { FlexCol, FlexRow } from "../../../../components/Container/Container";
 import Text from "../../../../components/Text/Text";
 import styled from "styled-components";
 import color from "../../../../resource/color";
-import { CloseOutlined, DeleteOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import { CloseOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { StoreEntity, ZoneEntity } from "../../../../entities/StoreEntity";
 import Button from "../../../../components/Button/Button";
 import Input from "../../../../components/Input/Input";
 import Select from "../../../../components/Select/Select";
-import Transfer from "../../../../components/Transfer/Transfer";
-import type { TransferDirection } from "antd/es/transfer";
 import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../../components/Table/TableContainer";
-import { getCustomers, getZones } from "../../../../datasource/CustomerDatasource";
-import { CreditMemoShopEntity } from "../../../../entities/CreditMemoEntity";
+import { getZones } from "../../../../datasource/CustomerDatasource";
+import { SearchStore } from "../../../Shared/SearchStore";
 
 const Form = styled(AntdForm)`
   .table-form-item.ant-form-item {
@@ -34,184 +20,11 @@ const Form = styled(AntdForm)`
   }
 `;
 
-interface SearchProps {
-  list: StoreEntity[];
-  setList: any;
-  onClose: any;
-  zones: ZoneEntity[];
-}
-
 interface Step2Props {
   form: FormInstance;
   showError?: boolean;
   setError?: any;
 }
-
-const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
-  const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
-
-  const [data, setData] = useState<StoreEntity[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [targetKeys, setTargetKeys] = useState<string[]>(
-    list?.map((e) => `${e.customerCompanyId}`),
-  );
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [filter, setFilter] = useState({
-    zone: "",
-    searchText: "",
-  });
-
-  useEffect(() => {
-    fetchData();
-  }, [filter]);
-
-  const fetchData = async () => {
-    console.log("fetchData");
-    try {
-      setLoading(true);
-      const { count_total, data } = await getCustomers({
-        ...filter,
-        company,
-      });
-      setData(data?.map((d: StoreEntity, i: number) => ({ ...d, key: d.customerCompanyId })));
-      setTotal(count_total || 0);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onClearTarget = () => {
-    setTargetKeys([]);
-  };
-
-  const titles = [
-    <Row align='middle' justify='space-between' key={0}>
-      <Text fontWeight={700} color='white'>
-        ร้านค้าทั้งหมด
-      </Text>
-      <Text level={6} color='white'>
-        {total - (targetKeys?.length || 0)}&nbsp;ร้านค้า
-      </Text>
-    </Row>,
-    <Row align='middle' justify='space-between' key={1}>
-      <Text fontWeight={700} color='white'>
-        ร้านค้าที่เลือก
-      </Text>
-      <div>
-        <Text level={6} color='white'>
-          {targetKeys?.length || 0}&nbsp;ร้านค้า
-        </Text>
-        <Divider type='vertical' style={{ borderColor: "white" }} />
-        <Text level={6} color='white' style={{ cursor: "pointer" }} onClick={onClearTarget}>
-          <DeleteOutlined />
-          &nbsp;ลบทั้งหมด
-        </Text>
-      </div>
-    </Row>,
-  ];
-
-  const renderItem = (item: any) => {
-    return (
-      <FlexCol style={{ padding: "4px 8px" }}>
-        <Text level={6}>{item.customerName}</Text>
-        <Text level={6} color='Text3'>
-          {item.zone}
-        </Text>
-      </FlexCol>
-    );
-  };
-
-  const onChange = (nextTargetKeys: string[], direction: TransferDirection, moveKeys: string[]) => {
-    console.log("targetKeys:", nextTargetKeys);
-    console.log("direction:", direction);
-    console.log("moveKeys:", moveKeys);
-    setTargetKeys(nextTargetKeys);
-  };
-
-  const onSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => {
-    setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
-  };
-
-  const onSave = () => {
-    setList(data.filter((item) => targetKeys.includes(item.customerCompanyId)));
-    onClose();
-  };
-
-  return (
-    <>
-      <Form layout='vertical'>
-        <Row gutter={8} align='bottom'>
-          <Col span={10}>
-            <Form.Item label='รายเขต' name='zone'>
-              <Select
-                data={[
-                  { label: "ทั้งหมด", key: "" },
-                  ...zones.map((z) => ({ label: z.zoneName, key: z.zoneName })),
-                ]}
-                onChange={(val: string) => setFilter({ ...filter, zone: val })}
-                value={filter.zone}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={10}>
-            <Form.Item label='ค้นหาร้านค้า' name='keyword'>
-              <Input
-                suffix={<SearchOutlined />}
-                placeholder={"ระบุชื่อร้านค้า"}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                  setFilter({
-                    ...filter,
-                    searchText: e.target.value,
-                  });
-                }}
-                value={filter.searchText}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item label='' name='keyword'>
-              <Button
-                title='ล้างการค้นหา'
-                typeButton='primary-light'
-                onClick={() =>
-                  setFilter({
-                    zone: "",
-                    searchText: "",
-                  })
-                }
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
-      <Divider style={{ margin: "0px 0px 16px" }} />
-      {loading ? (
-        <FlexRow align='center' justify='center' style={{ width: "100%", minHeight: 300 }}>
-          <Spin size='large' />
-        </FlexRow>
-      ) : (
-        <Transfer
-          dataSource={data}
-          titles={titles}
-          render={renderItem}
-          listStyle={{ height: 300 }}
-          targetKeys={targetKeys}
-          selectedKeys={selectedKeys}
-          onChange={onChange}
-          onSelectChange={onSelectChange}
-        />
-      )}
-      <Divider style={{ margin: "12px 0px" }} />
-      <Row justify='end'>
-        <Button title='บันทึก' style={{ width: 136 }} onClick={onSave} />
-      </Row>
-    </>
-  );
-};
 
 export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);

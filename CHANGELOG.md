@@ -2,7 +2,7 @@
 
 ## Resolved [v0.3.5] - Release Date: 2023-22-02
 
-- Defect: Promotion seetting
+- Defect: Promotion setting
 
 ## Resolved [v0.3.5] - Release Date: 2023-22-02
 
