@@ -269,9 +269,12 @@ export const SpecialPriceDetail: React.FC = () => {
           width: 126,
           render: (product: ProductEntity, row: any, index: number) => {
             return (
-              <Form.Item name={`${row.productId}-type`} initialValue={1} noStyle>
+              <Form.Item
+                name={`${row.productId}-type`}
+                initialValue={row.value < 0 ? -1 : 1}
+                noStyle
+              >
                 <Radio.Group
-                  defaultValue={row.value < 0 ? -1 : 1}
                   onChange={(e) => {
                     setItems(
                       items.map((item) =>
@@ -304,8 +307,8 @@ export const SpecialPriceDetail: React.FC = () => {
                 rules={[
                   {
                     validator: (rule, value, callback) => {
-                      if (isNaN(parseFloat(value))) {
-                        return Promise.reject("โปรดระบุเป็นตัวเลขเท่านั้น");
+                      if (!Number.isInteger(parseFloat(value))) {
+                        return Promise.reject("โปรดระบุเป็นจำนวนเต็มเท่านั้น");
                       }
                       if (parseFloat(value) <= 0) {
                         return Promise.reject("ราคาต้องมากกว่า 0 โปรดระบุใหม่");
@@ -359,6 +362,10 @@ export const SpecialPriceDetail: React.FC = () => {
                     cancelText: "ยกเลิก",
                     onOk: () => {
                       setItems(items.filter((e) => e.productId !== row.productId));
+                      setPriceList({
+                        ...priceList,
+                        all: priceList.all.filter((e) => e.productId !== row.productId),
+                      });
                       setDeletedItems([...deletedItems, row]);
                     },
                   })
@@ -488,13 +495,12 @@ export const SpecialPriceDetail: React.FC = () => {
       const val = form.getFieldValue(`${item.productId}-price`);
       return {
         ...item,
-        value: type * parseFloat(val),
+        value: type * parseInt(val),
       };
     });
     deletedItems.forEach((item) => {
       data.push({ ...item, isDeleted: true });
     });
-    setCreating(true);
     const submitData = {
       specialPriceShop: data,
       company,
@@ -524,13 +530,21 @@ export const SpecialPriceDetail: React.FC = () => {
     };
     // console.log({ submitData });
     // return;
-    await updateSpecialPrice(submitData)
-      .then(callback)
-      .catch((err) => {
-        console.log(err);
+    form
+      .validateFields()
+      .then(async (values) => {
+        setCreating(true);
+        await updateSpecialPrice(submitData)
+          .then(callback)
+          .catch((err) => {
+            console.log(err);
+          })
+          .finally(() => {
+            setCreating(false);
+          });
       })
-      .finally(() => {
-        setCreating(false);
+      .catch((errInfo) => {
+        console.log("errInfo", errInfo);
       });
   };
 
@@ -640,6 +654,9 @@ export const SpecialPriceDetail: React.FC = () => {
                         onClick={() => {
                           fetchData();
                           form.resetFields();
+                          setSelectedTab("all");
+                          setPage(1);
+                          setDeletedItems([]);
                           navigate(`/price/detail/${pathSplit[3]}`);
                         }}
                       />

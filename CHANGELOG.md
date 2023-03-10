@@ -1,6 +1,10 @@
 ## [Version - 0]
 
-## Resolved [v0.3.5] - Release Date: 2023-22-02
+## Resolved [v0.3.7] - Release Date: 2023-10-03
+
+- Defect: Special Price setting
+
+## Resolved [v0.3.6] - Release Date: 2023-08-03
 
 - Defect: Promotion setting
 
