@@ -1,7 +1,7 @@
 import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Avatar, Tag, Switch } from "antd";
+import { Table, Tabs, Row, Col, Avatar, Tag, Switch, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, SearchOutlined, SyncOutlined } from "@ant-design/icons";
 import { Option } from "antd/lib/mentions";
 import {
   getProductBrand,
@@ -21,10 +21,15 @@ import image from "../../resource/image";
 
 type FixedType = "left" | "right" | boolean;
 import * as _ from "lodash";
-import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
+import {
+  getProductFreebieGroup,
+  getProductFreebies,
+  syncProductFreebie,
+} from "../../datasource/PromotionDatasource";
 import { useNavigate } from "react-router-dom";
 import Select from "../../components/Select/Select";
 import Input from "../../components/Input/Input";
+import Button from "../../components/Button/Button";
 const SLASH_DMY = "DD/MM/YYYY";
 
 export const FreebieListPage: React.FC = () => {
@@ -43,6 +48,7 @@ export const FreebieListPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
+  const [loadingSyncProduct, setLoadingSyncProduct] = useState(false);
   const [dataState, setDataState] = useState({
     count: 0,
     count_status: [],
@@ -94,10 +100,30 @@ export const FreebieListPage: React.FC = () => {
     }
   };
 
+  const onSyncProduct = async () => {
+    Modal.confirm({
+      title: "ยืนยันการเชื่อมต่อ Navision",
+      onOk: async () => {
+        setLoadingSyncProduct(true);
+        await syncProductFreebie({ company })
+          .then((res) => {
+            const { success } = res;
+            if (success) {
+              navigate(0);
+            } else {
+              message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
+            }
+          })
+          .catch((err) => console.log("err", err))
+          .finally(() => console.log("sync product done"));
+      },
+    });
+  };
+
   const PageTitle = () => {
     return (
       <Row gutter={16}>
-        <Col className='gutter-row' xl={16} sm={12}>
+        <Col className='gutter-row' span={12}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -107,7 +133,7 @@ export const FreebieListPage: React.FC = () => {
             </span>
           </div>
         </Col>
-        <Col className='gutter-row' xl={4} sm={6}>
+        <Col className='gutter-row' span={4}>
           <Select
             defaultValue={prodGroup}
             style={style}
@@ -124,7 +150,7 @@ export const FreebieListPage: React.FC = () => {
             }))}
           />
         </Col>
-        <Col className='gutter-row' xl={4} sm={6}>
+        <Col className='gutter-row' span={4}>
           <div style={style}>
             <Input
               placeholder='ค้นหาของแถม'
@@ -137,25 +163,34 @@ export const FreebieListPage: React.FC = () => {
               }}
               onChange={(e) => {
                 const value = (e.target as HTMLTextAreaElement).value;
-                if(!value) {
-                  setKeyword('');
+                if (!value) {
+                  setKeyword("");
                   resetPage();
                 }
               }}
             />
           </div>
         </Col>
+        <Col className='gutter-row' span={4}>
+          <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
+        </Col>
       </Row>
     );
   };
 
-
   const tabsItems = [
-    { label: `ทั้งหมด(${dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0})`, key: "ALL" },
-    ...(dataState?.count_status?.map(({ product_freebies_status, count }) => ({
-      label: nameFormatter(product_freebies_status) + `(${count})`,
-      key: product_freebies_status,
-    })) || []).reverse(),
+    {
+      label: `ทั้งหมด(${
+        dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0
+      })`,
+      key: "ALL",
+    },
+    ...(
+      dataState?.count_status?.map(({ product_freebies_status, count }) => ({
+        label: nameFormatter(product_freebies_status) + `(${count})`,
+        key: product_freebies_status,
+      })) || []
+    ).reverse(),
   ];
 
   const columns = [
@@ -169,9 +204,9 @@ export const FreebieListPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar 
-                  src={row.productFreebiesImage || image.product_no_image} 
-                  size={50} 
+                <Avatar
+                  src={row.productFreebiesImage || image.product_no_image}
+                  size={50}
                   shape='square'
                 />
               </div>
@@ -225,9 +260,7 @@ export const FreebieListPage: React.FC = () => {
       // width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: (
-            <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>
-          ),
+          children: <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>,
         };
       },
     },
@@ -244,9 +277,7 @@ export const FreebieListPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
-                    navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)
-                  }
+                  onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <EditOutlined style={{ color: color["primary"] }} />
@@ -284,7 +315,7 @@ export const FreebieListPage: React.FC = () => {
               current: page,
               total: dataState?.count,
               onChange: (p) => setPage(p),
-              showSizeChanger: false
+              showSizeChanger: false,
             }}
             loading={loading}
             size='large'

@@ -20,4 +20,5 @@ export default {
   iconAddImage: require("./media/icons/iconAddImage.png"),
   resultSuccess: require("./media/icons/resultSuccess.png"),
   resultFailed: require("./media/icons/resultFailed.png"),
+  infoIcon: require("./media/icons/infoIcon.png"),
 };

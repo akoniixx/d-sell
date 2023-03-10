@@ -77,11 +77,6 @@ export const pathLists = [
         title: "รายการส่วนลด",
       },
       {
-        path: "/edit",
-        name: "edit",
-        title: "Add / Edit Credit Memo",
-      },
-      {
         path: "/customerList",
         name: "customerList",
         title: "ส่วนลด CO รายร้าน",
@@ -97,7 +92,7 @@ export const pathLists = [
       {
         path: "/list",
         name: "discountList",
-        title: "ราคาสินค้าเฉพาะร้าน X+10",
+        title: "ราคาสินค้าเฉพาะร้าน",
       },
     ],
   },

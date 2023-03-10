@@ -10,6 +10,13 @@ const getProductFreebies = async (params: object) => {
     .catch((err) => console.log(err));
 };
 
+const syncProductFreebie = async (data: { company: string }) => {
+  return await httpClient
+    .post(`${BASE_URL}/nav/freebies`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const getProductFreebieDetail = async (productId: number) => {
   return await httpClient
     .get(`${baseUrl}/product-freebies/${productId}`)
@@ -89,6 +96,7 @@ const deletePromotion = async (data: object) => {
 
 export {
   getProductFreebies,
+  syncProductFreebie,
   getProductFreebieDetail,
   getProductFreebieGroup,
   updateProductFreebie,

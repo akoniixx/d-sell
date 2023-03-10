@@ -1,3 +1,11 @@
+import moment from "moment";
+
+const SLASH_DMY = "DD/MM/YYYY";
+
+export const dateFormatter = (d: string) => {
+  return moment(d).add(543, "year").format(SLASH_DMY);
+};
+
 export const priceFormatter = (
   price: number | string,
   fractionDigits?: number,

@@ -5,13 +5,13 @@ export type OrderStatusKey =
   | "OPEN_ORDER"
   | "IN_DELIVERY"
   | "DELIVERY_SUCCESS"
-  | "SHOPAPP_CANCLE_ORDER"
-  | "COMPANY_CANCLE_ORDER"
+  | "SHOPAPP_CANCEL_ORDER"
+  | "COMPANY_CANCEL_ORDER"
   | "REJECT_ORDER";
 
 export type OrderPaymentMethodName = "CASH" | "CREDIT";
 
-export type OrderPaymentStatusKey = "WAITING_PAID" | "PAID";
+export type OrderPaymentStatusKey = "WAITING_PAID" | "ALREADY_PAID";
 
 export const ORDER_STATUS = {
   WAIT_APPROVE_ORDER: {
@@ -56,14 +56,14 @@ export const ORDER_STATUS = {
     name_icpf: "ขึ้นสินค้าเรียบร้อยแล้ว",
     color: "#2ED477",
   },
-  SHOPAPP_CANCLE_ORDER: {
+  SHOPAPP_CANCEL_ORDER: {
     name_default: "ยกเลิกคำสั่งซื้อโดยร้านค้า",
     name_icpl: "ยกเลิกคำสั่งซื้อโดยร้านค้า",
     name_icpi: "ยกเลิกคำสั่งซื้อโดยร้านค้า",
     name_icpf: "ยกเลิกคำสั่งซื้อโดยร้านค้า",
     color: "#F46363",
   },
-  COMPANY_CANCLE_ORDER: {
+  COMPANY_CANCEL_ORDER: {
     name_default: "ยกเลิกคำสั่งซื้อโดยบริษัท",
     name_icpl: "ยกเลิกคำสั่งซื้อโดยบริษัท",
     name_icpi: "ยกเลิกคำสั่งซื้อโดยบริษัท",
@@ -84,7 +84,7 @@ export const ORDER_PAYMENT_STATUS = {
     name_default: "ยังไม่ได้ชำระเงิน",
     color: "#FFC804",
   },
-  PAID: {
+  ALREADY_PAID: {
     name_default: "ชำระเงินแล้ว",
     color: "#FFC804",
   },

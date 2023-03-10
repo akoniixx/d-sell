@@ -49,6 +49,8 @@ import {
 } from "../../datasource/SpecialPriceDatasource";
 import { priceFormatter } from "../../utility/Formatter";
 import { AddProduct } from "./CreatePriceListStep/CreatePriceListStep2";
+import { getProductGroup } from "../../datasource/ProductDatasource";
+import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 
 const DetailBox = styled.div`
   padding: 32px;
@@ -87,6 +89,12 @@ export const SpecialPriceDetail: React.FC = () => {
     all: [] as any[],
     up: [] as any[],
     down: [] as any[],
+  });
+  const [productGroups, setProductGroup] = useState<any>();
+  const [productGroupLoading, setProductGroupLoading] = useState(false);
+  const [productFilter, setProductFilter] = useState({
+    keyword: "",
+    group: null,
   });
   const [selectedTab, setSelectedTab] = useState<"all" | "up" | "down">("all");
   const [page, setPage] = useState<number>(1);
@@ -138,6 +146,24 @@ export const SpecialPriceDetail: React.FC = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const { keyword, group } = productFilter;
+    const newItems = items.filter((item: any) => {
+      if (keyword && !item?.product?.productName?.includes(keyword)) {
+        return false;
+      }
+      if (group && item?.product?.productGroup !== group) {
+        return false;
+      }
+      return true;
+    });
+    setPriceList({
+      all: newItems,
+      up: newItems.filter((d) => d.value >= 0),
+      down: newItems.filter((d) => d.value < 0),
+    });
+  }, [productFilter]);
+
   const fetchData = async () => {
     setLoading(true);
     const id = pathSplit[3];
@@ -167,6 +193,24 @@ export const SpecialPriceDetail: React.FC = () => {
       })
       .finally(() => {
         setPriceListLoading(false);
+      });
+
+    setProductGroupLoading(true);
+    await getProductGroup(company)
+      .then((res: { responseData: ProductGroupEntity[] }) => {
+        setProductGroup(
+          res?.responseData.map((group: ProductGroupEntity) => ({
+            key: group.product_group,
+            label: group.product_group,
+            value: group.product_group,
+          })),
+        );
+      })
+      .catch((e: any) => {
+        console.log(e);
+      })
+      .finally(() => {
+        setProductGroupLoading(false);
       });
   };
 
@@ -250,6 +294,7 @@ export const SpecialPriceDetail: React.FC = () => {
           key: "specialPrice",
           render: (product: ProductEntity, row: any, index: number) => {
             return (
+              // todo
               <Input
                 defaultValue={Math.abs(row.value)}
                 placeholder='ระบุราคา'
@@ -469,20 +514,49 @@ export const SpecialPriceDetail: React.FC = () => {
             <br />
             <CardContainer>
               <Row gutter={16}>
-                <Col span={9}>
+                <Col span={isEditing ? 9 : 14}>
                   <Text level={2}>รายการสินค้าราคาพิเศษ</Text>
                 </Col>
                 <Col span={5}>
-                  {/* <Input
-                        placeholder='ค้นหาสินค้า...'
-                        suffix={<SearchOutlined />}
-                        style={{ width: "100%" }}
-                    /> */}
+                  <Input
+                    placeholder='ค้นหาสินค้า...'
+                    suffix={<SearchOutlined />}
+                    style={{ width: "100%" }}
+                    allowClear
+                    onPressEnter={(e: any) => {
+                      const value = (e.target as HTMLTextAreaElement).value;
+                      setProductFilter({
+                        ...productFilter,
+                        keyword: value,
+                      });
+                    }}
+                    onChange={(e: any) => {
+                      const value = (e.target as HTMLInputElement).value;
+                      if (!value) {
+                        setProductFilter({
+                          ...productFilter,
+                          keyword: "",
+                        });
+                      }
+                    }}
+                  />
                 </Col>
                 <Col span={5}>
-                  {/* <Select data={[]} placeholder='Product Group : ทั้งหมด' style={{ width: "100%" }} /> */}
+                  <Select
+                    data={productGroups}
+                    placeholder='Product Group : ทั้งหมด'
+                    style={{ width: "100%" }}
+                    disabled={productGroupLoading}
+                    allowClear
+                    onChange={(value) => {
+                      setProductFilter({
+                        ...productFilter,
+                        group: value,
+                      });
+                    }}
+                  />
                 </Col>
-                <Col span={5}>
+                <Col span={isEditing ? 5 : 0}>
                   {isEditing && (
                     <Button title='+ เพิ่มรายการสินค้าราคาพิเศษ' onClick={toggleModal} />
                   )}
@@ -503,13 +577,13 @@ export const SpecialPriceDetail: React.FC = () => {
                 <Table
                   columns={columns}
                   dataSource={isEditing ? items : priceList[selectedTab]}
-                  pagination={false}
-                  //   pagination={{
-                  //     pageSize: 8,
-                  //     current: page,
-                  //     onChange: (page) => setPage(page),
-                  //     position: ["bottomCenter"],
-                  //   }}
+                  // pagination={false}
+                  pagination={{
+                    pageSize: 8,
+                    current: page,
+                    onChange: (page) => setPage(page),
+                    position: ["bottomCenter"],
+                  }}
                 />
               </TableContainer>
             </CardContainer>

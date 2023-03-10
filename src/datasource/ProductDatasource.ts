@@ -45,6 +45,13 @@ const updateProduct = async (data: FormData) => {
     .catch((err) => console.log(err));
 };
 
+const syncProduct = async (data: { company: string }) => {
+  return await httpClient
+    .post(`${BASE_URL}/nav/product`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductList,
   getProductGroup,
@@ -52,4 +59,5 @@ export {
   getProductBrand,
   getProductDetail,
   updateProduct,
+  syncProduct,
 };

@@ -203,7 +203,7 @@ export const DiscountListPage: React.FC = () => {
       width: "10%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Switch checked={row.is_active} />,
+          children: <Switch checked={row.creditMemoStatus} />,
         };
       },
     },

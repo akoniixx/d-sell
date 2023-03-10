@@ -188,7 +188,7 @@ export const PromotionCreatePage: React.FC = () => {
     />,
   ];
 
-  const onNext = () => {
+  const onNext = async () => {
     if (step === 0) {
       form1
         .validateFields()
@@ -222,6 +222,12 @@ export const PromotionCreatePage: React.FC = () => {
           console.log(values);
           if (promotionData.promotionType === PromotionType.FREEBIES_NOT_MIX) {
             const promoList = form3.getFieldsValue();
+            if (!Object.entries(promoList).length) {
+              Modal.error({
+                title: "กรุณาระบุรายละเอียดโปรโมชัน",
+              });
+              return;
+            }
             const pass = Object.entries(promoList).every(([key, value]) => {
               return (value as any[]).every(
                 (val: any) =>
@@ -255,6 +261,7 @@ export const PromotionCreatePage: React.FC = () => {
     setCreating(true);
     const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
+    console.log({ promotionData, startDate, endDate, startTime, endTime });
     const submitData = {
       ...promotionData,
       promotionId: id,
@@ -269,8 +276,14 @@ export const PromotionCreatePage: React.FC = () => {
       promotionShop: stores,
       conditionDetailDiscount: [{}],
       conditionDetailFreebies: undefined,
-      startDate: `${startDate.format("YYYY-MM-DD")}T${startTime.format("HH:mm")}:00.000Z`,
-      endDate: `${endDate.format("YYYY-MM-DD")}T${endTime.format("HH:mm")}:00.000Z`,
+      startDate:
+        startDate && startTime
+          ? `${startDate.format("YYYY-MM-DD")} ${startTime.format("HH:mm")}:00.000`
+          : undefined,
+      endDate:
+        endDate && endTime
+          ? `${endDate.format("YYYY-MM-DD")} ${endTime.format("HH:mm")}:00.000`
+          : undefined,
       startTime: undefined,
       endTime: undefined,
     };
@@ -397,7 +410,15 @@ export const PromotionCreatePage: React.FC = () => {
                     typeButton='primary-light'
                     title='บันทึกแบบร่าง'
                     disabled={isCreating}
-                    onClick={() => onSubmit(false)}
+                    onClick={() => {
+                      onSubmit(false);
+                      setPromotionData({
+                        ...promotionData,
+                        ...form1.getFieldsValue(),
+                        stores: form2.getFieldValue("stores"),
+                        items: form3.getFieldsValue(),
+                      });
+                    }}
                   />
                 )}
               </Col>

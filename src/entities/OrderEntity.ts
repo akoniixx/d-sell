@@ -6,7 +6,7 @@ import {
 import { ProductEntity } from "./PoductEntity";
 
 export interface OrderEntity {
-  cancleRemark?: boolean;
+  cancelRemark?: boolean;
   cashDiscount?: number;
   coDiscount?: number;
   company: string;
