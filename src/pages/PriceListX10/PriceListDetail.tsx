@@ -48,9 +48,9 @@ import {
   updateSpecialPrice,
 } from "../../datasource/SpecialPriceDatasource";
 import { priceFormatter } from "../../utility/Formatter";
-import { AddProduct } from "./CreatePriceListStep/CreatePriceListStep2";
 import { getProductGroup } from "../../datasource/ProductDatasource";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
+import AddProduct from "../Shared/AddProduct";
 
 const DetailBox = styled.div`
   padding: 32px;
@@ -81,6 +81,7 @@ export const SpecialPriceDetail: React.FC = () => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
   const isEditing = pathSplit[2] === "edit";
+  const [form] = Form.useForm();
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>();
@@ -268,23 +269,25 @@ export const SpecialPriceDetail: React.FC = () => {
           width: 126,
           render: (product: ProductEntity, row: any, index: number) => {
             return (
-              <Radio.Group
-                defaultValue={row.value < 0 ? -1 : 1}
-                onChange={(e) => {
-                  setItems(
-                    items.map((item) =>
-                      item.productId === product.productId
-                        ? { ...item, value: Math.abs(item.value) * parseInt(e.target.value) }
-                        : item,
-                    ),
-                  );
-                }}
-              >
-                <Space direction='vertical'>
-                  <Radio value={1}>เพิ่มราคา</Radio>
-                  <Radio value={-1}>ลดราคา</Radio>
-                </Space>
-              </Radio.Group>
+              <Form.Item name={`${row.productId}-type`} initialValue={1} noStyle>
+                <Radio.Group
+                  defaultValue={row.value < 0 ? -1 : 1}
+                  onChange={(e) => {
+                    setItems(
+                      items.map((item) =>
+                        item.productId === product.productId
+                          ? { ...item, value: Math.abs(item.value) * parseInt(e.target.value) }
+                          : item,
+                      ),
+                    );
+                  }}
+                >
+                  <Space direction='vertical'>
+                    <Radio value={1}>เพิ่มราคา</Radio>
+                    <Radio value={-1}>ลดราคา</Radio>
+                  </Space>
+                </Radio.Group>
+              </Form.Item>
             );
           },
         },
@@ -294,22 +297,48 @@ export const SpecialPriceDetail: React.FC = () => {
           key: "specialPrice",
           render: (product: ProductEntity, row: any, index: number) => {
             return (
-              // todo
-              <Input
-                defaultValue={Math.abs(row.value)}
-                placeholder='ระบุราคา'
-                suffix='บาท'
-                style={{ width: 160 }}
-                onChange={(e) => {
-                  setItems(
-                    items.map((item) =>
-                      item.productId === product.productId
-                        ? { ...item, value: (item.val < 0 ? -1 : 1) * Math.abs(e.target.value) }
-                        : item,
-                    ),
-                  );
-                }}
-              />
+              <Form.Item
+                name={`${row.productId}-price`}
+                initialValue={Math.abs(row.value)}
+                // noStyle
+                rules={[
+                  {
+                    validator: (rule, value, callback) => {
+                      if (isNaN(parseFloat(value))) {
+                        return Promise.reject("โปรดระบุเป็นตัวเลขเท่านั้น");
+                      }
+                      if (parseFloat(value) <= 0) {
+                        return Promise.reject("ราคาต้องมากกว่า 0 โปรดระบุใหม่");
+                      }
+                      const type = form.getFieldValue(`${row.productId}-type`);
+                      if (
+                        type === -1 &&
+                        parseFloat(value) > parseFloat(product.marketPrice || "")
+                      ) {
+                        return Promise.reject("ส่วนลดมากกว่าราคาขาย โปรดระบุใหม่");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <Input
+                  placeholder='ระบุราคา'
+                  suffix='บาท'
+                  style={{ width: 160 }}
+                  onChange={(e) => {
+                    if (parseFloat(e.target.value) + row.value > 0) {
+                      setItems(
+                        items.map((item) =>
+                          item.productId === product.productId
+                            ? { ...item, value: (item.val < 0 ? -1 : 1) * Math.abs(e.target.value) }
+                            : item,
+                        ),
+                      );
+                    }
+                  }}
+                />
+              </Form.Item>
             );
           },
         },
@@ -454,7 +483,14 @@ export const SpecialPriceDetail: React.FC = () => {
   const onSubmit = async () => {
     console.log(items);
     // set deleted
-    const data = [...items];
+    const data = [...items].map((item) => {
+      const type = form.getFieldValue(`${item.productId}-type`);
+      const val = form.getFieldValue(`${item.productId}-price`);
+      return {
+        ...item,
+        value: type * parseFloat(val),
+      };
+    });
     deletedItems.forEach((item) => {
       data.push({ ...item, isDeleted: true });
     });
@@ -470,7 +506,9 @@ export const SpecialPriceDetail: React.FC = () => {
       const onDone = () => {
         setDone(true);
         setTimeout(() => {
-          navigate("/price/list");
+          fetchData();
+          form.resetFields();
+          navigate(`/price/detail/${pathSplit[3]}`);
         }, 2000);
         setTimeout(() => {
           setDone(false);
@@ -484,7 +522,8 @@ export const SpecialPriceDetail: React.FC = () => {
         console.log(developerMessage);
       }
     };
-    console.log({ submitData });
+    // console.log({ submitData });
+    // return;
     await updateSpecialPrice(submitData)
       .then(callback)
       .catch((err) => {
@@ -574,17 +613,19 @@ export const SpecialPriceDetail: React.FC = () => {
                 />
               )}
               <TableContainer>
-                <Table
-                  columns={columns}
-                  dataSource={isEditing ? items : priceList[selectedTab]}
-                  // pagination={false}
-                  pagination={{
-                    pageSize: 8,
-                    current: page,
-                    onChange: (page) => setPage(page),
-                    position: ["bottomCenter"],
-                  }}
-                />
+                <Form form={form}>
+                  <Table
+                    columns={columns}
+                    dataSource={isEditing ? items : priceList[selectedTab]}
+                    loading={priceListLoading}
+                    pagination={{
+                      pageSize: 8,
+                      current: page,
+                      onChange: (page) => setPage(page),
+                      position: ["bottomCenter"],
+                    }}
+                  />
+                </Form>
               </TableContainer>
             </CardContainer>
             {isEditing && (
@@ -596,7 +637,11 @@ export const SpecialPriceDetail: React.FC = () => {
                       <Button
                         title='ยกเลิก'
                         typeButton='primary-light'
-                        onClick={() => navigate(`/price/detail/${pathSplit[3]}`)}
+                        onClick={() => {
+                          fetchData();
+                          form.resetFields();
+                          navigate(`/price/detail/${pathSplit[3]}`);
+                        }}
                       />
                     </Col>
                     <Col span={6}>
@@ -610,7 +655,7 @@ export const SpecialPriceDetail: React.FC = () => {
         )}
 
         <br />
-        <Modal visible={showModal} width={"80vw"} closable={false} footer={null}>
+        <Modal open={showModal} width={"80vw"} closable={false} footer={null}>
           <Row align='middle' justify='space-between'>
             <Col span={20}>
               <FlexRow align='end'>
