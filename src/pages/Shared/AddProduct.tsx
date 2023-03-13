@@ -54,7 +54,7 @@ interface SearchProps {
   onClose: any;
   withFreebies?: boolean;
   isReplacing?: string;
-  filterProducts?: string[];
+  customTitle?: ReactNode;
 }
 
 export const ProductName = ({ product, size }: ProdNameProps) => {
@@ -98,7 +98,7 @@ const AddProduct = ({
   onClose,
   withFreebies,
   isReplacing,
-  filterProducts,
+  customTitle,
 }: SearchProps) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -294,14 +294,18 @@ const AddProduct = ({
     <>
       <Row align='middle' justify='space-between'>
         <Col span={20}>
-          <FlexRow align='end'>
-            <Text level={5} fontWeight={600}>
-              เลือกสินค้า
-            </Text>
-            <Text level={6} color='Text3'>
-              &nbsp;&nbsp;สามารถเลือกได้มากกว่า 1 สินค้า
-            </Text>
-          </FlexRow>
+          {customTitle ? (
+            customTitle
+          ) : (
+            <FlexRow align='end'>
+              <Text level={5} fontWeight={600}>
+                เลือกสินค้า
+              </Text>
+              <Text level={6} color='Text3'>
+                &nbsp;&nbsp;สามารถเลือกได้มากกว่า 1 สินค้า
+              </Text>
+            </FlexRow>
+          )}
         </Col>
         <Col span={4}>
           <FlexRow justify='end'>
@@ -339,7 +343,7 @@ const AddProduct = ({
               />
             </Form.Item>
           </Col>
-          <Col span={showFreebie === "true" ? 0 : 7}>
+          <Col span={showFreebie === "true" ? 0 : company === "ICPL" ? 7 : 0}>
             <Form.Item label='Startegy Group' name='productCategory'>
               <Select
                 data={[
@@ -359,7 +363,7 @@ const AddProduct = ({
               />
             </Form.Item>
           </Col>
-          <Col span={showFreebie === "true" ? 14 : 7}>
+          <Col span={showFreebie === "true" ? 14 : company === "ICPL" ? 7 : 14}>
             <Form.Item label='ค้นหาสินค้า' name='searchText'>
               <Input
                 suffix={<SearchOutlined />}
