@@ -13,6 +13,7 @@ import { PromotionType } from "../../../definitions/promotion";
 import AddProduct, { ProductName } from "../../Shared/AddProduct";
 import { priceFormatter } from "../../../utility/Formatter";
 import { inputNumberValidator } from "../../../utility/validator";
+import { getProductDetail } from "../../../datasource/ProductDatasource";
 
 const AddProductContainer = styled.div`
   display: flex;
@@ -57,6 +58,7 @@ interface FreebieListProps {
 interface Props {
   form: FormInstance;
   promotionType?: PromotionType;
+  isEditing?: boolean;
 }
 
 const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
@@ -205,12 +207,31 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
   );
 };
 
-export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
+export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) => {
   const [items, setItems] = useState<ProductEntity[]>(form.getFieldValue("items") || []);
   const [itemPromo, setItemPromo] = useState<any>(form.getFieldsValue());
   const [showModal, setModal] = useState(false);
   const [isReplacing, setReplace] = useState<string | undefined>(undefined);
-  const [activeKeys, setActiveKeys] = useState<string | string[]>([]);
+  const [activeKeys, setActiveKeys] = useState<string | string[]>(
+    (form.getFieldValue("items") || []).map((item: any) => item.productId),
+  );
+
+  useEffect(() => {
+    if (isEditing) {
+      fetchProductData();
+    }
+  }, []);
+
+  const fetchProductData = async () => {
+    const newItems = [...items];
+    items.forEach((item, i) => {
+      getProductDetail(parseInt(item.productId)).then((res) => {
+        console.log(res);
+        newItems[i] = { ...item, ...res };
+        setItems(newItems);
+      });
+    });
+  };
 
   const toggleModal = () => {
     setModal(!showModal);
@@ -260,6 +281,8 @@ export const PromotionCreateStep3 = ({ form, promotionType }: Props) => {
       },
     });
   };
+
+  console.log("items", items);
 
   return (
     <>

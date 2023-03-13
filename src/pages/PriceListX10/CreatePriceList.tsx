@@ -193,6 +193,7 @@ export const PriceListCreatePage: React.FC = () => {
         setDone(true);
         setTimeout(() => {
           navigate("/price/list");
+          navigate(1);
         }, 2000);
         setTimeout(() => {
           setDone(false);

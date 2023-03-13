@@ -161,7 +161,12 @@ const AddProduct = ({
       productCategoryId: filter.productCategory,
       page,
     });
-    const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productId }));
+    const newData = data
+      // .filter(
+      //   (d: ProductEntity) =>
+      //     !list.find((l: ProductEntity) => `${l.productId}` === `${d.productId}`),
+      // )
+      .map((d: ProductEntity) => ({ ...d, key: d.productId }));
     setProducts(newData);
     setProductCount(count);
 
@@ -238,12 +243,13 @@ const AddProduct = ({
     } else {
       let newList = [
         ...list,
-        ...products.filter((item: any) => selectedProductId.includes(item.productId)),
+        ...productList.allData.filter((item: any) => selectedProductId.includes(item.productId)),
       ];
-      console.log({ newList });
+      console.log("newList 1", newList);
       newList = newList.filter(
         (item, pos) => newList.findIndex((item2) => item.productId === item2.productId) === pos,
       );
+      console.log("newList 2", newList);
       setList(newList);
     }
     onClear();

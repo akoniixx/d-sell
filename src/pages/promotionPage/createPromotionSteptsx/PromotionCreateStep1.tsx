@@ -148,12 +148,15 @@ export const PromotionCreateStep1 = ({
   const fetchPromotion = async () => {
     try {
       const { data } = await getPromotion({ company });
-      setPromotions(
-        data.map((p: any) => ({
-          label: `${p.promotionName} (${p.promotionCode})`,
-          value: `${p.promotionCode}`,
-        })),
-      );
+      let promoList = data.map((p: any) => ({
+        label: `${p.promotionName} (${p.promotionCode})`,
+        value: `${p.promotionCode}`,
+      }));
+      if (isEditing) {
+        const currentCode = form.getFieldValue("promotionCode");
+        promoList = promoList.filter((p: any) => p.value !== currentCode);
+      }
+      setPromotions(promoList);
       console.log(data);
     } catch (e) {
       console.log(e);
@@ -473,7 +476,7 @@ export const PromotionCreateStep1 = ({
             ไฟล์ Memo Promotion
           </Text>
           &nbsp;
-          <Tooltip title='ไฟล์ที่ต้องการแสดงในหน้า Application'>
+          <Tooltip title='ไฟล์รูปแบบ PDF ที่เป็นต้นฉบับของโปรโมชัน ไว้สำหรับอ้างอิงดูเอกสารต้นฉบับผ่านทางหน้าแอปพลิเคชัน Sellcoda Sale'>
             <img style={{ width: 16, height: 16 }} src={icon.infoIcon} />
           </Tooltip>
         </Row>

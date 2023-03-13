@@ -2,7 +2,7 @@ import { Col, Divider, Form, Modal, Row, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
-import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import { CloseOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { StoreEntity, ZoneEntity } from "../../entities/StoreEntity";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
@@ -104,16 +104,20 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
         // ...filter,
         company,
       });
+      console.log("fetchData", data);
       const dataWithKey = data
         ?.filter(
           (d: StoreEntity) =>
             !list ||
-            !list.find((item: StoreEntity) => item.customerCompanyId === d.customerCompanyId),
+            !list.find(
+              (item: StoreEntity) => `${item.customerCompanyId}` === `${d.customerCompanyId}`,
+            ),
         )
         .map((d: StoreEntity, i: number) => ({
           ...d,
           key: d.customerCompanyId,
         }));
+
       setData(dataWithKey);
       setFilteredData(dataWithKey);
       setTotal(count_total || 0);
@@ -219,7 +223,13 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
       ...(list || []),
       ...data.filter((item) => setToArray(selectedTargetKeys).includes(item.customerCompanyId)),
     ];
-    // clear state
+    onClearState();
+
+    setList(newList);
+    onClose();
+  };
+
+  const onClearState = () => {
     setFilter(defaultFilter);
     setFilterSelection(defaultFilter);
     setSelectionData([]);
@@ -229,9 +239,6 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
     setTargetKeys([]);
     setSelectedKeys([]);
     form.resetFields();
-
-    setList(newList);
-    onClose();
   };
 
   const FilterGroup = ({
@@ -304,16 +311,43 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
       ...filteredData,
       ...filteredSelection.filter(
         (s: any) =>
-          !filteredData.find((d: any) => d.key === s.key) &&
-          targetKeys.find((t: string) => t === s.key),
+          !filteredData.find((d: any) => d.key === s.key) && selectedTargetKeys.has(s.key),
       ),
     ];
+
+    console.log({
+      filteredData,
+      filteredSelection,
+    });
 
     return allData;
   };
 
   return (
     <>
+      <Row align='middle' justify='space-between'>
+        <Col span={20}>
+          <FlexRow align='end'>
+            <Text level={5} fontWeight={600}>
+              เลือกร้านค้า
+            </Text>
+            <Text level={6} color='Text3'>
+              &nbsp;&nbsp;สามารถเลือกได้มากกว่า 1 ร้านค้า
+            </Text>
+          </FlexRow>
+        </Col>
+        <Col span={4}>
+          <FlexRow justify='end'>
+            <CloseOutlined
+              onClick={() => {
+                onClearState();
+                onClose();
+              }}
+            />
+          </FlexRow>
+        </Col>
+      </Row>
+      <br />
       <Divider style={{ margin: "0px 0px 16px" }} />
       <Form layout='vertical' form={form}>
         <Row gutter={52}>
