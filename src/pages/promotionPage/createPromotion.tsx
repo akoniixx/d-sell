@@ -87,6 +87,17 @@ export const PromotionCreatePage: React.FC = () => {
           ...res,
           startDate: dayjs(res.startDate),
           endDate: dayjs(res.endDate),
+          referencePromotion: res.referencePromotion ? res.referencePromotion : [],
+          memoFile: res.fileMemoPath
+            ? [
+                {
+                  uid: "-1",
+                  name: "file1.pdf",
+                  status: "done",
+                  url: fileMemoUrl,
+                },
+              ]
+            : undefined,
         });
         form2.setFieldsValue({
           stores: res.promotionShop,
@@ -184,6 +195,7 @@ export const PromotionCreatePage: React.FC = () => {
     <PromotionCreateStep3
       form={form3}
       promotionType={form1.getFieldValue("promotionType")}
+      isEditing={isEditing}
       key={2}
     />,
   ];
@@ -245,11 +257,12 @@ export const PromotionCreatePage: React.FC = () => {
               return;
             }
           }
-          onSubmit(true);
-          setPromotionData({
+          const data = {
             ...promotionData,
             items: form3.getFieldsValue(),
-          });
+          };
+          onSubmit(true, data);
+          setPromotionData(data);
         })
         .catch((errInfo) => {
           console.log("errInfo", errInfo, form3.getFieldsValue());
@@ -257,7 +270,19 @@ export const PromotionCreatePage: React.FC = () => {
     }
   };
 
-  const onSubmit = async (promotionStatus: boolean) => {
+  const onSaveDraft = async () => {
+    const data = {
+      ...promotionData,
+      ...form1.getFieldsValue(),
+      stores: form2.getFieldValue("stores"),
+      items: form3.getFieldsValue(),
+    };
+    console.log({ data });
+    setPromotionData(data);
+    onSubmit(false, data);
+  };
+
+  const onSubmit = async (promotionStatus: boolean, promotionData: any) => {
     setCreating(true);
     const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
@@ -350,9 +375,13 @@ export const PromotionCreatePage: React.FC = () => {
           formData.append("promotionId", promotionId);
           if (file1) formData.append("promotionImageFirst", file1);
           if (file2) formData.append("promotionImageSecond", file2);
-          if (fileMemo) formData.append("fileMemo", fileMemo);
+          if (fileMemo) formData.append("fileMemo", fileMemo?.originFileObj);
+          // TODO debug API
           updatePromotionFile(formData)
-            .then((res) => onDone())
+            .then((res) => {
+              console.log("updatePromotionFile", res);
+              // onDone();
+            })
             .catch((err) => {
               console.log("updatePromotionFile", err);
               throw err;
@@ -410,15 +439,7 @@ export const PromotionCreatePage: React.FC = () => {
                     typeButton='primary-light'
                     title='บันทึกแบบร่าง'
                     disabled={isCreating}
-                    onClick={() => {
-                      onSubmit(false);
-                      setPromotionData({
-                        ...promotionData,
-                        ...form1.getFieldsValue(),
-                        stores: form2.getFieldValue("stores"),
-                        items: form3.getFieldsValue(),
-                      });
-                    }}
+                    onClick={onSaveDraft}
                   />
                 )}
               </Col>

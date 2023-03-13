@@ -106,6 +106,8 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
     );
   };
 
+  console.log("storeList", storeList);
+
   return (
     <>
       <Row align='middle'>
@@ -226,24 +228,6 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
         />
       </TableContainer>
       <Modal open={showSearch} footer={null} closable={false} width={"80vw"}>
-        <Row align='middle' justify='space-between'>
-          <Col span={20}>
-            <FlexRow align='end'>
-              <Text level={5} fontWeight={600}>
-                เลือกร้านค้า
-              </Text>
-              <Text level={6} color='Text3'>
-                &nbsp;&nbsp;สามารถเลือกได้มากกว่า 1 ร้านค้า
-              </Text>
-            </FlexRow>
-          </Col>
-          <Col span={4}>
-            <FlexRow justify='end'>
-              <CloseOutlined onClick={toggleSearchWindow} />
-            </FlexRow>
-          </Col>
-        </Row>
-        <br />
         <SearchStore
           list={storeList}
           setList={onSetStore}

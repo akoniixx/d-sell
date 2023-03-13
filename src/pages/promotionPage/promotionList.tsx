@@ -50,7 +50,7 @@ export const PromotionListPage: React.FC = () => {
   const [dataState, setDataState] = useState({
     count: 0,
     count_status: [],
-    data: [],
+    data: [] as any[],
   });
 
   useEffect(() => {
@@ -141,17 +141,23 @@ export const PromotionListPage: React.FC = () => {
   };
 
   const tabsItems = [
-    { label: "ทั้งหมด", key: "ALL" },
     {
-      label: `Active ${
+      label: `ทั้งหมด (${
+        dataState?.count_status?.reduce((acc: number, cur: any) => acc + parseInt(cur.count), 0) ||
+        0
+      })`,
+      key: "ALL",
+    },
+    {
+      label: `Active (${
         (dataState?.count_status?.find((c: any) => c.promotion_status) as any)?.count || 0
-      }`,
+      })`,
       key: "true",
     },
     {
-      label: `Inactive ${
+      label: `Inactive (${
         (dataState?.count_status?.find((c: any) => !c.promotion_status) as any)?.count || 0
-      }`,
+      })`,
       key: "false",
     },
   ];
@@ -266,7 +272,7 @@ export const PromotionListPage: React.FC = () => {
         return {
           children: (
             <Switch
-              defaultChecked={value}
+              checked={value}
               onChange={async (checked: boolean) => {
                 console.log("onToggleSwitch", checked);
                 await updatePromotionStatus({
@@ -278,6 +284,17 @@ export const PromotionListPage: React.FC = () => {
                   .then((res) => {
                     // console.log(res)
                     // navigate(0);
+                    setDataState({
+                      ...dataState,
+                      data: dataState?.data.map((d: object, i) =>
+                        i !== index
+                          ? d
+                          : {
+                              ...d,
+                              promotionStatus: checked,
+                            },
+                      ),
+                    });
                     message.success("แก้ไขสถานะโปรโมชั่นสำเร็จ");
                   })
                   .catch(() => message.error("แก้ไขสถานะโปรโมชั่นไม่สำเร็จ"));
