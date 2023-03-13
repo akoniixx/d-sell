@@ -76,7 +76,7 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
   const onAdd = (product: ProductEntity) => {
     const promo = form.getFieldValue(`promotion-${productId}`);
     const list = getValue() || [];
-    list.push({ ...product, product, quantity: 0 });
+    list.push({ ...product, product, quantity: 1 });
     promo[itemIndex] = { ...promo[itemIndex], freebies: list };
     form.setFieldValue(`promotion-${productId}`, promo);
     console.log("onAdd", product);
@@ -106,7 +106,13 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
             <Col>
               <FlexCol align='center' style={{ width: 64, overflow: "hidden" }}>
                 <Avatar
-                  src={product?.productImage || product?.productFreebiesImage}
+                  src={
+                    product.productImage === "No"
+                      ? image.product_no_image
+                      : product?.productImage ||
+                        product?.productFreebiesImage ||
+                        image.product_no_image
+                  }
                   size={64}
                   shape='square'
                 />
@@ -139,14 +145,17 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
                   },
                   {
                     validator(rule, value, callback) {
-                      if (parseInt(value) <= 0) {
-                        callback("จำนวนของแถมต้องมากกว่า 0");
+                      if (!Number.isInteger(parseFloat(value))) {
+                        return Promise.reject("โปรดระบุเป็นจำนวนเต็มเท่านั้น");
                       }
-                      callback();
+                      if (parseFloat(value) <= 0) {
+                        return Promise.reject("จำนวนของแถมต้องมากกว่า 0");
+                      }
+                      return Promise.resolve();
                     },
                   },
                 ]}
-                initialValue={quantity}
+                initialValue={quantity || 1}
               >
                 <Input
                   type='number'

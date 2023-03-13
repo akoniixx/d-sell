@@ -380,7 +380,7 @@ export const PromotionCreatePage: React.FC = () => {
           updatePromotionFile(formData)
             .then((res) => {
               console.log("updatePromotionFile", res);
-              // onDone();
+              onDone();
             })
             .catch((err) => {
               console.log("updatePromotionFile", err);
