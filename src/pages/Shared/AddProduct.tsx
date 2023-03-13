@@ -65,9 +65,14 @@ export const ProductName = ({ product, size }: ProdNameProps) => {
     <FlexRow align='center'>
       <div style={{ marginRight: 16 }}>
         <Avatar
-          src={product.productImage || product.productFreebiesImage}
+          src={
+            product.productImage === "No"
+              ? image.product_no_image
+              : product.productImage || product.productFreebiesImage || image.product_no_image
+          }
           size={size || 50}
           shape='square'
+          onError={() => false}
         />
       </div>
       <FlexCol>
@@ -161,6 +166,7 @@ const AddProduct = ({
       productCategoryId: filter.productCategory,
       page,
     });
+    console.log({ data, count });
     const newData = data
       // .filter(
       //   (d: ProductEntity) =>
@@ -245,11 +251,9 @@ const AddProduct = ({
         ...list,
         ...productList.allData.filter((item: any) => selectedProductId.includes(item.productId)),
       ];
-      console.log("newList 1", newList);
       newList = newList.filter(
         (item, pos) => newList.findIndex((item2) => item.productId === item2.productId) === pos,
       );
-      console.log("newList 2", newList);
       setList(newList);
     }
     onClear();
@@ -288,6 +292,29 @@ const AddProduct = ({
 
   return (
     <>
+      <Row align='middle' justify='space-between'>
+        <Col span={20}>
+          <FlexRow align='end'>
+            <Text level={5} fontWeight={600}>
+              เลือกสินค้า
+            </Text>
+            <Text level={6} color='Text3'>
+              &nbsp;&nbsp;สามารถเลือกได้มากกว่า 1 สินค้า
+            </Text>
+          </FlexRow>
+        </Col>
+        <Col span={4}>
+          <FlexRow justify='end'>
+            <CloseOutlined
+              onClick={() => {
+                onClear();
+                onClose();
+              }}
+            />
+          </FlexRow>
+        </Col>
+      </Row>
+      <br />
       <Form layout='vertical' form={form}>
         <Row gutter={8} align='bottom'>
           <Col span={7}>
