@@ -241,24 +241,6 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
       </TableContainer>
       <br />
       <Modal visible={showModal} width={"80vw"} closable={false} footer={null}>
-        <Row align='middle' justify='space-between'>
-          <Col span={20}>
-            <FlexRow align='end'>
-              <Text level={5} fontWeight={600}>
-                เลือกสินค้า
-              </Text>
-              <Text level={6} color='Text3'>
-                &nbsp;&nbsp;สามารถเลือกได้มากกว่า 1 สินค้า
-              </Text>
-            </FlexRow>
-          </Col>
-          <Col span={4}>
-            <FlexRow justify='end'>
-              <CloseOutlined onClick={toggleModal} />
-            </FlexRow>
-          </Col>
-        </Row>
-        <br />
         <AddProduct list={items} setList={setProd} onClose={toggleModal} />
       </Modal>
     </>

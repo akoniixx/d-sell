@@ -124,7 +124,7 @@ export const SpecialPriceDetail: React.FC = () => {
           !list.find((p) => p.productId === item.productId),
       ),
     ];
-    const newItems = list
+    let newItems = list
       .filter((item) => !items.find((p) => p.productId === item.productId))
       .map((p) => ({
         customerId,
@@ -138,8 +138,14 @@ export const SpecialPriceDetail: React.FC = () => {
         productId: p.productId,
         product: p,
       }));
-    console.log({ filteredItems, newItems });
-    setItems([...filteredItems, ...newItems]);
+
+    newItems = [...filteredItems, ...newItems];
+    setItems(newItems);
+    setPriceList({
+      all: newItems,
+      up: newItems.filter((d) => d.value >= 0),
+      down: newItems.filter((d) => d.value < 0),
+    });
     setDeletedItems(newDeletedItems);
   };
 
@@ -673,24 +679,6 @@ export const SpecialPriceDetail: React.FC = () => {
 
         <br />
         <Modal open={showModal} width={"80vw"} closable={false} footer={null}>
-          <Row align='middle' justify='space-between'>
-            <Col span={20}>
-              <FlexRow align='end'>
-                <Text level={5} fontWeight={600}>
-                  เลือกสินค้า
-                </Text>
-                <Text level={6} color='Text3'>
-                  &nbsp;&nbsp;สามารถเลือกได้มากกว่า 1 สินค้า
-                </Text>
-              </FlexRow>
-            </Col>
-            <Col span={4}>
-              <FlexRow justify='end'>
-                <CloseOutlined onClick={toggleModal} />
-              </FlexRow>
-            </Col>
-          </Row>
-          <br />
           <AddProduct list={items} setList={setProd} onClose={toggleModal} />
         </Modal>
       </div>
