@@ -194,6 +194,10 @@ export const SpecialPriceDetail: React.FC = () => {
           down: res?.responseData?.filter((d) => d.value < 0),
         });
         setItems(res?.responseData);
+        res?.responseData?.forEach((item: any) => {
+          form.setFieldValue(`${item.productId}-type`, item.value < 0 ? -1 : 1);
+          form.setFieldValue(`${item.productId}-price`, Math.abs(item.value));
+        });
       })
       .catch((e: any) => {
         console.log(e);
@@ -521,6 +525,7 @@ export const SpecialPriceDetail: React.FC = () => {
           fetchData();
           form.resetFields();
           navigate(`/price/detail/${pathSplit[3]}`);
+          navigate(1);
         }, 2000);
         setTimeout(() => {
           setDone(false);
