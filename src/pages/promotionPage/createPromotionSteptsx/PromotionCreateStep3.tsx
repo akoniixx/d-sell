@@ -140,7 +140,7 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
                   {
                     validator(rule, value, callback) {
                       if (parseInt(value) <= 0) {
-                        callback("จจำนวนของแถมต้องมากกว่า 0");
+                        callback("จำนวนของแถมต้องมากกว่า 0");
                       }
                       callback();
                     },
@@ -186,22 +186,19 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
         +&nbsp;เพิ่มของแถม
       </AddProductContainer>
       <Modal visible={showModal} width={"80vw"} closable={false} footer={null}>
-        <Row align='middle' justify='space-between'>
-          <Col span={20}>
+        <AddProduct
+          list={getValue()}
+          setList={onAdd}
+          onClose={toggleModal}
+          withFreebies
+          customTitle={
             <FlexRow align='end'>
               <Text level={5} fontWeight={600}>
                 เลือกของแถม
               </Text>
             </FlexRow>
-          </Col>
-          <Col span={4}>
-            <FlexRow justify='end'>
-              <CloseOutlined onClick={toggleModal} />
-            </FlexRow>
-          </Col>
-        </Row>
-        <br />
-        <AddProduct list={getValue()} setList={onAdd} onClose={toggleModal} withFreebies />
+          }
+        />
       </Modal>
     </>
   );
@@ -485,29 +482,20 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
                                       rules={[
                                         { required: true, message: "โปรดระบุราคาที่ต้องการลด" },
                                         {
-                                          message: "ราคาที่ลดต้องไม่เกินราคาขาย",
-                                          validator: async (rule, value, callback) => {
+                                          validator: (rule, value, callback) => {
                                             if (
                                               parseFloat(item.marketPrice || "") < parseFloat(value)
                                             ) {
-                                              callback('"ราคาที่ลดต้องไม่เกินราคาขาย"');
-                                              // throw new Error();
+                                              return Promise.reject("ราคาที่ลดต้องไม่เกินราคาขาย");
                                             }
-                                            callback();
-                                          },
-                                        },
-                                        {
-                                          message: "ราคาที่ลดต้องมากกว่า 0",
-                                          validator: async (rule, value, callback) => {
                                             if (
                                               parseFloat(item.marketPrice || "") >=
                                                 parseFloat(value) &&
                                               parseFloat(value) <= 0
                                             ) {
-                                              callback("ราคาที่ลดต้องมากกว่า 0");
-                                              // throw new Error();
+                                              return Promise.reject("ราคาที่ลดต้องมากกว่า 0");
                                             }
-                                            callback();
+                                            return Promise.resolve();
                                           },
                                         },
                                       ]}

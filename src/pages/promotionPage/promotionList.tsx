@@ -283,18 +283,18 @@ export const PromotionListPage: React.FC = () => {
                 })
                   .then((res) => {
                     // console.log(res)
-                    // navigate(0);
-                    setDataState({
-                      ...dataState,
-                      data: dataState?.data.map((d: object, i) =>
-                        i !== index
-                          ? d
-                          : {
-                              ...d,
-                              promotionStatus: checked,
-                            },
-                      ),
-                    });
+                    fetchProduct();
+                    // setDataState({
+                    //   ...dataState,
+                    //   data: dataState?.data.map((d: object, i) =>
+                    //     i !== index
+                    //       ? d
+                    //       : {
+                    //           ...d,
+                    //           promotionStatus: checked,
+                    //         },
+                    //   ),
+                    // });
                     message.success("แก้ไขสถานะโปรโมชั่นสำเร็จ");
                   })
                   .catch(() => message.error("แก้ไขสถานะโปรโมชั่นไม่สำเร็จ"));
