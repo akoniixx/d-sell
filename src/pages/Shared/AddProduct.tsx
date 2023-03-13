@@ -271,6 +271,8 @@ const AddProduct = ({
       productCategory: "",
       searchText: "",
     });
+    setSelectedProd([]);
+    setSelectedProdId([]);
   };
 
   const rowClassName = (r: ProductEntity) => {
