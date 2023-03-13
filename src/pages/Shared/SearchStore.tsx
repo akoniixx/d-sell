@@ -103,6 +103,7 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
       const { count_total, data } = await getCustomers({
         // ...filter,
         company,
+        cutomerType: "DL",
       });
       console.log("fetchData", data);
       const dataWithKey = data

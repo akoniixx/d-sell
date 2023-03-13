@@ -100,6 +100,7 @@ export const PriceListX10: React.FC = () => {
       setLoading(true);
       const { data, count, count_status } = await getCustomers({
         company,
+        cutomerType: "DL",
       });
       const { responseData } = await getSpecialPriceList({});
       const specialPriceData = data?.map((d: StoreEntity, i: number) => {
