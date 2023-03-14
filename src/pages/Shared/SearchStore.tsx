@@ -59,24 +59,14 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
     onFilterSelected();
   }, [filterSelection]);
 
-  const applyFilter = (
-    source: StoreEntity[],
-    onSetData: any,
-    zone: string,
-    searchText: string,
-    oldKeys?: string[],
-    setKey?: any,
-  ) => {
+  const applyFilter = (source: StoreEntity[], onSetData: any, zone: string, searchText: string) => {
     const nextData = source.filter((s: StoreEntity) => {
       if (zone && s.zone !== zone) return false;
       if (searchText && !s.customerName.includes(searchText)) return false;
       return true;
     });
     onSetData(nextData);
-    if (setKey && oldKeys) {
-      const nextKeys = setToArray(arrayToSet(nextData.map((s) => s.customerCompanyId)));
-      setKey(nextData.map((s) => s.customerCompanyId));
-    }
+    return nextData;
   };
 
   const onFilterAll = () => {
@@ -85,15 +75,15 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
   };
 
   const onFilterSelected = () => {
-    console.log("onFilterSelected");
-    applyFilter(
+    const nextData = applyFilter(
       selectionData,
       setFilteredSelection,
       filterSelection.zone,
       filterSelection.searchText,
-      targetKeys,
-      setTargetKeys,
     );
+    console.log("onFilterSelected", nextData);
+    // const nextKeys = setToArray(arrayToSet(nextData.map((s) => s.customerCompanyId)));
+    setTargetKeys(nextData.map((s) => s.customerCompanyId));
   };
 
   const fetchData = async () => {
@@ -186,9 +176,9 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
   };
 
   const onChange = (nextTargetKeys: string[], direction: TransferDirection, moveKeys: string[]) => {
-    console.log("targetKeys:", nextTargetKeys);
-    console.log("direction:", direction);
-    console.log("moveKeys:", moveKeys);
+    // console.log("targetKeys:", nextTargetKeys);
+    // console.log("direction:", direction);
+    // console.log("moveKeys:", moveKeys);
     if (direction === "left") {
       // data <- selected = remove
       const newSelectedTargetKeys = new Set(selectedTargetKeys);
@@ -316,12 +306,7 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
           !filteredData.find((d: any) => d.key === s.key) && selectedTargetKeys.has(s.key),
       ),
     ];
-
-    console.log({
-      filteredData,
-      filteredSelection,
-    });
-
+    // TODO กรองอันที่ถูกเลือกแต่ไม่อยู่ในฟิลเตอร์
     return allData;
   };
 

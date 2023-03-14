@@ -146,8 +146,7 @@ export const PromotionCreateStep1 = ({
   };
 
   useEffect(() => {
-    console.log(promoStateValue);
-    if (promoStateValue.promotion) {
+    if (!isEditing || promoStateValue.promotion) {
       fetchPromotion();
     }
   }, [promoStateValue]);
