@@ -221,6 +221,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
   const [items, setItems] = useState<ProductEntity[]>(form.getFieldValue("items") || []);
   const [itemPromo, setItemPromo] = useState<any>(form.getFieldsValue());
   const [showModal, setModal] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(false);
   const [isReplacing, setReplace] = useState<string | undefined>(undefined);
   const [activeKeys, setActiveKeys] = useState<string | string[]>(
     (form.getFieldValue("items") || []).map((item: any) => item.productId),
@@ -235,13 +236,16 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
 
   const fetchProductData = async () => {
     const newItems = [...items];
-    items.forEach((item, i) => {
-      getProductDetail(parseInt(item.productId)).then((res) => {
+    setLoadingProduct(true);
+    const result = items.map(async (item, i) => {
+      await getProductDetail(parseInt(item.productId)).then((res) => {
         console.log(res);
         newItems[i] = { ...item, ...res };
         setItems(newItems);
       });
     });
+    await Promise.all(result);
+    setLoadingProduct(false);
   };
 
   const toggleModal = () => {
@@ -338,12 +342,16 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
                       <Text>{item.packSize}</Text>
                       <br />
                       <Text color='Text3'>
-                        {priceFormatter(item.unitPrice || "", 2, false, true)}
+                        {!loadingProduct
+                          ? priceFormatter(item.unitPrice || "", 2, false, true)
+                          : "..."}
                       </Text>
                       <Text color='Text3'>&nbsp;บาท/หน่วย</Text>
                       <br />
                       <Text color='Text3'>
-                        {priceFormatter(item.marketPrice || "", 2, false, true)}
+                        {!loadingProduct
+                          ? priceFormatter(item.marketPrice || "", 2, false, true)
+                          : "..."}
                       </Text>
                       <Text color='Text3'>&nbsp;บาท/{item.saleUOMTH}</Text>
                     </Col>
