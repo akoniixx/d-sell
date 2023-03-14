@@ -26,6 +26,8 @@ import ImgCrop from "../../../components/ImgCrop/ImgCrop";
 import { RcFile } from "antd/lib/upload";
 import icon from "../../../resource/icon";
 import { normFile } from "../../../utility/uploadHelper";
+import { useRecoilValue } from "recoil";
+import promotionState from "../../../store/promotion";
 
 const UploadHorizontal = styled(Upload)`
   .ant-upload,
@@ -133,6 +135,8 @@ export const PromotionCreateStep1 = ({
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
+  const promoStateValue = useRecoilValue(promotionState);
+
   const [promotions, setPromotions] = useState();
 
   const imgCropProps = {
@@ -142,8 +146,11 @@ export const PromotionCreateStep1 = ({
   };
 
   useEffect(() => {
-    fetchPromotion();
-  }, []);
+    console.log(promoStateValue);
+    if (promoStateValue.promotion) {
+      fetchPromotion();
+    }
+  }, [promoStateValue]);
 
   const fetchPromotion = async () => {
     try {
@@ -153,7 +160,7 @@ export const PromotionCreateStep1 = ({
         value: `${p.promotionCode}`,
       }));
       if (isEditing) {
-        const currentCode = form.getFieldValue("promotionCode");
+        const currentCode = promoStateValue.promotion?.promotionCode;
         promoList = promoList.filter((p: any) => p.value !== currentCode);
       }
       setPromotions(promoList);
@@ -504,11 +511,19 @@ export const PromotionCreateStep1 = ({
                   }}
                   customRequest={({ file, onSuccess }) => {
                     console.log("customRequest");
-                    if (onSuccess) onSuccess(file);
+                    if (onSuccess) {
+                      onSuccess(file);
+                    }
                   }}
                   onChange={({ file }: any) => {
-                    setFileMemo(file);
-                    console.log(file);
+                    if (file.status === "uploading") {
+                      setFileMemo(file);
+                      file.status = "done";
+                    }
+                    if (file.status === "done") {
+                      setFileMemo(file);
+                    }
+                    console.log("onChange", file);
                     return "success";
                   }}
                   onRemove={() => {

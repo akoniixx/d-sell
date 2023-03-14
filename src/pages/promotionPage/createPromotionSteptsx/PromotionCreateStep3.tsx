@@ -14,6 +14,8 @@ import AddProduct, { ProductName } from "../../Shared/AddProduct";
 import { priceFormatter } from "../../../utility/Formatter";
 import { inputNumberValidator } from "../../../utility/validator";
 import { getProductDetail } from "../../../datasource/ProductDatasource";
+import { useRecoilValue } from "recoil";
+import promotionState from "../../../store/promotion";
 
 const AddProductContainer = styled.div`
   display: flex;
@@ -214,6 +216,8 @@ const FreebieList = ({ form, productId, itemIndex }: FreebieListProps) => {
 };
 
 export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) => {
+  const promoStateValue = useRecoilValue(promotionState);
+
   const [items, setItems] = useState<ProductEntity[]>(form.getFieldValue("items") || []);
   const [itemPromo, setItemPromo] = useState<any>(form.getFieldsValue());
   const [showModal, setModal] = useState(false);
@@ -223,10 +227,11 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
   );
 
   useEffect(() => {
-    if (isEditing) {
+    console.log("useEffect", form.getFieldValue("items"));
+    if (isEditing && promoStateValue.promotion) {
       fetchProductData();
     }
-  }, []);
+  }, [promoStateValue]);
 
   const fetchProductData = async () => {
     const newItems = [...items];
@@ -287,8 +292,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
       },
     });
   };
-
-  console.log("items", items);
 
   return (
     <>
@@ -381,169 +384,187 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
                     if (fields.length <= 0) onAdd();
                     return (
                       <>
-                        {fields.map(({ key, name, ...restField }, i) => (
-                          <>
-                            <Row key={key} gutter={16} style={{ padding: "20px 16px" }}>
-                              <Col span={8}>
-                                <Form.Item
-                                  {...restField}
-                                  label='จำนวนที่ซื้อครบ'
-                                  name={[name, "quantity"]}
-                                  rules={[
-                                    { required: true, message: "โปรดระบุจำนวนที่ซื้อครบ" },
-                                    {
-                                      // message: "จำนวนที่ซื้อครบต้องมากกว่า 0 และไม่ซ้ำกัน",
-                                      validator(rule, value, callback) {
-                                        if (!value) callback();
-                                        if (parseInt(value) <= 0) {
-                                          callback("จำนวนที่ซื้อครบต้องมากกว่า 0");
-                                          // throw new Error();
-                                        }
-                                        const findDupplicate = form
-                                          .getFieldValue(currentKey)
-                                          .reduce(
-                                            (acc: number, item: any) =>
-                                              item.quantity === value ? acc + 1 : acc,
-                                            0,
-                                          );
-                                        if (fields.length > 1 && findDupplicate > 1) {
-                                          callback("จำนวนที่ซื้อครบต้องไม่ซ้ำกัน");
-                                          // throw new Error();
-                                        }
-                                        callback();
+                        {fields.map(({ key, name, ...restField }, i) => {
+                          const discountValue = form.getFieldValue(currentKey)[i]?.discountPrice;
+                          return (
+                            <>
+                              <Row key={key} gutter={16} style={{ padding: "20px 16px" }}>
+                                <Col span={8}>
+                                  <Form.Item
+                                    {...restField}
+                                    label='จำนวนที่ซื้อครบ'
+                                    name={[name, "quantity"]}
+                                    rules={[
+                                      { required: true, message: "โปรดระบุจำนวนที่ซื้อครบ" },
+                                      {
+                                        // message: "จำนวนที่ซื้อครบต้องมากกว่า 0 และไม่ซ้ำกัน",
+                                        validator(rule, value, callback) {
+                                          if (!value) callback();
+                                          if (parseInt(value) <= 0) {
+                                            callback("จำนวนที่ซื้อครบต้องมากกว่า 0");
+                                            // throw new Error();
+                                          }
+                                          const findDupplicate = form
+                                            .getFieldValue(currentKey)
+                                            .reduce(
+                                              (acc: number, item: any) =>
+                                                item.quantity === value ? acc + 1 : acc,
+                                              0,
+                                            );
+                                          if (fields.length > 1 && findDupplicate > 1) {
+                                            callback("จำนวนที่ซื้อครบต้องไม่ซ้ำกัน");
+                                            // throw new Error();
+                                          }
+                                          callback();
+                                        },
                                       },
-                                    },
-                                  ]}
-                                >
-                                  <Input type='number' placeholder='ระบุจำนวนที่ซื้อครบ' min={0} />
-                                </Form.Item>
-                              </Col>
-                              <Col span={4}>
-                                <Form.Item
-                                  {...restField}
-                                  label='หน่วย'
-                                  name={[name, "saleUnit"]}
-                                  initialValue={item.saleUOMTH}
-                                >
-                                  <Input disabled />
-                                </Form.Item>
-                              </Col>
-                              {promotionType === PromotionType.FREEBIES_NOT_MIX ? (
-                                <>
-                                  <Col
-                                    span={10}
-                                    style={{ borderLeft: `1px solid ${color.background2}` }}
+                                    ]}
                                   >
-                                    <Form.Item {...restField} noStyle name={[name, "freebies"]}>
-                                      <FreebieList
-                                        form={form}
-                                        productId={item.productId}
-                                        itemIndex={i}
-                                      />
-                                    </Form.Item>
-                                  </Col>
-                                  <Col span={2}>
-                                    {i > 0 && (
-                                      <FlexRow
-                                        align='center'
-                                        justify='end'
-                                        style={{ height: "100%", padding: "0px 18px" }}
+                                    <Input
+                                      type='number'
+                                      placeholder='ระบุจำนวนที่ซื้อครบ'
+                                      min={0}
+                                    />
+                                  </Form.Item>
+                                </Col>
+                                <Col span={4}>
+                                  <Form.Item
+                                    {...restField}
+                                    label='หน่วย'
+                                    name={[name, "saleUnit"]}
+                                    initialValue={item.saleUOMTH}
+                                  >
+                                    <Input disabled />
+                                  </Form.Item>
+                                </Col>
+                                {promotionType === PromotionType.FREEBIES_NOT_MIX ? (
+                                  <>
+                                    <Col
+                                      span={10}
+                                      style={{ borderLeft: `1px solid ${color.background2}` }}
+                                    >
+                                      <Form.Item {...restField} noStyle name={[name, "freebies"]}>
+                                        <FreebieList
+                                          form={form}
+                                          productId={item.productId}
+                                          itemIndex={i}
+                                        />
+                                      </Form.Item>
+                                    </Col>
+                                    <Col span={2}>
+                                      {i > 0 && (
+                                        <FlexRow
+                                          align='center'
+                                          justify='end'
+                                          style={{ height: "100%", padding: "0px 18px" }}
+                                        >
+                                          <FlexCol
+                                            align='center'
+                                            justify='center'
+                                            style={{
+                                              height: "100%",
+                                              width: 32,
+                                              background: color.background1,
+                                              borderRadius: 4,
+                                              padding: 8,
+                                              cursor: "pointer",
+                                            }}
+                                            onClick={() => onRemove(name)}
+                                          >
+                                            <DeleteOutlined
+                                              style={{ fontSize: 18, color: color.secondary }}
+                                            />
+                                          </FlexCol>
+                                        </FlexRow>
+                                      )}
+                                    </Col>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Col span={6}>
+                                      <Form.Item
+                                        {...restField}
+                                        label='ราคาที่ต้องการลด'
+                                        name={[name, "discountPrice"]}
+                                        extra={
+                                          itemPromo[currentKey] &&
+                                          parseFloat(itemPromo[currentKey][i]?.discountPrice) > 0 &&
+                                          parseFloat(item.marketPrice || "") >=
+                                            parseFloat(itemPromo[currentKey][i]?.discountPrice)
+                                            ? `ราคาขายหลังหักส่วนลด ${
+                                                parseFloat(item.marketPrice || "") -
+                                                parseFloat(itemPromo[currentKey][i]?.discountPrice)
+                                              } บาท / ${item.saleUOMTH}`
+                                            : discountValue &&
+                                              parseFloat(discountValue) > 0 &&
+                                              parseFloat(item.marketPrice || "") >=
+                                                parseFloat(discountValue)
+                                            ? `ราคาขายหลังหักส่วนลด ${
+                                                parseFloat(item.marketPrice || "") -
+                                                parseFloat(discountValue)
+                                              } บาท / ${item.saleUOMTH}`
+                                            : undefined
+                                        }
+                                        rules={[
+                                          { required: true, message: "โปรดระบุราคาที่ต้องการลด" },
+                                          {
+                                            validator: (rule, value, callback) => {
+                                              if (
+                                                parseFloat(item.marketPrice || "") <
+                                                parseFloat(value)
+                                              ) {
+                                                return Promise.reject(
+                                                  "ราคาที่ลดต้องไม่เกินราคาขาย",
+                                                );
+                                              }
+                                              if (
+                                                parseFloat(item.marketPrice || "") >=
+                                                  parseFloat(value) &&
+                                                parseFloat(value) <= 0
+                                              ) {
+                                                return Promise.reject("ราคาที่ลดต้องมากกว่า 0");
+                                              }
+                                              return Promise.resolve();
+                                            },
+                                          },
+                                        ]}
                                       >
-                                        <FlexCol
+                                        <Input placeholder='ระบุราคา' suffix='บาท' type='number' />
+                                      </Form.Item>
+                                    </Col>
+                                    <Col span={4}>
+                                      <Form.Item
+                                        {...restField}
+                                        label='ต่อหน่วย SKU'
+                                        name={[name, "saleUnitDiscount"]}
+                                        initialValue={item.saleUOMTH}
+                                      >
+                                        <Input disabled />
+                                      </Form.Item>
+                                    </Col>
+                                    <Col span={2}>
+                                      {i > 0 && (
+                                        <FlexRow
                                           align='center'
                                           justify='center'
-                                          style={{
-                                            height: "100%",
-                                            width: 32,
-                                            background: color.background1,
-                                            borderRadius: 4,
-                                            padding: 8,
-                                            cursor: "pointer",
-                                          }}
-                                          onClick={() => onRemove(name)}
+                                          style={{ height: "100%", paddingBottom: 9 }}
                                         >
-                                          <DeleteOutlined
-                                            style={{ fontSize: 18, color: color.secondary }}
-                                          />
-                                        </FlexCol>
-                                      </FlexRow>
-                                    )}
-                                  </Col>
-                                </>
-                              ) : (
-                                <>
-                                  <Col span={6}>
-                                    <Form.Item
-                                      {...restField}
-                                      label='ราคาที่ต้องการลด'
-                                      name={[name, "discountPrice"]}
-                                      extra={
-                                        itemPromo[currentKey] &&
-                                        parseFloat(itemPromo[currentKey][i]?.discountPrice) > 0 &&
-                                        parseFloat(item.marketPrice || "") >=
-                                          parseFloat(itemPromo[currentKey][i]?.discountPrice)
-                                          ? `ราคาขายหลังหักส่วนลด ${
-                                              parseFloat(item.marketPrice || "") -
-                                              parseFloat(itemPromo[currentKey][i]?.discountPrice)
-                                            } บาท / ${item.saleUOMTH}`
-                                          : undefined
-                                      }
-                                      rules={[
-                                        { required: true, message: "โปรดระบุราคาที่ต้องการลด" },
-                                        {
-                                          validator: (rule, value, callback) => {
-                                            if (
-                                              parseFloat(item.marketPrice || "") < parseFloat(value)
-                                            ) {
-                                              return Promise.reject("ราคาที่ลดต้องไม่เกินราคาขาย");
-                                            }
-                                            if (
-                                              parseFloat(item.marketPrice || "") >=
-                                                parseFloat(value) &&
-                                              parseFloat(value) <= 0
-                                            ) {
-                                              return Promise.reject("ราคาที่ลดต้องมากกว่า 0");
-                                            }
-                                            return Promise.resolve();
-                                          },
-                                        },
-                                      ]}
-                                    >
-                                      <Input placeholder='ระบุราคา' suffix='บาท' type='number' />
-                                    </Form.Item>
-                                  </Col>
-                                  <Col span={4}>
-                                    <Form.Item
-                                      {...restField}
-                                      label='ต่อหน่วย SKU'
-                                      name={[name, "saleUnitDiscount"]}
-                                      initialValue={item.saleUOMTH}
-                                    >
-                                      <Input disabled />
-                                    </Form.Item>
-                                  </Col>
-                                  <Col span={2}>
-                                    {i > 0 && (
-                                      <FlexRow
-                                        align='center'
-                                        justify='center'
-                                        style={{ height: "100%", paddingBottom: 9 }}
-                                      >
-                                        <CloseIconContainer>
-                                          <CloseOutlined
-                                            style={{ color: "white" }}
-                                            onClick={() => onRemove(name)}
-                                          />
-                                        </CloseIconContainer>
-                                      </FlexRow>
-                                    )}
-                                  </Col>
-                                </>
-                              )}
-                            </Row>
-                            {promotionType === PromotionType.FREEBIES_NOT_MIX && <Divider />}
-                          </>
-                        ))}
+                                          <CloseIconContainer>
+                                            <CloseOutlined
+                                              style={{ color: "white" }}
+                                              onClick={() => onRemove(name)}
+                                            />
+                                          </CloseIconContainer>
+                                        </FlexRow>
+                                      )}
+                                    </Col>
+                                  </>
+                                )}
+                              </Row>
+                              {promotionType === PromotionType.FREEBIES_NOT_MIX && <Divider />}
+                            </>
+                          );
+                        })}
                         <Form.Item>
                           <AddProductContainer onClick={onAdd} style={{ background: "white" }}>
                             <Text level={5} color='primary'>

@@ -104,7 +104,7 @@ export const PriceListX10: React.FC = () => {
       });
       const { responseData } = await getSpecialPriceList({});
       const specialPriceData = data?.map((d: StoreEntity, i: number) => {
-        const found = responseData.find((r: any) => d.customerCompanyId === r.customer_company_id);
+        const found = responseData?.find((r: any) => d.customerCompanyId === r.customer_company_id);
         return {
           ...d,
           status: found && found.count && parseInt(found.count) > 0,
@@ -127,6 +127,9 @@ export const PriceListX10: React.FC = () => {
         data,
         specialPrice: specialPriceData,
         specialPriceCount: responseData,
+      });
+      console.log({
+        responseData,
       });
     } catch (e) {
       console.log(e);
