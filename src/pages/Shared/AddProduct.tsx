@@ -42,6 +42,7 @@ import {
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import productState from "../../store/productList";
 import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
+import { arrayToSet } from "../../utility/converter";
 
 interface ProdNameProps {
   product: ProductEntity;
@@ -102,7 +103,7 @@ const AddProduct = ({
 }: SearchProps) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
-  const pageSize = 100;
+  const pageSize = 1000;
   const isSingleItem = withFreebies || isReplacing;
   const [form] = Form.useForm();
 
@@ -115,6 +116,7 @@ const AddProduct = ({
   const [freebieCount, setFreebieCount] = useState(0);
   const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
   const [selectedProductId, setSelectedProdId] = useState<string[]>([]);
+  const [allSelectedList, setAllSelectedList] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [productGroups, setProductGroups] = useState([]);
@@ -143,6 +145,7 @@ const AddProduct = ({
 
   useEffect(() => {
     setSelectedProdId(list.map((item) => item.productId));
+    console.log("useEffect", list);
   }, [list]);
 
   const fetchFreebieList = async () => {
@@ -166,21 +169,18 @@ const AddProduct = ({
       productCategoryId: filter.productCategory,
       page,
     });
-    console.log({ data, count });
     const newData = data
-      // .filter(
-      //   (d: ProductEntity) =>
-      //     !list.find((l: ProductEntity) => `${l.productId}` === `${d.productId}`),
-      // )
+      .filter((d: ProductEntity) => d.productStatus === "ACTIVE")
       .map((d: ProductEntity) => ({ ...d, key: d.productId }));
     setProducts(newData);
-    setProductCount(count);
+    setProductCount(newData.length);
+    console.log({ data, count, countNew: newData.length });
 
     if (productList.allData.length <= 0) {
       setProductList((oldList: any) => ({
         page,
         pageSize,
-        count,
+        count: newData.length,
         data,
         allData: oldList?.data?.length > 0 ? oldList.data.concat(data) : data,
       }));
@@ -215,6 +215,16 @@ const AddProduct = ({
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: ProductEntity[]) => {
+      // TODO
+      const newList = new Set(allSelectedList);
+      selectedRowKeys.forEach((item) => newList.add(item as string));
+      selectedProductId.forEach((oldId) => {
+        if (!selectedRowKeys.includes(oldId) && products.find((p) => p.productId === oldId)) {
+          newList.delete(oldId);
+        }
+      });
+      setAllSelectedList(newList);
+      console.log({ newList, selectedRowKeys });
       setSelectedProdId(selectedRowKeys as string[]);
       setSelectedProd(selectedRows);
     },
@@ -249,7 +259,8 @@ const AddProduct = ({
     } else {
       let newList = [
         ...list,
-        ...productList.allData.filter((item: any) => selectedProductId.includes(item.productId)),
+        // ...productList.allData.filter((item: any) => selectedProductId.includes(item.productId)),
+        ...productList.allData.filter((item: any) => allSelectedList.has(item.productId)),
       ];
       newList = newList.filter(
         (item, pos) => newList.findIndex((item2) => item.productId === item2.productId) === pos,
@@ -405,7 +416,8 @@ const AddProduct = ({
             showFreebie === "true"
               ? freebies
               : products.filter(
-                  (item) => !list.find((l: ProductEntity) => item.productId === l.productId),
+                  (item) =>
+                    !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`),
                 )
           }
           pagination={false}

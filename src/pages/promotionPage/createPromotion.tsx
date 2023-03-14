@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import Steps from "../../components/StepAntd/steps";
 import dayjs, { Dayjs } from "dayjs";
+import promotionState from "../../store/promotion";
 
 export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -38,6 +39,8 @@ export const PromotionCreatePage: React.FC = () => {
 
   const productList = useRecoilValue(productState);
   const setProductList = useSetRecoilState(productState);
+  const promoStateValue = useRecoilValue(promotionState);
+  const setPromoState = useSetRecoilState(promotionState);
 
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
@@ -74,6 +77,7 @@ export const PromotionCreatePage: React.FC = () => {
       .then((res) => {
         console.log("promo", res);
         setDefaultData(res);
+        setPromoState({ ...promoStateValue, promotion: res });
         if (res.promotionImageFirst) {
           setImgUrl1(res.promotionImageFirst);
         }
@@ -358,6 +362,7 @@ export const PromotionCreatePage: React.FC = () => {
         setTimeout(() => {
           if (promotionStatus) {
             navigate("/PromotionPage/promotion");
+            navigate(1);
           } else {
             navigate(`/PromotionPage/promotion/edit/${promotionId}`);
           }
