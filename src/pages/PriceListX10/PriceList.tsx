@@ -103,6 +103,9 @@ export const PriceListX10: React.FC = () => {
         cutomerType: "DL",
       });
       const { responseData } = await getSpecialPriceList({});
+      const specialPriceList = responseData?.filter((r: any) =>
+        data?.find((d: any) => d.customerCompanyId === r.customer_company_id),
+      );
       const specialPriceData = data?.map((d: StoreEntity, i: number) => {
         const found = responseData?.find((r: any) => d.customerCompanyId === r.customer_company_id);
         return {
@@ -115,12 +118,12 @@ export const PriceListX10: React.FC = () => {
       setZones(zoneData.map((d: StoreEntity, i: number) => ({ ...d, key: i })));
       setDataState({
         data: specialPriceData,
-        specialPrice: responseData,
+        specialPrice: specialPriceList,
         filteredData: specialPriceData,
       });
       setStatusCount({
         ALL: specialPriceData?.length || 0,
-        true: responseData?.length || 0,
+        true: specialPriceList?.length || 0,
         false: (specialPriceData?.length || 0) - (responseData?.length || 0),
       });
       setCustomerCompanyState({
