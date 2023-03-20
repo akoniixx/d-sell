@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo } from "react";
-import { Table, Tabs, Modal, Switch, Row, Col, Pagination } from "antd";
+import { Table, Tabs, Modal, Switch, Row, Col, Pagination, message } from "antd";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import {
   DeleteOutlined,
@@ -11,9 +11,12 @@ import { RangePicker } from "../../../components/DatePicker/DatePicker";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
-import { getCreditMemoList } from "../../../datasource/CreditMemoDatasource";
+import {
+  getCreditMemoList,
+  updateCreditMemoStatus,
+} from "../../../datasource/CreditMemoDatasource";
 import moment from "moment";
-import { nameFormatter } from "../../../utility/Formatter";
+import { dateFormatter, nameFormatter } from "../../../utility/Formatter";
 import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import color from "../../../resource/color";
@@ -43,12 +46,12 @@ export const DiscountListPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!loading) fetchProduct();
+    if (!loading) fetchData();
   }, [keyword, statusFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
 
-  const fetchProduct = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       const { data, count, count_status } = await getCreditMemoList({
@@ -79,6 +82,20 @@ export const DiscountListPage: React.FC = () => {
     }
   };
 
+  const onChangeStatus = async (creditMemoId: string, status: boolean) => {
+    const { success, userMessage } = await updateCreditMemoStatus({
+      creditMemoId,
+      creditMemoStatus: status,
+      updateBy: `${firstname} ${lastname}`,
+    });
+    if (success) {
+      message.success(userMessage);
+      fetchData();
+    } else {
+      message.error(userMessage);
+    }
+  };
+
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
@@ -101,13 +118,13 @@ export const DiscountListPage: React.FC = () => {
               onPressEnter={(e: any) => {
                 const value = (e.target as HTMLTextAreaElement).value;
                 setKeyword(value);
-                // resetPage();
+                resetPage();
               }}
               onChange={(e: any) => {
                 const value = (e.target as HTMLInputElement).value;
                 if (!value) {
                   setKeyword("");
-                  // resetPage();
+                  resetPage();
                 }
               }}
             />
@@ -120,6 +137,7 @@ export const DiscountListPage: React.FC = () => {
             value={dateFilter}
             onChange={(dates: any) => {
               setDateFilter(dates);
+              resetPage();
             }}
           />
         </Col>
@@ -175,7 +193,7 @@ export const DiscountListPage: React.FC = () => {
       key: "createdAt",
       width: "15%",
       render: (value: string) => {
-        return moment(value).format(SLASH_DMY);
+        return dateFormatter(value);
       },
     },
     {
@@ -187,7 +205,7 @@ export const DiscountListPage: React.FC = () => {
         return (
           <>
             <FlexCol>
-              <Text level={6}>{row.updatedAt ? moment(row.updatedAt).format(SLASH_DMY) : "-"}</Text>
+              <Text level={6}>{row.updatedAt ? dateFormatter(row.updatedAt) : "-"}</Text>
               <Text color='Text3' level={6}>
                 {value || "-"}
               </Text>
@@ -203,7 +221,12 @@ export const DiscountListPage: React.FC = () => {
       width: "10%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Switch checked={row.creditMemoStatus} />,
+          children: (
+            <Switch
+              checked={row.creditMemoStatus}
+              onChange={(val) => onChangeStatus(row.creditMemoId, val)}
+            />
+          ),
         };
       },
     },
@@ -234,14 +257,14 @@ export const DiscountListPage: React.FC = () => {
                     <EditOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
-                <div
+                {/* <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
+                  // onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <DeleteOutlined style={{ color: color["primary"] }} />
                   </span>
-                </div>
+                </div> */}
               </div>
             </>
           ),
@@ -269,7 +292,12 @@ export const DiscountListPage: React.FC = () => {
             dataSource={dataState.data}
             pagination={{
               pageSize,
+              total: dataState.count,
               current: page,
+              onChange: (page, pageSize) => {
+                setPage(page);
+              },
+              showSizeChanger: false,
               position: ["bottomCenter"],
             }}
             size='large'

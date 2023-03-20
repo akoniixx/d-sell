@@ -138,23 +138,38 @@ export const CustomerDiscountListPage: React.FC = () => {
   const columns = [
     {
       title: "Customer Company ID",
-      dataIndex: "customercompanyid",
-      key: "customercompanyid",
+      dataIndex: "customer_company_id",
+      key: "customer_company_id",
       width: "15%",
     },
     {
       title: "ชื่อร้านค้า",
-      dataIndex: "customername",
+      dataIndex: "customer_name",
       key: "customername",
       width: "20%",
-      render: (value: string) => {
+      render: (value: string, row: any) => {
         return (
           <>
             <FlexCol>
               <Text level={6}>{value}</Text>
-              {/* <Text color='Text3' level={6}>
-                {"จ.อุตรดิตถ์" || "-"}
-              </Text> */}
+              <Text color='Text3' level={6}>
+                {row.province ? "จ." + row.province : "-"}
+              </Text>
+            </FlexCol>
+          </>
+        );
+      },
+    },
+    {
+      title: "รายชื่อสมาชิก",
+      dataIndex: "firstname",
+      key: "name",
+      width: "20%",
+      render: (firstname: string, row: any) => {
+        return (
+          <>
+            <FlexCol>
+              <Text level={6}>{`${firstname || "-"} ${row.lastname || ""}`}</Text>
             </FlexCol>
           </>
         );
@@ -170,7 +185,7 @@ export const CustomerDiscountListPage: React.FC = () => {
       title: "ยอดคงเหลือ",
       dataIndex: "balance",
       key: "balance",
-      width: "10%",
+      width: "15%",
       render: (value: string, row: any) => {
         return priceFormatter(value, undefined, true);
       },
@@ -179,7 +194,7 @@ export const CustomerDiscountListPage: React.FC = () => {
       title: "จัดการ",
       dataIndex: "action",
       key: "action",
-      width: "10%",
+      width: "15%",
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
         return {
@@ -188,7 +203,7 @@ export const CustomerDiscountListPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/discount/customerDetail/" + row.customercompanyid)}
+                  onClick={() => navigate("/discount/customerDetail/" + row.customer_company_id)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
