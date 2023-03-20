@@ -14,6 +14,8 @@ import {
   getCreditHistory,
   getCreditMemoById,
   getCustomerCreditMemo,
+  getCustomerCreditMemoHistory,
+  getOrderHistory,
   updateCreditMemo,
 } from "../../../datasource/CreditMemoDatasource";
 import { DetailBox, FlexCol, FlexRow } from "../../../components/Container/Container";
@@ -28,7 +30,7 @@ import { CreditMemoEntity } from "../../../entities/CreditMemoEntity";
 import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../../components/Spin/pageSpin";
-import { priceFormatter } from "../../../utility/Formatter";
+import { dateFormatter, priceFormatter } from "../../../utility/Formatter";
 
 export const CustomerCreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -38,8 +40,10 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
 
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [profile, setProfile] = useState<any>();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<CreditMemoEntity>();
+  const [data, setData] = useState<any[]>();
   const [historyLoading, setHistoryLoading] = useState(false);
   const [history, setHistory] = useState();
 
@@ -48,18 +52,30 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   }, []);
 
   const fetchData = async () => {
-    setLoading(true);
+    setLoadingProfile(true);
     const id = pathSplit[3];
     await getCustomerCreditMemo(id)
-      .then((res: any) => {
-        console.log("getCreditMemoById", res);
-        setData(res);
+      .then(async (res: any) => {
+        console.log("profile", res);
+        setProfile(res);
+        setLoadingProfile(false);
+        setLoading(true);
+        await getOrderHistory({ creditMemoShopId: res?.credit_memo_shop_id })
+          .then((res: any) => {
+            console.log(res.data);
+            setData(res?.data);
+          })
+          .catch((e: any) => {
+            console.log(e);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       })
       .catch((e: any) => {
         console.log(e);
-      })
-      .finally(() => {
-        setLoading(false);
+
+        setLoadingProfile(false);
       });
   };
 
@@ -69,7 +85,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     await getCreditHistory(id)
       .then((res: any) => {
         console.log("getCreditHistory", res);
-        setHistory(res);
+        setHistory(res?.filter((h: any) => h?.action === "สร้าง Credit Memo"));
       })
       .catch((e: any) => {
         console.log(e);
@@ -87,7 +103,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "Discount CO รายร้าน", path: "/discount/list" },
+              { text: "Discount CO รายร้าน", path: "/discount/customerList" },
               { text: "รายละเอียดร้านค้า", path: window.location.pathname },
             ]}
           />
@@ -99,56 +115,96 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const creditMemoColumn = [
     {
       title: "วันที่ใช้งาน",
-      dataIndex: "customerCompanyId",
-      key: "customerCompanyId",
+      dataIndex: "updateAt",
+      key: "updateAt",
       align: "center" as AlignType,
       render: (value: string) => {
-        return "10/09/2021 10:40 น.";
+        return dateFormatter(value);
       },
     },
     {
       title: "รายละเอียดออเดอร์",
-      dataIndex: "customerName",
-      key: "customerName",
+      dataIndex: "orderId",
+      key: "orderId",
       align: "center" as AlignType,
       render: (value: string) => {
-        return <Button title='ดูรายละเอียด' />;
+        return <Button title='ดูรายละเอียด' onClick={() => navigate(`/order/${value}`)} />;
       },
     },
     {
       title: "จำนวนยอดสั่งซื้อ",
-      dataIndex: "receiveAmount",
-      key: "receiveAmount",
+      dataIndex: "orderTotalPrice",
+      key: "orderTotalPrice",
       align: "center" as AlignType,
       render: (value: string) => {
-        return "1,461,600 ฿";
+        return priceFormatter(value, 2, true);
       },
     },
     {
       title: "ยอดก่อนใช้ส่วนลดดูแลราคา",
-      dataIndex: "receiveAmount",
-      key: "receiveAmount",
+      dataIndex: "balanceBefore",
+      key: "balanceBefore",
       align: "center" as AlignType,
       render: (value: string) => {
-        return "261,000 ฿";
+        return priceFormatter(value, 2, true);
       },
     },
     {
       title: "รวมส่วนลดดูแลราคาที่ใช้",
-      dataIndex: "receiveAmount",
-      key: "receiveAmount",
+      dataIndex: "usedAmount",
+      key: "usedAmount",
       align: "center" as AlignType,
       render: (value: string) => {
-        return <Text color='error'>-61,600 ฿</Text>;
+        return <Text color='error'>{priceFormatter(value, 2, true)}</Text>;
       },
     },
     {
       title: "คงเหลือส่วนลดดูแลราคา",
-      dataIndex: "receiveAmount",
-      key: "receiveAmount",
+      dataIndex: "balanceAfter",
+      key: "balanceAfter",
       align: "center" as AlignType,
       render: (value: string) => {
-        return <Text>199,400 ฿</Text>;
+        return priceFormatter(value, 2, true);
+      },
+    },
+  ];
+
+  const historyColumns = [
+    {
+      title: "วันเวลาที่อัปเดท",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      align: "center" as AlignType,
+      width: "20%",
+      render: (value: string) => {
+        return dateFormatter(value);
+      },
+    },
+    {
+      title: "ผู้อัปเดท",
+      dataIndex: "createBy",
+      key: "createBy",
+      align: "center" as AlignType,
+      width: "20%",
+      render: (value: string) => {
+        return value || "-";
+      },
+    },
+    {
+      title: "ชื่อรายการ Credit Memo",
+      dataIndex: "action",
+      key: "action",
+      align: "center" as AlignType,
+      width: "40%",
+    },
+    {
+      title: "จำนวนส่วนลดดูแลราคา",
+      dataIndex: "afterValue",
+      key: "afterValue",
+      align: "center" as AlignType,
+      width: "20%",
+      render: (value: string) => {
+        return priceFormatter(value, 2, true);
       },
     },
   ];
@@ -159,15 +215,14 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       key: "1",
       children: (
         <>
-          <br />
-          <Text fontWeight={700}>รายการประวัติได้รับ Credit memo</Text>
-          <br />
-          <br />
           <TableContainer>
             <Table
               columns={creditMemoColumn}
-              dataSource={data?.creditMemoShop?.map((s: any, i: any) => ({ ...s, key: i }))}
-              pagination={false}
+              dataSource={data?.map((s: any, i: any) => ({ ...s, key: i }))}
+              pagination={{
+                pageSize: 8,
+                position: ["bottomCenter"],
+              }}
             />
           </TableContainer>
         </>
@@ -178,16 +233,37 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       key: "2",
       children: (
         <>
-          <Row style={{ margin: "16px 0px" }}>
-            <Text fontWeight={700} level={4}>
-              รายการประวัติได้รับ Credit memo
-            </Text>
-          </Row>
           <TableContainer>
-            <Table dataSource={history} columns={[]} />
+            <Table
+              dataSource={history}
+              columns={historyColumns}
+              pagination={{
+                pageSize: 8,
+                position: ["bottomCenter"],
+              }}
+            />
           </TableContainer>
         </>
       ),
+    },
+  ];
+
+  const profileList = [
+    {
+      title: "ชื่อร้านค้า",
+      value: profile?.customer_name,
+    },
+    {
+      title: "จังหวัด",
+      value: profile?.province,
+    },
+    {
+      title: "รายชื่อสมาชิก",
+      value: `${profile?.firstname || "-"} ${profile?.lastname || ""}`,
+    },
+    {
+      title: "เขต",
+      value: profile?.zone,
     },
   ];
 
@@ -210,26 +286,44 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                     </Text>
                     &nbsp;&nbsp;&nbsp;
                     <Text fontWeight={700} fontSize={32} color='primary'>
-                      {priceFormatter(361600, 0, true)}
+                      {priceFormatter(profile?.balance, 0, true)}
                     </Text>
                   </DetailBox>
                 </Row>
               </Col>
             </Row>
             <br />
+            <Row>
+              {profileList.map(({ title, value }, i) => (
+                <Col span={12} key={i} style={{ margin: "8px 0px" }}>
+                  <Row>
+                    <Col span={10}>
+                      <Text color='Text3'>{title}</Text>
+                    </Col>
+                    <Col span={14}>
+                      <Text>{value || "-"}</Text>
+                    </Col>
+                  </Row>
+                </Col>
+              ))}
+            </Row>
+            <br />
           </CardContainer>
           <br />
           <CardContainer>
-            <>
-              <Tabs
-                items={tabsItems}
-                onChange={(key: string) => {
-                  if (key === "2" && !history) {
-                    fetchHistory();
-                  }
-                }}
-              />
-            </>
+            <Row style={{ margin: "16px 0px" }}>
+              <Text fontWeight={700} level={4}>
+                รายการประวัติ Credit memo
+              </Text>
+            </Row>
+            <Tabs
+              items={tabsItems}
+              onChange={(key: string) => {
+                if (key === "2" && !history) {
+                  fetchHistory();
+                }
+              }}
+            />
           </CardContainer>
         </div>
       )}
