@@ -81,6 +81,11 @@ export const pathLists = [
         name: "customerList",
         title: "ส่วนลด CO รายร้าน",
       },
+      {
+        path: "/conditionCo",
+        name: "conditionCo",
+        title: "เงื่อนไข CO",
+      },
     ],
   },
   {
