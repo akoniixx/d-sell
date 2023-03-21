@@ -58,24 +58,25 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       .then(async (res: any) => {
         console.log("profile", res);
         setProfile(res);
-        setLoadingProfile(false);
-        setLoading(true);
-        await getOrderHistory({ creditMemoShopId: res?.credit_memo_shop_id })
-          .then((res: any) => {
-            console.log(res.data);
-            setData(res?.data);
-          })
-          .catch((e: any) => {
-            console.log(e);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
       })
       .catch((e: any) => {
         console.log(e);
-
+      })
+      .finally(() => {
         setLoadingProfile(false);
+      });
+
+    setLoading(true);
+    await getOrderHistory({ customerCompanyId: id })
+      .then((res: any) => {
+        console.log(res.data);
+        setData(res?.data);
+      })
+      .catch((e: any) => {
+        console.log(e);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
