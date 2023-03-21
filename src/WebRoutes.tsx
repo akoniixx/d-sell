@@ -90,6 +90,19 @@ export const protectRoutesData: IRoute[] = [
     index: false,
   },
   {
+    path: "/view-order",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: ":id",
+        element: <OrderDetail />,
+        permission: null,
+      },
+    ],
+    index: false,
+  },
+  {
     path: "/special-request",
     element: <SpecialRequestList />,
     permission: null,

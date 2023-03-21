@@ -134,7 +134,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       key: "orderId",
       align: "center" as AlignType,
       render: (value: string) => {
-        return <Button title='ดูรายละเอียด' onClick={() => navigate(`/order/${value}`)} />;
+        return <Button title='ดูรายละเอียด' onClick={() => navigate(`/view-order/${value}`)} />;
       },
     },
     {
