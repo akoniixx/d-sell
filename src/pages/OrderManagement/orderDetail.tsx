@@ -120,6 +120,8 @@ export const OrderDetail: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
+  const path = pathSplit[1];
+  const isViewMode = path === "view-order";
 
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState<OrderEntity>();
@@ -205,7 +207,7 @@ export const OrderDetail: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title='ORDER NO: SPO000001'
+        title={`ORDER NO: ${orderData?.orderNo}`}
         showBack
         onBack={() => navigate(`/order`)}
         extra={
@@ -317,7 +319,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{priceFormatter(marketPrice || "0", undefined, false, true)}</Text>
               <Text level={6} color='Text3'>
-                {" บาท / " + product?.saleUom}
+                {" บาท / " + (product?.saleUOMTH || product?.saleUom || "หน่วย")}
               </Text>
             </FlexCol>
           ),
@@ -743,7 +745,7 @@ export const OrderDetail: React.FC = () => {
             </CardContainer>
           </Col>
         </Row>
-        {getOption()}
+        {!isViewMode && getOption()}
       </div>
       <Modal open={showCancelModal} footer={false} closable={false} width={420}>
         <FlexCol align='center'>
