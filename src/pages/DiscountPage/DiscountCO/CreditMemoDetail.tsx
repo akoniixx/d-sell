@@ -49,8 +49,8 @@ export const CreditMemoDetail: React.FC = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const id = pathSplit[3]; // parseInt(pathSplit[3]);
-    await getCustomerCreditMemo(id)
+    const id = pathSplit[3];
+    await getCreditMemoById(id)
       .then((res: any) => {
         console.log("getCreditMemoById", res);
         setData(res);
@@ -75,7 +75,7 @@ export const CreditMemoDetail: React.FC = () => {
         console.log(e);
       })
       .finally(() => {
-        setLoading(false);
+        setHistoryLoading(false);
       });
   };
 
@@ -225,7 +225,11 @@ export const CreditMemoDetail: React.FC = () => {
             <Table
               columns={creditMemoColumn}
               dataSource={data?.creditMemoShop?.map((s: any, i: any) => ({ ...s, key: i }))}
-              pagination={false}
+              loading={loading}
+              pagination={{
+                pageSize: 8,
+                position: ["bottomCenter"],
+              }}
             />
           </TableContainer>
         </>
@@ -242,7 +246,15 @@ export const CreditMemoDetail: React.FC = () => {
             </Text>
           </Row>
           <TableContainer>
-            <Table dataSource={history} columns={creditMemoHistoryColumn} />
+            <Table
+              dataSource={history}
+              columns={creditMemoHistoryColumn}
+              loading={historyLoading}
+              pagination={{
+                pageSize: 8,
+                position: ["bottomCenter"],
+              }}
+            />
           </TableContainer>
         </>
       ),
