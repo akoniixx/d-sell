@@ -137,6 +137,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
     getCheckboxProps: (record: StoreEntity) => ({
       name: record.customerName,
     }),
+    selectedRowKeys: selectedStoreKeys,
   };
 
   const onFilter = ({ zone, keyword }: any) => {
@@ -225,6 +226,9 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
                             });
                             return;
                           }
+                          selectedStoreList.forEach((s) =>
+                            form.setFieldValue(`${s.customerCompanyId}`, undefined),
+                          );
                           onSetStore(
                             storeList.filter(
                               (s) =>
