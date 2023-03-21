@@ -188,7 +188,8 @@ export const DiscountCreatePage: React.FC = () => {
       creditMemoId: id,
       company,
       creditMemoStatus,
-      createBy: username,
+      createBy: isEditing ? undefined : username,
+      updateBy: isEditing ? username : undefined,
     };
 
     const callback = (res: any) => {
