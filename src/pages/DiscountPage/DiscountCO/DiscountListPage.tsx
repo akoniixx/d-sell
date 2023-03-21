@@ -273,6 +273,7 @@ export const DiscountListPage: React.FC = () => {
                             if (success) {
                               Modal.success({
                                 title: "ลบข้อมูลสำเร็จ",
+                                onOk: () => navigate(0),
                               });
                             } else {
                               Modal.error({
