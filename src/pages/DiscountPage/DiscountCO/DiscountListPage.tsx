@@ -12,6 +12,7 @@ import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
 import {
+  deleteCreditMemo,
   getCreditMemoList,
   updateCreditMemoStatus,
 } from "../../../datasource/CreditMemoDatasource";
@@ -22,6 +23,7 @@ import Text from "../../../components/Text/Text";
 import color from "../../../resource/color";
 
 const SLASH_DMY = "DD/MM/YYYY";
+const REQUEST_DMY = "YYYY-MM-DD";
 type FixedType = "left" | "right" | boolean;
 
 export const DiscountListPage: React.FC = () => {
@@ -54,17 +56,16 @@ export const DiscountListPage: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      console.log({
+        dateFilter,
+        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format(REQUEST_DMY) : undefined,
+        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format(REQUEST_DMY) : undefined,
+      });
       const { data, count, count_status } = await getCreditMemoList({
         company,
         creditMemoStatus: statusFilter,
-        startDate:
-          dateFilter && dateFilter[0]
-            ? moment(dateFilter[0]).subtract(543, "years").format(SLASH_DMY)
-            : undefined,
-        endDate:
-          dateFilter && dateFilter[1]
-            ? moment(dateFilter[1]).subtract(543, "years").format(SLASH_DMY)
-            : undefined,
+        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format(REQUEST_DMY) : undefined,
+        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format(REQUEST_DMY) : undefined,
         searchText: keyword,
         take: pageSize,
         page,
@@ -188,7 +189,7 @@ export const DiscountListPage: React.FC = () => {
       width: "20%",
     },
     {
-      title: "ระยะเวลา",
+      title: "วันที่สร้าง",
       dataIndex: "createdAt",
       key: "createdAt",
       width: "15%",
@@ -257,14 +258,40 @@ export const DiscountListPage: React.FC = () => {
                     <EditOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
-                {/* <div
+                <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  // onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
+                  onClick={async () => {
+                    Modal.confirm({
+                      title: "ต้องการลบข้อมูล",
+                      content: "โปรดยืนยันการลบข้อมูลรายการ Credit Memo",
+                      onOk: async () => {
+                        await deleteCreditMemo({
+                          creditMemoId: row?.creditMemoId,
+                          updateBy: `${firstname} ${lastname}`,
+                        })
+                          .then(({ success, userMessage }: any) => {
+                            if (success) {
+                              Modal.success({
+                                title: "ลบข้อมูลสำเร็จ",
+                              });
+                            } else {
+                              Modal.error({
+                                title: "ลบข้อมูลไม่สำเร็จ",
+                                content: userMessage,
+                              });
+                            }
+                          })
+                          .catch((e: any) => {
+                            console.log(e);
+                          });
+                      },
+                    });
+                  }}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <DeleteOutlined style={{ color: color["primary"] }} />
                   </span>
-                </div> */}
+                </div>
               </div>
             </>
           ),

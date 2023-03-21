@@ -82,10 +82,16 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const fetchHistory = async () => {
     setHistoryLoading(true);
     const id = pathSplit[3];
-    await getCreditHistory(id)
+    // แก้ API
+    console.log("getCreditHistory", id);
+    await getCustomerCreditMemoHistory(id)
       .then((res: any) => {
         console.log("getCreditHistory", res);
-        setHistory(res?.filter((h: any) => h?.action === "สร้าง Credit Memo"));
+        setHistory(
+          res
+            ?.filter((h: any) => h?.action === "สร้าง Credit Memo")
+            .map((h: any, i: number) => ({ ...h, key: i })),
+        );
       })
       .catch((e: any) => {
         console.log(e);
@@ -319,7 +325,8 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Tabs
               items={tabsItems}
               onChange={(key: string) => {
-                if (key === "2" && !history) {
+                console.log("onChance tab", key, history);
+                if (!history) {
                   fetchHistory();
                 }
               }}

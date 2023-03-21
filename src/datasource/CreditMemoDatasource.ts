@@ -103,4 +103,5 @@ export {
   updateCreditMemo,
   updateCreditMemoStatus,
   getOrderHistory,
+  deleteCreditMemo,
 };
