@@ -82,7 +82,7 @@ const updateCreditMemoStatus = async (data: object) => {
 const getOrderHistory = async (params: {
   page?: number;
   take?: number;
-  creditMemoShopId: string;
+  customerCompanyId: string;
 }) => {
   return await httpClient
     .get(`${BASE_URL}/cart/order-credit-memo`, {
