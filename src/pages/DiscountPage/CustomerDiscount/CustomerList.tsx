@@ -238,6 +238,7 @@ export const CustomerDiscountListPage: React.FC = () => {
             pagination={{
               pageSize,
               current: page,
+              onChange: (page) => setPage(page),
               position: ["bottomCenter"],
             }}
             size='large'
