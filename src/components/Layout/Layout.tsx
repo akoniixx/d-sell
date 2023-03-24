@@ -257,6 +257,7 @@ const Layouts: React.FC<any> = ({ children }) => {
             margin: 0,
             height: "100%",
             width: "100%",
+            overflow: "auto",
           }}
         >
           {children}

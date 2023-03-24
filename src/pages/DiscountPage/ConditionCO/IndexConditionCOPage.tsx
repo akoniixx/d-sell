@@ -31,6 +31,7 @@ export const IndexConditionCOPage: React.FC = () => {
       countProduct: 5,
       countShop: 3,
       status: true,
+      updateBy: "รชยา ช่างภักดี",
     },
     {
       name: "รายการลดแรง 2",
@@ -38,6 +39,7 @@ export const IndexConditionCOPage: React.FC = () => {
       countProduct: 10,
       countShop: 80,
       status: true,
+      updateBy: "รชยา ช่างภักดี",
     },
     {
       name: "รายการลดแรง 3",
@@ -45,6 +47,7 @@ export const IndexConditionCOPage: React.FC = () => {
       countProduct: 22,
       countShop: 53,
       status: false,
+      updateBy: "รชยา ช่างภักดี",
     },
   ];
 
@@ -84,12 +87,13 @@ export const IndexConditionCOPage: React.FC = () => {
       title: "ชื่อรายการ",
       dataIndex: "name",
       key: "name",
-      width: "30%",
+      width: "25%",
     },
     {
-      title: "ช่วงเวลา",
+      title: "ระยะเวลา",
       dataIndex: "dateTime",
       key: "dateTime",
+      width: "20%",
     },
     {
       title: "จำนวนสินค้า",
@@ -120,6 +124,12 @@ export const IndexConditionCOPage: React.FC = () => {
           ),
         };
       },
+    },
+    {
+      title: "อัปเดทโดย",
+      dataIndex: "updateBy",
+      key: "updateBy",
+      width:'15%'
     },
     {
       title: "สถานะ",
@@ -198,7 +208,7 @@ export const IndexConditionCOPage: React.FC = () => {
           loading={loading}
           size='large'
           tableLayout='fixed'
-        ></Table>
+        />
       </CardContainer>
     </div>
   );
