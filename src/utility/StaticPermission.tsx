@@ -118,7 +118,7 @@ export const websiteBackOffice = {
     {
       label: "Edit Product",
       value: "edit",
-    }
+    },
   ],
 };
 export const saleCodaSale = {

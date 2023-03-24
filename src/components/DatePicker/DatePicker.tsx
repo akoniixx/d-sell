@@ -59,13 +59,17 @@ function DatePicker({
         fontFamily: "Sarabun",
         ...style,
       }}
-      disabledDate={disabledDate ? disabledDate : (current) => {
-        if (enablePast) {
-          return !enablePast;
-        } else {
-          return current && current.isBefore(dayjs().subtract(1, "day"));
-        }
-      }}
+      disabledDate={
+        disabledDate
+          ? disabledDate
+          : (current) => {
+              if (enablePast) {
+                return !enablePast;
+              } else {
+                return current && current.isBefore(dayjs().subtract(1, "day"));
+              }
+            }
+      }
       format={picker === "year" ? "BBBB" : "DD/MM/BBBB"}
       {...props}
     />
@@ -133,7 +137,7 @@ interface TimeProps {
   style?: React.CSSProperties;
   showNow?: boolean;
   allowClear?: boolean;
-  disabledTime?: (date: Moment) => any
+  disabledTime?: (date: Moment) => any;
 }
 function TimePicker({
   onChange,
@@ -166,4 +170,4 @@ function TimePicker({
 }
 
 export default DatePicker;
-export { RangePicker, TimePicker }
+export { RangePicker, TimePicker };

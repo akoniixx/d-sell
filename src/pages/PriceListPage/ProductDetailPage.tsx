@@ -65,7 +65,7 @@ const ProdDesc = ({ label, value }: DescProps) => {
 export const DistributionPageDetail: React.FC = (props: any) => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
-  const isFreebie = pathSplit[2] === 'freebies';
+  const isFreebie = pathSplit[2] === "freebies";
 
   const navigate = useNavigate();
 
@@ -80,8 +80,8 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     try {
       setLoading(true);
       let data;
-      const id = parseInt(pathSplit[3])
-      if(isFreebie){
+      const id = parseInt(pathSplit[3]);
+      if (isFreebie) {
         data = await getProductFreebieDetail(id);
       } else {
         data = await getProductDetail(id);
@@ -125,34 +125,34 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     updateDate,
     productFreebiesId,
     productFreebiesCodeNAV,
-    productFreebiesImage
+    productFreebiesImage,
   } = dataState || {};
 
   const dataGroup1 = [
     {
       label: "Product Brands",
       value: (productBrand as BrandEntity)?.productBrandName,
-      freebieHide: true
+      freebieHide: true,
     },
     {
       label: "โรงงาน",
       value: LOCATION_FULLNAME_MAPPING[productLocation as string],
-      freebieHide: true
+      freebieHide: true,
     },
     {
       label: "รหัสสินค้า",
       value: isFreebie ? productFreebiesCodeNAV : productCodeNAV,
-      freebieHide: true
+      freebieHide: true,
     },
     {
       label: "ชื่อทางการค้า (Tradename)",
       value: productName,
-      freebieHide: true
+      freebieHide: true,
     },
     {
       label: "ชื่อสามัญ",
       value: commonName,
-      freebieHide: true
+      freebieHide: true,
     },
     {
       label: "กลุ่มสินค้า (Product Group)",
@@ -161,25 +161,28 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     {
       label: "หมวดสินค้า (Product Category)",
       value: (productCategory as ProductCategoryEntity)?.productCategoryName,
-      freebieHide: true
+      freebieHide: true,
     },
   ];
 
   const dataGroup2 = [
     {
       label: "ปริมาณสินค้า / หน่วย",
-      value: qtySaleUnit + ' ' + (company === 'ICPL' ? baseUOM : packingUOM),
+      value: qtySaleUnit + " " + (company === "ICPL" ? baseUOM : packingUOM),
     },
     {
       label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(unitPrice || "")) + '/' + (company === 'ICPL' ? baseUOM : packingUOM),
+      value:
+        priceFormatter(parseFloat(unitPrice || "")) +
+        "/" +
+        (company === "ICPL" ? baseUOM : packingUOM),
     },
   ];
 
   const dataGroup3 = [
     {
       label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(marketPrice || "")) + '/' + (saleUOMTH || saleUOM),
+      value: priceFormatter(parseFloat(marketPrice || "")) + "/" + (saleUOMTH || saleUOM),
     },
   ];
 
@@ -200,7 +203,11 @@ export const DistributionPageDetail: React.FC = (props: any) => {
           <Button
             type='primary'
             onClick={() =>
-              navigate(`/${pathSplit[1]}/${pathSplit[2]}/edit/${isFreebie ? productFreebiesId : productId}`)
+              navigate(
+                `/${pathSplit[1]}/${pathSplit[2]}/edit/${
+                  isFreebie ? productFreebiesId : productId
+                }`,
+              )
             }
           >
             <EditOutlined />
@@ -234,31 +241,37 @@ export const DistributionPageDetail: React.FC = (props: any) => {
         <CardContainer>
           <PageTitle />
           <Container>
-            <ProdImage src={(isFreebie ? productFreebiesImage : productImage) || image.product_no_image} />
+            <ProdImage
+              src={(isFreebie ? productFreebiesImage : productImage) || image.product_no_image}
+            />
           </Container>
           <Container>
-            {dataGroup1.filter((e) => !isFreebie || !e.freebieHide).map((p: DescProps, i) => (
-              <ProdDesc {...p} key={i} />
-            ))}
+            {dataGroup1
+              .filter((e) => !isFreebie || !e.freebieHide)
+              .map((p: DescProps, i) => (
+                <ProdDesc {...p} key={i} />
+              ))}
           </Container>
-          {!isFreebie && <>
-            <Container>
-              <Text color='primary' fontWeight={700}>
-                UNIT SIZE
-              </Text>
-              {dataGroup2.map((p: DescProps, i) => (
-                <ProdDesc {...p} key={i} />
-              ))}
-            </Container>
-            <Container>
-              <Text color='primary' fontWeight={700}>
-                PACKAGE SIZE
-              </Text>
-              {dataGroup3.map((p: DescProps, i) => (
-                <ProdDesc {...p} key={i} />
-              ))}
-            </Container>
-          </>}
+          {!isFreebie && (
+            <>
+              <Container>
+                <Text color='primary' fontWeight={700}>
+                  UNIT SIZE
+                </Text>
+                {dataGroup2.map((p: DescProps, i) => (
+                  <ProdDesc {...p} key={i} />
+                ))}
+              </Container>
+              <Container>
+                <Text color='primary' fontWeight={700}>
+                  PACKAGE SIZE
+                </Text>
+                {dataGroup3.map((p: DescProps, i) => (
+                  <ProdDesc {...p} key={i} />
+                ))}
+              </Container>
+            </>
+          )}
           <Container>
             {dataGroup4.map((p: DescProps, i) => (
               <ProdDesc {...p} key={i} />
