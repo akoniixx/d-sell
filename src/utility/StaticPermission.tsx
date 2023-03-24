@@ -4,10 +4,7 @@ export const websiteBackOffice = {
       label: "View Detail",
       value: "view",
     },
-    // {
-    //   label: "Sync Navision",
-    //   value: "sync",
-    // },
+   
     {
       label: "Edit Status",
       value: "edit",
