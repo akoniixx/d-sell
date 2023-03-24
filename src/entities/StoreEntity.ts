@@ -3,6 +3,7 @@ export interface StoreEntity {
   customerImage?: string;
   customerName: string;
   zone: string;
+  isChecked?: boolean;
 }
 
 export interface ZoneEntity {

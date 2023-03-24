@@ -33,4 +33,5 @@ export interface ProductEntity {
   productFreebiesCodeNAV?: string;
   productFreebiesImage?: string;
   productFreebiesStatus?: string;
+  isChecked?: boolean;
 }

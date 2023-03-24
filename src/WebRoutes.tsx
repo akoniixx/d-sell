@@ -45,6 +45,8 @@ import { SpecialPriceDetail } from "./pages/PriceListX10/PriceListDetail";
 import { OrderList } from "./pages/OrderManagement/orderList";
 import { OrderDetail } from "./pages/OrderManagement/orderDetail";
 import { SpecialRequestList } from "./pages/SpecialRequest/specialRequestList";
+import { IndexConditionCOPage } from "./pages/DiscountPage/ConditionCO/IndexConditionCOPage";
+import { CreateConditionCOPage } from "./pages/DiscountPage/ConditionCO/CreateConditionCOPage";
 
 interface IRoute {
   path: string;
@@ -165,6 +167,16 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "customerDetail/:id",
         element: <CustomerCreditMemoDetail />,
+        permission: null,
+      },
+      {
+        path: "conditionCo",
+        element: <IndexConditionCOPage />,
+        permission: null,
+      },
+      {
+        path: "createConditionCo",
+        element: <CreateConditionCOPage />,
         permission: null,
       },
     ],

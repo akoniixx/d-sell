@@ -109,6 +109,7 @@ function Select({
       defaultValue={defaultValue}
       disabled={disabled}
       mode={mode}
+      onBlur={() => setOpen(false)}
     >
       {data.map((item) => {
         return (
