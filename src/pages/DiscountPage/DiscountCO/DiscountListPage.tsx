@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo } from "react";
-import { Table, Tabs, Modal, Switch, Row, Col, Pagination } from "antd";
+import { Table, Tabs, Modal, Switch, Row, Col, Pagination, message } from "antd";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import {
   DeleteOutlined,
@@ -11,14 +11,19 @@ import { RangePicker } from "../../../components/DatePicker/DatePicker";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
-import { getCreditMemoList } from "../../../datasource/CreditMemoDatasource";
+import {
+  deleteCreditMemo,
+  getCreditMemoList,
+  updateCreditMemoStatus,
+} from "../../../datasource/CreditMemoDatasource";
 import moment from "moment";
-import { nameFormatter } from "../../../utility/Formatter";
+import { dateFormatter, nameFormatter } from "../../../utility/Formatter";
 import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import color from "../../../resource/color";
 
 const SLASH_DMY = "DD/MM/YYYY";
+const REQUEST_DMY = "YYYY-MM-DD";
 type FixedType = "left" | "right" | boolean;
 
 export const DiscountListPage: React.FC = () => {
@@ -43,25 +48,24 @@ export const DiscountListPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!loading) fetchProduct();
+    if (!loading) fetchData();
   }, [keyword, statusFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
 
-  const fetchProduct = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
+      console.log({
+        dateFilter,
+        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format(REQUEST_DMY) : undefined,
+        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format(REQUEST_DMY) : undefined,
+      });
       const { data, count, count_status } = await getCreditMemoList({
         company,
         creditMemoStatus: statusFilter,
-        startDate:
-          dateFilter && dateFilter[0]
-            ? moment(dateFilter[0]).subtract(543, "years").format(SLASH_DMY)
-            : undefined,
-        endDate:
-          dateFilter && dateFilter[1]
-            ? moment(dateFilter[1]).subtract(543, "years").format(SLASH_DMY)
-            : undefined,
+        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format(REQUEST_DMY) : undefined,
+        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format(REQUEST_DMY) : undefined,
         searchText: keyword,
         take: pageSize,
         page,
@@ -76,6 +80,20 @@ export const DiscountListPage: React.FC = () => {
       console.log(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onChangeStatus = async (creditMemoId: string, status: boolean) => {
+    const { success, userMessage } = await updateCreditMemoStatus({
+      creditMemoId,
+      creditMemoStatus: status,
+      updateBy: `${firstname} ${lastname}`,
+    });
+    if (success) {
+      message.success(userMessage);
+      fetchData();
+    } else {
+      message.error(userMessage);
     }
   };
 
@@ -101,13 +119,13 @@ export const DiscountListPage: React.FC = () => {
               onPressEnter={(e: any) => {
                 const value = (e.target as HTMLTextAreaElement).value;
                 setKeyword(value);
-                // resetPage();
+                resetPage();
               }}
               onChange={(e: any) => {
                 const value = (e.target as HTMLInputElement).value;
                 if (!value) {
                   setKeyword("");
-                  // resetPage();
+                  resetPage();
                 }
               }}
             />
@@ -120,6 +138,7 @@ export const DiscountListPage: React.FC = () => {
             value={dateFilter}
             onChange={(dates: any) => {
               setDateFilter(dates);
+              resetPage();
             }}
           />
         </Col>
@@ -170,12 +189,12 @@ export const DiscountListPage: React.FC = () => {
       width: "20%",
     },
     {
-      title: "ระยะเวลา",
+      title: "วันที่สร้าง",
       dataIndex: "createdAt",
       key: "createdAt",
       width: "15%",
       render: (value: string) => {
-        return moment(value).format(SLASH_DMY);
+        return dateFormatter(value);
       },
     },
     {
@@ -187,7 +206,7 @@ export const DiscountListPage: React.FC = () => {
         return (
           <>
             <FlexCol>
-              <Text level={6}>{row.updatedAt ? moment(row.updatedAt).format(SLASH_DMY) : "-"}</Text>
+              <Text level={6}>{row.updatedAt ? dateFormatter(row.updatedAt) : "-"}</Text>
               <Text color='Text3' level={6}>
                 {value || "-"}
               </Text>
@@ -203,7 +222,12 @@ export const DiscountListPage: React.FC = () => {
       width: "10%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Switch checked={row.creditMemoStatus} />,
+          children: (
+            <Switch
+              checked={row.creditMemoStatus}
+              onChange={(val) => onChangeStatus(row.creditMemoId, val)}
+            />
+          ),
         };
       },
     },
@@ -236,7 +260,34 @@ export const DiscountListPage: React.FC = () => {
                 </div>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
+                  onClick={async () => {
+                    Modal.confirm({
+                      title: "ต้องการลบข้อมูล",
+                      content: "โปรดยืนยันการลบข้อมูลรายการ Credit Memo",
+                      onOk: async () => {
+                        await deleteCreditMemo({
+                          creditMemoId: row?.creditMemoId,
+                          updateBy: `${firstname} ${lastname}`,
+                        })
+                          .then(({ success, userMessage }: any) => {
+                            if (success) {
+                              Modal.success({
+                                title: "ลบข้อมูลสำเร็จ",
+                                onOk: () => navigate(0),
+                              });
+                            } else {
+                              Modal.error({
+                                title: "ลบข้อมูลไม่สำเร็จ",
+                                content: userMessage,
+                              });
+                            }
+                          })
+                          .catch((e: any) => {
+                            console.log(e);
+                          });
+                      },
+                    });
+                  }}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <DeleteOutlined style={{ color: color["primary"] }} />
@@ -269,7 +320,12 @@ export const DiscountListPage: React.FC = () => {
             dataSource={dataState.data}
             pagination={{
               pageSize,
+              total: dataState.count,
               current: page,
+              onChange: (page, pageSize) => {
+                setPage(page);
+              },
+              showSizeChanger: false,
               position: ["bottomCenter"],
             }}
             size='large'

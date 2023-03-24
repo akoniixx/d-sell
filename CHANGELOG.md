@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.3.8] - Release Date: 2023-20-03
+
+- Defect: Credit memo index, add, edit, customer list
+
 ## Resolved [v0.3.7] - Release Date: 2023-10-03
 
 - Defect: Special Price setting

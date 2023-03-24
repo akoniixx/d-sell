@@ -251,9 +251,8 @@ export const SearchStore = ({ list, setList, onClose, zones }: SearchProps) => {
     return (
       <Row gutter={8} align='bottom'>
         <Col span={8}>
-          <Form.Item label='รายเขต' name={zoneKeyNeme}>
+          <Form.Item label='รายเขต' name={zoneKeyNeme} initialValue={""}>
             <Select
-              defaultValue={""}
               data={[
                 { label: "ทั้งหมด", key: "" },
                 ...zones.map((z) => ({ label: z.zoneName, key: z.zoneName })),

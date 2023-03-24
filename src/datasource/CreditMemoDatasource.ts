@@ -19,6 +19,15 @@ const getCustomerCreditMemoList = async (params: object) => {
 
 const getCustomerCreditMemo = async (customer_company_id: number | string) => {
   return await httpClient
+    .get(`${baseUrl}/credit-memo-shop/detail/${customer_company_id}`, {
+      params: { customer_company_id },
+    })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const getCustomerCreditMemoHistory = async (customer_company_id: number | string) => {
+  return await httpClient
     .get(`${baseUrl}/credit-memo-shop/history/${customer_company_id}`, {
       params: { customer_company_id },
     })
@@ -63,12 +72,36 @@ const deleteCreditMemo = async (data: object) => {
     .catch((err) => console.log(err));
 };
 
+const updateCreditMemoStatus = async (data: object) => {
+  return await httpClient
+    .post(`${baseUrl}/credit-memo/update-status`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const getOrderHistory = async (params: {
+  page?: number;
+  take?: number;
+  customerCompanyId: string;
+}) => {
+  return await httpClient
+    .get(`${BASE_URL}/cart/order-credit-memo`, {
+      params,
+    })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getCreditMemoList,
   getCustomerCreditMemoList,
   getCustomerCreditMemo,
+  getCustomerCreditMemoHistory,
   getCreditMemoById,
   getCreditHistory,
   createCreditMemo,
   updateCreditMemo,
+  updateCreditMemoStatus,
+  getOrderHistory,
+  deleteCreditMemo,
 };

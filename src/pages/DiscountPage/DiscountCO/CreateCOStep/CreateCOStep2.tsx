@@ -1,4 +1,4 @@
-import { Col, Form as AntdForm, FormInstance, Modal, Row, Table } from "antd";
+import { Col, Form as AntdForm, FormInstance, message, Modal, Row, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { FlexCol, FlexRow } from "../../../../components/Container/Container";
 import Text from "../../../../components/Text/Text";
@@ -44,6 +44,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
     form.getFieldValue("stores"),
   );
   const [selectedStoreList, setSelectedStoreList] = useState<StoreEntity[]>([]);
+  const [selectedStoreKeys, setSelectedStoreKeys] = useState<React.Key[]>([]);
   const [zones, setZones] = useState<ZoneEntity[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -108,15 +109,15 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
             {
               // message: `ส่วนลดดูแลราคาน้อยกว่ายอดคงเหลือ ยอดคงเหลือ = ${row.balance} บาท โปรดระบุใหม่`,
               validator: (rule, value, callback) => {
-                if (isEditing && row.balance && parseFloat(row.balance) > parseFloat(value)) {
-                  callback(
-                    `ส่วนลดดูแลราคาน้อยกว่ายอดคงเหลือ ยอดคงเหลือ = ${row.balance} บาท โปรดระบุใหม่`,
+                if (isEditing && parseFloat(row.usedAmount) > parseFloat(value)) {
+                  return Promise.reject(
+                    `ส่วนลดดูแลราคาน้อยกว่ายอดที่ใช้งาน (ยอดที่ใช้งาน = ${row.usedAmount} บาท) โปรดระบุใหม่`,
                   );
                 }
                 if (parseFloat(value) <= 0) {
-                  callback("โปรดระบุส่วนลดดูแลราคาที่ถูกต้อง");
+                  return Promise.reject("โปรดระบุส่วนลดดูแลราคาที่ถูกต้อง");
                 }
-                callback();
+                return Promise.resolve();
               },
             },
           ]}
@@ -131,10 +132,12 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
     onChange: (selectedRowKeys: React.Key[], selectedRows: StoreEntity[]) => {
       // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
       setSelectedStoreList(selectedRows);
+      setSelectedStoreKeys(selectedRowKeys);
     },
     getCheckboxProps: (record: StoreEntity) => ({
       name: record.customerName,
     }),
+    selectedRowKeys: selectedStoreKeys,
   };
 
   const onFilter = ({ zone, keyword }: any) => {
@@ -205,16 +208,39 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
                 <FlexRow align='center' justify='end' style={{ height: "100%" }}>
                   <DeleteOutlined
                     style={{ fontSize: 20 }}
-                    onClick={() =>
-                      onSetStore(
-                        storeList.filter(
-                          (s) =>
-                            !selectedStoreList.find(
-                              (s2) => s.customerCompanyId === s2.customerCompanyId,
-                            ),
+                    onClick={() => {
+                      Modal.confirm({
+                        title: (
+                          <Text level={3} fontWeight={700}>
+                            ลบร้านค้าที่เลือกทั้งหมด
+                          </Text>
                         ),
-                      )
-                    }
+                        icon: "",
+                        content: <Text color='Text3'>โปรดยืนยันการลบร้านค้า</Text>,
+                        okText: "ยืนยัน",
+                        onOk: () => {
+                          if (isEditing && selectedStoreList.find((s: any) => s.usedAmount > 0)) {
+                            Modal.error({
+                              title:
+                                "ไม่สามารถลบข้อมูลได้เนื่องจากร้านที่เลือกมีการใช้ส่วนลดดูแลราคาไปแล้ว",
+                            });
+                            return;
+                          }
+                          selectedStoreList.forEach((s) =>
+                            form.setFieldValue(`${s.customerCompanyId}`, undefined),
+                          );
+                          onSetStore(
+                            storeList.filter(
+                              (s) =>
+                                !selectedStoreList.find(
+                                  (s2) => s.customerCompanyId === s2.customerCompanyId,
+                                ),
+                            ),
+                          );
+                          setSelectedStoreKeys([]);
+                        },
+                      });
+                    }}
                   />
                 </FlexRow>
               )}

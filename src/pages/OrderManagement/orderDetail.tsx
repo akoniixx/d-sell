@@ -120,6 +120,8 @@ export const OrderDetail: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
+  const path = pathSplit[1];
+  const isViewMode = path === "view-order";
 
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState<OrderEntity>();
@@ -205,7 +207,7 @@ export const OrderDetail: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title='ORDER NO: SPO000001'
+        title={`ORDER NO: ${orderData?.orderNo}`}
         showBack
         onBack={() => navigate(`/order`)}
         extra={
@@ -317,7 +319,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{priceFormatter(marketPrice || "0", undefined, false, true)}</Text>
               <Text level={6} color='Text3'>
-                {" บาท / " + product?.saleUom}
+                {" บาท / " + (product?.saleUOMTH || product?.saleUom || "หน่วย")}
               </Text>
             </FlexCol>
           ),
@@ -674,7 +676,7 @@ export const OrderDetail: React.FC = () => {
               <DetailBox>
                 <DetailItem
                   label='รวมเงิน'
-                  value={priceFormatter(orderData?.price || "", undefined, true)}
+                  value={priceFormatter(orderData?.price || "0", undefined, true)}
                   alignRight
                   fontWeight={700}
                   fontSize={18}
@@ -690,25 +692,29 @@ export const OrderDetail: React.FC = () => {
                 <DetailBox style={{ backgroundColor: "white", padding: 22 }}>
                   <DetailItem
                     label='ส่วนลดรายการ (Discount)'
-                    value={priceFormatter(orderData?.discount || "", undefined, true)}
+                    value={priceFormatter(orderData?.discount || "0", undefined, true)}
                     color='error'
                     alignRight
                   />
                   <DetailItem
                     label='ส่วนลดดูแลราคา (CO. ดูแลราคา / วงเงินเคลม)'
-                    value={priceFormatter(orderData?.coDiscount || "", undefined, true)}
+                    value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
                     color='success'
                     alignRight
                   />
                   <DetailItem
                     label='ส่วนลดเงินสด (Cash)'
-                    value={priceFormatter(orderData?.cashDiscount || "", undefined, true)}
+                    value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
                     color='secondary'
                     alignRight
                   />
                   <DetailItem
                     label='ส่วนลดพิเศษ (Special Req.)'
-                    value={priceFormatter(orderData?.specialRequestDiscount || "", undefined, true)}
+                    value={priceFormatter(
+                      orderData?.specialRequestDiscount || "0",
+                      undefined,
+                      true,
+                    )}
                     style={{ color: "#9B51E0" }}
                     alignRight
                   />
@@ -716,7 +722,7 @@ export const OrderDetail: React.FC = () => {
                 <br />
                 <DetailItem
                   label='รวมส่วนลด'
-                  value={priceFormatter(orderData?.totalDiscount || "", undefined, true)}
+                  value={priceFormatter(orderData?.totalDiscount || "0", undefined, true)}
                   fontWeight={700}
                   fontSize={18}
                   alignRight
@@ -727,7 +733,7 @@ export const OrderDetail: React.FC = () => {
                   label='ราคารวม'
                   value={
                     <Text color='primary' fontWeight={700} fontSize={32}>
-                      {priceFormatter(orderData?.totalPrice || "", undefined, true)}
+                      {priceFormatter(orderData?.totalPrice || "0", undefined, true)}
                     </Text>
                   }
                   fontWeight={700}
@@ -739,7 +745,7 @@ export const OrderDetail: React.FC = () => {
             </CardContainer>
           </Col>
         </Row>
-        {getOption()}
+        {!isViewMode && getOption()}
       </div>
       <Modal open={showCancelModal} footer={false} closable={false} width={420}>
         <FlexCol align='center'>

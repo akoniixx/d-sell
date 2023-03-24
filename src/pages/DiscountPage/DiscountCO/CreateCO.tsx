@@ -28,7 +28,7 @@ import { CreditMemoShopEntity } from "../../../entities/CreditMemoEntity";
 
 export const DiscountCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
+  const { company, firstname, lastname } = userProfile;
 
   const navigate = useNavigate();
   const { pathname } = window.location;
@@ -165,6 +165,7 @@ export const DiscountCreatePage: React.FC = () => {
                 creditMemoId: isEditing ? id : undefined,
                 receiveAmount: parseFloat(values[s.customerCompanyId]),
                 usedAmount: 0,
+                creditMemoShopStatus: true,
               })),
             };
             setCreditMemoData(data);
@@ -181,11 +182,14 @@ export const DiscountCreatePage: React.FC = () => {
     setCreating(true);
     const { startDate, startTime } = creditMemoData;
     const id = isEditing ? pathSplit[3] : undefined;
+    const username = `${firstname} ${lastname}`;
     const submitData = {
       ...data,
       creditMemoId: id,
       company,
       creditMemoStatus,
+      createBy: isEditing ? undefined : username,
+      updateBy: isEditing ? username : undefined,
     };
 
     const callback = (res: any) => {
@@ -194,7 +198,7 @@ export const DiscountCreatePage: React.FC = () => {
       const onDone = () => {
         setDone(true);
         setTimeout(() => {
-          navigate("/discount/edit");
+          navigate("/discount/list");
         }, 2000);
         setTimeout(() => {
           setDone(false);
