@@ -13,8 +13,10 @@ import { color } from "../../../resource";
 import Input from "../../../components/Input/Input";
 import { RangePicker } from "../../../components/DatePicker/DatePicker";
 import Text from "../../../components/Text/Text";
+import { useNavigate } from "react-router-dom";
 
 export const IndexConditionCOPage: React.FC = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const pageSize = 8;
@@ -129,7 +131,7 @@ export const IndexConditionCOPage: React.FC = () => {
       title: "อัปเดทโดย",
       dataIndex: "updateBy",
       key: "updateBy",
-      width:'15%'
+      width: "15%",
     },
     {
       title: "สถานะ",
@@ -154,7 +156,10 @@ export const IndexConditionCOPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined style={{ color: color["primary"] }} />
+                    <UnorderedListOutlined
+                      style={{ color: color["primary"] }}
+                      onClick={() => navigate(`/discount/detail`)}
+                    />
                   </span>
                 </div>
                 <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>

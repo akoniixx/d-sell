@@ -1,5 +1,8 @@
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
-import { Avatar, Checkbox, Col, Divider, Form, Modal, Row, Table } from "antd";
+import { Avatar, Checkbox, Col, Divider, Form, Row, Table } from "antd";
+import { useForm } from "antd/es/form/Form";
+import TextArea from "antd/lib/input/TextArea";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import Button from "../../../components/Button/Button";
@@ -14,6 +17,10 @@ import Text from "../../../components/Text/Text";
 import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
 import { getProductGroup, getProductList } from "../../../datasource/ProductDatasource";
 import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
+import {
+  CreateConditionCOEntiry,
+  CreateConditionCOEntiry_INIT,
+} from "../../../entities/ConditionCOEntiry";
 import { ProductEntity } from "../../../entities/PoductEntity";
 import { ProductGroupEntity } from "../../../entities/ProductGroupEntity";
 import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
@@ -26,6 +33,9 @@ import { ModalSelectedShop } from "../../Shared/ModalSelectShop";
 export const CreateConditionCOPage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+  const [form1] = useForm();
+  const [form2] = useForm();
+  const [form3] = useForm();
 
   const [current, setCurrent] = useState(0);
   const [zoneList, setZoneList] = useState<ZoneEntity[]>([]);
@@ -37,7 +47,10 @@ export const CreateConditionCOPage: React.FC = () => {
   const [showModalShop, setShowModalShop] = useState<boolean>(false);
 
   const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
+  const [searchProd, setSearchProd] = useState<ProductEntity[]>([]);
   const [selectedShop, setSelectedShop] = useState<StoreEntity[]>([]);
+
+  const [createCondition, setCreateCondition] = useState<CreateConditionCOEntiry>();
 
   const fetchZone = async () => {
     const getZone = await getZones(company);
@@ -120,7 +133,7 @@ export const CreateConditionCOPage: React.FC = () => {
         </Text>
         <br />
         <br />
-        <Form layout='vertical'>
+        <Form form={form1} layout='vertical'>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -133,7 +146,7 @@ export const CreateConditionCOPage: React.FC = () => {
                   },
                 ]}
               >
-                <Input placeholder='ระบุชื่อรายการเงื่อนไข CO' />
+                <Input placeholder='ระบุชื่อรายการเงื่อนไข CO' autoComplete='off' />
               </Form.Item>
             </Col>
           </Row>
@@ -201,6 +214,11 @@ export const CreateConditionCOPage: React.FC = () => {
                   </Form.Item>
                 </Col>
               </Row>
+            </Col>
+            <Col span={24}>
+              <Form.Item name='comment' label='หมายเหตุ'>
+                <TextArea rows={4} placeholder='ระบุเหตุผล (ถ้ามี)' autoComplete='off' />
+              </Form.Item>
             </Col>
           </Row>
         </Form>
@@ -291,11 +309,50 @@ export const CreateConditionCOPage: React.FC = () => {
     );
   };
   const StepThree = () => {
+    const onSearchProd = (keyword: string, prodGroup: string) => {
+      // if (keyword && !prodGroup) {
+      //   console.log(1);
+      //   const d = searchProd.filter((x) => x.productName?.includes(keyword));
+      //   setSelectedProd(d);
+      // } else if (!keyword && prodGroup) {
+      //   console.log(2);
+      //   const d = searchProd.filter((x) => x.productGroup?.includes(prodGroup));
+      //   setSelectedProd(d);
+      // } else if (keyword && prodGroup) {
+      //   const d = searchProd.filter(
+      //     (x) => x.productGroup?.includes(prodGroup) && x.productName?.includes(keyword),
+      //   );
+      //   setSelectedProd(d);
+      //   console.log(3);
+      // } else {
+      //   setSelectedProd(searchProd);
+      // }
+    };
+    const handleCheckBoxDelete = (e: any, prodId: string) => {
+      const checkBoxed = selectedProd.map((item) =>
+        _.set(item, "isChecked", item.productId === prodId ? e.target.checked : item.isChecked),
+      );
+      setSelectedProd(checkBoxed);
+    };
+    const handleDelete = () => {
+      const deleted = selectedProd.filter((x) => !x.isChecked);
+      setSelectedProd(deleted);
+    };
+    const callBackProduct = (item: ProductEntity[]) => {
+      item = item.map((p: any) => ({ ...p, isChecked: false }));
+      setSelectedProd(item);
+      setSearchProd(item);
+    };
     const columeTable = [
       {
         title: <Checkbox />,
         width: "5%",
-        render: (text: string) => <Checkbox />,
+        render: (text: string, value: any) => (
+          <Checkbox
+            checked={value.isChecked}
+            onClick={(e) => handleCheckBoxDelete(e, value.productId)}
+          />
+        ),
       },
       {
         title: <center>ชื่อสินค้า</center>,
@@ -358,13 +415,13 @@ export const CreateConditionCOPage: React.FC = () => {
       {
         title: <center>เงื่อนไขราคาขาย (บาท)</center>,
         width: "20%",
-        render: (text: string, value: any) => <Input suffix={"บาท/" + value.saleUOMTH} />,
+        render: (text: string, value: any, index: number) => (
+          <Form.Item name={value.productId} noStyle={true}>
+            <Input suffix={"บาท/" + value.saleUOMTH} />
+          </Form.Item>
+        ),
       },
     ];
-
-    const callBackProduct = (item: ProductEntity[]) => {
-      setSelectedProd(item);
-    };
     return (
       <>
         <Text level={5} fontWeight={700}>
@@ -373,35 +430,28 @@ export const CreateConditionCOPage: React.FC = () => {
         <br />
         <br />
         <Row gutter={16}>
-          <Col span={5}>
-            <Input
-              placeholder='ค้นหาสินค้า...'
-              suffix={<SearchOutlined />}
-              style={{ width: "100%" }}
+          {searchProd.length > 0 ? (
+            <SectionSearchProduct
+              company={company}
+              productGroup={productGroup}
+              onSearchProd={onSearchProd}
             />
-          </Col>
-          {company === "ICPL" && (
-            <Col span={6}>
-              <Select
-                data={[
-                  {
-                    key: "",
-                    value: "",
-                    label: "ทั้งหมด",
-                  },
-                  ...productGroup.map((p: any) => ({
-                    key: p.product_group,
-                    value: p.product_group,
-                    label: p.product_group,
-                  })),
-                ]}
-                placeholder='Product Group : ทั้งหมด'
-                style={{ width: "100%" }}
-              />
-            </Col>
+          ) : (
+            <>
+              <Col span={14}></Col>
+            </>
           )}
-          <Col span={9}></Col>
-          <Col span={4}>
+          <Col span={7}>
+            {searchProd.filter((x) => x.isChecked).length > 0 && (
+              <FlexRow align='center' justify='end' style={{ height: "100%" }}>
+                <DeleteOutlined
+                  style={{ fontSize: 20, color: color.error }}
+                  onClick={handleDelete}
+                />
+              </FlexRow>
+            )}
+          </Col>
+          <Col span={3}>
             <Button title='+ เพิ่มสินค้า' onClick={() => setShowModalProd(!showModalProd)} />
           </Col>
         </Row>
@@ -412,30 +462,56 @@ export const CreateConditionCOPage: React.FC = () => {
           </Col>
         </Row>
         <br />
-        <Table
-          columns={columeTable}
-          dataSource={selectedProd}
-          size='large'
-          tableLayout='fixed'
-          pagination={false}
-          scroll={{ y: 500 }}
-        />
-
-        <ModalSelectedProduct
-          masterDataProd={prodList}
-          prodSelected={selectedProd}
-          company={company}
-          showModalProd={showModalProd}
-          onClose={() => setShowModalProd(!showModalProd)}
-          productGroup={productGroup}
-          callBackProduct={callBackProduct}
-        />
+        <Form form={form3}>
+          <Table
+            columns={columeTable}
+            dataSource={selectedProd}
+            size='large'
+            tableLayout='fixed'
+            pagination={false}
+            scroll={{ y: 500 }}
+          />
+        </Form>
+        {showModalProd && (
+          <ModalSelectedProduct
+            masterDataProd={prodList}
+            prodSelected={selectedProd}
+            company={company}
+            showModalProd={showModalProd}
+            onClose={() => setShowModalProd(!showModalProd)}
+            productGroup={productGroup}
+            callBackProduct={callBackProduct}
+          />
+        )}
       </>
     );
   };
+  const createConditionCO = () => {
+    console.log(createCondition);
+  };
 
   const nextStep = () => {
-    current === 2 && setCurrent(current);
+    const create: CreateConditionCOEntiry = CreateConditionCOEntiry_INIT;
+    if (current === 0) {
+      const f1 = form1.getFieldsValue();
+      create.creditMemoConditionName = f1.promotionName;
+      create.comment = f1.comment;
+      setCreateCondition(create);
+    } else if (current === 1) {
+      console.log(2);
+    } else if (current === 2) {
+      const f3 = form3.getFieldsValue();
+      const create3: any = [];
+      const prod: any = {};
+      for (let i = 0; selectedProd.length > i; i++) {
+        prod.productId = selectedProd[i].productId;
+        prod.discountAmount = f3[selectedProd[i].productId];
+        create3.push(...create3, prod);
+        console.log("check", create3);
+      }
+      create.creditMemoConditionProduct = create3;
+      createConditionCO();
+    }
   };
   const renderStep = () => {
     switch (current) {
@@ -469,7 +545,7 @@ export const CreateConditionCOPage: React.FC = () => {
             typeButton='primary'
             title={current === 2 ? "บันทึก" : "ถัดไป"}
             onClick={() => {
-              setCurrent(current + 1), nextStep();
+              current !== 2 && setCurrent(current + 1), nextStep();
             }}
           />
         </Col>
@@ -486,6 +562,71 @@ export const CreateConditionCOPage: React.FC = () => {
         <br />
         {footer()}
       </CardContainer>
+    </>
+  );
+};
+const SectionSearchProduct = ({
+  company,
+  productGroup,
+  onSearchProd,
+}: {
+  company: string;
+  productGroup: ProductGroupEntity[];
+  onSearchProd: (keyword: string, prodGroup: string) => void;
+}) => {
+  const [searchKeywordProd, setSearchKeywordProd] = useState("");
+  const [searchProdGProd, setSearchProdGProd] = useState("");
+
+  useEffect(() => {
+    onSearchProd(searchKeywordProd, searchProdGProd);
+  }, [searchKeywordProd, searchProdGProd]);
+
+  const handleSearchKeyword = (e: any) => {
+    setSearchKeywordProd(e.target.value);
+  };
+
+  const handleSearchProdG = (e: any) => {
+    setSearchProdGProd(e);
+  };
+
+  return (
+    <>     
+      <Col span={5}>
+        <Input
+          placeholder='ค้นหาสินค้า...'
+          suffix={<SearchOutlined />}
+          style={{ width: "100%" }}
+          onChange={(e) => {
+            handleSearchKeyword(e);
+          }}
+          value={searchKeywordProd}
+        />
+      </Col>
+      {company === "ICPL" && (
+        <Col span={6}>
+          <Select
+            data={[
+              {
+                key: "",
+                value: "",
+                label: "Product Group : ทั้งหมด",
+              },
+              ...productGroup.map((p: any) => ({
+                key: p.product_group,
+                value: p.product_group,
+                label: p.product_group,
+              })),
+            ]}
+            placeholder='Product Group : ทั้งหมด'
+            style={{ width: "100%" }}
+            onChange={(e) => handleSearchProdG(e)}
+            value={searchProdGProd}
+          />
+        </Col>
+      )}
+      <Col span={3}>
+        <Button title='ล้างการค้นหา' typeButton='primary-light' />
+      </Col>
     </>
   );
 };

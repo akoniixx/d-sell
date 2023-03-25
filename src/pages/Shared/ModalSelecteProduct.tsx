@@ -32,7 +32,8 @@ export const ModalSelectedProduct = ({
   callBackProduct: (item: ProductEntity[]) => void;
   prodSelected: ProductEntity[];
 }) => {
-  const [selectedProd, setSelectedProd] = useState<ProductEntity[]>(prodSelected);
+  const mapData = prodSelected.map((p: any) => ({ ...p, isChecked: true }));
+  const [selectedProd, setSelectedProd] = useState<ProductEntity[]>(mapData);
   const [prodGroup, setProdGroup] = useState("");
   const [keyword, setKeyword] = useState("");
   const [checkSave, setCheckSave] = useState(false);
@@ -58,7 +59,7 @@ export const ModalSelectedProduct = ({
       checkSave && (callBackProduct(result.filter((x) => x.isChecked)), onClose());
     }
     setSelectedProd(result);
-  }, [keyword, prodGroup, checkSave]);
+  }, [keyword, prodGroup, checkSave, prodSelected]);
 
   const handleChecked = (e: any, prodId: string) => {
     const d: ProductEntity[] = selectedProd.map((item) =>
@@ -85,7 +86,7 @@ export const ModalSelectedProduct = ({
   const saveProd = () => {
     setKeyword("");
     setProdGroup("");
-    setCheckSave(true);
+    setCheckSave(!checkSave);
   };
 
   const dataTableProd = [
@@ -160,65 +161,68 @@ export const ModalSelectedProduct = ({
       render: (text: string) => <center>{LOCATION_FULLNAME_MAPPING[text]}</center>,
     },
   ];
+
   return (
-    <Modal
-      open={showModalProd}
-      centered={true}
-      onCancel={() => onClose()}
-      width={1000}
-      title='เลือกสินค้าที่ต้องการ'
-      footer={false}
-      zIndex={300}
-    >
-      <Row gutter={16}>
-        <Col span={5}>
-          <Input
-            placeholder='ค้นหาสินค้า...'
-            suffix={<SearchOutlined />}
-            style={{ width: "100%" }}
-            onChange={(e) => handleSearchKeyword(e)}
-            value={keyword}
-          />
-        </Col>
-        {company === "ICPL" && (
-          <Col span={6}>
-            <Select
-              data={[
-                {
-                  key: "",
-                  value: "",
-                  label: "Product Group : ทั้งหมด",
-                },
-                ...productGroup.map((p: any) => ({
-                  key: p.product_group,
-                  value: p.product_group,
-                  label: p.product_group,
-                })),
-              ]}
-              onChange={(e) => handleSearchProdGroup(e)}
-              placeholder='Product Group : ทั้งหมด'
+    <>
+      <Modal
+        open={showModalProd}
+        centered={true}
+        onCancel={() => onClose()}
+        width={1000}
+        title='เลือกสินค้าที่ต้องการ'
+        footer={false}
+        zIndex={300}
+      >
+        <Row gutter={16}>
+          <Col span={5}>
+            <Input
+              placeholder='ค้นหาสินค้า...'
+              suffix={<SearchOutlined />}
               style={{ width: "100%" }}
-              value={prodGroup}
+              onChange={(e) => handleSearchKeyword(e)}
+              value={keyword}
             />
           </Col>
-        )}
-        <Col span={4}>
-          <Button title='ล้างการค้นหา' typeButton='primary-light' onClick={handleClearSearch} />
-        </Col>
-      </Row>
-      <br />
-      <TableContainer>
-        <Table
-          columns={dataTableProd}
-          dataSource={selectedProd}
-          pagination={false}
-          scroll={{ y: 360 }}
-        />
-      </TableContainer>
-      <Divider style={{ margin: "12px 0px" }} />
-      <Row justify='end'>
-        <Button title='บันทึก' style={{ width: 136 }} onClick={saveProd} />
-      </Row>
-    </Modal>
+          {company === "ICPL" && (
+            <Col span={6}>
+              <Select
+                data={[
+                  {
+                    key: "",
+                    value: "",
+                    label: "Product Group : ทั้งหมด",
+                  },
+                  ...productGroup.map((p: any) => ({
+                    key: p.product_group,
+                    value: p.product_group,
+                    label: p.product_group,
+                  })),
+                ]}
+                onChange={(e) => handleSearchProdGroup(e)}
+                placeholder='Product Group : ทั้งหมด'
+                style={{ width: "100%" }}
+                value={prodGroup}
+              />
+            </Col>
+          )}
+          <Col span={4}>
+            <Button title='ล้างการค้นหา' typeButton='primary-light' onClick={handleClearSearch} />
+          </Col>
+        </Row>
+        <br />
+        <TableContainer>
+          <Table
+            columns={dataTableProd}
+            dataSource={selectedProd}
+            pagination={false}
+            scroll={{ y: 360 }}
+          />
+        </TableContainer>
+        <Divider style={{ margin: "12px 0px" }} />
+        <Row justify='end'>
+          <Button title='บันทึก' style={{ width: 136 }} onClick={saveProd} />
+        </Row>
+      </Modal>
+    </>
   );
 };
