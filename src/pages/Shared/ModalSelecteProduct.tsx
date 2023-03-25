@@ -32,8 +32,7 @@ export const ModalSelectedProduct = ({
   callBackProduct: (item: ProductEntity[]) => void;
   prodSelected: ProductEntity[];
 }) => {
-  const mapData = prodSelected.map((p: any) => ({ ...p, isChecked: true }));
-  const [selectedProd, setSelectedProd] = useState<ProductEntity[]>(mapData);
+  const [selectedProd, setSelectedProd] = useState<ProductEntity[]>(prodSelected);
   const [prodGroup, setProdGroup] = useState("");
   const [keyword, setKeyword] = useState("");
   const [checkSave, setCheckSave] = useState(false);

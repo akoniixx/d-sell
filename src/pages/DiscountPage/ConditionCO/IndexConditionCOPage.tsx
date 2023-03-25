@@ -14,9 +14,13 @@ import Input from "../../../components/Input/Input";
 import { RangePicker } from "../../../components/DatePicker/DatePicker";
 import Text from "../../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
+import { getConditionCO } from "../../../datasource/CreditMemoDatasource";
 
 export const IndexConditionCOPage: React.FC = () => {
   const navigate = useNavigate();
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company } = userProfile;
+
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const pageSize = 8;
@@ -25,6 +29,16 @@ export const IndexConditionCOPage: React.FC = () => {
     count_status: [],
     data: [] as any[],
   });
+  const [data, setData] = useState<any>([]);
+  const fetchCondition = async () => {
+    const getList = await getConditionCO({ take: pageSize, page: page, company: company });
+    console.log(getList);
+    setData(getList.data);
+  };
+
+  useEffect(() => {
+    fetchCondition();
+  }, []);
 
   const mockData = [
     {
@@ -87,14 +101,14 @@ export const IndexConditionCOPage: React.FC = () => {
   const dataTable = [
     {
       title: "ชื่อรายการ",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "creditMemoConditionName",
+      key: "creditMemoConditionName",
       width: "25%",
     },
     {
       title: "ระยะเวลา",
-      dataIndex: "dateTime",
-      key: "dateTime",
+      dataIndex: "startDate",
+      key: "startDate",
       width: "20%",
     },
     {
@@ -114,14 +128,14 @@ export const IndexConditionCOPage: React.FC = () => {
     },
     {
       title: "จำนวนร้านค้า",
-      dataIndex: "countShop",
-      key: "countShop",
+      dataIndex: "creditMemoConditionShop",
+      key: "creditMemoConditionShop",
       width: "12%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{value} รายการ</Text>
+              <Text level={5}>{row.creditMemoConditionShop.length} รายการ</Text>
             </FlexCol>
           ),
         };
@@ -135,8 +149,8 @@ export const IndexConditionCOPage: React.FC = () => {
     },
     {
       title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "creditMemoConditionStatus",
+      key: "creditMemoConditionStatus",
       width: "10%",
       render: (value: any, row: any, index: number) => {
         return {
@@ -202,7 +216,7 @@ export const IndexConditionCOPage: React.FC = () => {
         <Tabs items={tabsItems} />
         <Table
           columns={dataTable}
-          dataSource={mockData}
+          dataSource={data}
           pagination={{
             position: ["bottomCenter"],
             pageSize,
