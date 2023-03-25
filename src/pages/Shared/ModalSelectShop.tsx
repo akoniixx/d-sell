@@ -44,7 +44,8 @@ export const ModalSelectedShop = ({
       setSelectedKeys([]);
       const arrayObjectKey: any = nextTargetKeys
         .map((el) => {
-          const matchKey = shopList.find((el2) => el2.customerCompanyId === el);
+          const matchKey = shopData.find((el2) => el2.customerCompanyId === el);
+          console.log("matchKey", matchKey);
           if (matchKey) {
             return matchKey;
           }
@@ -85,10 +86,13 @@ export const ModalSelectedShop = ({
   };
   const onSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => {
     setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
+    // const isSameValue = sourceSelectedKeys.every((el) => {
+    //   return shopList.some((el2) => el2.customerCompanyId === el);
+    // });
 
     if (sourceSelectedKeys.length > 0 && sourceSelectedKeys.length === shopList.length) {
       setSelectAllLeft(true);
-    } else {
+    } else if (sourceSelectedKeys.length > 0 && sourceSelectedKeys.length < shopList.length) {
       setSelectAllLeft(false);
     }
 
@@ -153,7 +157,10 @@ export const ModalSelectedShop = ({
   const saveShop = () => {
     callBackShop(targetKeys);
   };
-
+  const countLeftSelectedItems = () => {
+    return selectedKeys.filter((key) => shopList.some((item) => item.customerCompanyId === key))
+      .length;
+  };
   return (
     <Modal
       open={showModalShop}
@@ -181,6 +188,7 @@ export const ModalSelectedShop = ({
               <Col span={10}>
                 <label>ค้นหาชื่อร้านค้า</label>
                 <Input
+                  value={keyword1}
                   suffix={<SearchOutlined />}
                   placeholder={"ระบุชื่อร้านค้า"}
                   onChange={handleChangeKeyword1}
@@ -263,9 +271,12 @@ export const ModalSelectedShop = ({
                   }}
                 >
                   <Checkbox
-                    indeterminate={selectedKeys.length > 0 && selectedKeys.length < shopList.length}
+                    indeterminate={
+                      countLeftSelectedItems() > 0 && countLeftSelectedItems() < shopList.length
+                    }
                     style={{ marginRight: 16, marginBottom: 4 }}
                     checked={selectAllLeft}
+                    disabled={shopList.length === 0}
                     onChange={() => {
                       if (!selectAllLeft) {
                         setSelectedKeys([
