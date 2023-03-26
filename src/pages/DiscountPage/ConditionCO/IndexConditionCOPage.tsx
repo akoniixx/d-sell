@@ -120,7 +120,7 @@ export const IndexConditionCOPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{value} รายการ</Text>
+              <Text level={5}>{row.creditMemoConditionProduct.length} รายการ</Text>
             </FlexCol>
           ),
         };

@@ -537,7 +537,6 @@ export const CreateConditionCOPage: React.FC = () => {
         </Form>
         {showModalProd && (
           <ModalSelectedProduct
-            masterDataProd={prodList}
             prodSelected={selectedProd}
             company={company}
             showModalProd={showModalProd}

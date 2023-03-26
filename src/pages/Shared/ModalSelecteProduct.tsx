@@ -14,9 +14,9 @@ import Select from "../../components/Select/Select";
 import Button from "../../components/Button/Button";
 import TableContainer from "../../components/Table/TableContainer";
 import _ from "lodash";
+import { getProductList } from "../../datasource/ProductDatasource";
 
 export const ModalSelectedProduct = ({
-  masterDataProd,
   company,
   showModalProd,
   onClose,
@@ -24,7 +24,6 @@ export const ModalSelectedProduct = ({
   callBackProduct,
   prodSelected,
 }: {
-  masterDataProd: ProductEntity[];
   company: string;
   showModalProd: boolean;
   onClose: () => void;
@@ -32,50 +31,66 @@ export const ModalSelectedProduct = ({
   callBackProduct: (item: ProductEntity[]) => void;
   prodSelected: ProductEntity[];
 }) => {
-  const [selectedProd, setSelectedProd] = useState<ProductEntity[]>(prodSelected);
+  const [prodList, setProdList] = useState<ProductEntity[]>([]);
+  const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
   const [prodGroup, setProdGroup] = useState("");
   const [keyword, setKeyword] = useState("");
-  const [checkSave, setCheckSave] = useState(false);
+
+  const fetchProduct = async () => {
+    const getProd = await getProductList({
+      company,
+      take: 1000,
+    });
+    const dataWithIschecked = getProd.data.map((p: any) =>
+      _.set(
+        p,
+        "isChecked",
+        prodSelected.some((sp) => (sp.productId === p.productId ? !sp.isChecked : p.isChecked)),
+      ),
+    );
+    setProdList(dataWithIschecked);
+    setSelectedProd(dataWithIschecked);
+  };
 
   useEffect(() => {
-    let result: ProductEntity[] = [];
-    if (keyword && !prodGroup) {
-      result = masterDataProd.filter((p: any) => p.productName.includes(keyword));
-    } else if (!keyword && prodGroup) {
-      result = masterDataProd.filter((p: any) => p.productGroup.includes(prodGroup));
-    } else if (keyword && prodGroup) {
-      result = masterDataProd.filter(
-        (p: any) => p.productGroup.includes(prodGroup) && p.productName.includes(keyword),
-      );
-    } else {
-      result = masterDataProd.map((p) =>
-        _.set(
-          p,
-          "isChecked",
-          selectedProd.some((sp) => (sp.productId === p.productId ? sp.isChecked : p.isChecked)),
-        ),
-      );
-      checkSave && (callBackProduct(result.filter((x) => x.isChecked)), onClose());
-    }
-    setSelectedProd(result);
-  }, [keyword, prodGroup, checkSave, prodSelected]);
+    fetchProduct();
+  }, []);
 
   const handleChecked = (e: any, prodId: string) => {
-    const d: ProductEntity[] = selectedProd.map((item) =>
+    const d: ProductEntity[] = prodList.map((item) =>
       _.set(item, "isChecked", item.productId === prodId ? e.target.checked : item.isChecked),
     );
-    setSelectedProd(d);
+    setProdList(d)
+    const find = d.filter((x) => {
+      const searchName = !keyword || x.productName?.includes(keyword);
+      const searchGroup = !prodGroup || x.productGroup?.includes(prodGroup);
+      return searchName && searchGroup;
+    });
+    setSelectedProd(find);
   };
   const handleAllChecked = (e: any) => {
-    const d = masterDataProd.map((p: any) => ({ ...p, isChecked: e.target.checked }));
+    const d = prodList.map((p: any) => ({ ...p, isChecked: e.target.checked }));
     setSelectedProd(d);
+    setProdList(d)
   };
 
   const handleSearchKeyword = (e: any) => {
     setKeyword(e.target.value);
+    const find = prodList.filter((x) => {
+      const searchName = !e.target.value || x.productName?.includes(e.target.value);
+      const searchGroup = !prodGroup || x.productGroup?.includes(prodGroup);
+      return searchName && searchGroup;
+    });
+    setSelectedProd(find);
   };
   const handleSearchProdGroup = (e: any) => {
     setProdGroup(e);
+    const find = prodList.filter((x) => {
+      const searchName = !keyword || x.productName?.includes(keyword);
+      const searchGroup = !e || x.productGroup?.includes(e);
+      return searchName && searchGroup;
+    });
+    setSelectedProd(find);
   };
   const handleClearSearch = () => {
     setKeyword("");
@@ -85,7 +100,9 @@ export const ModalSelectedProduct = ({
   const saveProd = () => {
     setKeyword("");
     setProdGroup("");
-    setCheckSave(!checkSave);
+    console.log(selectedProd);
+    callBackProduct(prodList.filter((x) => x.isChecked));
+    onClose();
   };
 
   const dataTableProd = [
@@ -178,8 +195,8 @@ export const ModalSelectedProduct = ({
               placeholder='ค้นหาสินค้า...'
               suffix={<SearchOutlined />}
               style={{ width: "100%" }}
-              onChange={(e) => handleSearchKeyword(e)}
-              value={keyword}
+              onPressEnter={(e) => handleSearchKeyword(e)}
+              defaultValue={keyword}
             />
           </Col>
           {company === "ICPL" && (
