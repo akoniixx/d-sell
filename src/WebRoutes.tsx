@@ -181,7 +181,7 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
-        path: "detail",
+        path: "conditionco/detail/:id",
         element: <DetailConditionCOPage />,
         permission: null,
       },

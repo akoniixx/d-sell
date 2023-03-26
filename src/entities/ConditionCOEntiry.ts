@@ -1,3 +1,17 @@
+export interface ConditionCOEntiry {
+  creditMemoConditionId: string;
+  creditMemoConditionName: string;
+  company: string;
+  startDate: string;
+  endDate: string;
+  creditMemoConditionStatus: boolean;
+  comment: string;
+  creditMemoConditionProduct: creditMemoConditionProductEntity[];
+  createBy: string;
+  updateBy: string;
+  creditMemoConditionShop: creditMemoConditionShop[];
+}
+
 export interface CreateConditionCOEntiry {
   creditMemoConditionName: string;
   company: string;

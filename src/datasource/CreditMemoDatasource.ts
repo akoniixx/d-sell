@@ -102,6 +102,13 @@ const getConditionCO = async (params: { page?: number; take?: number; company: s
     .catch((err) => console.log(err));
 };
 
+const getConditionCoById = async (conditionId: string) => {
+  return await httpClient
+    .get(`${BASE_URL}/co-condition/${conditionId}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const createConditionCO = async (params: CreateConditionCOEntiry) => {
   return await httpClient
     .post(`${BASE_URL}/co-condition/create`, {
@@ -125,4 +132,5 @@ export {
   deleteCreditMemo,
   createConditionCO,
   getConditionCO,
+  getConditionCoById
 };

@@ -172,7 +172,7 @@ export const IndexConditionCOPage: React.FC = () => {
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined
                       style={{ color: color["primary"] }}
-                      onClick={() => navigate(`/discount/detail`)}
+                      onClick={() => navigate(`/discount/conditionco/detail/` + row.creditMemoConditionId)}
                     />
                   </span>
                 </div>
