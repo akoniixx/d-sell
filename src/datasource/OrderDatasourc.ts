@@ -22,7 +22,7 @@ const updateOrderStatus = async (data: {
   orderId: string;
   status?: OrderStatusKey;
   paidStatus?: OrderPaymentStatusKey;
-  cancleRemark?: string;
+  cancelRemark?: string;
   updateBy: string;
 }) => {
   return await httpClient
@@ -31,4 +31,11 @@ const updateOrderStatus = async (data: {
     .catch((err) => console.log(err));
 };
 
-export { getOrders, getOrderDetail, updateOrderStatus };
+const submitToNav = async (data: { orderId: string; remark?: string; updateBy?: string }) => {
+  return await httpClient
+    .post(`${BASE_URL}/nav/sale-order`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+export { getOrders, getOrderDetail, updateOrderStatus, submitToNav };

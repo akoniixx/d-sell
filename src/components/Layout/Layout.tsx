@@ -42,23 +42,17 @@ export const pathLists = [
     subMenu: [],
   },
   {
-    path: "/PromotionPage",
+    path: "/PromotionPage/promotion",
     name: "promotion",
     title: "ตั้งค่าโปรโมชั่น",
-    subMenu: [
-      {
-        path: "/promotion",
-        name: "promotionList",
-        title: "รายการโปรโมชัน",
-        permission: null,
-      },
-      {
-        path: "/freebies",
-        name: "freebiesList",
-        title: "รายการของแถม",
-        permission: null,
-      },
-    ],
+    subMenu: [],
+    permission: null,
+  },
+  {
+    path: "/freebies/freebies",
+    name: "freebies",
+    title: "รายการของแถม",
+    subMenu: [],
     permission: null,
   },
   {

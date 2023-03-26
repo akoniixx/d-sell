@@ -319,6 +319,13 @@ export const protectRoutesData: IRoute[] = [
         element: <PromotionCreatePage />,
         permission: null,
       },
+    ],
+  },
+  {
+    path: "/freebies/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
       {
         path: "freebies",
         element: <FreebieListPage />,

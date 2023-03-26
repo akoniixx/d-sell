@@ -1,4 +1,15 @@
-import { Button, Col, Form, FormInstance, message, Row, Upload, Select as AntdSelect } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  FormInstance,
+  message,
+  Row,
+  Upload,
+  Select as AntdSelect,
+  Checkbox,
+  Radio,
+} from "antd";
 import React, { useEffect, useState, memo, useMemo } from "react";
 import { FlexCol, FlexRow } from "../../../../components/Container/Container";
 import Text from "../../../../components/Text/Text";
@@ -100,6 +111,28 @@ export const CreateCOStep1 = ({ form, isEditing }: Props) => {
               <TextArea />
             </Form.Item>
           </Col>
+          {company === "ICPL" && (
+            <Col span={24}>
+              <Form.Item name='type' label='CN / CO' initialValue={"CO"}>
+                <Radio.Group optionType='button'>
+                  {[
+                    {
+                      label: "CO",
+                      value: "CO",
+                    },
+                    {
+                      label: "CN",
+                      value: "CN",
+                    },
+                  ].map(({ label, value }) => (
+                    <Radio value={value} key={value}>
+                      {label}
+                    </Radio>
+                  ))}
+                </Radio.Group>
+              </Form.Item>
+            </Col>
+          )}
         </Row>
       </Form>
     </>

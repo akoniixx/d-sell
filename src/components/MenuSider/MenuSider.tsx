@@ -130,6 +130,13 @@ const iconsInActive = {
       }}
     />
   ),
+  freebies: (
+    <GiftOutlined
+      style={{
+        fontSize: "20px",
+      }}
+    />
+  ),
   discountList: (
     <TagOutlined
       style={{
