@@ -93,9 +93,17 @@ const getOrderHistory = async (params: {
     .catch((err) => console.log(err));
 };
 
-const getConditionCO = async (params: { page?: number; take?: number; company: string }) => {
+const getConditionCO = async (params: {
+  page?: number;
+  take?: number;
+  company: string;
+  searchText?: string;
+  startDate?: string;
+  endDate?: string;
+  creditMemoConditionStatus?: string;
+}) => {
   return await httpClient
-    .get(`${BASE_URL}/co-condition`, {
+    .get(`${baseUrl}/co-condition`, {
       params,
     })
     .then((res: AxiosResponse) => res.data)
@@ -104,14 +112,14 @@ const getConditionCO = async (params: { page?: number; take?: number; company: s
 
 const getConditionCoById = async (conditionId: string) => {
   return await httpClient
-    .get(`${BASE_URL}/co-condition/${conditionId}`)
+    .get(`${baseUrl}/co-condition/${conditionId}`)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
 
 const createConditionCO = async (params: CreateConditionCOEntiry) => {
   return await httpClient
-    .post(`${BASE_URL}/co-condition/create`, {
+    .post(`${baseUrl}/co-condition/create`, {
       params,
     })
     .then((res: AxiosResponse) => console.log(res))
@@ -132,5 +140,5 @@ export {
   deleteCreditMemo,
   createConditionCO,
   getConditionCO,
-  getConditionCoById
+  getConditionCoById,
 };

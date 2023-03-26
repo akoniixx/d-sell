@@ -60,7 +60,7 @@ export const ModalSelectedProduct = ({
     const d: ProductEntity[] = prodList.map((item) =>
       _.set(item, "isChecked", item.productId === prodId ? e.target.checked : item.isChecked),
     );
-    setProdList(d)
+    setProdList(d);
     const find = d.filter((x) => {
       const searchName = !keyword || x.productName?.includes(keyword);
       const searchGroup = !prodGroup || x.productGroup?.includes(prodGroup);
@@ -70,8 +70,13 @@ export const ModalSelectedProduct = ({
   };
   const handleAllChecked = (e: any) => {
     const d = prodList.map((p: any) => ({ ...p, isChecked: e.target.checked }));
-    setSelectedProd(d);
-    setProdList(d)
+    setProdList(d);
+    const find = d.filter((x) => {
+      const searchName = !keyword || x.productName?.includes(keyword);
+      const searchGroup = !prodGroup || x.productGroup?.includes(prodGroup);
+      return searchName && searchGroup;
+    });
+    setSelectedProd(find);
   };
 
   const handleSearchKeyword = (e: any) => {
@@ -95,12 +100,12 @@ export const ModalSelectedProduct = ({
   const handleClearSearch = () => {
     setKeyword("");
     setProdGroup("");
+    setSelectedProd(prodList);
   };
 
   const saveProd = () => {
     setKeyword("");
     setProdGroup("");
-    console.log(selectedProd);
     callBackProduct(prodList.filter((x) => x.isChecked));
     onClose();
   };

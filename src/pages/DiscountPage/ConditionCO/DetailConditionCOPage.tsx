@@ -52,6 +52,7 @@ export const DetailConditionCOPage: React.FC = () => {
 
   const getCondition = async () => {
     const getById = await getConditionCoById(conditionId);
+    console.log(getById);
     setData(getById);
   };
   const fetchProductGroup = async () => {
@@ -355,7 +356,7 @@ export const DetailConditionCOPage: React.FC = () => {
             <Form form={form1}>
               <Table
                 columns={dataTableProd}
-                dataSource={selectedProd}
+                dataSource={data?.creditMemoConditionProduct}
                 pagination={false}
                 scroll={{ y: 360 }}
               />
@@ -371,7 +372,6 @@ export const DetailConditionCOPage: React.FC = () => {
             </Form>
           )}
         </TableContainer>
-
         {isEdit && (
           <>
             <Divider />
