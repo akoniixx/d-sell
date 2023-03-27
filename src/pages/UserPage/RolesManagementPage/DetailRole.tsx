@@ -153,7 +153,7 @@ function DetailRole() {
               backgroundColor: color.background1,
             }}
           >
-            <Text fontWeight={700}>Website Backoffice</Text>
+            <Text fontWeight={700}>ผู้ใช้งานจะมีสิทธิ์ใช้งานดังนี้</Text>
           </Row>
           <div
             style={{

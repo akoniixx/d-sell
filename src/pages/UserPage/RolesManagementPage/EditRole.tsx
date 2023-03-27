@@ -235,7 +235,7 @@ export default function EditRole(): JSX.Element {
               backgroundColor: color.background1,
             }}
           >
-            <Text fontWeight={700}>Website Backoffice</Text>
+            <Text fontWeight={700}>ผู้ใช้งานจะมีสิทธิ์ใช้งานดังนี้</Text>
             <div
               style={{
                 display: "flex",
