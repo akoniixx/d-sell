@@ -280,7 +280,12 @@ export const IndexConditionCOPage: React.FC = () => {
                 </div>
                 <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <EditOutlined style={{ color: color["primary"] }} />
+                    <EditOutlined
+                      style={{ color: color["primary"] }}
+                      onClick={() =>
+                        navigate(`/discount/editConditionCo/` + row.creditMemoConditionId)
+                      }
+                    />
                   </span>
                 </div>
                 <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>

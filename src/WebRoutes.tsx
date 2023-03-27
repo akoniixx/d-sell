@@ -181,6 +181,11 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
+        path: "editConditionCo/:id",
+        element: <CreateConditionCOPage />,
+        permission: null,
+      },
+      {
         path: "conditionco/detail/:id",
         element: <DetailConditionCOPage />,
         permission: null,
@@ -337,6 +342,13 @@ export const protectRoutesData: IRoute[] = [
         element: <PromotionCreatePage />,
         permission: null,
       },
+    ],
+  },
+  {
+    path: "/freebies/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
       {
         path: "freebies",
         element: <FreebieListPage />,

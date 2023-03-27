@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
@@ -16,14 +17,16 @@ import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
 import Select from "../../../components/Select/Select";
 import StepAntd from "../../../components/StepAntd/StepAntd";
 import Text from "../../../components/Text/Text";
-import { createConditionCO } from "../../../datasource/CreditMemoDatasource";
+import { createConditionCO, getConditionCoById } from "../../../datasource/CreditMemoDatasource";
 import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
 import { getProductGroup } from "../../../datasource/ProductDatasource";
 import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
 import {
+  ConditionCOEntiry,
   CreateConditionCOEntiry,
   CreateConditionCOEntiry_INIT,
 } from "../../../entities/ConditionCOEntiry";
+import { CreditMemoShopEntity } from "../../../entities/CreditMemoEntity";
 import { ProductEntity } from "../../../entities/PoductEntity";
 import { ProductGroupEntity } from "../../../entities/ProductGroupEntity";
 import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
@@ -32,12 +35,19 @@ import image from "../../../resource/image";
 import { numberFormatter } from "../../../utility/Formatter";
 import { ModalSelectedProduct } from "../../Shared/ModalSelecteProduct";
 import { ModalSelectedShop } from "../../Shared/ModalSelectShop";
+import productState from "../../../store/productList";
 
 export const CreateConditionCOPage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
+  const { pathname } = window.location;
+  const pathSplit = pathname.split("/") as Array<string>;
+  const isEditing = pathSplit[2] === "editConditionCo";
+  const id = pathSplit[3];
+
   const navigate = useNavigate();
+
   const [form1] = useForm();
   const [form3] = useForm();
 
@@ -61,6 +71,43 @@ export const CreateConditionCOPage: React.FC = () => {
   const [searchProdGroup, setSearchProdGroup] = useState("");
   const [searchKeywordShop, setSearchKeywordShop] = useState("");
   const [searchShopZone, setSearchShopZone] = useState("");
+
+  // only use in edit mode
+  const [loadingCoData, setLoadingCoData] = useState(false);
+  const [coData, setCoData] = useState<ConditionCOEntiry>();
+  const recoilProductState = useRecoilValue(productState);
+  const setSetRecoilProductState = useSetRecoilState(productState);
+
+  const fetchCoData = async () => {
+    setLoadingCoData(true);
+    await getConditionCoById(id, company)
+      .then((res) => {
+        console.log("getConditionCoById", res);
+        setCoData(res);
+        form1.setFieldsValue({
+          promotionName: res.creditMemoConditionName,
+          startDate: dayjs(res.startDate),
+          endDate: dayjs(res.endDate),
+          startTime: dayjs(res.startDate),
+          endTime: dayjs(res.endDate),
+          comment: res.comment,
+        });
+        setSelectedShop(
+          res?.creditMemoConditionShop.map((shop: any) => ({
+            ...shop,
+            key: shop.creditMemoConditionShopId,
+          })),
+        );
+        // TODO
+        setSelectedProd(res?.creditMemoConditionProduct || []);
+      })
+      .catch((err) => {
+        console.log("getConditionCoById ERROR!:", err);
+      })
+      .finally(() => {
+        setLoadingCoData(false);
+      });
+  };
 
   const fetchZone = async () => {
     const getZone = await getZones(company);
@@ -90,10 +137,16 @@ export const CreateConditionCOPage: React.FC = () => {
     fetchProductGroup();
   }, []);
 
+  useEffect(() => {
+    if (isEditing && !coData) {
+      fetchCoData();
+    }
+  }, [isEditing]);
+
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title='เพิ่มเงื่อนไข CO'
+        title={isEditing ? "แก้ไขเงื่อนไข CO" : "เพิ่มเงื่อนไข CO"}
         showBack
         extra={
           <StepAntd
@@ -116,7 +169,7 @@ export const CreateConditionCOPage: React.FC = () => {
             data={[
               { text: "เพิ่มเงื่อนไข CO", path: "/discount/conditionCo" },
               {
-                text: "เพิ่มข้อมูลเบื้องต้น",
+                text: isEditing ? "แก้ไขข้อมูลเบื้องต้น" : "เพิ่มข้อมูลเบื้องต้น",
                 path: window.location.pathname,
               },
             ]}
@@ -371,14 +424,14 @@ export const CreateConditionCOPage: React.FC = () => {
               ),
             },
             {
-              title: <center>ชื่อร้านค้า</center>,
+              title: <span>ชื่อร้านค้า</span>,
               dataIndex: "customerName",
-              render: (text: string) => <center>{text}</center>,
+              render: (text: string) => <span>{text}</span>,
             },
             {
-              title: <center>เขตการขาย</center>,
+              title: <span>เขตการขาย</span>,
               dataIndex: "zone",
-              render: (text: string) => <center>{text}</center>,
+              render: (text: string) => <span>{text}</span>,
             },
           ]}
           dataSource={selectedShop || []}
@@ -464,7 +517,7 @@ export const CreateConditionCOPage: React.FC = () => {
         ),
       },
       {
-        title: <center>ชื่อสินค้า</center>,
+        title: <span>ชื่อสินค้า</span>,
         dataIndex: "productName",
         width: "30%",
         render: (text: string, value: any, index: any) => (
@@ -502,27 +555,27 @@ export const CreateConditionCOPage: React.FC = () => {
         ),
       },
       {
-        title: <center>ขนาด</center>,
+        title: <span>ขนาด</span>,
         dataIndex: "packSize",
-        render: (text: string) => <center>{text}</center>,
+        render: (text: string) => <span>{text}</span>,
       },
       {
-        title: <center>ราคา/หน่วย</center>,
+        title: <span>ราคา/หน่วย</span>,
         dataIndex: "unitPrice",
-        render: (text: string) => <center>{numberFormatter(text)}</center>,
+        render: (text: string) => <span>{numberFormatter(text)}</span>,
       },
       {
-        title: <center>ราคาขาย</center>,
+        title: <span>ราคาขาย</span>,
         dataIndex: "marketPrice",
-        render: (text: string) => <center>{numberFormatter(text)}</center>,
+        render: (text: string) => <span>{numberFormatter(text)}</span>,
       },
       {
-        title: <center>สถานที่</center>,
+        title: <span>สถานที่</span>,
         dataIndex: "productLocation",
-        render: (text: string) => <center>{LOCATION_FULLNAME_MAPPING[text]}</center>,
+        render: (text: string) => <span>{LOCATION_FULLNAME_MAPPING[text]}</span>,
       },
       {
-        title: <center>เงื่อนไขราคาขาย (บาท)</center>,
+        title: <span>เงื่อนไขราคาขาย (บาท)</span>,
         width: "20%",
         render: (text: string, value: any, index: number) => (
           <Form.Item name={value.productId} noStyle={true}>
@@ -630,6 +683,11 @@ export const CreateConditionCOPage: React.FC = () => {
     );
   };
   const submit = () => {
+    if (isEditing) {
+      console.log("submit edit");
+      return;
+    }
+    console.log("need", createCondition);
     Modal.confirm({
       title: "ยืนยันการสร้างเงื่อนไข CO",
       content: "โปรดยืนยันการสร้างข้อมูลเงื่อนไข CO",
@@ -658,17 +716,28 @@ export const CreateConditionCOPage: React.FC = () => {
   const nextStep = () => {
     const create: CreateConditionCOEntiry = CreateConditionCOEntiry_INIT;
     if (current === 0) {
-      const f1 = form1.getFieldsValue();
-      create.creditMemoConditionName = f1.promotionName;
-      create.comment = f1.comment;
-      create.company = company;
-      create.updateBy = userProfile.firstname + " " + userProfile.lastname;
-      create.createBy = userProfile.firstname + " " + userProfile.lastname;
-      create.startDate = `${f1.startDate.format("YYYY-MM-DD")} ${f1.startTime.format(
-        "HH:mm",
-      )}:00.000`;
-      create.endDate = `${f1.endDate.format("YYYY-MM-DD")} ${f1.endTime.format("HH:mm")}:00.000`;
-      setCreateCondition(create);
+      console.log("test");
+      form1
+        .validateFields()
+        .then((f1) => {
+          console.log("validateFields -> then ", f1);
+          create.creditMemoConditionName = f1.promotionName;
+          create.comment = f1.comment;
+          create.company = company;
+          create.updateBy = userProfile.firstname + " " + userProfile.lastname;
+          create.createBy = userProfile.firstname + " " + userProfile.lastname;
+          create.startDate = `${f1.startDate.format("YYYY-MM-DD")} ${f1.startTime.format(
+            "HH:mm",
+          )}:00.000`;
+          create.endDate = `${f1.endDate.format("YYYY-MM-DD")} ${f1.endTime.format(
+            "HH:mm",
+          )}:00.000`;
+          setCreateCondition(create);
+          setCurrent(current + 1);
+        })
+        .catch((errInfo) => {
+          console.log("form1 errInfo", errInfo);
+        });
     } else if (current === 1) {
       const create2 = selectedShop.map((x) => {
         const shop: any = {};
@@ -678,6 +747,7 @@ export const CreateConditionCOPage: React.FC = () => {
       });
       create.creditMemoConditionShop = create2;
       setCreateCondition(create);
+      setCurrent(current + 1);
     } else if (current === 2) {
       const f3 = form3.getFieldsValue();
       const create3 = selectedProd.map((x) => {
@@ -723,7 +793,7 @@ export const CreateConditionCOPage: React.FC = () => {
             typeButton='primary'
             title={current === 2 ? "บันทึก" : "ถัดไป"}
             onClick={() => {
-              current !== 2 && setCurrent(current + 1), nextStep();
+              nextStep();
             }}
           />
         </Col>

@@ -44,7 +44,7 @@ import {
   OrderStatusKey,
   OrderPaymentStatusKey,
 } from "../../definitions/orderStatus";
-import { getOrderDetail, updateOrderStatus } from "../../datasource/OrderDatasourc";
+import { getOrderDetail, submitToNav, updateOrderStatus } from "../../datasource/OrderDatasourc";
 import { OrderEntity } from "../../entities/OrderEntity";
 import { getOrderStatus } from "../../utility/OrderStatus";
 import TextArea from "../../components/Input/TextArea";
@@ -127,6 +127,9 @@ export const OrderDetail: React.FC = () => {
   const [orderData, setOrderData] = useState<OrderEntity>();
   const [updating, setUpdating] = useState(false);
   const [showCancelModal, setCancelModal] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [navSubmitStatus, setNavSubmitStatus] = useState<"success" | "wait" | "failed">("wait");
+  const [navSubmitBody, setNavSubmitBody] = useState<any>();
 
   const [form] = Form.useForm();
   const [navForm] = Form.useForm();
@@ -154,11 +157,11 @@ export const OrderDetail: React.FC = () => {
   const onSubmitStatus = async ({
     status,
     paidStatus,
-    cancleRemark,
+    cancelRemark,
   }: {
     status: OrderStatusKey;
     paidStatus?: OrderPaymentStatusKey;
-    cancleRemark?: string;
+    cancelRemark?: string;
   }) => {
     setUpdating(true);
     const id = pathSplit[2];
@@ -166,7 +169,7 @@ export const OrderDetail: React.FC = () => {
       orderId: id,
       status,
       paidStatus,
-      cancleRemark,
+      cancelRemark,
       updateBy: `${firstname} ${lastname}`,
     })
       .then((res: any) => {
@@ -201,6 +204,37 @@ export const OrderDetail: React.FC = () => {
         </Text>
       ),
       onOk: () => onSubmitStatus({ status: nextStatus ? nextStatus : status, paidStatus }),
+    });
+  };
+
+  const onSubmitOrder = async () => {
+    const { remark } = navForm.getFieldsValue();
+    const orderId = pathSplit[2];
+    const onOk = async () => {
+      setSubmitting(true);
+      await submitToNav({
+        orderId,
+        remark,
+      })
+        .then((res: any) => {
+          const { success, userMessage } = res;
+          if (success) {
+            setNavSubmitStatus("success");
+          } else {
+            setNavSubmitStatus("failed");
+          }
+          setNavSubmitBody({ ...res, orderId, remark });
+        })
+        .catch((e: any) => {
+          console.log(e);
+        })
+        .finally(() => {
+          setSubmitting(false);
+        });
+    };
+    Modal.confirm({
+      title: "ส่งคำสั่งซื้อไปที่ระบบ Navision",
+      onOk,
     });
   };
 
@@ -302,7 +336,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{quantity}</Text>
               <Text level={6} color='Text3'>
-                {product?.saleUom}
+                {product?.saleUOMTH || product?.saleUOM}
               </Text>
             </FlexCol>
           ),
@@ -319,7 +353,8 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{priceFormatter(marketPrice || "0", undefined, false, true)}</Text>
               <Text level={6} color='Text3'>
-                {" บาท / " + (product?.saleUOMTH || product?.saleUom || "หน่วย")}
+                {" บาท / " +
+                  (product?.saleUOMTH || product?.saleUOM || product?.saleUom || "หน่วย")}
               </Text>
             </FlexCol>
           ),
@@ -463,11 +498,12 @@ export const OrderDetail: React.FC = () => {
   );
 
   const OrderNavOption = () => {
-    const step = "wait"; //"success" 'wait' 'failed';
+    const step = navSubmitStatus; //"success" 'wait' 'failed';
     const info = {
       wait: {
         borderColor: undefined,
         icon: undefined,
+        editable: true,
         title: (
           <Row align='middle' justify='space-between'>
             <Col span={20}>
@@ -483,7 +519,11 @@ export const OrderDetail: React.FC = () => {
             </Col>
             <Col span={4}>
               <Row justify='end'>
-                <Button title='ส่งการสั่งซื้อทันที' style={{ width: "180px" }} />
+                <Button
+                  title='ส่งการสั่งซื้อทันที'
+                  style={{ width: "180px" }}
+                  onClick={onSubmitOrder}
+                />
               </Row>
             </Col>
           </Row>
@@ -492,27 +532,49 @@ export const OrderDetail: React.FC = () => {
       success: {
         borderColor: color.success,
         icon: icons.resultSuccess,
+        editable: false,
         title: (
           <>
             <Text level={2} color='success'>
               ส่งคำสั่งซื้อไปยังระบบ Navision แล้ว
             </Text>
+            <br />
+            <Text>
+              SO Number {navSubmitBody?.responseData?.Order_No} อัปเดทไปยังระบบล่าสุด เมื่อ&nbsp;
+              {moment(navSubmitBody?.responseDateTime).format("DD/MM/YYYY HH:mm")}
+            </Text>
+            <br />
           </>
         ),
       },
       failed: {
         borderColor: color.warning,
         icon: icons.resultFailed,
+        editable: false,
         title: (
           <>
             <Text level={2} color='warning'>
               ส่งคำสั่งซื้อไปยังระบบ Navision ไม่สำเร็จ “โปรดติดต่อทีม Support”
             </Text>
+            <br />
+            <Text>
+              อัปเดทไปยังระบบล่าสุด เมื่อ&nbsp;
+              {moment(navSubmitBody?.responseDateTime).format("DD/MM/YYYY HH:mm")}
+            </Text>
+            <br />
+            <Text level={6} color='error'>
+              message:&nbsp;{navSubmitBody?.userMessage}
+            </Text>
+            <br />
+            <Text level={6} color='error'>
+              ({navSubmitBody?.developerMessage})
+            </Text>
+            <br />
           </>
         ),
       },
     };
-    const { borderColor, icon, title } = info[step];
+    const { borderColor, icon, title, editable } = info[step];
     return (
       <NavResponseBox color={borderColor}>
         <FlexRow style={{ width: "100%" }}>
@@ -521,12 +583,12 @@ export const OrderDetail: React.FC = () => {
               <img src={icon} />
             </div>
           )}
-          <div style={{ width: "100%" }}>
+          <div style={{ width: "100%", paddingLeft: editable ? 0 : 20 }}>
             {title}
             <br />
             <Form form={navForm} layout='vertical'>
-              <Form.Item label='เงื่อนไข Memo'>
-                <TextArea />
+              <Form.Item name='remark' label='เงื่อนไข Memo'>
+                <TextArea disabled={!editable} />
               </Form.Item>
             </Form>
           </div>
@@ -574,9 +636,6 @@ export const OrderDetail: React.FC = () => {
           </>
         );
       case "CONFIRM_ORDER":
-      case "OPEN_ORDER":
-      case "IN_DELIVERY":
-      case "DELIVERY_SUCCESS":
         return (
           <>
             <br />
@@ -585,6 +644,10 @@ export const OrderDetail: React.FC = () => {
             {orderStatusOption}
           </>
         );
+      case "OPEN_ORDER":
+      case "IN_DELIVERY":
+      case "DELIVERY_SUCCESS":
+        return <></>;
       default:
         return <></>;
     }
@@ -605,7 +668,7 @@ export const OrderDetail: React.FC = () => {
               </Text>
               <DetailBox style={{ height: 220 }}>
                 <DetailItem label='ชื่อร้านค้า' value={orderData?.customerName} />
-                <DetailItem label='Nav NO.' value={orderData?.navNo} />
+                <DetailItem label='SO NO.' value={orderData?.soNo} />
                 <DetailItem label='Order No.' value={orderData?.orderNo} />
                 <DetailItem
                   label='ช่องทางการจ่ายเงิน'
@@ -753,7 +816,7 @@ export const OrderDetail: React.FC = () => {
           <br />
         </FlexCol>
         <Form form={form}>
-          <Form.Item noStyle name='cancleRemark'>
+          <Form.Item noStyle name='cancelRemark'>
             <TextArea rows={4} placeholder='โปรดระบุเหตุผล...' />
           </Form.Item>
         </Form>
@@ -775,7 +838,7 @@ export const OrderDetail: React.FC = () => {
               onClick={() =>
                 onSubmitStatus({
                   status: "COMPANY_CANCEL_ORDER",
-                  cancleRemark: form.getFieldValue("cancleRemark"),
+                  cancelRemark: form.getFieldValue("cancelRemark"),
                 })
               }
             />

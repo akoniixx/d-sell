@@ -1,6 +1,8 @@
 import { AxiosResponse } from "axios";
 import { BASE_URL, httpClient } from "../config/develop-config";
 import { CreateConditionCOEntiry } from "../entities/ConditionCOEntiry";
+import { ProductEntity } from "../entities/PoductEntity";
+import { getProductList } from "./ProductDatasource";
 
 const baseUrl = `${BASE_URL}/master`;
 
@@ -110,10 +112,25 @@ const getConditionCO = async (params: {
     .catch((err) => console.log(err));
 };
 
-const getConditionCoById = async (conditionId: string) => {
+const getConditionCoById = async (conditionId: string, company?: string) => {
+  const { data } = await getProductList({
+    company,
+    take: 1000,
+  });
   return await httpClient
     .get(`${baseUrl}/co-condition/${conditionId}`)
-    .then((res: AxiosResponse) => res.data)
+    .then((res: AxiosResponse) => {
+      const creditMemoConditionProduct = res.data?.creditMemoConditionProduct?.map((p: any) => {
+        return {
+          ...p,
+          ...data?.find((p2: ProductEntity) => `${p2.productId}` === `${p.productId}`),
+        };
+      });
+      return {
+        ...res.data,
+        creditMemoConditionProduct,
+      };
+    })
     .catch((err) => console.log(err));
 };
 
@@ -141,6 +158,12 @@ const deleteConditionCo = async (data: object) => {
     .catch((err) => console.log(err));
 };
 
+const syncNavision = async (company: string) => {
+  return await httpClient
+    .post(`${BASE_URL}/nav/credit-memo`, { company })
+    .then((res: AxiosResponse) => res)
+    .catch((err) => console.log(err));
+};
 export {
   getCreditMemoList,
   getCustomerCreditMemoList,
@@ -158,4 +181,5 @@ export {
   getConditionCoById,
   updateConditionCOStatus,
   deleteConditionCo,
+  syncNavision,
 };
