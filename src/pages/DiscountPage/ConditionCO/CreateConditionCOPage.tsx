@@ -96,14 +96,16 @@ export const CreateConditionCOPage: React.FC = () => {
           endTime: dayjs(res.endDate),
           comment: res.comment,
         });
-        setSelectedShop(
-          res?.creditMemoConditionShop.map((shop: any) => ({
-            ...shop,
-            key: shop.creditMemoConditionShopId,
-          })),
-        );
-        // TODO
-        setSelectedProd(res?.creditMemoConditionProduct || []);
+        const newShop = res?.creditMemoConditionShop.map((shop: any) => ({
+          ...shop,
+          key: shop.creditMemoConditionShopId,
+        }));
+        setSelectedShop(newShop);
+        setSearchShop(newShop);
+
+        const newProd = res?.creditMemoConditionProduct || [];
+        setSelectedProd(newProd);
+        setSearchProd(newProd);
         res?.creditMemoConditionProduct?.forEach((p: any) => {
           form3.setFieldValue(p.productId, p.discountAmount);
         });
