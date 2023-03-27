@@ -8,4 +8,4 @@ const ImgCrop = styled(antdImgCrop)`
   }
 `;
 
-export default ImgCrop
+export default ImgCrop;
