@@ -1,5 +1,5 @@
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
-import { Avatar, Checkbox, Col, Divider, Form, Modal, Row, Table } from "antd";
+import { Avatar, Checkbox, Col, Divider, Form, message, Modal, Row, Table } from "antd";
 import { useForm } from "antd/es/form/Form";
 import TextArea from "antd/lib/input/TextArea";
 import dayjs from "dayjs";
@@ -587,7 +587,19 @@ export const CreateConditionCOPage: React.FC = () => {
         title: <span>เงื่อนไขราคาขาย (บาท)</span>,
         width: "20%",
         render: (text: string, value: any, index: number) => (
-          <Form.Item name={value.productId} noStyle={true}>
+          <Form.Item
+            name={value.productId}
+            rules={[
+              {
+                validator: (rule, value, callback) => {
+                  if (!value || parseFloat(value) <= 0) {
+                    return Promise.reject("เงื่อนไขราคาขายต้องมากกว่า 0");
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
             <Input suffix={"บาท/" + value.saleUOMTH} autoComplete='off' />
           </Form.Item>
         ),
@@ -773,6 +785,10 @@ export const CreateConditionCOPage: React.FC = () => {
           console.log("form1 errInfo", errInfo);
         });
     } else if (current === 1) {
+      if (selectedShop.length <= 0) {
+        message.error("ไม่สามารถไปขั้นตอนถัดไปได้ กรุณาเลือกร้าน");
+        return;
+      }
       const create2 = selectedShop.map((x: any) => {
         const shop: any = {};
         shop.customerCompanyId = x.customerCompanyId;
@@ -787,20 +803,26 @@ export const CreateConditionCOPage: React.FC = () => {
       setCreateCondition(create);
       setCurrent(current + 1);
     } else if (current === 2) {
-      const f3 = form3.getFieldsValue();
-      const create3 = selectedProd.map((x: any) => {
-        const prod: any = {};
-        prod.productId = x.productId;
-        prod.discountAmount = f3[x.productId];
-        if (isEditing) {
-          prod.creditMemoConditionProductId = x.creditMemoConditionProductId;
-          prod.creditMemoConditionId = id;
-        }
-        return prod;
-      });
-      create.creditMemoConditionProduct = create3;
-      setCreateCondition(create);
-      submit();
+      form3
+        .validateFields()
+        .then((f3) => {
+          const create3 = selectedProd.map((x: any) => {
+            const prod: any = {};
+            prod.productId = x.productId;
+            prod.discountAmount = f3[x.productId];
+            if (isEditing) {
+              prod.creditMemoConditionProductId = x.creditMemoConditionProductId;
+              prod.creditMemoConditionId = id;
+            }
+            return prod;
+          });
+          create.creditMemoConditionProduct = create3;
+          setCreateCondition(create);
+          submit();
+        })
+        .catch((errInfo) => {
+          console.log("form1 errInfo", errInfo);
+        });
     }
   };
   const renderStep = () => {
