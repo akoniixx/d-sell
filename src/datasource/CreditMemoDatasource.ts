@@ -119,10 +119,25 @@ const getConditionCoById = async (conditionId: string) => {
 
 const createConditionCO = async (params: CreateConditionCOEntiry) => {
   return await httpClient
-    .post(`${baseUrl}/co-condition/create`, {
-      params,
-    })
-    .then((res: AxiosResponse) => console.log(res))
+    .post(`${baseUrl}/co-condition/create`, params)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const updateConditionCOStatus = async (params: {
+  creditMemoConditionId: string;
+  creditMemoConditionStatus: boolean;
+  updateBy: string;
+}) => {
+  return await httpClient
+    .post(`${baseUrl}/co-condition/update-status`, params)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+const deleteConditionCo = async (data: object) => {
+  return await httpClient
+    .delete(`${baseUrl}/co-condition`, { data })
+    .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
 
@@ -141,4 +156,6 @@ export {
   createConditionCO,
   getConditionCO,
   getConditionCoById,
+  updateConditionCOStatus,
+  deleteConditionCo,
 };

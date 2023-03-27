@@ -540,7 +540,6 @@ export const CreateConditionCOPage: React.FC = () => {
     );
   };
   const submit = () => {
-    console.log("need", createCondition);
     Modal.confirm({
       title: "ยืนยันการสร้างเงื่อนไข CO",
       content: "โปรดยืนยันการสร้างข้อมูลเงื่อนไข CO",
@@ -550,7 +549,7 @@ export const CreateConditionCOPage: React.FC = () => {
             if (success) {
               Modal.success({
                 title: "สร้างเงื่อนไข CO สำเร็จ",
-                onOk: () => navigate(0),
+                onOk: () => navigate(`/discount/conditionCo`),
               });
             } else {
               Modal.error({
