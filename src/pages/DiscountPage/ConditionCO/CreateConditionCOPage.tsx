@@ -107,14 +107,6 @@ export const CreateConditionCOPage: React.FC = () => {
     const getZone = await getZones(company);
     setZoneList(getZone.map((d: StoreEntity, i: number) => ({ ...d, key: d.customerCompanyId })));
   };
-  const fetchProduct = async () => {
-    const getProd = await getProductList({
-      company,
-      take: 1000,
-    });
-    const dataWithIschecked = getProd.data.map((p: any) => ({ ...p, isChecked: false }));
-    setProdList(dataWithIschecked);
-  };
   const fetchShop = async () => {
     const getShop = await getCustomers({
       company,
@@ -136,7 +128,6 @@ export const CreateConditionCOPage: React.FC = () => {
   useEffect(() => {
     fetchZone();
     fetchShop();
-    fetchProduct();
     fetchProductGroup();
   }, []);
 
@@ -586,7 +577,6 @@ export const CreateConditionCOPage: React.FC = () => {
         </Form>
         {showModalProd && (
           <ModalSelectedProduct
-            masterDataProd={prodList}
             prodSelected={selectedProd}
             company={company}
             showModalProd={showModalProd}
@@ -603,6 +593,7 @@ export const CreateConditionCOPage: React.FC = () => {
       console.log("submit edit");
       return;
     }
+    console.log("need", createCondition);
     Modal.confirm({
       title: "ยืนยันการสร้างเงื่อนไข CO",
       content: "โปรดยืนยันการสร้างข้อมูลเงื่อนไข CO",

@@ -15,6 +15,9 @@ import { RangePicker } from "../../../components/DatePicker/DatePicker";
 import Text from "../../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import { getConditionCO } from "../../../datasource/CreditMemoDatasource";
+import { dateFormatter } from "../../../utility/Formatter";
+import moment from "moment";
+import dayjs from "dayjs";
 
 export const IndexConditionCOPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +25,6 @@ export const IndexConditionCOPage: React.FC = () => {
   const { company } = userProfile;
 
   const [page, setPage] = useState<number>(1);
-  const [loading, setLoading] = useState(false);
   const pageSize = 8;
   const [dataState, setDataState] = useState({
     count: 0,
@@ -30,42 +32,37 @@ export const IndexConditionCOPage: React.FC = () => {
     data: [] as any[],
   });
   const [data, setData] = useState<any>([]);
+  const [keyword, setKeyword] = useState("");
+  const [searchDate, setSearchDate] = useState<any>();
+  const [selectedTab, setSelectedTab] = useState<"all" | "true" | "false">("all");
+
   const fetchCondition = async () => {
-    const getList = await getConditionCO({ take: pageSize, page: page, company: company });
+    const getList = await getConditionCO({
+      take: pageSize,
+      page: page,
+      company: company,
+      searchText: keyword,
+      startDate: searchDate?.startDate,
+      endDate: searchDate?.endDate,
+      creditMemoConditionStatus: selectedTab === "all" ? undefined : selectedTab,
+    });
     console.log(getList);
+    setDataState(getList);
     setData(getList.data);
   };
 
   useEffect(() => {
     fetchCondition();
-  }, []);
+  }, [keyword, searchDate, selectedTab, searchDate]);
 
-  const mockData = [
-    {
-      name: "รายการลดแรง 1",
-      dateTime: "2023-03-01 - 2023-03-31",
-      countProduct: 5,
-      countShop: 3,
-      status: true,
-      updateBy: "รชยา ช่างภักดี",
-    },
-    {
-      name: "รายการลดแรง 2",
-      dateTime: "2023-03-01 - 2023-03-31",
-      countProduct: 10,
-      countShop: 80,
-      status: true,
-      updateBy: "รชยา ช่างภักดี",
-    },
-    {
-      name: "รายการลดแรง 3",
-      dateTime: "2023-03-01 - 2023-03-31",
-      countProduct: 22,
-      countShop: 53,
-      status: false,
-      updateBy: "รชยา ช่างภักดี",
-    },
-  ];
+  const onSearchKeyword = (e: any) => {
+    setKeyword(e.target.value);
+  };
+  const onSearchDate = (e: any) => {
+    const startDate = moment(e[0].$d).format("yyyy-MM-DD");
+    const endDate = moment(e[1].$d).format("yyyy-MM-DD");
+    setSearchDate({ startDate, endDate });
+  };
 
   const PageTitle = () => {
     return (
@@ -81,10 +78,22 @@ export const IndexConditionCOPage: React.FC = () => {
           </div>
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
-          <Input placeholder='ค้นหารายการ' prefix={<SearchOutlined style={{ color: "grey" }} />} />
+          <Input
+            placeholder='ค้นหารายการ'
+            prefix={<SearchOutlined style={{ color: "grey" }} />}
+            onPressEnter={(e) => onSearchKeyword(e)}
+            defaultValue={keyword}
+          />
         </Col>
         <Col className='gutter-row' xl={6} sm={6}>
-          <RangePicker allowEmpty={[true, true]} enablePast />
+          <RangePicker
+            allowEmpty={[true, true]}
+            enablePast
+            onChange={(dates) => {
+              onSearchDate(dates);
+            }}
+            value={[dayjs(searchDate?.startDate), dayjs(searchDate?.endDate)]}
+          />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
           <Button
@@ -107,9 +116,14 @@ export const IndexConditionCOPage: React.FC = () => {
     },
     {
       title: "ระยะเวลา",
-      dataIndex: "startDate",
-      key: "startDate",
       width: "20%",
+      render: (value: any, row: any) => {
+        return {
+          children: (
+            <Text>{dateFormatter(row?.startDate) + " - " + dateFormatter(row?.endDate)}</Text>
+          ),
+        };
+      },
     },
     {
       title: "จำนวนสินค้า",
@@ -120,7 +134,7 @@ export const IndexConditionCOPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{value} รายการ</Text>
+              <Text level={5}>{row.creditMemoConditionProduct.length} รายการ</Text>
             </FlexCol>
           ),
         };
@@ -202,15 +216,15 @@ export const IndexConditionCOPage: React.FC = () => {
   ];
   const tabsItems = [
     {
-      label: "All",
-      key: "ALL",
+      label: "All " + `(${dataState.count})`,
+      key: "all",
     },
     {
-      label: "Active",
+      label: "Active " + `(${0})`,
       key: "true",
     },
     {
-      label: "InActive",
+      label: "InActive " + `(${0})`,
       key: "false",
     },
   ];
@@ -220,7 +234,13 @@ export const IndexConditionCOPage: React.FC = () => {
       <CardContainer>
         <PageTitle />
         <br />
-        <Tabs items={tabsItems} />
+        <Tabs
+          items={tabsItems}
+          onChange={(key: string) => {
+            setSelectedTab((key as "all" | "true") || "false");
+          }}
+          defaultValue={selectedTab}
+        />
         <Table
           columns={dataTable}
           dataSource={data}
@@ -231,7 +251,6 @@ export const IndexConditionCOPage: React.FC = () => {
             total: dataState?.count,
             onChange: (p) => setPage(p),
           }}
-          loading={loading}
           size='large'
           tableLayout='fixed'
         />
