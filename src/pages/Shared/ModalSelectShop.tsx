@@ -16,12 +16,14 @@ export const ModalSelectedShop = ({
   callBackShop,
   showModalShop,
   onClose,
+  currentSelectShop,
 }: {
   zoneList: ZoneEntity[];
   shopData: StoreEntity[];
   callBackShop: (item: StoreEntity[]) => void;
   showModalShop: boolean;
   onClose: () => void;
+  currentSelectShop: StoreEntity[];
 }) => {
   const [searchZone1, setSearchZone1] = useState("");
   const [keyword1, setKeyword1] = useState("");
@@ -155,6 +157,17 @@ export const ModalSelectedShop = ({
       setTargetKeys(currentAllSelected);
     }
   }, [searchZone2, keyword2]);
+
+  useEffect(() => {
+    if (currentSelectShop) {
+      const s = shopData.filter(
+        (x) => !currentSelectShop.some((c) => c.customerCompanyId === x.customerCompanyId),
+      );
+      setShopList(s);
+      setCurrentAllSelected(currentSelectShop);
+      setTargetKeys(currentSelectShop);
+    }
+  }, [currentSelectShop]);
 
   const saveShop = () => {
     callBackShop(targetKeys);

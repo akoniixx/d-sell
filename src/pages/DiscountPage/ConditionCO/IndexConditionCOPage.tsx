@@ -56,15 +56,20 @@ export const IndexConditionCOPage: React.FC = () => {
 
   useEffect(() => {
     fetchCondition();
-  }, [keyword, searchDate, selectedTab, searchDate]);
+  }, [keyword, searchDate, selectedTab, searchDate, page]);
 
   const onSearchKeyword = (e: any) => {
     setKeyword(e.target.value);
+    setPage(1);
   };
   const onSearchDate = (e: any) => {
-    const startDate = moment(e[0].$d).format("yyyy-MM-DD");
-    const endDate = moment(e[1].$d).format("yyyy-MM-DD");
-    setSearchDate({ startDate, endDate });
+    if (e) {
+      const startDate = e[0] ? moment(e[0].$d).format("yyyy-MM-DD") : undefined;
+      const endDate = e[1] ? moment(e[1].$d).format("yyyy-MM-DD") : undefined;
+      setSearchDate({ startDate, endDate });
+    } else {
+      setSearchDate("");
+    }
   };
   const handleChangeStatus = (e: any, conId: string) => {
     const status = {
@@ -155,7 +160,10 @@ export const IndexConditionCOPage: React.FC = () => {
             onChange={(dates) => {
               onSearchDate(dates);
             }}
-            value={[dayjs(searchDate?.startDate), dayjs(searchDate?.endDate)]}
+            value={[
+              searchDate && dayjs(searchDate?.startDate),
+              searchDate && dayjs(searchDate?.endDate),
+            ]}
           />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
@@ -176,6 +184,11 @@ export const IndexConditionCOPage: React.FC = () => {
       dataIndex: "creditMemoConditionName",
       key: "creditMemoConditionName",
       width: "25%",
+      render: (value: any, row: any) => {
+        return {
+          children: <Text>{value}</Text>,
+        };
+      },
     },
     {
       title: "ระยะเวลา",
@@ -223,6 +236,11 @@ export const IndexConditionCOPage: React.FC = () => {
       dataIndex: "updateBy",
       key: "updateBy",
       width: "15%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: <Text level={5}>{value || "-"}</Text>,
+        };
+      },
     },
     {
       title: "สถานะ",
