@@ -232,7 +232,7 @@ export const DetailConditionCOPage: React.FC = () => {
       render: (text: string) => <span>{LOCATION_FULLNAME_MAPPING[text]}</span>,
     },
     {
-      title: <center>ราคาลด</center>,
+      title: <span>ราคาลด</span>,
       dataIndex: "discountAmount",
       width: "20%",
       render: (text: string, value: any) =>
@@ -241,7 +241,7 @@ export const DetailConditionCOPage: React.FC = () => {
             <Input suffix={"บาท/" + value.saleUOMTH} autoComplete='off' />
           </Form.Item>
         ) : (
-          <center>{numberFormatter(text)}</center>
+          <span>{numberFormatter(text)}</span>
         ),
     },
   ];

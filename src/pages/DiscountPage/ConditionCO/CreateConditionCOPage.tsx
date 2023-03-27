@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
@@ -34,6 +35,7 @@ import image from "../../../resource/image";
 import { numberFormatter } from "../../../utility/Formatter";
 import { ModalSelectedProduct } from "../../Shared/ModalSelecteProduct";
 import { ModalSelectedShop } from "../../Shared/ModalSelectShop";
+import productState from "../../../store/productList";
 
 export const CreateConditionCOPage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -71,10 +73,12 @@ export const CreateConditionCOPage: React.FC = () => {
   // only use in edit mode
   const [loadingCoData, setLoadingCoData] = useState(false);
   const [coData, setCoData] = useState<ConditionCOEntiry>();
+  const recoilProductState = useRecoilValue(productState);
+  const setSetRecoilProductState = useSetRecoilState(productState);
 
   const fetchCoData = async () => {
     setLoadingCoData(true);
-    await getConditionCoById(id)
+    await getConditionCoById(id, company)
       .then((res) => {
         console.log("getConditionCoById", res);
         setCoData(res);

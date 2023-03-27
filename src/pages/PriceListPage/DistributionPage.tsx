@@ -163,7 +163,12 @@ export const DistributionPage: React.FC = () => {
           </div>
         </Col>
         <Col className='gutter-row' span={4}>
-          <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
+          <Button
+            title='เชื่อมต่อ Navision'
+            icon={<SyncOutlined />}
+            onClick={onSyncProduct}
+            loading={loadingSyncProduct}
+          />
         </Col>
       </Row>
     );
