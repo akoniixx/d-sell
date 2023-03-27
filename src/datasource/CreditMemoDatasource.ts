@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import { BASE_URL, httpClient } from "../config/develop-config";
+import { CreateConditionCOEntiry } from "../entities/ConditionCOEntiry";
 
 const baseUrl = `${BASE_URL}/master`;
 
@@ -92,6 +93,31 @@ const getOrderHistory = async (params: {
     .catch((err) => console.log(err));
 };
 
+const getConditionCO = async (params: { page?: number; take?: number; company: string }) => {
+  return await httpClient
+    .get(`${BASE_URL}/co-condition`, {
+      params,
+    })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const getConditionCoById = async (conditionId: string) => {
+  return await httpClient
+    .get(`${BASE_URL}/co-condition/${conditionId}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const createConditionCO = async (params: CreateConditionCOEntiry) => {
+  return await httpClient
+    .post(`${BASE_URL}/co-condition/create`, {
+      params,
+    })
+    .then((res: AxiosResponse) => console.log(res))
+    .catch((err) => console.log(err));
+};
+
 export {
   getCreditMemoList,
   getCustomerCreditMemoList,
@@ -104,4 +130,7 @@ export {
   updateCreditMemoStatus,
   getOrderHistory,
   deleteCreditMemo,
+  createConditionCO,
+  getConditionCO,
+  getConditionCoById,
 };

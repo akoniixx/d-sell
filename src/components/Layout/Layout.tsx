@@ -75,6 +75,11 @@ export const pathLists = [
         name: "customerList",
         title: "ส่วนลด CO รายร้าน",
       },
+      {
+        path: "/conditionCo",
+        name: "conditionCo",
+        title: "เงื่อนไข CO",
+      },
     ],
   },
   {
@@ -246,6 +251,7 @@ const Layouts: React.FC<any> = ({ children }) => {
             margin: 0,
             height: "100%",
             width: "100%",
+            overflow: "auto",
           }}
         >
           {children}
