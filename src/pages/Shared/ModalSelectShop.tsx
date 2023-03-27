@@ -45,20 +45,22 @@ export const ModalSelectedShop = ({
       const arrayObjectKey: any = nextTargetKeys
         .map((el) => {
           const matchKey = shopData.find((el2) => el2.customerCompanyId === el);
-          console.log("matchKey", matchKey);
           if (matchKey) {
             return matchKey;
           }
         })
         .filter((el) => el);
+      const filterDuplicate = arrayObjectKey.filter((el: { customerCompanyId: string }) => {
+        return !currentAllSelected.some((el2) => el2.customerCompanyId === el.customerCompanyId);
+      });
 
-      setCurrentAllSelected((prev) => [...prev, ...arrayObjectKey]);
+      setCurrentAllSelected((prev) => [...prev, ...filterDuplicate]);
       setShopList((prev) => {
         return prev.filter((el) => {
           return !nextTargetKeys.some((el2) => el2 === el.customerCompanyId);
         });
       });
-      setTargetKeys((prev) => [...prev, ...arrayObjectKey]);
+      setTargetKeys((prev) => [...prev, ...filterDuplicate]);
     } else {
       setSelectedKeys([]);
       setCurrentAllSelected((prev) => {
@@ -73,7 +75,10 @@ export const ModalSelectedShop = ({
             return matchKey;
           }
         })
-        .filter((el) => el);
+        .filter((el) => {
+          return el?.customerCompanyId;
+        });
+
       setShopList((prev) => {
         return [...prev, ...arrayObjectKey];
       });
@@ -83,13 +88,10 @@ export const ModalSelectedShop = ({
         });
       });
     }
+    setSelectAllLeft(false);
   };
   const onSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => {
     setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
-    // const isSameValue = sourceSelectedKeys.every((el) => {
-    //   return shopList.some((el2) => el2.customerCompanyId === el);
-    // });
-
     if (sourceSelectedKeys.length > 0 && sourceSelectedKeys.length === shopList.length) {
       setSelectAllLeft(true);
     } else if (sourceSelectedKeys.length > 0 && sourceSelectedKeys.length < shopList.length) {
@@ -178,6 +180,7 @@ export const ModalSelectedShop = ({
                 <label>ค้นหาเขต</label>
                 <Select
                   style={{ width: "100%" }}
+                  value={searchZone1}
                   data={[
                     { label: "ทั้งหมด", key: "" },
                     ...zoneList.map((z) => ({ label: z.zoneName, key: z.zoneName })),
@@ -212,6 +215,7 @@ export const ModalSelectedShop = ({
               <Col span={8}>
                 <label>ค้นหาเขต</label>
                 <Select
+                  value={searchZone2}
                   style={{ width: "100%" }}
                   data={[
                     { label: "ทั้งหมด", key: "" },
@@ -369,6 +373,13 @@ export const ModalSelectedShop = ({
                           title: "ลบร้านค้าที่เลือกทั้งหมด",
                           okText: "ยืนยัน",
                           onOk: () => {
+                            setCurrentAllSelected((prev) => {
+                              return prev.filter((el) => {
+                                return !targetKeys.some(
+                                  (el2) => el2.customerCompanyId === el.customerCompanyId,
+                                );
+                              });
+                            });
                             setTargetKeys([]);
                             const arrayObjectKey: any = targetKeys
                               .map((el) => {
