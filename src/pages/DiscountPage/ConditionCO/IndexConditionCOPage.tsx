@@ -4,7 +4,7 @@ import {
   SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
-import { Col, Row, Switch, Table, Tabs } from "antd";
+import { Col, Modal, Row, Switch, Table, Tabs } from "antd";
 import { useState, useEffect } from "react";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import Button from "../../../components/Button/Button";
@@ -14,7 +14,11 @@ import Input from "../../../components/Input/Input";
 import { RangePicker } from "../../../components/DatePicker/DatePicker";
 import Text from "../../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
-import { getConditionCO } from "../../../datasource/CreditMemoDatasource";
+import {
+  deleteConditionCo,
+  getConditionCO,
+  updateConditionCOStatus,
+} from "../../../datasource/CreditMemoDatasource";
 import { dateFormatter } from "../../../utility/Formatter";
 import moment from "moment";
 import dayjs from "dayjs";
@@ -28,7 +32,7 @@ export const IndexConditionCOPage: React.FC = () => {
   const pageSize = 8;
   const [dataState, setDataState] = useState({
     count: 0,
-    count_status: [],
+    count_status: [{ credit_memo_condition_status: false, count: 0 }],
     data: [] as any[],
   });
   const [data, setData] = useState<any>([]);
@@ -46,22 +50,86 @@ export const IndexConditionCOPage: React.FC = () => {
       endDate: searchDate?.endDate,
       creditMemoConditionStatus: selectedTab === "all" ? undefined : selectedTab,
     });
-    console.log(getList);
     setDataState(getList);
     setData(getList.data);
   };
 
   useEffect(() => {
     fetchCondition();
-  }, [keyword, searchDate, selectedTab, searchDate]);
+  }, [keyword, searchDate, selectedTab, searchDate, page]);
 
   const onSearchKeyword = (e: any) => {
     setKeyword(e.target.value);
+    setPage(1);
   };
   const onSearchDate = (e: any) => {
-    const startDate = moment(e[0].$d).format("yyyy-MM-DD");
-    const endDate = moment(e[1].$d).format("yyyy-MM-DD");
-    setSearchDate({ startDate, endDate });
+    if (e) {
+      const startDate = e[0] ? moment(e[0].$d).format("yyyy-MM-DD") : undefined;
+      const endDate = e[1] ? moment(e[1].$d).format("yyyy-MM-DD") : undefined;
+      setSearchDate({ startDate, endDate });
+    } else {
+      setSearchDate("");
+    }
+  };
+  const handleChangeStatus = (e: any, conId: string) => {
+    const status = {
+      creditMemoConditionId: conId,
+      creditMemoConditionStatus: e,
+      updateBy: userProfile.firstname + " " + userProfile.lastname,
+    };
+    Modal.confirm({
+      title: "ยืนยันการเปลี่ยนสถานะเงื่อนไข CO",
+      content: "โปรดยืนยันการเปลี่ยนสถานะเงื่อนไข CO",
+      onOk: async () => {
+        await updateConditionCOStatus(status)
+          .then(({ success, userMessage }: any) => {
+            if (success) {
+              Modal.success({
+                title: "เปลี่ยนสถานะรายการเงื่อนไข CO สำเร็จ",
+                onOk: () => navigate(0),
+              });
+            } else {
+              Modal.error({
+                title: "เปลี่ยนสถานะรายการเงื่อนไข CO ไม่สำเร็จ",
+                content: userMessage,
+              });
+            }
+          })
+          .catch((e: any) => {
+            console.log(e);
+          });
+      },
+    });
+  };
+  const handleDelete = (conId: string) => {
+    const deleted = {
+      creditMemoConditionId: conId,
+      updateBy: userProfile.firstname + " " + userProfile.lastname,
+    };
+
+    Modal.confirm({
+      title: "ยืนยันการลบเงื่อนไข CO",
+      content: "โปรดยืนยันการลบเงื่อนไข CO",
+      onOk: async () => {
+        await deleteConditionCo(deleted)
+          .then(({ success, userMessage }: any) => {
+            if (success) {
+              Modal.success({
+                title: "ลบรายการเงื่อนไข CO สำเร็จ",
+                onOk: () => navigate(0),
+              });
+            } else {
+              Modal.error({
+                title: "ลบรายการเงื่อนไข CO ไม่สำเร็จ",
+                content: userMessage,
+              });
+            }
+          })
+          .catch((e: any) => {
+            console.log(e);
+          });
+      },
+    });
   };
 
   const PageTitle = () => {
@@ -92,7 +160,10 @@ export const IndexConditionCOPage: React.FC = () => {
             onChange={(dates) => {
               onSearchDate(dates);
             }}
-            value={[dayjs(searchDate?.startDate), dayjs(searchDate?.endDate)]}
+            value={[
+              searchDate && dayjs(searchDate?.startDate),
+              searchDate && dayjs(searchDate?.endDate),
+            ]}
           />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
@@ -113,6 +184,11 @@ export const IndexConditionCOPage: React.FC = () => {
       dataIndex: "creditMemoConditionName",
       key: "creditMemoConditionName",
       width: "25%",
+      render: (value: any, row: any) => {
+        return {
+          children: <Text>{value}</Text>,
+        };
+      },
     },
     {
       title: "ระยะเวลา",
@@ -160,6 +236,11 @@ export const IndexConditionCOPage: React.FC = () => {
       dataIndex: "updateBy",
       key: "updateBy",
       width: "15%",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: <Text level={5}>{value || "-"}</Text>,
+        };
+      },
     },
     {
       title: "สถานะ",
@@ -168,7 +249,12 @@ export const IndexConditionCOPage: React.FC = () => {
       width: "10%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Switch checked={value} />,
+          children: (
+            <Switch
+              checked={value}
+              onChange={(e) => handleChangeStatus(e, row.creditMemoConditionId)}
+            />
+          ),
         };
       },
     },
@@ -204,7 +290,10 @@ export const IndexConditionCOPage: React.FC = () => {
                 </div>
                 <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <DeleteOutlined style={{ color: color["primary"] }} />
+                    <DeleteOutlined
+                      style={{ color: color["primary"] }}
+                      onClick={() => handleDelete(row.creditMemoConditionId)}
+                    />
                   </span>
                 </div>
               </div>
@@ -216,15 +305,25 @@ export const IndexConditionCOPage: React.FC = () => {
   ];
   const tabsItems = [
     {
-      label: "All " + `(${dataState.count})`,
+      label:
+        "All " +
+        `(${
+          (Number(dataState.count_status.find((x) => x.credit_memo_condition_status)?.count) || 0) +
+            (Number(dataState.count_status.find((x) => !x.credit_memo_condition_status)?.count) ||
+              0) || 0
+        })`,
       key: "all",
     },
     {
-      label: "Active " + `(${0})`,
+      label:
+        "Active " +
+        `(${dataState.count_status.find((x) => x.credit_memo_condition_status)?.count || 0})`,
       key: "true",
     },
     {
-      label: "InActive " + `(${0})`,
+      label:
+        "InActive " +
+        `(${dataState.count_status.find((x) => !x.credit_memo_condition_status)?.count || 0})`,
       key: "false",
     },
   ];

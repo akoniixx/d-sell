@@ -7,5 +7,5 @@ export default {
   icp_ladda: require("./media/images/LogoICPLadda.png"),
   icp_international: require("./media/images/LogoICPInter.png"),
   icp_fertilizer: require("./media/images/LogoICPFert.png"),
-  product_box: require("./media/images/product-box.png")
+  product_box: require("./media/images/product-box.png"),
 };

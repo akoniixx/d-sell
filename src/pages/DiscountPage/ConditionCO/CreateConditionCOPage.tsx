@@ -23,7 +23,7 @@ import {
   updateConditionCO,
 } from "../../../datasource/CreditMemoDatasource";
 import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
-import { getProductGroup, getProductList } from "../../../datasource/ProductDatasource";
+import { getProductGroup } from "../../../datasource/ProductDatasource";
 import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
 import {
   ConditionCOEntiry,
@@ -57,7 +57,6 @@ export const CreateConditionCOPage: React.FC = () => {
 
   const [current, setCurrent] = useState(0);
   const [zoneList, setZoneList] = useState<ZoneEntity[]>([]);
-  const [prodList, setProdList] = useState<ProductEntity[]>([]);
   const [shopList, setShopList] = useState<StoreEntity[]>([]);
   const [productGroup, setProductGroup] = useState<ProductGroupEntity[]>([]);
 
@@ -67,12 +66,15 @@ export const CreateConditionCOPage: React.FC = () => {
   const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
   const [searchProd, setSearchProd] = useState<ProductEntity[]>([]);
   const [selectedShop, setSelectedShop] = useState<StoreEntity[]>([]);
+  const [searchShop, setSearchShop] = useState<StoreEntity[]>([]);
 
   const [createCondition, setCreateCondition] = useState<CreateConditionCOEntiry>(
     CreateConditionCOEntiry_INIT,
   );
   const [searchKeywordProd, setSearchKeywordProd] = useState("");
   const [searchProdGroup, setSearchProdGroup] = useState("");
+  const [searchKeywordShop, setSearchKeywordShop] = useState("");
+  const [searchShopZone, setSearchShopZone] = useState("");
 
   // only use in edit mode
   const [loadingCoData, setLoadingCoData] = useState(false);
@@ -288,8 +290,57 @@ export const CreateConditionCOPage: React.FC = () => {
   };
   const StepTwo = () => {
     const callBackShop = (item: StoreEntity[]) => {
+      item = item.map((p: any) => ({ ...p, isChecked: false }));
       setSelectedShop(item);
+      setSearchShop(item);
       setShowModalShop(!showModalShop);
+    };
+    const onSearchShop = (e: any) => {
+      setSearchKeywordShop(e.target.value);
+      const find = searchShop.filter((x) => {
+        const searchName = !e.target.value || x.customerName?.includes(e.target.value);
+        const searchZone = !searchShopZone || x.zone?.includes(searchProdGroup);
+        return searchName && searchZone;
+      });
+      setSelectedShop(find);
+    };
+    const onSearchZone = (e: any) => {
+      setSearchShopZone(e);
+      const find = searchShop.filter((x) => {
+        const searchName = !searchKeywordShop || x.customerName?.includes(searchKeywordShop);
+        const searchZone = !e || x.zone?.includes(e);
+        return searchName && searchZone;
+      });
+      setSelectedShop(find);
+    };
+    const onClearSearchShop = () => {
+      setSearchShopZone("");
+      setSearchKeywordShop("");
+      setSelectedShop(searchShop);
+    };
+    const handleCheckBoxDelete = (e: any, cusId: string) => {
+      const checkBoxed = selectedShop.map((item) =>
+        _.set(
+          item,
+          "isChecked",
+          item.customerCompanyId === cusId ? e.target.checked : item.isChecked,
+        ),
+      );
+      setSelectedShop(checkBoxed);
+      setSearchShop(checkBoxed);
+    };
+    const handleAllCheckBoxDelete = (e: any) => {
+      const checkBoxed = selectedShop.map((item) =>
+        _.set(item, "isChecked", (item.isChecked = e.target.checked)),
+      );
+      setSelectedShop(checkBoxed);
+      setSearchShop(checkBoxed);
+    };
+
+    const handleDelete = () => {
+      const deleted = selectedShop.filter((x) => !x.isChecked);
+      setSelectedShop(deleted);
+      setSearchShop(deleted);
     };
     return (
       <>
@@ -299,7 +350,7 @@ export const CreateConditionCOPage: React.FC = () => {
         <br />
         <br />
         <Row>
-          {selectedShop.length > 0 ? (
+          {searchShop.length > 0 ? (
             <Col span={14}>
               <Row gutter={8}>
                 <Col span={5}>
@@ -309,26 +360,39 @@ export const CreateConditionCOPage: React.FC = () => {
                       { label: "ทั้งหมด", key: "" },
                       ...zoneList.map((z) => ({ label: z.zoneName, key: z.zoneName })),
                     ]}
+                    onChange={(e) => onSearchZone(e)}
+                    value={searchShopZone}
                   />
                 </Col>
                 <Col span={10}>
-                  <Input suffix={<SearchOutlined />} placeholder={"ระบุชื่อร้านค้า"} />
+                  <Input
+                    suffix={<SearchOutlined />}
+                    placeholder={"ระบุชื่อร้านค้า"}
+                    onPressEnter={(e) => onSearchShop(e)}
+                    defaultValue={searchKeywordShop}
+                  />
                 </Col>
                 <Col span={4}>
-                  <Button title='ล้างการค้นหา' typeButton='primary-light' />
+                  <Button
+                    title='ล้างการค้นหา'
+                    typeButton='primary-light'
+                    onClick={onClearSearchShop}
+                  />
                 </Col>
               </Row>
             </Col>
           ) : (
             <Col span={14}></Col>
           )}
-
           <Col span={10}>
             <Row align='middle' justify='end' gutter={22}>
               <Col>
-                {selectedShop.length > 0 && (
+                {selectedShop.filter((x) => x.isChecked).length > 0 && (
                   <FlexRow align='center' justify='end' style={{ height: "100%" }}>
-                    <DeleteOutlined style={{ fontSize: 20, color: color.error }} />
+                    <DeleteOutlined
+                      style={{ fontSize: 20, color: color.error }}
+                      onClick={handleDelete}
+                    />
                   </FlexRow>
                 )}
               </Col>
@@ -352,9 +416,19 @@ export const CreateConditionCOPage: React.FC = () => {
         <Table
           columns={[
             {
-              title: <Checkbox />,
+              title: selectedShop.length > 0 && (
+                <Checkbox
+                  onClick={(e) => handleAllCheckBoxDelete(e)}
+                  checked={selectedShop.every((x) => x.isChecked)}
+                />
+              ),
               width: "5%",
-              render: (text: string) => <Checkbox />,
+              render: (text: string, value: any) => (
+                <Checkbox
+                  onClick={(e) => handleCheckBoxDelete(e, value.customerCompanyId)}
+                  checked={value.isChecked}
+                />
+              ),
             },
             {
               title: <span>ชื่อร้านค้า</span>,
@@ -371,6 +445,7 @@ export const CreateConditionCOPage: React.FC = () => {
           size='large'
           tableLayout='fixed'
           pagination={false}
+          scroll={{ y: 500 }}
         />
         <ModalSelectedShop
           zoneList={zoneList}
@@ -378,6 +453,7 @@ export const CreateConditionCOPage: React.FC = () => {
           callBackShop={callBackShop}
           showModalShop={showModalShop}
           onClose={() => setShowModalShop(!setShowModalShop)}
+          currentSelectShop={selectedShop}
         />
       </>
     );
@@ -411,10 +487,19 @@ export const CreateConditionCOPage: React.FC = () => {
         _.set(item, "isChecked", item.productId === prodId ? e.target.checked : item.isChecked),
       );
       setSelectedProd(checkBoxed);
+      setSearchProd(checkBoxed);
+    };
+    const handleAllCheckBoxDelete = (e: any) => {
+      const checkBoxed = selectedProd.map((item) =>
+        _.set(item, "isChecked", (item.isChecked = e.target.checked)),
+      );
+      setSelectedProd(checkBoxed);
+      setSearchProd(checkBoxed);
     };
     const handleDelete = () => {
       const deleted = selectedProd.filter((x) => !x.isChecked);
       setSelectedProd(deleted);
+      setSearchProd(deleted);
     };
 
     const callBackProduct = (item: ProductEntity[]) => {
@@ -424,7 +509,12 @@ export const CreateConditionCOPage: React.FC = () => {
     };
     const columeTable = [
       {
-        title: <Checkbox />,
+        title: selectedProd.length > 0 && (
+          <Checkbox
+            onClick={(e) => handleAllCheckBoxDelete(e)}
+            checked={searchProd.every((x) => x.isChecked)}
+          />
+        ),
         width: "5%",
         render: (text: string, value: any) => (
           <Checkbox
@@ -614,7 +704,7 @@ export const CreateConditionCOPage: React.FC = () => {
               if (success) {
                 Modal.success({
                   title: "แก้ไขเงื่อนไข CO สำเร็จ",
-                  onOk: () => navigate(0),
+                  onOk: () => navigate(`/discount/conditionCo`),
                 });
               } else {
                 Modal.error({
@@ -639,7 +729,7 @@ export const CreateConditionCOPage: React.FC = () => {
             if (success) {
               Modal.success({
                 title: "สร้างเงื่อนไข CO สำเร็จ",
-                onOk: () => navigate(0),
+                onOk: () => navigate(`/discount/conditionCo`),
               });
             } else {
               Modal.error({
@@ -686,7 +776,7 @@ export const CreateConditionCOPage: React.FC = () => {
         shop.customerCompanyId = x.customerCompanyId;
         (shop.customerName = x.customerName), (shop.zone = x.zone);
         if (isEditing) {
-          shop.CreditMemoConditionShopId = x.creditMemoConditionProductId;
+          shop.CreditMemoConditionShopId = x.creditMemoConditionShopId;
           shop.creditMemoConditionId = id;
         }
         return shop;

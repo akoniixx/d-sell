@@ -1,6 +1,5 @@
 export interface PromotionEntity {
-    qty?: number;
-    unit?: string;
-    discountAmount?: number;
-  }
-  
+  qty?: number;
+  unit?: string;
+  discountAmount?: number;
+}
