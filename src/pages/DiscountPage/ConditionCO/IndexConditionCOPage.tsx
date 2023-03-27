@@ -50,6 +50,7 @@ export const IndexConditionCOPage: React.FC = () => {
       endDate: searchDate?.endDate,
       creditMemoConditionStatus: selectedTab === "all" ? undefined : selectedTab,
     });
+    console.log(getList);
     setDataState(getList);
     setData(getList.data);
   };
@@ -238,7 +239,15 @@ export const IndexConditionCOPage: React.FC = () => {
       width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Text level={5}>{value || "-"}</Text>,
+          children: (
+            <>
+              <Text level={5}>{value || "-"}</Text>
+              <br />
+              <Text level={6} style={{ color: color.Grey }}>
+                {dateFormatter(row.updatedAt)}
+              </Text>
+            </>
+          ),
         };
       },
     },

@@ -7,7 +7,7 @@ import image from "../../resource/image";
 import Text from "../../components/Text/Text";
 import { color } from "../../resource";
 import { numberFormatter } from "../../utility/Formatter";
-import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
+import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import Input from "../../components/Input/Input";
 import { SearchOutlined } from "@ant-design/icons";
 import Select from "../../components/Select/Select";
@@ -35,6 +35,7 @@ export const ModalSelectedProduct = ({
   const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
   const [prodGroup, setProdGroup] = useState("");
   const [keyword, setKeyword] = useState("");
+  const [location, setLocation] = useState("");
 
   const fetchProduct = async () => {
     const getProd = await getProductList({
@@ -84,7 +85,8 @@ export const ModalSelectedProduct = ({
     const find = prodList.filter((x) => {
       const searchName = !e.target.value || x.productName?.includes(e.target.value);
       const searchGroup = !prodGroup || x.productGroup?.includes(prodGroup);
-      return searchName && searchGroup;
+      const searchLocation = !location || x.productLocation?.includes(location);
+      return searchName && searchGroup && searchLocation;
     });
     setSelectedProd(find);
   };
@@ -97,9 +99,19 @@ export const ModalSelectedProduct = ({
     });
     setSelectedProd(find);
   };
+  const handleSearchLocation = (e: any) => {
+    setLocation(e);
+    const find = prodList.filter((x) => {
+      const searchName = !keyword || x.productName?.includes(keyword);
+      const searchLocation = !e || x.productLocation?.includes(e);
+      return searchName && searchLocation;
+    });
+    setSelectedProd(find);
+  };
   const handleClearSearch = () => {
     setKeyword("");
     setProdGroup("");
+    setLocation("");
     setSelectedProd(prodList);
   };
 
@@ -223,6 +235,28 @@ export const ModalSelectedProduct = ({
                 placeholder='Product Group : ทั้งหมด'
                 style={{ width: "100%" }}
                 value={prodGroup}
+              />
+            </Col>
+          )}
+          {company === "ICPI" && (
+            <Col span={6}>
+              <Select
+                data={[
+                  {
+                    key: "",
+                    value: "",
+                    label: "Location : ทั้งหมด",
+                  },
+                  ...LOCATION_DATA.filter((c: any) => c.company === company).map((p: any) => ({
+                    key: p.LocationName,
+                    value: p.LocationName,
+                    label: p.LocationNameTH,
+                  })),
+                ]}
+                onChange={(e) => handleSearchLocation(e)}
+                placeholder='Location : ทั้งหมด'
+                style={{ width: "100%" }}
+                value={location}
               />
             </Col>
           )}

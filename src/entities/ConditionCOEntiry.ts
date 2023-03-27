@@ -11,7 +11,7 @@ export interface ConditionCOEntiry {
   updateBy: string;
   creditMemoConditionShop: creditMemoConditionShop[];
   createdAt: string;
-  updateAt: string;
+  updatedAt: string;
 }
 
 export interface CreateConditionCOEntiry {
@@ -34,6 +34,7 @@ export interface creditMemoConditionProductEntity {
   discountAmount: number;
   productName: string;
   productGroup: string;
+  productLocation: string;
 }
 export interface creditMemoConditionShop {
   customerCompanyId: number;
@@ -48,6 +49,7 @@ export const creditMemoConditionProductEntity_INIT: creditMemoConditionProductEn
   discountAmount: 0,
   productName: "",
   productGroup: "",
+  productLocation: "",
 };
 
 export const creditMemoConditionShop_INIT: creditMemoConditionShop = {

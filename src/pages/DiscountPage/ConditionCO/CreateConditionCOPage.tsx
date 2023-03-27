@@ -24,7 +24,7 @@ import {
 } from "../../../datasource/CreditMemoDatasource";
 import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
 import { getProductGroup } from "../../../datasource/ProductDatasource";
-import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
+import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
 import {
   ConditionCOEntiry,
   CreateConditionCOEntiry,
@@ -74,6 +74,7 @@ export const CreateConditionCOPage: React.FC = () => {
   const [searchProdGroup, setSearchProdGroup] = useState("");
   const [searchKeywordShop, setSearchKeywordShop] = useState("");
   const [searchShopZone, setSearchShopZone] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
 
   // only use in edit mode
   const [loadingCoData, setLoadingCoData] = useState(false);
@@ -460,7 +461,8 @@ export const CreateConditionCOPage: React.FC = () => {
       const find = searchProd.filter((x) => {
         const searchName = !e.target.value || x.productName?.includes(e.target.value);
         const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
-        return searchName && searchGroup;
+        const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
+        return searchName && searchGroup && searchLocat;
       });
       setSelectedProd(find);
     };
@@ -473,9 +475,19 @@ export const CreateConditionCOPage: React.FC = () => {
       });
       setSelectedProd(find);
     };
+    const handleSearchLocation = (e: any) => {
+      setSearchLocation(e);
+      const find = searchProd.filter((x) => {
+        const searchName = !searchKeywordProd || x.productName?.includes(searchKeywordProd);
+        const searchLocat = !e || x.productLocation?.includes(e);
+        return searchName && searchLocat;
+      });
+      setSelectedProd(find);
+    };
     const onClearSearchProd = () => {
       setSearchProdGroup("");
       setSearchKeywordProd("");
+      setSearchLocation("");
       setSelectedProd(searchProd);
     };
     const handleCheckBoxDelete = (e: any, prodId: string) => {
@@ -578,24 +590,29 @@ export const CreateConditionCOPage: React.FC = () => {
         render: (text: string) => <span>{LOCATION_FULLNAME_MAPPING[text]}</span>,
       },
       {
-        title: <span>เงื่อนไขราคาขาย (บาท)</span>,
+        title: <span>ลดราคาขาย (บาท)</span>,
         width: "20%",
-        render: (text: string, value: any, index: number) => (
-          <Form.Item
-            name={value.productId}
-            rules={[
-              {
-                validator: (rule, value, callback) => {
-                  if (!value || parseFloat(value) <= 0) {
-                    return Promise.reject("เงื่อนไขราคาขายต้องมากกว่า 0");
-                  }
-                  return Promise.resolve();
+        render: (text: string, row: any, index: number) => (
+          <>
+            <Form.Item
+              name={row.productId}
+              rules={[
+                {
+                  validator: (rule, value, callback) => {
+                    if (parseFloat(row.marketPrice || "") < parseFloat(value)) {
+                      return Promise.reject("ส่วนลดมากกว่าราคาขาย โปรดระบุใหม่");
+                    }
+                    if (!value || parseFloat(value) <= 0) {
+                      return Promise.reject("เงื่อนไขลดราคาขายต้องมากกว่า 0");
+                    }
+                    return Promise.resolve();
+                  },
                 },
-              },
-            ]}
-          >
-            <Input suffix={"บาท/" + value.saleUOMTH} autoComplete='off' />
-          </Form.Item>
+              ]}
+            >
+              <Input suffix={"บาท/" + row.saleUOMTH} autoComplete='off' />
+            </Form.Item>
+          </>
         ),
       },
     ];
@@ -640,6 +657,28 @@ export const CreateConditionCOPage: React.FC = () => {
                   />
                 </Col>
               )}
+              {company === "ICPI" && (
+                <Col span={6}>
+                  <Select
+                    data={[
+                      {
+                        key: "",
+                        value: "",
+                        label: "Location : ทั้งหมด",
+                      },
+                      ...LOCATION_DATA.filter((c: any) => c.company === company).map((p: any) => ({
+                        key: p.LocationName,
+                        value: p.LocationName,
+                        label: p.LocationNameTH,
+                      })),
+                    ]}
+                    placeholder='Location : ทั้งหมด'
+                    style={{ width: "100%" }}
+                    onChange={(e) => handleSearchLocation(e)}
+                    value={searchLocation}
+                  />
+                </Col>
+              )}
               <Col span={3}>
                 <Button
                   title='ล้างการค้นหา'
@@ -649,11 +688,9 @@ export const CreateConditionCOPage: React.FC = () => {
               </Col>
             </>
           ) : (
-            <>
-              <Col span={14}></Col>
-            </>
+            <Col span={14}></Col>
           )}
-          <Col span={7}>
+          <Col span={company === "ICPF" ?  13 : 7}>
             {searchProd.filter((x) => x.isChecked).length > 0 && (
               <FlexRow align='center' justify='end' style={{ height: "100%" }}>
                 <DeleteOutlined
@@ -701,6 +738,7 @@ export const CreateConditionCOPage: React.FC = () => {
     if (isEditing) {
       const create: CreateConditionCOEntiry = createCondition;
       create.creditMemoConditionId = id;
+
       Modal.confirm({
         title: "ยืนยันการแก้ไขเงื่อนไข CO",
         content: "โปรดยืนยันการแก้ไขข้อมูลเงื่อนไข CO",
@@ -793,6 +831,10 @@ export const CreateConditionCOPage: React.FC = () => {
       setCreateCondition(create);
       setCurrent(current + 1);
     } else if (current === 2) {
+      if (selectedProd.length <= 0) {
+        message.error("ไม่สามารถบันทึกได้ กรุณาเลือกสินค้า");
+        return;
+      }
       form3
         .validateFields()
         .then((f3) => {

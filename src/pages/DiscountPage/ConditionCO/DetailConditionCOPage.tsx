@@ -16,7 +16,7 @@ import Text from "../../../components/Text/Text";
 import { getConditionCoById } from "../../../datasource/CreditMemoDatasource";
 import { getZones } from "../../../datasource/CustomerDatasource";
 import { getProductGroup } from "../../../datasource/ProductDatasource";
-import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
+import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
 import { ConditionCOEntiry } from "../../../entities/ConditionCOEntiry";
 import { ProductEntity } from "../../../entities/PoductEntity";
 import { ProductGroupEntity } from "../../../entities/ProductGroupEntity";
@@ -55,9 +55,11 @@ export const DetailConditionCOPage: React.FC = () => {
   const [searchProdGroup, setSearchProdGroup] = useState("");
   const [searchKeywordShop, setSearchKeywordShop] = useState("");
   const [searchShopZone, setSearchShopGroup] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
 
   const getCondition = async () => {
     const getById = await getConditionCoById(conditionId, company);
+    console.log(getById);
     setData(getById);
     setSearchData(getById);
   };
@@ -107,7 +109,7 @@ export const DetailConditionCOPage: React.FC = () => {
               icon={<EditOutlined />}
               title='แก้ไขรายละเอียด'
               height={40}
-              onClick={() => setIsEdit(!isEdit)}
+              onClick={() => navigate(`/discount/editConditionCo/` + conditionId)}
             />
           )
         }
@@ -139,7 +141,8 @@ export const DetailConditionCOPage: React.FC = () => {
     const find = searchData?.creditMemoConditionProduct.filter((x) => {
       const searchName = !e.target.value || x.productName?.includes(e.target.value);
       const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
-      return searchName && searchGroup;
+      const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
+      return searchName && searchGroup && searchLocat;
     });
     const map: any = { ...data };
     map.creditMemoConditionProduct = find;
@@ -151,6 +154,17 @@ export const DetailConditionCOPage: React.FC = () => {
       const searchName = !searchKeywordProd || x.productName?.includes(searchKeywordProd);
       const searchGroup = !e || x.productGroup?.includes(e);
       return searchName && searchGroup;
+    });
+    const map: any = { ...data };
+    map.creditMemoConditionProduct = find;
+    setData(map);
+  };
+  const handleSearchLocation = (e: any) => {
+    setSearchLocation(e);
+    const find = searchData?.creditMemoConditionProduct.filter((x) => {
+      const searchName = !searchKeywordProd || x.productName?.includes(searchKeywordProd);
+      const searchLocat = !e || x.productLocation?.includes(e);
+      return searchName && searchLocat;
     });
     const map: any = { ...data };
     map.creditMemoConditionProduct = find;
@@ -245,7 +259,7 @@ export const DetailConditionCOPage: React.FC = () => {
       render: (text: string) => <span>{LOCATION_FULLNAME_MAPPING[text]}</span>,
     },
     {
-      title: <span>ราคาลด</span>,
+      title: <span>ลดราคาขาย</span>,
       dataIndex: "discountAmount",
       width: "20%",
       render: (text: string, value: any) =>
@@ -302,7 +316,7 @@ export const DetailConditionCOPage: React.FC = () => {
       render: (text: string) => <span>{text}</span>,
     },
   ];
-  
+
   return (
     <>
       <CardContainer>
@@ -316,8 +330,16 @@ export const DetailConditionCOPage: React.FC = () => {
               dateFormatter(data?.startDate || "") + " - " + dateFormatter(data?.endDate || "")
             }
           />
-          <DetailItem label='สร้างรายการโดย' value={data?.createBy || ""} />
-          <DetailItem label='วันที่สร้างรายการ' value={dateFormatter(data?.createdAt || "")} />
+          <DetailItem
+            label='สร้างรายการโดย'
+            value={data?.createBy + " " + dateFormatter(data?.createdAt || "") || ""}
+          />
+          <DetailItem
+            label='อัปเดทล่าสุดโดย'
+            value={
+              data?.updateBy || "-" + " " + (data?.updatedAt ? dateFormatter(data?.updatedAt || "") : "-")
+            }
+          />
           <DetailItem label='หมายเหตุ' value={data?.comment || ""} />
         </DetailBox>
         <br />
@@ -327,7 +349,7 @@ export const DetailConditionCOPage: React.FC = () => {
           </Col>
           {selectedTab === "product" ? (
             <>
-              <Col span={6}>
+              <Col span={company === "ICPF" ? 11 : 6}>
                 <Input
                   placeholder='ค้นหาสินค้า...'
                   suffix={<SearchOutlined />}
@@ -337,26 +359,50 @@ export const DetailConditionCOPage: React.FC = () => {
                   defaultValue={searchKeywordProd}
                 />
               </Col>
-              <Col span={5}>
-                <Select
-                  data={[
-                    {
-                      key: "",
-                      value: "",
-                      label: "Product Group : ทั้งหมด",
-                    },
-                    ...productGroup.map((p: any) => ({
-                      key: p.product_group,
-                      value: p.product_group,
-                      label: p.product_group,
-                    })),
-                  ]}
-                  placeholder='Product Group : ทั้งหมด'
-                  style={{ width: "100%" }}
-                  onChange={(e) => onSearchProdGroup(e)}
-                  value={searchProdGroup}
-                />
-              </Col>
+              {company === "ICPL" && (
+                <Col span={5}>
+                  <Select
+                    data={[
+                      {
+                        key: "",
+                        value: "",
+                        label: "Product Group : ทั้งหมด",
+                      },
+                      ...productGroup.map((p: any) => ({
+                        key: p.product_group,
+                        value: p.product_group,
+                        label: p.product_group,
+                      })),
+                    ]}
+                    placeholder='Product Group : ทั้งหมด'
+                    style={{ width: "100%" }}
+                    onChange={(e) => onSearchProdGroup(e)}
+                    value={searchProdGroup}
+                  />
+                </Col>
+              )}
+              {company === "ICPI" && (
+                <Col span={5}>
+                  <Select
+                    data={[
+                      {
+                        key: "",
+                        value: "",
+                        label: "Location : ทั้งหมด",
+                      },
+                      ...LOCATION_DATA.filter((c) => c.company === company).map((p: any) => ({
+                        key: p.LocationName,
+                        value: p.LocationName,
+                        label: p.LocationNameTH,
+                      })),
+                    ]}
+                    placeholder='Location : ทั้งหมด'
+                    style={{ width: "100%" }}
+                    onChange={(e) => handleSearchLocation(e)}
+                    value={searchLocation}
+                  />
+                </Col>
+              )}
             </>
           ) : (
             <>
