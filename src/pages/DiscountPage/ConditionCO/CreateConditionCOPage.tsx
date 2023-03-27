@@ -30,7 +30,6 @@ import {
   CreateConditionCOEntiry,
   CreateConditionCOEntiry_INIT,
 } from "../../../entities/ConditionCOEntiry";
-import { CreditMemoShopEntity } from "../../../entities/CreditMemoEntity";
 import { ProductEntity } from "../../../entities/PoductEntity";
 import { ProductGroupEntity } from "../../../entities/ProductGroupEntity";
 import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
@@ -86,7 +85,6 @@ export const CreateConditionCOPage: React.FC = () => {
     setLoadingCoData(true);
     await getConditionCoById(id, company)
       .then((res) => {
-        console.log("getConditionCoById", res);
         setCoData(res);
         form1.setFieldsValue({
           promotionName: res.creditMemoConditionName,
@@ -96,12 +94,8 @@ export const CreateConditionCOPage: React.FC = () => {
           endTime: dayjs(res.endDate),
           comment: res.comment,
         });
-        const newShop = res?.creditMemoConditionShop.map((shop: any) => ({
-          ...shop,
-          key: shop.creditMemoConditionShopId,
-        }));
-        setSelectedShop(newShop);
-        setSearchShop(newShop);
+        setSelectedShop(res?.creditMemoConditionShop);
+        setSearchShop(res?.creditMemoConditionShop);
 
         const newProd = res?.creditMemoConditionProduct || [];
         setSelectedProd(newProd);
@@ -692,9 +686,7 @@ export const CreateConditionCOPage: React.FC = () => {
     );
   };
   const submit = () => {
-    console.log("need", createCondition);
     if (isEditing) {
-      console.log("submit edit");
       const create: CreateConditionCOEntiry = createCondition;
       create.creditMemoConditionId = id;
       Modal.confirm({
@@ -750,11 +742,9 @@ export const CreateConditionCOPage: React.FC = () => {
   const nextStep = () => {
     const create: CreateConditionCOEntiry = CreateConditionCOEntiry_INIT;
     if (current === 0) {
-      console.log("test");
       form1
         .validateFields()
         .then((f1) => {
-          console.log("validateFields -> then ", f1);
           create.creditMemoConditionName = f1.promotionName;
           create.comment = f1.comment;
           create.company = company;

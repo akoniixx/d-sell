@@ -161,7 +161,8 @@ export const ModalSelectedShop = ({
   useEffect(() => {
     if (currentSelectShop) {
       const s = shopData.filter(
-        (x) => !currentSelectShop.some((c) => c.customerCompanyId === x.customerCompanyId),
+        (x) =>
+          !currentSelectShop.some((c) => `${c.customerCompanyId}` === `${x.customerCompanyId}`),
       );
       setShopList(s);
       setCurrentAllSelected(currentSelectShop);

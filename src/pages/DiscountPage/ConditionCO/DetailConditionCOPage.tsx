@@ -302,6 +302,7 @@ export const DetailConditionCOPage: React.FC = () => {
       render: (text: string) => <span>{text}</span>,
     },
   ];
+  
   return (
     <>
       <CardContainer>
@@ -367,7 +368,7 @@ export const DetailConditionCOPage: React.FC = () => {
                     ...zoneList.map((z) => ({ label: z.zoneName, key: z.zoneName })),
                   ]}
                   onChange={(e) => onSearchZone(e)}
-                  //value={searchShopZone}
+                  value={searchShopZone}
                 />
               </Col>
               <Col span={6}>
