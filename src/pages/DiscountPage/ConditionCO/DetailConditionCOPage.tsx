@@ -14,11 +14,13 @@ import Select from "../../../components/Select/Select";
 import TableContainer from "../../../components/Table/TableContainer";
 import Text from "../../../components/Text/Text";
 import { getConditionCoById } from "../../../datasource/CreditMemoDatasource";
+import { getZones } from "../../../datasource/CustomerDatasource";
 import { getProductGroup } from "../../../datasource/ProductDatasource";
 import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
 import { ConditionCOEntiry } from "../../../entities/ConditionCOEntiry";
 import { ProductEntity } from "../../../entities/PoductEntity";
 import { ProductGroupEntity } from "../../../entities/ProductGroupEntity";
+import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
 import color from "../../../resource/color";
 import image from "../../../resource/image";
 import { dateFormatter, numberFormatter } from "../../../utility/Formatter";
@@ -39,7 +41,9 @@ export const DetailConditionCOPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<"product" | "shop">("shop");
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [data, setData] = useState<ConditionCOEntiry>();
+  const [searchData, setSearchData] = useState<ConditionCOEntiry>();
   const [productGroup, setProductGroup] = useState<ProductGroupEntity[]>([]);
+  const [zoneList, setZoneList] = useState<ZoneEntity[]>([]);
 
   const [showModalProd, setShowModalProd] = useState<boolean>(false);
   const [showModalShop, setShowModalShop] = useState<boolean>(false);
@@ -49,11 +53,13 @@ export const DetailConditionCOPage: React.FC = () => {
 
   const [searchKeywordProd, setSearchKeywordProd] = useState("");
   const [searchProdGroup, setSearchProdGroup] = useState("");
+  const [searchKeywordShop, setSearchKeywordShop] = useState("");
+  const [searchShopZone, setSearchShopGroup] = useState("");
 
   const getCondition = async () => {
-    const getById = await getConditionCoById(conditionId);
-    console.log(getById);
+    const getById = await getConditionCoById(conditionId, company);
     setData(getById);
+    setSearchData(getById);
   };
   const fetchProductGroup = async () => {
     const getProdGroup = await getProductGroup(company);
@@ -61,10 +67,15 @@ export const DetailConditionCOPage: React.FC = () => {
       getProdGroup.responseData.map((d: any, index: number) => ({ ...d, key: index })),
     );
   };
+  const fetchZone = async () => {
+    const getZone = await getZones(company);
+    setZoneList(getZone.map((d: StoreEntity, i: number) => ({ ...d, key: d.customerCompanyId })));
+  };
 
   useEffect(() => {
     getCondition();
     fetchProductGroup();
+    fetchZone();
   }, []);
 
   const onClearData = () => {
@@ -125,29 +136,31 @@ export const DetailConditionCOPage: React.FC = () => {
   //#region section product
   const onSearchProd = (e: any) => {
     setSearchKeywordProd(e.target.value);
-    const find = searchProd.filter((x) => {
+    const find = searchData?.creditMemoConditionProduct.filter((x) => {
       const searchName = !e.target.value || x.productName?.includes(e.target.value);
       const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
       return searchName && searchGroup;
     });
-    setSelectedProd(find);
+    const map: any = { ...data };
+    map.creditMemoConditionProduct = find;
+    setData(map);
   };
   const onSearchProdGroup = (e: any) => {
-    console.log(e);
     setSearchProdGroup(e);
-    const find = searchProd.filter((x) => {
+    const find = searchData?.creditMemoConditionProduct.filter((x) => {
       const searchName = !searchKeywordProd || x.productName?.includes(searchKeywordProd);
       const searchGroup = !e || x.productGroup?.includes(e);
       return searchName && searchGroup;
     });
-    setSelectedProd(find);
+    const map: any = { ...data };
+    map.creditMemoConditionProduct = find;
+    setData(map);
   };
   const callBackProduct = (item: ProductEntity[]) => {
     item = item.map((p: any) => ({ ...p, isChecked: false }));
     setSelectedProd(item);
     setSearchProd(item);
   };
-
   const handleCheckBoxDelete = (e: any, prodId: string) => {
     const checkBoxed = selectedProd.map((item) =>
       _.set(item, "isChecked", item.productId === prodId ? e.target.checked : item.isChecked),
@@ -247,6 +260,31 @@ export const DetailConditionCOPage: React.FC = () => {
   ];
   //#endregion
 
+  //#region section shop
+  const onSearchZone = (e: any) => {
+    setSearchShopGroup(e);
+    const find = searchData?.creditMemoConditionShop.filter((x) => {
+      const searchName = !searchKeywordShop || x.customerName?.includes(searchKeywordShop);
+      const searchZone = !e || x.zone?.includes(e);
+      return searchName && searchZone;
+    });
+    const map: any = { ...data };
+    map.creditMemoConditionShop = find;
+    setData(map);
+  };
+  const onSearchKeywordShop = (e: any) => {
+    setSearchKeywordShop(e.target.value);
+    const find = searchData?.creditMemoConditionShop.filter((x) => {
+      const searchName = !e.target.value || x.customerName?.includes(e.target.value);
+      const searchZone = !searchShopZone || x.zone?.includes(searchShopZone);
+      return searchName && searchZone;
+    });
+    const map: any = { ...data };
+    map.creditMemoConditionShop = find;
+    setData(map);
+  };
+  //#endregion
+
   const dataTableShop = [
     {
       title: isEdit && <Checkbox />,
@@ -264,7 +302,6 @@ export const DetailConditionCOPage: React.FC = () => {
       render: (text: string) => <center>{text}</center>,
     },
   ];
-
   return (
     <>
       <CardContainer>
@@ -278,6 +315,9 @@ export const DetailConditionCOPage: React.FC = () => {
               dateFormatter(data?.startDate || "") + " - " + dateFormatter(data?.endDate || "")
             }
           />
+          <DetailItem label='สร้างรายการโดย' value={data?.createBy || ""} />
+          <DetailItem label='วันที่สร้างรายการ' value={dateFormatter(data?.createdAt || "")} />
+          <DetailItem label='หมายเหตุ' value={data?.comment || ""} />
         </DetailBox>
         <br />
         <Row gutter={16}>
@@ -318,7 +358,29 @@ export const DetailConditionCOPage: React.FC = () => {
               </Col>
             </>
           ) : (
-            <></>
+            <>
+              <Col span={5}>
+                <Select
+                  style={{ width: "100%" }}
+                  data={[
+                    { label: "ทั้งหมด", key: "" },
+                    ...zoneList.map((z) => ({ label: z.zoneName, key: z.zoneName })),
+                  ]}
+                  onChange={(e) => onSearchZone(e)}
+                  //value={searchShopZone}
+                />
+              </Col>
+              <Col span={6}>
+                <Input
+                  placeholder='ค้นหาร้านค้า...'
+                  suffix={<SearchOutlined />}
+                  style={{ width: "100%" }}
+                  allowClear
+                  onPressEnter={(e) => onSearchKeywordShop(e)}
+                  defaultValue={searchKeywordShop}
+                />
+              </Col>
+            </>
           )}
         </Row>
         <br />
