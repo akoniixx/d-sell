@@ -93,7 +93,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
       width: "25%",
     },
     {
-      title: "ส่วนลดดูแลราคา",
+      title: "ส่วนลดดูแลราคา (บาท)",
       dataIndex: "customerCompanyId",
       align: "center" as AlignType,
       width: "25%",

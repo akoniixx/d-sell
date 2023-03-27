@@ -31,27 +31,33 @@ export const AuthPage: React.FC = () => {
   const version = packageJson.version;
   const authHandler = async (err: any, data: any) => {
     setLoading(true);
-    await AuthDatasource.login(data.account.userName).then((res: any) => {
-      if (res.accessToken) {
-        setTimeout(() => {
-          setPersistedProfile({
-            ...res.data,
-            roleId: res.rolePermission.roleId,
-          });
-          setToken(res.accessToken);
-          setRole(res.rolePermission);
-          setProfile({
-            ...res.data,
-            roleId: res.rolePermission.roleId,
-          });
+    try {
+      await AuthDatasource.login(data.account.userName).then((res: any) => {
+        if (res.accessToken) {
+          setTimeout(() => {
+            setPersistedProfile({
+              ...res.data,
+              roleId: res.rolePermission.roleId,
+            });
+            setToken(res.accessToken);
+            setRole(res.rolePermission);
+            setProfile({
+              ...res.data,
+              roleId: res.rolePermission.roleId,
+            });
 
-          navigate(`${redirectByRole(res.rolePermission.menus)}`);
-          setLoading(false);
-        }, 1500);
-      } else {
-        return navigate("ErrorLoginPage");
-      }
-    });
+            navigate(`${redirectByRole(res.rolePermission.menus)}`);
+            setLoading(false);
+          }, 1500);
+        } else {
+          return navigate("ErrorLoginPage");
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffectOnce(() => {
     setProfile(null);

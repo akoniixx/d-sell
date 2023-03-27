@@ -61,7 +61,7 @@ export const SpecialRequestList: React.FC = () => {
   useEffect(() => {
     console.log("change filter");
     fetchData();
-  }, [keyword, statusFilter, dateFilter]);
+  }, [keyword, statusFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
 
@@ -76,7 +76,7 @@ export const SpecialRequestList: React.FC = () => {
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
         endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
       });
-      console.log({ dateFilter });
+      console.log({ data, dashboard, count });
       setDataState({ data, dashboard, count });
     } catch (e) {
       console.log(e);
@@ -136,33 +136,22 @@ export const SpecialRequestList: React.FC = () => {
 
   const columns = [
     {
-      title: "เลขโปรโมชั่น",
-      dataIndex: "promotionId",
+      title: "หมายเลขออเดอร์",
+      dataIndex: "orderNo",
       key: "orderNo",
-    },
-    {
-      title: "NAV NO.",
-      dataIndex: "soNo",
-      key: "soNo",
-      render: (value: any, row: any, index: number) => {
-        return (
-          <FlexCol>
-            <Text level={5}>{value || "-"}</Text>
-          </FlexCol>
-        );
-      },
+      width: "15%",
     },
     {
       title: "ร้านค้า",
       dataIndex: "customerName",
       key: "customerName",
-      width: "20%",
+      width: "25%",
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
             <Text level={5}>{value || "-"}</Text>
             <Text level={6} color='Text3'>
-              {row.customerNo}
+              {row.customerNo || "-"}
             </Text>
           </FlexCol>
         );
@@ -185,6 +174,7 @@ export const SpecialRequestList: React.FC = () => {
       title: "วันที่สร้าง",
       dataIndex: "createAt",
       key: "createAt",
+      width: "15%",
       render: (value: any, row: any, index: number) => {
         return <Text style={{ textAlign: "center" }}>{moment(value).format(SLASH_DMY)}</Text>;
       },
@@ -272,6 +262,7 @@ export const SpecialRequestList: React.FC = () => {
               current: page,
               total: dataState.count,
               showSizeChanger: false,
+              onChange: (page) => setPage(page),
               position: ["bottomCenter"],
             }}
             size='large'

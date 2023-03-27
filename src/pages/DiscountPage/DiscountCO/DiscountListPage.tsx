@@ -5,6 +5,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   SearchOutlined,
+  SyncOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import { RangePicker } from "../../../components/DatePicker/DatePicker";
@@ -14,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import {
   deleteCreditMemo,
   getCreditMemoList,
+  syncNavision,
   updateCreditMemoStatus,
 } from "../../../datasource/CreditMemoDatasource";
 import moment from "moment";
@@ -33,6 +35,9 @@ export const DiscountListPage: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
+
+  const showSyncButton = company === "ICPF";
+  const [loadingSyncProduct, setLoadingSyncProduct] = useState(false);
 
   const navigate = useNavigate();
 
@@ -97,10 +102,34 @@ export const DiscountListPage: React.FC = () => {
     }
   };
 
+  const onSyncProduct = async () => {
+    Modal.confirm({
+      title: "ยืนยันการเชื่อมต่อ Navision",
+      onOk: async () => {
+        setLoadingSyncProduct(true);
+        await syncNavision(company)
+          .then((res: any) => {
+            console.log(res);
+            const { success } = res.data;
+            if (success) {
+              navigate(0);
+            } else {
+              message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
+            }
+          })
+          .catch((err) => console.log("err", err))
+          .finally(() => {
+            console.log("sync product done");
+            setLoadingSyncProduct(false);
+          });
+      },
+    });
+  };
+
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
-        <Col className='gutter-row' xl={10} sm={6}>
+        <Col className='gutter-row' xl={showSyncButton ? 7 : 10} sm={showSyncButton ? 4 : 6}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -109,6 +138,14 @@ export const DiscountListPage: React.FC = () => {
               รายการ เพิ่ม/ลด Credit Memo
             </span>
           </div>
+        </Col>
+        <Col className='gutter-row' xl={showSyncButton ? 3 : 0} sm={showSyncButton ? 2 : 0}>
+          <Button
+            title='Navision'
+            icon={<SyncOutlined />}
+            onClick={onSyncProduct}
+            loading={loadingSyncProduct}
+          />
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
           <div style={style}>

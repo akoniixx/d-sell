@@ -277,7 +277,7 @@ export const FreebieListPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
+                  onClick={() => navigate("/freebies/freebies/edit/" + row.productFreebiesId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <EditOutlined style={{ color: color["primary"] }} />
