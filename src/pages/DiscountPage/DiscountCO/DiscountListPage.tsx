@@ -36,7 +36,7 @@ export const DiscountListPage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
 
-  const showSyncButton = true; //company === "ICP";
+  const showSyncButton = company === "ICPF";
   const [loadingSyncProduct, setLoadingSyncProduct] = useState(false);
 
   const navigate = useNavigate();

@@ -13,6 +13,7 @@ export interface ConditionCOEntiry {
 }
 
 export interface CreateConditionCOEntiry {
+  creditMemoConditionId?: string;
   creditMemoConditionName: string;
   company: string;
   startDate: string;

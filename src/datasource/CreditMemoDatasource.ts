@@ -143,6 +143,15 @@ const createConditionCO = async (params: CreateConditionCOEntiry) => {
     .catch((err) => console.log(err));
 };
 
+const updateConditionCO = async (params: CreateConditionCOEntiry) => {
+  return await httpClient
+    .post(`${baseUrl}/co-condition/update`, {
+      params,
+    })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const syncNavision = async (company: string) => {
   return await httpClient
     .post(`${BASE_URL}/nav/credit-memo`, { company })
@@ -163,6 +172,7 @@ export {
   getOrderHistory,
   deleteCreditMemo,
   createConditionCO,
+  updateConditionCO,
   getConditionCO,
   getConditionCoById,
   syncNavision,

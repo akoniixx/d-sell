@@ -17,7 +17,11 @@ import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
 import Select from "../../../components/Select/Select";
 import StepAntd from "../../../components/StepAntd/StepAntd";
 import Text from "../../../components/Text/Text";
-import { createConditionCO, getConditionCoById } from "../../../datasource/CreditMemoDatasource";
+import {
+  createConditionCO,
+  getConditionCoById,
+  updateConditionCO,
+} from "../../../datasource/CreditMemoDatasource";
 import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
 import { getProductGroup, getProductList } from "../../../datasource/ProductDatasource";
 import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
@@ -98,6 +102,9 @@ export const CreateConditionCOPage: React.FC = () => {
         );
         // TODO
         setSelectedProd(res?.creditMemoConditionProduct || []);
+        res?.creditMemoConditionProduct?.forEach((p: any) => {
+          form3.setFieldValue(p.productId, p.discountAmount);
+        });
       })
       .catch((err) => {
         console.log("getConditionCoById ERROR!:", err);
@@ -593,11 +600,36 @@ export const CreateConditionCOPage: React.FC = () => {
     );
   };
   const submit = () => {
+    console.log("need", createCondition);
     if (isEditing) {
       console.log("submit edit");
+      const create: CreateConditionCOEntiry = createCondition;
+      create.creditMemoConditionId = id;
+      Modal.confirm({
+        title: "ยืนยันการแก้ไขเงื่อนไข CO",
+        content: "โปรดยืนยันการแก้ไขข้อมูลเงื่อนไข CO",
+        onOk: async () => {
+          await updateConditionCO(create)
+            .then(({ success, userMessage }: any) => {
+              if (success) {
+                Modal.success({
+                  title: "แก้ไขเงื่อนไข CO สำเร็จ",
+                  onOk: () => navigate(0),
+                });
+              } else {
+                Modal.error({
+                  title: "แก้ไขเงื่อนไข CO ไม่สำเร็จ",
+                  content: userMessage,
+                });
+              }
+            })
+            .catch((e: any) => {
+              console.log(e);
+            });
+        },
+      });
       return;
     }
-    console.log("need", createCondition);
     Modal.confirm({
       title: "ยืนยันการสร้างเงื่อนไข CO",
       content: "โปรดยืนยันการสร้างข้อมูลเงื่อนไข CO",
@@ -649,10 +681,14 @@ export const CreateConditionCOPage: React.FC = () => {
           console.log("form1 errInfo", errInfo);
         });
     } else if (current === 1) {
-      const create2 = selectedShop.map((x) => {
+      const create2 = selectedShop.map((x: any) => {
         const shop: any = {};
         shop.customerCompanyId = x.customerCompanyId;
         (shop.customerName = x.customerName), (shop.zone = x.zone);
+        if (isEditing) {
+          shop.CreditMemoConditionShopId = x.creditMemoConditionProductId;
+          shop.creditMemoConditionId = id;
+        }
         return shop;
       });
       create.creditMemoConditionShop = create2;
@@ -660,10 +696,14 @@ export const CreateConditionCOPage: React.FC = () => {
       setCurrent(current + 1);
     } else if (current === 2) {
       const f3 = form3.getFieldsValue();
-      const create3 = selectedProd.map((x) => {
+      const create3 = selectedProd.map((x: any) => {
         const prod: any = {};
         prod.productId = x.productId;
         prod.discountAmount = f3[x.productId];
+        if (isEditing) {
+          prod.creditMemoConditionProductId = x.creditMemoConditionProductId;
+          prod.creditMemoConditionId = id;
+        }
         return prod;
       });
       create.creditMemoConditionProduct = create3;
