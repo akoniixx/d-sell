@@ -93,6 +93,24 @@ export const protectRoutesData: IRoute[] = [
     index: false,
   },
   {
+    path: "/special-request",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "",
+        element: <SpecialRequestList />,
+        permission: null,
+      },
+      {
+        path: ":id",
+        element: <OrderDetail />,
+        permission: null,
+      },
+    ],
+    index: false,
+  },
+  {
     path: "/view-order",
     element: <RedirectPathPage />,
     permission: null,
@@ -103,13 +121,6 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
     ],
-    index: false,
-  },
-  {
-    path: "/special-request",
-    element: <SpecialRequestList />,
-    permission: null,
-    nestedRoutes: [],
     index: false,
   },
   {

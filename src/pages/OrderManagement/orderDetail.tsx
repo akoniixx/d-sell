@@ -122,6 +122,7 @@ export const OrderDetail: React.FC = () => {
   const pathSplit = pathname.split("/") as Array<string>;
   const path = pathSplit[1];
   const isViewMode = path === "view-order";
+  const isSpecialRequestMode = path === "special-request";
 
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState<OrderEntity>();
@@ -243,7 +244,9 @@ export const OrderDetail: React.FC = () => {
       <PageTitleNested
         title={`ORDER NO: ${orderData?.orderNo}`}
         showBack
-        onBack={() => navigate(`/order`)}
+        onBack={
+          isSpecialRequestMode ? () => navigate(`/special-request`) : () => navigate(`/order`)
+        }
         extra={
           <FlexCol align='end'>
             <Text
@@ -273,7 +276,10 @@ export const OrderDetail: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการคำสั่งซื้อ", path: "/order" },
+              {
+                text: isSpecialRequestMode ? "รายการขอโปรโมชันพิเศษเพิ่มเติม" : "รายการคำสั่งซื้อ",
+                path: isSpecialRequestMode ? "/special-request" : "/order",
+              },
               { text: "รายละเอียดคำสั่งซื้อ", path: window.location.pathname },
             ]}
           />
@@ -629,14 +635,18 @@ export const OrderDetail: React.FC = () => {
           </>
         );
       case "WAIT_CONFIRM_ORDER":
-        return (
+        return isSpecialRequestMode ? (
+          <></>
+        ) : (
           <>
             <br />
             {orderStatusOption}
           </>
         );
       case "CONFIRM_ORDER":
-        return (
+        return isSpecialRequestMode ? (
+          <></>
+        ) : (
           <>
             <br />
             <OrderNavOption />
