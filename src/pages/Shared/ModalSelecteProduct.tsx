@@ -42,6 +42,7 @@ export const ModalSelectedProduct = ({
       company,
       take: 1000,
     });
+    prodSelected = prodSelected.map((item) => ({ ...item, isChecked: false }));
     const dataWithIschecked = getProd.data.map((p: any) =>
       _.set(
         p,

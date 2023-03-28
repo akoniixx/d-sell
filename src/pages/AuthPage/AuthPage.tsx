@@ -34,7 +34,6 @@ export const AuthPage: React.FC = () => {
     try {
       await AuthDatasource.login(data.account.userName).then((res: any) => {
         if (res.accessToken) {
-          setTimeout(() => {
             setPersistedProfile({
               ...res.data,
               roleId: res.rolePermission.roleId,
@@ -45,11 +44,9 @@ export const AuthPage: React.FC = () => {
               ...res.data,
               roleId: res.rolePermission.roleId,
             });
-
             navigate(`${redirectByRole(res.rolePermission.menus)}`);
-            setLoading(false);
-          }, 1500);
         } else {
+          setLoading(false)
           return navigate("ErrorLoginPage");
         }
       });

@@ -59,7 +59,6 @@ export const DetailConditionCOPage: React.FC = () => {
 
   const getCondition = async () => {
     const getById = await getConditionCoById(conditionId, company);
-    console.log(getById);
     setData(getById);
     setSearchData(getById);
   };
@@ -330,16 +329,10 @@ export const DetailConditionCOPage: React.FC = () => {
               dateFormatter(data?.startDate || "") + " - " + dateFormatter(data?.endDate || "")
             }
           />
-          <DetailItem
-            label='สร้างรายการโดย'
-            value={data?.createBy + " " + dateFormatter(data?.createdAt || "") || ""}
-          />
-          <DetailItem
-            label='อัปเดทล่าสุดโดย'
-            value={
-              data?.updateBy || "-" + " " + (data?.updatedAt ? dateFormatter(data?.updatedAt || "") : "-")
-            }
-          />
+          <DetailItem label='สร้างรายการโดย' value={data?.createBy || ""} />
+          <DetailItem label='สร้างรายการวันที่' value={dateFormatter(data?.createdAt || "")} />
+          <DetailItem label='อัปเดทล่าสุดโดย' value={data?.updateBy || "-"} />
+          <DetailItem label='อัปเดทล่าสุดวันที่' value={dateFormatter(data?.updatedAt || "")} />
           <DetailItem label='หมายเหตุ' value={data?.comment || ""} />
         </DetailBox>
         <br />
@@ -459,17 +452,28 @@ export const DetailConditionCOPage: React.FC = () => {
             {isEdit && selectedTab === "shop" && <Button title='+ เพิ่มร้านค้า' />}
           </Col>
         </Row>
-        <br />
+        <Row justify={"end"}>
+          <Col>
+            <Text>
+              จำนวนที่เลือก{" "}
+              {selectedTab === "product"
+                ? data?.creditMemoConditionProduct.length + " สินค้า"
+                : data?.creditMemoConditionShop.length + " ร้านค้า"}
+            </Text>
+          </Col>
+        </Row>
         <TableContainer>
           {selectedTab === "product" ? (
-            <Form form={form1}>
-              <Table
-                columns={dataTableProd}
-                dataSource={data?.creditMemoConditionProduct}
-                pagination={false}
-                scroll={{ y: 360 }}
-              />
-            </Form>
+            <>
+              <Form form={form1}>
+                <Table
+                  columns={dataTableProd}
+                  dataSource={data?.creditMemoConditionProduct}
+                  pagination={false}
+                  scroll={{ y: 360 }}
+                />
+              </Form>
+            </>
           ) : (
             <Form form={form2}>
               <Table
