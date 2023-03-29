@@ -1,4 +1,12 @@
 ## [Version - 0]
+## Resolved [v0.4.1] - Release Date: 2023-03-28
+
+- fixed defect search shop & product in condition co menu
+- fixed create after search product & shop
+- fixed clear form after delete product & shop
+- updated wording total selected product & shop
+- fixed button add product in "FERT" company
+
 ## Features [v0.4.0] - Release Date: 2022-03-27
 
 - added feature condition co

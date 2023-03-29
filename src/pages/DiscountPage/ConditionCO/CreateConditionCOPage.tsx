@@ -183,6 +183,18 @@ export const CreateConditionCOPage: React.FC = () => {
     );
   };
 
+  const onClearSearchShop = () => {
+    setSearchShopZone("");
+    setSearchKeywordShop("");
+    setSelectedShop(searchShop);
+  };
+  const onClearSearchProd = () => {
+    setSearchProdGroup("");
+    setSearchKeywordProd("");
+    setSearchLocation("");
+    setSelectedProd(searchProd);
+  };
+
   const StepOne = () => {
     return (
       <>
@@ -310,11 +322,6 @@ export const CreateConditionCOPage: React.FC = () => {
       });
       setSelectedShop(find);
     };
-    const onClearSearchShop = () => {
-      setSearchShopZone("");
-      setSearchKeywordShop("");
-      setSelectedShop(searchShop);
-    };
     const handleCheckBoxDelete = (e: any, cusId: string) => {
       const checkBoxed = selectedShop.map((item) =>
         _.set(
@@ -327,11 +334,16 @@ export const CreateConditionCOPage: React.FC = () => {
       setSearchShop(checkBoxed);
     };
     const handleAllCheckBoxDelete = (e: any) => {
-      const checkBoxed = selectedShop.map((item) =>
-        _.set(item, "isChecked", (item.isChecked = e.target.checked)),
-      );
+      const checkBoxed = selectedShop.map((item) => ({ ...item, isChecked: e.target.checked }));
+      const mapData = searchShop.map((item) => {
+        const findObj = checkBoxed.find((el) => el.customerCompanyId === item.customerCompanyId);
+        if (findObj) {
+          return { ...item, isChecked: true };
+        }
+        return { ...item, isChecked: false };
+      });
       setSelectedShop(checkBoxed);
-      setSearchShop(checkBoxed);
+      setSearchShop(mapData);
     };
 
     const handleDelete = () => {
@@ -406,7 +418,7 @@ export const CreateConditionCOPage: React.FC = () => {
         <br />
         <Row justify={"end"}>
           <Col>
-            <Text>จำนวนรายการที่เลือก {selectedShop.length} ร้าน</Text>
+            <Text>จำนวนที่เลือก {selectedShop.length} ร้าน</Text>
           </Col>
         </Row>
         <br />
@@ -484,12 +496,6 @@ export const CreateConditionCOPage: React.FC = () => {
       });
       setSelectedProd(find);
     };
-    const onClearSearchProd = () => {
-      setSearchProdGroup("");
-      setSearchKeywordProd("");
-      setSearchLocation("");
-      setSelectedProd(searchProd);
-    };
     const handleCheckBoxDelete = (e: any, prodId: string) => {
       const checkBoxed = selectedProd.map((item) =>
         _.set(item, "isChecked", item.productId === prodId ? e.target.checked : item.isChecked),
@@ -498,18 +504,27 @@ export const CreateConditionCOPage: React.FC = () => {
       setSearchProd(checkBoxed);
     };
     const handleAllCheckBoxDelete = (e: any) => {
-      const checkBoxed = selectedProd.map((item) =>
-        _.set(item, "isChecked", (item.isChecked = e.target.checked)),
-      );
+      const checkBoxed = selectedProd.map((item) => ({ ...item, isChecked: e.target.checked }));
       setSelectedProd(checkBoxed);
-      setSearchProd(checkBoxed);
+      const mapData = searchProd.map((item) => {
+        const findObj = checkBoxed.find((el) => el.productId === item.productId);
+        if (findObj) {
+          return { ...item, isChecked: true };
+        }
+        return { ...item, isChecked: false };
+      });
+      setSearchProd(mapData);
     };
     const handleDelete = () => {
+      selectedProd.forEach((item) => {
+        if (item.isChecked) {
+          form3.setFieldValue(item.productId, undefined);
+        }
+      });
       const deleted = selectedProd.filter((x) => !x.isChecked);
       setSelectedProd(deleted);
       setSearchProd(deleted);
     };
-
     const callBackProduct = (item: ProductEntity[]) => {
       item = item.map((p: any) => ({ ...p, isChecked: false }));
       setSelectedProd(item);
@@ -520,7 +535,7 @@ export const CreateConditionCOPage: React.FC = () => {
         title: selectedProd.length > 0 && (
           <Checkbox
             onClick={(e) => handleAllCheckBoxDelete(e)}
-            checked={searchProd.every((x) => x.isChecked)}
+            checked={selectedProd.every((x) => x.isChecked)}
           />
         ),
         width: "5%",
@@ -623,91 +638,98 @@ export const CreateConditionCOPage: React.FC = () => {
         </Text>
         <br />
         <br />
-        <Row gutter={16}>
+        <Row>
           {searchProd.length > 0 ? (
-            <>
-              <Col span={5}>
-                <Input
-                  placeholder='ค้นหาสินค้า...'
-                  suffix={<SearchOutlined />}
-                  style={{ width: "100%" }}
-                  onPressEnter={(e) => onSearchProd(e)}
-                  defaultValue={searchKeywordProd}
-                />
-              </Col>
-              {company === "ICPL" && (
-                <Col span={6}>
-                  <Select
-                    data={[
-                      {
-                        key: "",
-                        value: "",
-                        label: "Product Group : ทั้งหมด",
-                      },
-                      ...productGroup.map((p: any) => ({
-                        key: p.product_group,
-                        value: p.product_group,
-                        label: p.product_group,
-                      })),
-                    ]}
-                    placeholder='Product Group : ทั้งหมด'
+            <Col span={14}>
+              <Row gutter={8}>
+                <Col span={company === "ICPF" ? 10 : 6}>
+                  <Input
+                    placeholder='ค้นหาสินค้า...'
+                    suffix={<SearchOutlined />}
                     style={{ width: "100%" }}
-                    onChange={(e) => onSearchProdGroup(e)}
-                    value={searchProdGroup}
+                    onPressEnter={(e) => onSearchProd(e)}
+                    defaultValue={searchKeywordProd}
                   />
                 </Col>
-              )}
-              {company === "ICPI" && (
-                <Col span={6}>
-                  <Select
-                    data={[
-                      {
-                        key: "",
-                        value: "",
-                        label: "Location : ทั้งหมด",
-                      },
-                      ...LOCATION_DATA.filter((c: any) => c.company === company).map((p: any) => ({
-                        key: p.LocationName,
-                        value: p.LocationName,
-                        label: p.LocationNameTH,
-                      })),
-                    ]}
-                    placeholder='Location : ทั้งหมด'
-                    style={{ width: "100%" }}
-                    onChange={(e) => handleSearchLocation(e)}
-                    value={searchLocation}
+                {company === "ICPL" && (
+                  <Col span={6}>
+                    <Select
+                      data={[
+                        {
+                          key: "",
+                          value: "",
+                          label: "Product Group : ทั้งหมด",
+                        },
+                        ...productGroup.map((p: any) => ({
+                          key: p.product_group,
+                          value: p.product_group,
+                          label: p.product_group,
+                        })),
+                      ]}
+                      placeholder='Product Group : ทั้งหมด'
+                      style={{ width: "100%" }}
+                      onChange={(e) => onSearchProdGroup(e)}
+                      value={searchProdGroup}
+                    />
+                  </Col>
+                )}
+                {company === "ICPI" && (
+                  <Col span={6}>
+                    <Select
+                      data={[
+                        {
+                          key: "",
+                          value: "",
+                          label: "Location : ทั้งหมด",
+                        },
+                        ...LOCATION_DATA.filter((c: any) => c.company === company).map(
+                          (p: any) => ({
+                            key: p.LocationName,
+                            value: p.LocationName,
+                            label: p.LocationNameTH,
+                          }),
+                        ),
+                      ]}
+                      placeholder='Location : ทั้งหมด'
+                      style={{ width: "100%" }}
+                      onChange={(e) => handleSearchLocation(e)}
+                      value={searchLocation}
+                    />
+                  </Col>
+                )}
+                <Col span={4}>
+                  <Button
+                    title='ล้างการค้นหา'
+                    typeButton='primary-light'
+                    onClick={onClearSearchProd}
                   />
                 </Col>
-              )}
-              <Col span={3}>
-                <Button
-                  title='ล้างการค้นหา'
-                  typeButton='primary-light'
-                  onClick={onClearSearchProd}
-                />
-              </Col>
-            </>
+              </Row>
+            </Col>
           ) : (
             <Col span={14}></Col>
           )}
-          <Col span={company === "ICPF" ?  13 : 7}>
-            {searchProd.filter((x) => x.isChecked).length > 0 && (
-              <FlexRow align='center' justify='end' style={{ height: "100%" }}>
-                <DeleteOutlined
-                  style={{ fontSize: 20, color: color.error }}
-                  onClick={handleDelete}
-                />
-              </FlexRow>
-            )}
-          </Col>
-          <Col span={3}>
-            <Button title='+ เพิ่มสินค้า' onClick={() => setShowModalProd(!showModalProd)} />
+          <Col span={10}>
+            <Row align='middle' justify='end' gutter={22}>
+              {searchProd.filter((x) => x.isChecked).length > 0 && (
+                <FlexRow align='center' justify='end' style={{ height: "100%" }}>
+                  <DeleteOutlined
+                    style={{ fontSize: 20, color: color.error }}
+                    onClick={handleDelete}
+                  />
+                </FlexRow>
+              )}
+
+              <Col span={8}>
+                <Button title='+ เพิ่มสินค้า' onClick={() => setShowModalProd(!showModalProd)} />
+              </Col>
+            </Row>
           </Col>
         </Row>
         <br />
         <Row justify={"end"}>
           <Col>
-            <Text>จำนวนสินค้าที่เลือก {selectedProd.length} ร้าน</Text>
+            <Text>จำนวนที่เลือก {selectedProd.length} สินค้า</Text>
           </Col>
         </Row>
         <br />
@@ -738,7 +760,6 @@ export const CreateConditionCOPage: React.FC = () => {
     if (isEditing) {
       const create: CreateConditionCOEntiry = createCondition;
       create.creditMemoConditionId = id;
-
       Modal.confirm({
         title: "ยืนยันการแก้ไขเงื่อนไข CO",
         content: "โปรดยืนยันการแก้ไขข้อมูลเงื่อนไข CO",
@@ -813,11 +834,12 @@ export const CreateConditionCOPage: React.FC = () => {
           console.log("form1 errInfo", errInfo);
         });
     } else if (current === 1) {
-      if (selectedShop.length <= 0) {
+      if (searchShop.length <= 0) {
         message.error("ไม่สามารถไปขั้นตอนถัดไปได้ กรุณาเลือกร้าน");
         return;
       }
-      const create2 = selectedShop.map((x: any) => {
+      onClearSearchShop();
+      const create2 = searchShop.map((x: any) => {
         const shop: any = {};
         shop.customerCompanyId = x.customerCompanyId;
         (shop.customerName = x.customerName), (shop.zone = x.zone);
@@ -831,14 +853,16 @@ export const CreateConditionCOPage: React.FC = () => {
       setCreateCondition(create);
       setCurrent(current + 1);
     } else if (current === 2) {
-      if (selectedProd.length <= 0) {
+      if (searchProd.length <= 0) {
         message.error("ไม่สามารถบันทึกได้ กรุณาเลือกสินค้า");
         return;
       }
+      onClearSearchProd();
       form3
         .validateFields()
-        .then((f3) => {
-          const create3 = selectedProd.map((x: any) => {
+        .then(() => {
+          const f3 = form3.getFieldsValue(true);
+          const create3 = searchProd.map((x: any) => {
             const prod: any = {};
             prod.productId = x.productId;
             prod.discountAmount = f3[x.productId];
