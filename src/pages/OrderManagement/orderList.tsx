@@ -77,11 +77,16 @@ export const OrderList: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<any>();
   const [dataState, setDataState] = useState({
     data: [],
-    dashboard: {
-      confirmStatusCount: 0,
-      deliverySuccessCount: 0,
-      inDeliveryCount: 0,
-      waitConfirmStatusCount: 0,
+    statusCount: {
+      COMPANY_CANCEL_ORDER: 0,
+      CONFIRM_ORDER: 0,
+      DELIVERY_SUCCESS: 0,
+      IN_DELIVERY: 0,
+      OPEN_ORDER: 0,
+      REJECT_ORDER: 0,
+      SHOPAPP_CANCEL_ORDER: 0,
+      WAIT_APPROVE_ORDER: 0,
+      WAIT_CONFIRM_ORDER: 0,
     },
     count: 0,
   });
@@ -100,7 +105,7 @@ export const OrderList: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, dashboard, count } = await getOrders({
+      const { data, statusCount, count } = await getOrders({
         company,
         search: keyword,
         status: statusFilter,
@@ -109,8 +114,8 @@ export const OrderList: React.FC = () => {
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
         endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
       });
-      console.log({ dateFilter });
-      setDataState({ data, dashboard, count });
+      console.log({ data, statusCount, count });
+      setDataState({ data, statusCount, count });
     } catch (e) {
       console.log(e);
     } finally {
@@ -150,25 +155,26 @@ export const OrderList: React.FC = () => {
       color: "#FFC804",
       icon: icons.iconWaiting,
       title: "รอยืนยันคำสั่งซื้อ",
-      value: dataState.dashboard.waitConfirmStatusCount,
+      value:
+        dataState?.statusCount?.WAIT_APPROVE_ORDER + dataState?.statusCount?.WAIT_CONFIRM_ORDER,
     },
     {
       color: "#0068F4",
       icon: icons.iconCliboard,
       title: "ยืนยันคำสั่งซื้อแล้ว",
-      value: dataState.dashboard.confirmStatusCount,
+      value: dataState?.statusCount?.CONFIRM_ORDER,
     },
     {
       color: "#FF9138",
       icon: icons.iconTruck,
       title: "กำลังจัดส่ง",
-      value: dataState.dashboard.inDeliveryCount,
+      value: dataState?.statusCount?.IN_DELIVERY,
     },
     {
       color: "#2ED477",
       icon: icons.iconCheckedTruck,
       title: "จัดส่งสำเร็จ",
-      value: dataState.dashboard.deliverySuccessCount,
+      value: dataState?.statusCount?.DELIVERY_SUCCESS,
     },
   ];
 

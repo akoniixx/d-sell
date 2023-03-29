@@ -29,8 +29,8 @@ export const priceFormatter = (
     : `฿ ${formatter.format(num)}`;
 };
 
-export const numberFormatter = (price: number | string) => {
-  return priceFormatter(price, undefined, false, true);
+export const numberFormatter = (price: number | string, fractionDigits?: number) => {
+  return priceFormatter(price, fractionDigits, false, true);
 };
 
 export const nameFormatter = (input: string) => {
