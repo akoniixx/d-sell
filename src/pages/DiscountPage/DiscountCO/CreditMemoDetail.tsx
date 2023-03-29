@@ -28,6 +28,7 @@ import { CreditMemoEntity } from "../../../entities/CreditMemoEntity";
 import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../../components/Spin/pageSpin";
+import { numberFormatter } from "../../../utility/Formatter";
 
 const SLASH_DMY = "DD/MM/YYYY";
 export const CreditMemoDetail: React.FC = () => {
@@ -152,6 +153,9 @@ export const CreditMemoDetail: React.FC = () => {
       dataIndex: "receiveAmount",
       key: "receiveAmount",
       align: "center" as AlignType,
+      render: (value: any) => {
+        return numberFormatter(value, 0);
+      },
     },
   ];
 
