@@ -12,7 +12,8 @@ interface StyledButton {
     | "default"
     | "primary-light"
     | "border-light"
-    | "disabled";
+    | "disabled"
+    | "success";
   height?: number;
 }
 const ButtonStyled = styled(AntButton)<StyledButton>`
@@ -57,6 +58,13 @@ const ButtonStyled = styled(AntButton)<StyledButton>`
         border: 1px solid ${color.Disable} !important;
       `;
     }
+    if ($typeButton === "success") {
+      return css`
+        background-color: ${color.success} !important;
+        color: white;
+        border: 1px solid ${color.success} !important;
+      `;
+    }
     return css`
       background-color: ${color.primary} !important;
       color: white;
@@ -73,7 +81,8 @@ interface Props extends ButtonProps, StyledButton {
     | "default"
     | "primary-light"
     | "border-light"
-    | "disabled";
+    | "disabled"
+    | "success";
   icon?: React.ReactNode;
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
@@ -103,7 +112,7 @@ export default function Button({
                 ? "white"
                 : typeButton === "primary-light"
                 ? "primary"
-                : typeButton === "disabled" || typeButton === "danger"
+                : typeButton === "disabled" || typeButton === "danger" || typeButton === "success"
                 ? "white"
                 : "Text1"
             }
