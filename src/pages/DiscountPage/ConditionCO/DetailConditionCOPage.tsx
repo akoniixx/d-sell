@@ -337,12 +337,12 @@ export const DetailConditionCOPage: React.FC = () => {
         </DetailBox>
         <br />
         <Row gutter={16}>
-          <Col span={13}>
+          <Col span={8}>
             <Text level={2}>รายการละเอียดเงื่อนไข</Text>
           </Col>
           {selectedTab === "product" ? (
             <>
-              <Col span={company === "ICPF" ? 11 : 6}>
+              <Col span={6}>
                 <Input
                   placeholder='ค้นหาสินค้า...'
                   suffix={<SearchOutlined />}
@@ -352,28 +352,26 @@ export const DetailConditionCOPage: React.FC = () => {
                   defaultValue={searchKeywordProd}
                 />
               </Col>
-              {company === "ICPL" && (
-                <Col span={5}>
-                  <Select
-                    data={[
-                      {
-                        key: "",
-                        value: "",
-                        label: "Product Group : ทั้งหมด",
-                      },
-                      ...productGroup.map((p: any) => ({
-                        key: p.product_group,
-                        value: p.product_group,
-                        label: p.product_group,
-                      })),
-                    ]}
-                    placeholder='Product Group : ทั้งหมด'
-                    style={{ width: "100%" }}
-                    onChange={(e) => onSearchProdGroup(e)}
-                    value={searchProdGroup}
-                  />
-                </Col>
-              )}
+              <Col span={5}>
+                <Select
+                  data={[
+                    {
+                      key: "",
+                      value: "",
+                      label: "Product Group : ทั้งหมด",
+                    },
+                    ...productGroup.map((p: any) => ({
+                      key: p.product_group,
+                      value: p.product_group,
+                      label: p.product_group,
+                    })),
+                  ]}
+                  placeholder='Product Group : ทั้งหมด'
+                  style={{ width: "100%" }}
+                  onChange={(e) => onSearchProdGroup(e)}
+                  value={searchProdGroup}
+                />
+              </Col>
               {company === "ICPI" && (
                 <Col span={5}>
                   <Select

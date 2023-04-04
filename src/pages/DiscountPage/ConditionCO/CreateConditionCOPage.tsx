@@ -306,8 +306,12 @@ export const CreateConditionCOPage: React.FC = () => {
     };
     const onSearchShop = (e: any) => {
       setSearchKeywordShop(e.target.value);
+      const valueUpperCase: string = e.target.value;
       const find = searchShop.filter((x) => {
-        const searchName = !e.target.value || x.customerName?.includes(e.target.value);
+        const searchName =
+          !e.target.value ||
+          x.customerName?.includes(e.target.value) ||
+          x.customerNo?.includes(valueUpperCase.toUpperCase());
         const searchZone = !searchShopZone || x.zone?.includes(searchProdGroup);
         return searchName && searchZone;
       });
@@ -345,12 +349,45 @@ export const CreateConditionCOPage: React.FC = () => {
       setSelectedShop(checkBoxed);
       setSearchShop(mapData);
     };
-
     const handleDelete = () => {
       const deleted = selectedShop.filter((x) => !x.isChecked);
       setSelectedShop(deleted);
       setSearchShop(deleted);
     };
+    const columeTableShop = [
+      {
+        title: selectedShop.length > 0 && (
+          <Checkbox
+            onClick={(e) => handleAllCheckBoxDelete(e)}
+            checked={selectedShop.every((x) => x.isChecked)}
+          />
+        ),
+        width: "5%",
+        render: (text: string, value: any) => (
+          <Checkbox
+            onClick={(e) => handleCheckBoxDelete(e, value.customerCompanyId)}
+            checked={value.isChecked}
+          />
+        ),
+      },
+      {
+        title: <span>Customer No.</span>,
+        dataIndex: "customerNo",
+        width: "15%",
+        render: (text: string) => <span>{text}</span>,
+      },
+      {
+        title: <span>ชื่อร้านค้า</span>,
+        dataIndex: "customerName",
+        width: "65%",
+        render: (text: string) => <span>{text}</span>,
+      },
+      {
+        title: <span>เขตการขาย</span>,
+        dataIndex: "zone",
+        render: (text: string) => <span>{text}</span>,
+      },
+    ];
     return (
       <>
         <Text level={5} fontWeight={700}>
@@ -360,7 +397,7 @@ export const CreateConditionCOPage: React.FC = () => {
         <br />
         <Row>
           {searchShop.length > 0 ? (
-            <Col span={14}>
+            <Col span={19}>
               <Row gutter={8}>
                 <Col span={5}>
                   <Select
@@ -376,7 +413,7 @@ export const CreateConditionCOPage: React.FC = () => {
                 <Col span={10}>
                   <Input
                     suffix={<SearchOutlined />}
-                    placeholder={"ระบุชื่อร้านค้า"}
+                    placeholder={"ระบุชื่อร้านค้าหรือ Customer No."}
                     onPressEnter={(e) => onSearchShop(e)}
                     defaultValue={searchKeywordShop}
                   />
@@ -391,28 +428,20 @@ export const CreateConditionCOPage: React.FC = () => {
               </Row>
             </Col>
           ) : (
-            <Col span={14}></Col>
+            <Col span={19}></Col>
           )}
-          <Col span={10}>
-            <Row align='middle' justify='end' gutter={22}>
-              <Col>
-                {selectedShop.filter((x) => x.isChecked).length > 0 && (
-                  <FlexRow align='center' justify='end' style={{ height: "100%" }}>
-                    <DeleteOutlined
-                      style={{ fontSize: 20, color: color.error }}
-                      onClick={handleDelete}
-                    />
-                  </FlexRow>
-                )}
-              </Col>
-              <Col span={8}>
-                <Button
-                  title='+ เพิ่มร้านค้า'
-                  typeButton='primary'
-                  onClick={() => setShowModalShop(!showModalShop)}
+          <Col span={2} style={{ paddingRight: "6px" }}>
+            {selectedShop.filter((x) => x.isChecked).length > 0 && (
+              <FlexRow align='center' justify='end' style={{ height: "100%" }}>
+                <DeleteOutlined
+                  style={{ fontSize: 20, color: color.error }}
+                  onClick={handleDelete}
                 />
-              </Col>
-            </Row>
+              </FlexRow>
+            )}
+          </Col>
+          <Col span={3}>
+            <Button title='+ เพิ่มร้านค้า' onClick={() => setShowModalShop(!showModalShop)} />
           </Col>
         </Row>
         <br />
@@ -423,33 +452,7 @@ export const CreateConditionCOPage: React.FC = () => {
         </Row>
         <br />
         <Table
-          columns={[
-            {
-              title: selectedShop.length > 0 && (
-                <Checkbox
-                  onClick={(e) => handleAllCheckBoxDelete(e)}
-                  checked={selectedShop.every((x) => x.isChecked)}
-                />
-              ),
-              width: "5%",
-              render: (text: string, value: any) => (
-                <Checkbox
-                  onClick={(e) => handleCheckBoxDelete(e, value.customerCompanyId)}
-                  checked={value.isChecked}
-                />
-              ),
-            },
-            {
-              title: <span>ชื่อร้านค้า</span>,
-              dataIndex: "customerName",
-              render: (text: string) => <span>{text}</span>,
-            },
-            {
-              title: <span>เขตการขาย</span>,
-              dataIndex: "zone",
-              render: (text: string) => <span>{text}</span>,
-            },
-          ]}
+          columns={columeTableShop}
           dataSource={selectedShop || []}
           size='large'
           tableLayout='fixed'
@@ -470,8 +473,12 @@ export const CreateConditionCOPage: React.FC = () => {
   const StepThree = () => {
     const onSearchProd = (e: any) => {
       setSearchKeywordProd(e.target.value);
+      const valueUpperCase: string = e.target.value;
       const find = searchProd.filter((x) => {
-        const searchName = !e.target.value || x.productName?.includes(e.target.value);
+        const searchName =
+          !e.target.value ||
+          x.productName?.includes(e.target.value) ||
+          x.productCodeNAV?.includes(valueUpperCase.toLocaleUpperCase());
         const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
         const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
         return searchName && searchGroup && searchLocat;
@@ -526,6 +533,7 @@ export const CreateConditionCOPage: React.FC = () => {
       setSearchProd(deleted);
     };
     const callBackProduct = (item: ProductEntity[]) => {
+      console.log(item);
       item = item.map((p: any) => ({ ...p, isChecked: false }));
       setSelectedProd(item);
       setSearchProd(item);
@@ -585,6 +593,12 @@ export const CreateConditionCOPage: React.FC = () => {
         ),
       },
       {
+        title: <span>Product Code</span>,
+        dataIndex: "productCodeNAV",
+        width: "10%",
+        render: (text: string) => <span>{text}</span>,
+      },
+      {
         title: <span>ขนาด</span>,
         dataIndex: "packSize",
         render: (text: string) => <span>{text}</span>,
@@ -602,6 +616,7 @@ export const CreateConditionCOPage: React.FC = () => {
       {
         title: <span>สถานที่</span>,
         dataIndex: "productLocation",
+        width: "10%",
         render: (text: string) => <span>{LOCATION_FULLNAME_MAPPING[text]}</span>,
       },
       {
@@ -640,7 +655,7 @@ export const CreateConditionCOPage: React.FC = () => {
         <br />
         <Row>
           {searchProd.length > 0 ? (
-            <Col span={14}>
+            <Col span={19}>
               <Row gutter={8}>
                 <Col span={company === "ICPF" ? 10 : 6}>
                   <Input
@@ -651,28 +666,26 @@ export const CreateConditionCOPage: React.FC = () => {
                     defaultValue={searchKeywordProd}
                   />
                 </Col>
-                {company === "ICPL" && (
-                  <Col span={6}>
-                    <Select
-                      data={[
-                        {
-                          key: "",
-                          value: "",
-                          label: "Product Group : ทั้งหมด",
-                        },
-                        ...productGroup.map((p: any) => ({
-                          key: p.product_group,
-                          value: p.product_group,
-                          label: p.product_group,
-                        })),
-                      ]}
-                      placeholder='Product Group : ทั้งหมด'
-                      style={{ width: "100%" }}
-                      onChange={(e) => onSearchProdGroup(e)}
-                      value={searchProdGroup}
-                    />
-                  </Col>
-                )}
+                <Col span={7}>
+                  <Select
+                    data={[
+                      {
+                        key: "",
+                        value: "",
+                        label: "Product Group : ทั้งหมด",
+                      },
+                      ...productGroup.map((p: any) => ({
+                        key: p.product_group,
+                        value: p.product_group,
+                        label: p.product_group,
+                      })),
+                    ]}
+                    placeholder='Product Group : ทั้งหมด'
+                    style={{ width: "100%" }}
+                    onChange={(e) => onSearchProdGroup(e)}
+                    value={searchProdGroup}
+                  />
+                </Col>
                 {company === "ICPI" && (
                   <Col span={6}>
                     <Select
@@ -707,23 +720,20 @@ export const CreateConditionCOPage: React.FC = () => {
               </Row>
             </Col>
           ) : (
-            <Col span={14}></Col>
+            <Col span={19}></Col>
           )}
-          <Col span={10}>
-            <Row align='middle' justify='end' gutter={22}>
-              {searchProd.filter((x) => x.isChecked).length > 0 && (
-                <FlexRow align='center' justify='end' style={{ height: "100%" }}>
-                  <DeleteOutlined
-                    style={{ fontSize: 20, color: color.error }}
-                    onClick={handleDelete}
-                  />
-                </FlexRow>
-              )}
-
-              <Col span={8}>
-                <Button title='+ เพิ่มสินค้า' onClick={() => setShowModalProd(!showModalProd)} />
-              </Col>
-            </Row>
+          <Col span={2} style={{ paddingRight: "6px" }}>
+            {searchProd.filter((x) => x.isChecked).length > 0 && (
+              <FlexRow align='center' justify='end' style={{ height: "100%" }}>
+                <DeleteOutlined
+                  style={{ fontSize: 20, color: color.error }}
+                  onClick={handleDelete}
+                />
+              </FlexRow>
+            )}
+          </Col>
+          <Col span={3}>
+            <Button title='+ เพิ่มสินค้า' onClick={() => setShowModalProd(!showModalProd)} />
           </Col>
         </Row>
         <br />
@@ -817,7 +827,7 @@ export const CreateConditionCOPage: React.FC = () => {
         .validateFields()
         .then((f1) => {
           create.creditMemoConditionName = f1.promotionName;
-          create.comment = f1.comment;
+          create.comment = f1.comment || "";
           create.company = company;
           create.updateBy = userProfile.firstname + " " + userProfile.lastname;
           create.createBy = userProfile.firstname + " " + userProfile.lastname;

@@ -342,7 +342,7 @@ export const ModalSelectedShop = ({
                       <FlexCol style={{ padding: "4px 8px" }}>
                         <Text level={5}>{item.customerName}</Text>
                         <Text level={6} color='Text3'>
-                          {item.zone}
+                          {item.customerNo} - {item.zone}
                         </Text>
                       </FlexCol>
                     </Row>
@@ -432,7 +432,7 @@ export const ModalSelectedShop = ({
                       <FlexCol style={{ padding: "4px 8px" }}>
                         <Text level={5}>{item.customerName}</Text>
                         <Text level={6} color='Text3'>
-                          {item.zone}
+                          {item.customerNo} - {item.zone}
                         </Text>
                       </FlexCol>
                     </Row>
