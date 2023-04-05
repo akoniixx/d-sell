@@ -38,7 +38,7 @@ export const pathLists = [
     path: "/special-request",
     name: "specialRequest",
     permission: null,
-    title: "ยืนยันคำสั่งซื้อ",
+    title: "อนุมัติคำสั่งซื้อ",
     subMenu: [],
   },
   {

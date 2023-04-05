@@ -101,7 +101,7 @@ export const SpecialRequestList: React.FC = () => {
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              Special Request
+              อนุมัติคำสั่งซื้อ
             </span>
           </div>
           <div>

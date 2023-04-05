@@ -405,7 +405,7 @@ export const OrderDetail: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5} color={discount ? "error" : "Text3"} fontWeight={700}>
-                {discount ? "- " + discount : "-"}
+                {discount ? "- " + priceFormatter(discount || "0", undefined, false, true) : "-"}
               </Text>
               <Text level={6} color='Text3'>
                 บาท
@@ -417,15 +417,15 @@ export const OrderDetail: React.FC = () => {
     },
     {
       title: "Special REQ.",
-      dataIndex: "specialReq",
-      key: "specialReq",
+      dataIndex: "specialRequestDiscount",
+      key: "specialRequestDiscount",
       fixed: "right" as FixedType,
       render: (discount: number, product: ProductEntity, index: number) => {
         return {
           children: (
             <FlexCol>
               <Text level={5} color={discount ? "purple" : "Text3"} fontWeight={700}>
-                {discount ? "- " + discount : "-"}
+                {discount ? "- " + priceFormatter(discount || "0", undefined, false, true) : "-"}
               </Text>
               <Text level={6} color='Text3'>
                 บาท
