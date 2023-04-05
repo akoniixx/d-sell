@@ -615,7 +615,9 @@ export const OrderDetail: React.FC = () => {
   const getOption = () => {
     switch (orderData?.status) {
       case "WAIT_APPROVE_ORDER":
-        return (
+        return !isSpecialRequestMode ? (
+          <></>
+        ) : (
           <>
             <br />
             <CardContainer>
@@ -646,6 +648,7 @@ export const OrderDetail: React.FC = () => {
         );
       case "WAIT_CONFIRM_ORDER":
       case "OPEN_ORDER":
+      case "IN_DELIVERY":
         return isSpecialRequestMode ? (
           <></>
         ) : (
@@ -665,7 +668,6 @@ export const OrderDetail: React.FC = () => {
             {orderStatusOption}
           </>
         );
-      case "IN_DELIVERY":
       case "DELIVERY_SUCCESS":
         return <></>;
       default:
