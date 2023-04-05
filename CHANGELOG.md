@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Features [v0.4.3] - Release Date: 2022-04-05
+
+- added feature preview PDF
+- fixed special request number format
+
 ## Features [v0.4.2] - Release Date: 2022-03-31
 
 - added feature create CO manual UX/UI
