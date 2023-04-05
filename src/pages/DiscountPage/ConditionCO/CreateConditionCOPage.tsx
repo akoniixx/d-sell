@@ -112,7 +112,6 @@ export const CreateConditionCOPage: React.FC = () => {
         setLoadingCoData(false);
       });
   };
-
   const fetchZone = async () => {
     const getZone = await getZones(company);
     setZoneList(getZone.map((d: StoreEntity, i: number) => ({ ...d, key: d.customerCompanyId })));
@@ -852,6 +851,7 @@ export const CreateConditionCOPage: React.FC = () => {
       const create2 = searchShop.map((x: any) => {
         const shop: any = {};
         shop.customerCompanyId = x.customerCompanyId;
+        shop.customerNo = x.customerNo;
         (shop.customerName = x.customerName), (shop.zone = x.zone);
         if (isEditing) {
           shop.CreditMemoConditionShopId = x.creditMemoConditionShopId;

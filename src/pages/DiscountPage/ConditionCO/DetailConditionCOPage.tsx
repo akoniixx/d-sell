@@ -59,6 +59,7 @@ export const DetailConditionCOPage: React.FC = () => {
 
   const getCondition = async () => {
     const getById = await getConditionCoById(conditionId, company);
+    console.log(getById);
     setData(getById);
     setSearchData(getById);
   };
@@ -137,8 +138,12 @@ export const DetailConditionCOPage: React.FC = () => {
   //#region section product
   const onSearchProd = (e: any) => {
     setSearchKeywordProd(e.target.value);
+    const valueUpperCase: string = e.target.value;
     const find = searchData?.creditMemoConditionProduct.filter((x) => {
-      const searchName = !e.target.value || x.productName?.includes(e.target.value);
+      const searchName =
+        !e.target.value ||
+        x.productName?.includes(e.target.value) ||
+        x.productCodeNAV?.includes(valueUpperCase.toLocaleUpperCase());
       const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
       const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
       return searchName && searchGroup && searchLocat;
@@ -202,7 +207,7 @@ export const DetailConditionCOPage: React.FC = () => {
     {
       title: <span>ชื่อสินค้า</span>,
       dataIndex: "productName",
-      width: "35%",
+      width: "30%",
       render: (text: string, value: any, index: any) => (
         <FlexRow align='center'>
           <div style={{ marginRight: 16 }}>
@@ -238,6 +243,12 @@ export const DetailConditionCOPage: React.FC = () => {
       ),
     },
     {
+      title: <span>Product Code</span>,
+      dataIndex: "productCodeNAV",
+      width: "15%",
+      render: (text: string) => <span>{text}</span>,
+    },
+    {
       title: <span>ขนาด</span>,
       dataIndex: "packSize",
       render: (text: string) => <span>{text}</span>,
@@ -260,7 +271,7 @@ export const DetailConditionCOPage: React.FC = () => {
     {
       title: <span>ลดราคาขาย</span>,
       dataIndex: "discountAmount",
-      width: "20%",
+      width: "10%",
       render: (text: string, value: any) =>
         isEdit ? (
           <Form.Item name={value.productId} noStyle={true}>
@@ -287,8 +298,12 @@ export const DetailConditionCOPage: React.FC = () => {
   };
   const onSearchKeywordShop = (e: any) => {
     setSearchKeywordShop(e.target.value);
+    const valueUpperCase: string = e.target.value;
     const find = searchData?.creditMemoConditionShop.filter((x) => {
-      const searchName = !e.target.value || x.customerName?.includes(e.target.value);
+      const searchName =
+        !e.target.value ||
+        x.customerName?.includes(e.target.value) ||
+        x.customerNo?.includes(valueUpperCase.toLocaleUpperCase());
       const searchZone = !searchShopZone || x.zone?.includes(searchShopZone);
       return searchName && searchZone;
     });
@@ -303,6 +318,11 @@ export const DetailConditionCOPage: React.FC = () => {
       title: isEdit && <Checkbox />,
       width: "5%",
       render: (text: string) => isEdit && <Checkbox />,
+    },
+    {
+      title: <span>Customer No.</span>,
+      dataIndex: "customerNo",
+      render: (text: string) => <span>{text}</span>,
     },
     {
       title: <span>ชื่อร้านค้า</span>,
@@ -342,6 +362,7 @@ export const DetailConditionCOPage: React.FC = () => {
           </Col>
           {selectedTab === "product" ? (
             <>
+              {company !== "ICPI" && <Col span={5}></Col>}
               <Col span={6}>
                 <Input
                   placeholder='ค้นหาสินค้า...'
@@ -397,6 +418,7 @@ export const DetailConditionCOPage: React.FC = () => {
             </>
           ) : (
             <>
+              <Col span={5}></Col>
               <Col span={5}>
                 <Select
                   style={{ width: "100%" }}

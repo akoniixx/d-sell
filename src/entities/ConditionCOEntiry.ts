@@ -35,11 +35,13 @@ export interface creditMemoConditionProductEntity {
   productName: string;
   productGroup: string;
   productLocation: string;
+  productCodeNAV?: string;
 }
 export interface creditMemoConditionShop {
   customerCompanyId: number;
   customerName: string;
   zone: string;
+  customerNo?: string;
 }
 
 export const creditMemoConditionProductEntity_INIT: creditMemoConditionProductEntity = {
@@ -50,12 +52,14 @@ export const creditMemoConditionProductEntity_INIT: creditMemoConditionProductEn
   productName: "",
   productGroup: "",
   productLocation: "",
+  productCodeNAV: "",
 };
 
 export const creditMemoConditionShop_INIT: creditMemoConditionShop = {
   customerCompanyId: 0,
   customerName: "",
   zone: "",
+  customerNo: "",
 };
 
 export const CreateConditionCOEntiry_INIT: CreateConditionCOEntiry = {
