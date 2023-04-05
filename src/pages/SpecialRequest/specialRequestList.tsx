@@ -64,6 +64,26 @@ export const SpecialRequestList: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (selectedTab === "all") {
+      setStatusFilter(undefined);
+    } else if (selectedTab === "pending") {
+      setStatusFilter(["WAIT_APPROVE_ORDER"]);
+    } else if (selectedTab === "approved") {
+      setStatusFilter([
+        "COMPANY_CANCEL_ORDER",
+        "CONFIRM_ORDER",
+        "DELIVERY_SUCCESS",
+        "IN_DELIVERY",
+        "OPEN_ORDER",
+        "SHOPAPP_CANCEL_ORDER",
+        "WAIT_CONFIRM_ORDER",
+      ]);
+    } else if (selectedTab === "rejected") {
+      setStatusFilter(["REJECT_ORDER"]);
+    }
+  }, [selectedTab]);
+
+  useEffect(() => {
     console.log("change filter");
     fetchData();
   }, [keyword, statusFilter, dateFilter, page]);
@@ -166,14 +186,15 @@ export const SpecialRequestList: React.FC = () => {
     },
     {
       title: "ทั้งหมด",
-      dataIndex: "amount",
-      key: "amount",
-      width: "10%",
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      width: "15%",
+      align: "center" as AlignType,
       render: (value: any, row: any, index: number) => {
         return (
-          <FlexCol>
+          <FlexRow justify='center'>
             <Text level={5}>{priceFormatter(value || "0", 2, true)}</Text>
-          </FlexCol>
+          </FlexRow>
         );
       },
     },
@@ -181,7 +202,7 @@ export const SpecialRequestList: React.FC = () => {
       title: "วันที่สร้าง",
       dataIndex: "createAt",
       key: "createAt",
-      width: "15%",
+      width: "10%",
       render: (value: any, row: any, index: number) => {
         return <Text style={{ textAlign: "center" }}>{moment(value).format(SLASH_DMY)}</Text>;
       },
@@ -229,7 +250,10 @@ export const SpecialRequestList: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `ทั้งหมด (${dataState?.count})`,
+      label: `ทั้งหมด (${Object.values(dataState?.statusCount).reduce(
+        (sum, cur) => sum + cur,
+        0,
+      )})`,
       key: "all",
     },
     {
@@ -238,7 +262,7 @@ export const SpecialRequestList: React.FC = () => {
     },
     {
       label: `อนุมัติ (${
-        dataState?.count -
+        Object.values(dataState?.statusCount).reduce((sum, cur) => sum + cur, 0) -
         dataState?.statusCount?.WAIT_APPROVE_ORDER -
         dataState?.statusCount?.REJECT_ORDER
       })`,

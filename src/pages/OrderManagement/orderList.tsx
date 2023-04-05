@@ -21,8 +21,10 @@ import { AlignType } from "rc-table/lib/interface";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import { getOrders } from "../../datasource/OrderDatasourc";
 import {
+  OrderDeliveryDestKey,
   OrderPaymentMethodName,
   OrderStatusKey,
+  ORDER_DELIVERY_DEST_METHOD_NAME,
   ORDER_PAYMENT_METHOD_NAME,
   ORDER_PAYMENT_STATUS,
   ORDER_STATUS,
@@ -225,13 +227,13 @@ export const OrderList: React.FC = () => {
     },
     {
       title: "การจัดส่ง",
-      dataIndex: "zone",
-      key: "zone",
+      dataIndex: "deliveryDest",
+      key: "deliveryDest",
       width: "10%",
-      render: (value: any, row: any, index: number) => {
+      render: (value: OrderDeliveryDestKey, row: any, index: number) => {
         return (
           <FlexCol>
-            <Text level={5}>{"-"}</Text>
+            <Text level={5}>{value ? ORDER_DELIVERY_DEST_METHOD_NAME[value] : "-"}</Text>
           </FlexCol>
         );
       },
