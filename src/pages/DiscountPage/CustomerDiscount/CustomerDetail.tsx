@@ -31,6 +31,13 @@ import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../../components/Spin/pageSpin";
 import { dateFormatter, priceFormatter } from "../../../utility/Formatter";
+import { useForm } from "antd/lib/form/Form";
+import Input from "../../../components/Input/Input";
+import DatePicker from "../../../components/DatePicker/DatePicker";
+import TextArea from "../../../components/Input/TextArea";
+import { isNumeric } from "../../../utility/validator";
+
+type factorType = -1 | 0 | 1;
 
 export const CustomerCreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -46,6 +53,13 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const [data, setData] = useState<any[]>();
   const [historyLoading, setHistoryLoading] = useState(false);
   const [history, setHistory] = useState();
+
+  // Manual CO
+  const [showConfirmModal, setConfirmModal] = useState(false);
+  const [showFormModal, setFormModal] = useState(false);
+  const [factor, setFactor] = useState<factorType>(0);
+  const [submiting, setSubmit] = useState(false);
+  const [form] = useForm();
 
   useEffect(() => {
     fetchData();
@@ -265,7 +279,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       value: profile?.province,
     },
     {
-      title: "รายชื่อสมาชิก",
+      title: "ชื่อเจ้าของร้าน",
       value: `${profile?.firstname || "-"} ${profile?.lastname || ""}`,
     },
     {
@@ -273,6 +287,56 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       value: profile?.zone,
     },
   ];
+
+  const toggleConfirmModal = () => {
+    setConfirmModal(!showConfirmModal);
+  };
+
+  const toggleFormModal = (f: factorType) => {
+    setFormModal(!showFormModal);
+    setConfirmModal(false);
+    setFactor(f);
+  };
+
+  const onSubmitManualCO = () => {
+    const onFinish = () => {
+      form.resetFields();
+      setConfirmModal(false);
+      setFormModal(false);
+      setFactor(0);
+      setSubmit(false);
+    };
+    form
+      .validateFields()
+      .then((values) => {
+        Modal.confirm({
+          title: (
+            <Text level={2} fontWeight={700}>
+              ยืนยันการบันทึกข้อมูล
+            </Text>
+          ),
+          icon: <></>,
+          content: (
+            <Text>
+              โปรดตรวจสอบ{" "}
+              <span style={{ fontWeight: 700, color: factor ? color.success : color.error }}>
+                การ{factor > 0 ? "เพิ่ม" : "ลด"}ยอด
+              </span>{" "}
+              CO ส่วนลดดูแลราคา ก่อนกดยืนยัน เพราะอาจส่งผลต่อยอดส่วนลดดูแลราคาคงเหลือในระบบ
+            </Text>
+          ),
+          onOk: () => {
+            setSubmit(true);
+            console.log("form values", values);
+            //TODO: call api
+            onFinish();
+          },
+        });
+      })
+      .catch((err) => {
+        console.log("form errors: ", err);
+      });
+  };
 
   return (
     <>
@@ -319,9 +383,139 @@ export const CustomerCreditMemoDetail: React.FC = () => {
           <br />
           <CardContainer>
             <Row style={{ margin: "16px 0px" }}>
-              <Text fontWeight={700} level={4}>
-                รายการประวัติ Credit memo
-              </Text>
+              <Col span={18}>
+                <Text fontWeight={700} level={4}>
+                  รายการประวัติ Credit memo
+                </Text>
+              </Col>
+              <Col span={6}>
+                <Button title='+ เพิ่ม CO ดูแลราคาแบบ Manual' onClick={toggleConfirmModal} />
+                <Modal
+                  open={showConfirmModal}
+                  onCancel={toggleConfirmModal}
+                  footer={null}
+                  width={440}
+                >
+                  <div style={{ padding: 8 }}>
+                    <Row justify='center'>
+                      <Text level={3} fontWeight={700} align='center'>
+                        คุณต้องการ เพิ่มยอด หรือ ลดยอด <br />
+                        CO ดูแลราคาแบบ Manual
+                      </Text>
+                    </Row>
+                    <br />
+                    <Row justify='center'>
+                      <Text align='center'>
+                        การเพิ่มยอด หรือ ลดยอด
+                        <br />
+                        ส่งผลต่อส่วนลดดูแลราคาคงเหลือในระบบ
+                        <br />
+                        โปรดตรวจสอบความถูกต้องก่อนการเลือก
+                      </Text>
+                    </Row>
+                    <br />
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Button
+                          title='เพิ่ม'
+                          typeButton='success'
+                          onClick={() => toggleFormModal(1)}
+                        />
+                      </Col>
+                      <Col span={12}>
+                        <Button
+                          title='ลด'
+                          typeButton='danger'
+                          onClick={() => toggleFormModal(-1)}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                </Modal>
+                <Modal
+                  open={showFormModal}
+                  onCancel={() => toggleFormModal(0)}
+                  footer={
+                    <Row justify='end'>
+                      <Col span={6}>
+                        <Button title='บันทึก' onClick={onSubmitManualCO} loading={submiting} />
+                      </Col>
+                    </Row>
+                  }
+                >
+                  <Text level={4} fontWeight={700}>
+                    <span style={{ color: factor > 0 ? color.success : color.error }}>
+                      {factor > 0 ? "เพิ่ม" : "ลด"}ยอด
+                    </span>
+                    &nbsp;CO ดูแลราคาแบบ Manual
+                  </Text>
+                  <br />
+                  <br />
+                  <Form form={form} layout='vertical'>
+                    <Form.Item
+                      name='date'
+                      label='วันที่ใช้งาน'
+                      rules={[{ required: true, message: "*โปรดเลือกวันที่ใช้งาน" }]}
+                    >
+                      <DatePicker />
+                    </Form.Item>
+                    <Form.Item
+                      name='total'
+                      label='จำนวนยอดสั่งซื้อ'
+                      rules={[
+                        { required: true, message: "*โปรดระบุจำนวนยอดสั่งซื้อ" },
+                        {
+                          validator: (rule, value, callback) => {
+                            if (value && (!isNumeric(value) || parseFloat(value) <= 0)) {
+                              return Promise.reject("จำนวนยอดสั่งซื้อต้องเป็นตัวเลขมากกว่า 0");
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+                    <Form.Item
+                      name='coAmount'
+                      label='ส่วนลดดูแลราคาที่ใช้'
+                      rules={[
+                        {
+                          required: true,
+                          message: "*โปรดระบุส่วนลดดูแลราคาที่ใช้",
+                        },
+                        {
+                          validator: (rule, value, callback) => {
+                            // console.log("validator", factor);
+                            if (factor < 0 && parseFloat(value) > parseFloat(profile?.balance)) {
+                              return Promise.reject("*ยอดลดที่ใช้ เกินส่วนลดดูแลราคาคงเหลือในระบบ");
+                            }
+                            if (value && (!isNumeric(value) || parseFloat(value) <= 0)) {
+                              return Promise.reject("ส่วนลดดูแลราคาที่ใช้ต้องเป็นตัวเลขมากกว่า 0");
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+                    <Form.Item
+                      name='soNo'
+                      label='Sale Order Number'
+                      rules={[{ required: true, message: "*โปรดระบุเลข SO No." }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name='cnNo' label='Credit Note Number'>
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name='remark' label='หมายเหตุ'>
+                      <TextArea autoSize={{ maxRows: 4, minRows: 4 }} />
+                    </Form.Item>
+                  </Form>
+                </Modal>
+              </Col>
             </Row>
             <Tabs
               items={tabsItems}

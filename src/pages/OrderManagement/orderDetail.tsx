@@ -69,6 +69,7 @@ const NavResponseBox = styled(CardContainer)`
 
 const DetailItem = ({
   label,
+  labelEn,
   value,
   alignRight,
   fontWeight,
@@ -78,6 +79,7 @@ const DetailItem = ({
   leftSpan,
 }: {
   label: string;
+  labelEn?: string;
   value: string | ReactNode;
   alignRight?: boolean;
   fontWeight?: 400 | 500 | 600 | 700;
@@ -97,12 +99,18 @@ const DetailItem = ({
 }) => {
   return (
     <Row gutter={16} style={{ margin: "10px 0px" }}>
-      <Col span={leftSpan ? leftSpan : alignRight ? 18 : 9}>
+      <Col span={leftSpan ? leftSpan : alignRight ? 14 : 9}>
         <Text fontWeight={fontWeight} fontSize={fontSize}>
           {label} :
         </Text>
+        <br />
+        {labelEn && (
+          <Text fontWeight={fontWeight} fontSize={fontSize}>
+            ({labelEn})
+          </Text>
+        )}
       </Col>
-      <Col span={leftSpan ? 24 - leftSpan : alignRight ? 6 : 15}>
+      <Col span={leftSpan ? 24 - leftSpan : alignRight ? 10 : 15}>
         <Row justify={alignRight ? "end" : "start"}>
           <Text fontWeight={fontWeight} color={color ? color : "Text2"} style={style}>
             {value || "-"}
@@ -397,7 +405,7 @@ export const OrderDetail: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5} color={discount ? "error" : "Text3"} fontWeight={700}>
-                {discount ? "- " + discount : "-"}
+                {discount ? "- " + priceFormatter(discount || "0", undefined, false, true) : "-"}
               </Text>
               <Text level={6} color='Text3'>
                 บาท
@@ -409,15 +417,15 @@ export const OrderDetail: React.FC = () => {
     },
     {
       title: "Special REQ.",
-      dataIndex: "specialReq",
-      key: "specialReq",
+      dataIndex: "specialRequestDiscount",
+      key: "specialRequestDiscount",
       fixed: "right" as FixedType,
       render: (discount: number, product: ProductEntity, index: number) => {
         return {
           children: (
             <FlexCol>
               <Text level={5} color={discount ? "purple" : "Text3"} fontWeight={700}>
-                {discount ? "- " + discount : "-"}
+                {discount ? "- " + priceFormatter(discount || "0", undefined, false, true) : "-"}
               </Text>
               <Text level={6} color='Text3'>
                 บาท
@@ -764,25 +772,29 @@ export const OrderDetail: React.FC = () => {
                 <DetailItem label='รวมเงิน' value=' ' fontWeight={700} fontSize={18} />
                 <DetailBox style={{ backgroundColor: "white", padding: 22 }}>
                   <DetailItem
-                    label='ส่วนลดรายการ (Discount)'
+                    label='ส่วนลดรายการ'
+                    labelEn='Discount'
                     value={priceFormatter(orderData?.discount || "0", undefined, true)}
                     color='error'
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดดูแลราคา (CO. ดูแลราคา / วงเงินเคลม)'
+                    label='ส่วนลดดูแลราคา'
+                    labelEn='CO. ดูแลราคา / วงเงินเคลม'
                     value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
                     color='success'
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดเงินสด (Cash)'
+                    label='ส่วนลดเงินสด'
+                    labelEn='Cash'
                     value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
                     color='secondary'
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดพิเศษ (Special Req.)'
+                    label='ส่วนลดพิเศษ'
+                    labelEn='Special Req.'
                     value={priceFormatter(
                       orderData?.specialRequestDiscount || "0",
                       undefined,

@@ -212,7 +212,8 @@ export const DiscountCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
-    console.log({ submitData });
+    // console.log({ submitData });
+    // return;
 
     if (!isEditing) {
       await createCreditMemo(submitData)
