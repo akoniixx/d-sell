@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Features [v0.4.4] - Release Date: 2022-04-05
+
+- fixed defect special request
+- fixed defect order management
+
 ## Features [v0.4.3] - Release Date: 2022-04-05
 
 - added feature preview PDF
