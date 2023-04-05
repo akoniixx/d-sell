@@ -43,6 +43,7 @@ import {
   ORDER_PAYMENT_METHOD_NAME,
   OrderStatusKey,
   OrderPaymentStatusKey,
+  ORDER_DELIVERY_DEST_METHOD_NAME,
 } from "../../definitions/orderStatus";
 import { getOrderDetail, submitToNav, updateOrderStatus } from "../../datasource/OrderDatasourc";
 import { OrderEntity } from "../../entities/OrderEntity";
@@ -628,7 +629,8 @@ export const OrderDetail: React.FC = () => {
                   <Button
                     title='ปฎิเสธ'
                     typeButton='danger'
-                    onClick={() => updateStatus("REJECT_ORDER")}
+                    onClick={() => setCancelModal(true)}
+                    // onClick={() => updateStatus("REJECT_ORDER")}
                   />
                 </Col>
                 <Col span={3}>
@@ -643,6 +645,7 @@ export const OrderDetail: React.FC = () => {
           </>
         );
       case "WAIT_CONFIRM_ORDER":
+      case "OPEN_ORDER":
         return isSpecialRequestMode ? (
           <></>
         ) : (
@@ -662,7 +665,6 @@ export const OrderDetail: React.FC = () => {
             {orderStatusOption}
           </>
         );
-      case "OPEN_ORDER":
       case "IN_DELIVERY":
       case "DELIVERY_SUCCESS":
         return <></>;
@@ -708,7 +710,14 @@ export const OrderDetail: React.FC = () => {
               </Text>
               <DetailBox style={{ height: 220 }}>
                 {/* TODO */}
-                <DetailItem label='การจัดส่ง' value={orderData?.deliveryDest} />
+                <DetailItem
+                  label='การจัดส่ง'
+                  value={
+                    orderData?.deliveryDest
+                      ? ORDER_DELIVERY_DEST_METHOD_NAME[orderData?.deliveryDest]
+                      : "-"
+                  }
+                />
                 <DetailItem label='ที่อยู่' value={orderData?.deliveryAddress} />
                 <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} />
               </DetailBox>
@@ -834,7 +843,11 @@ export const OrderDetail: React.FC = () => {
       </div>
       <Modal open={showCancelModal} footer={false} closable={false} width={420}>
         <FlexCol align='center'>
-          <Text fontWeight={700}>เหตุผลยกเลิกคำสั่งซื้อ (โดยบริษัท)*</Text>
+          <Text fontWeight={700}>
+            {isSpecialRequestMode
+              ? `เหตุผลที่ปฎิเสธคำขอสั่งซื้อพิเศษ*`
+              : `เหตุผลยกเลิกคำสั่งซื้อ (โดยบริษัท)*`}
+          </Text>
           <br />
         </FlexCol>
         <Form form={form}>
@@ -859,7 +872,7 @@ export const OrderDetail: React.FC = () => {
               style={{ width: "100%" }}
               onClick={() =>
                 onSubmitStatus({
-                  status: "COMPANY_CANCEL_ORDER",
+                  status: isSpecialRequestMode ? "REJECT_ORDER" : "COMPANY_CANCEL_ORDER",
                   cancelRemark: form.getFieldValue("cancelRemark"),
                 })
               }
