@@ -790,6 +790,17 @@ export const OrderDetail: React.FC = () => {
                     alignRight
                   />
                   <DetailItem
+                    label='ส่วนลดพิเศษ'
+                    labelEn='Special Req.'
+                    value={priceFormatter(
+                      orderData?.specialRequestDiscount || "0",
+                      undefined,
+                      true,
+                    )}
+                    style={{ color: "#9B51E0" }}
+                    alignRight
+                  />
+                  <DetailItem
                     label='ส่วนลดดูแลราคา'
                     labelEn='CO. ดูแลราคา / วงเงินเคลม'
                     value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
@@ -801,17 +812,6 @@ export const OrderDetail: React.FC = () => {
                     labelEn='Cash'
                     value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
                     color='secondary'
-                    alignRight
-                  />
-                  <DetailItem
-                    label='ส่วนลดพิเศษ'
-                    labelEn='Special Req.'
-                    value={priceFormatter(
-                      orderData?.specialRequestDiscount || "0",
-                      undefined,
-                      true,
-                    )}
-                    style={{ color: "#9B51E0" }}
                     alignRight
                   />
                 </DetailBox>
