@@ -123,7 +123,7 @@ export const FreebieListPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row gutter={16}>
-        <Col className='gutter-row' span={12}>
+        <Col className='gutter-row' span={11}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -171,7 +171,7 @@ export const FreebieListPage: React.FC = () => {
             />
           </div>
         </Col>
-        <Col className='gutter-row' span={4}>
+        <Col className='gutter-row' span={5}>
           <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
         </Col>
       </Row>

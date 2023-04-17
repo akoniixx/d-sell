@@ -31,6 +31,7 @@ import {
 } from "../../definitions/orderStatus";
 import { numberFormatter, priceFormatter } from "../../utility/Formatter";
 import { OrderEntity } from "../../entities/OrderEntity";
+import { zoneDatasource } from "../../datasource/ZoneDatasource";
 
 const SLASH_DMY = "DD/MM/YYYY";
 const SummaryBox = ({
@@ -72,8 +73,10 @@ export const OrderList: React.FC = () => {
 
   const navigate = useNavigate();
 
+  const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>();
+  const [zoneFilter, setZoneFilter] = useState<string[]>();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [dateFilter, setDateFilter] = useState<any>();
@@ -100,9 +103,21 @@ export const OrderList: React.FC = () => {
   useEffect(() => {
     console.log("change filter");
     fetchData();
-  }, [keyword, statusFilter, dateFilter, page]);
+  }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
+
+  const getZoneByCompany = async () => {
+    const res = await zoneDatasource.getAllZoneByCompany(company);
+    const data = res.map((item: any) => {
+      return {
+        label: item.zoneName,
+        value: item.zoneName,
+        key: item.zoneId,
+      };
+    });
+    setZone(data);
+  };
 
   const fetchData = async () => {
     try {
@@ -111,6 +126,7 @@ export const OrderList: React.FC = () => {
         company,
         search: keyword,
         status: statusFilter,
+        zone: zoneFilter,
         page,
         take: pageSize,
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
@@ -118,6 +134,9 @@ export const OrderList: React.FC = () => {
       });
       console.log({ data, statusCount, count });
       setDataState({ data, statusCount, count });
+      if (zone.length <= 0) {
+        getZoneByCompany();
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -332,8 +351,8 @@ export const OrderList: React.FC = () => {
           </Row>
           <br />
           <br />
-          <Row justify='space-between'>
-            <Col span={8}>
+          <Row justify='space-between' gutter={16}>
+            <Col span={6}>
               <Select
                 data={Object.entries(ORDER_STATUS).map(([key, val]) => ({
                   key,
@@ -341,7 +360,7 @@ export const OrderList: React.FC = () => {
                   label: val.name_default,
                 }))}
                 style={{ width: "100%" }}
-                placeholder='ทั้งหมด'
+                placeholder='สถานะทั้งหมด'
                 mode='multiple'
                 maxTagCount='responsive'
                 showArrow
@@ -351,6 +370,21 @@ export const OrderList: React.FC = () => {
                 }}
               />
             </Col>
+            <Col span={6}>
+              <Select
+                data={zone}
+                style={{ width: "100%" }}
+                placeholder='เขตทั้งหมด'
+                mode='multiple'
+                maxTagCount='responsive'
+                showArrow
+                onChange={(value: string[]) => {
+                  setZoneFilter(value);
+                  resetPage();
+                }}
+              />
+            </Col>
+            <Col span={4}></Col>
             <Col span={8}>
               <Input
                 placeholder='ค้นหา...'
