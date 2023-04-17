@@ -1,5 +1,7 @@
 ## [Version - 0]
 
+- added zone filter in order management & special request page
+
 ## Features [v0.4.4] - Release Date: 2022-04-05
 
 - fixed defect special request
