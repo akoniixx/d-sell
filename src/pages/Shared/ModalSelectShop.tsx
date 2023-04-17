@@ -125,11 +125,17 @@ export const ModalSelectedShop = ({
       const result = shopList.filter((x) => x.zone == searchZone1);
       setShopList(result);
     } else if (!searchZone1 && keyword1) {
-      const result = shopList.filter((x) => x.customerName.includes(keyword1));
+      const result = shopList.filter(
+        (x) =>
+          x.customerName.includes(keyword1) || x.customerNo?.includes(keyword1.toLocaleUpperCase()),
+      );
       setShopList(result);
     } else if (searchZone1 && keyword1) {
       const result = shopList.filter(
-        (x) => x.customerName.includes(keyword1) && x.zone == searchZone1,
+        (x) =>
+          (x.customerName.includes(keyword1) ||
+            x.customerNo?.includes(keyword1.toLocaleUpperCase())) &&
+          x.zone == searchZone1,
       );
       setShopList(result);
     } else {
@@ -146,11 +152,17 @@ export const ModalSelectedShop = ({
       const result = currentAllSelected.filter((x) => x.zone == searchZone2);
       setTargetKeys(result);
     } else if (!searchZone2 && keyword2) {
-      const result = currentAllSelected.filter((x) => x.customerName.includes(keyword2));
+      const result = currentAllSelected.filter(
+        (x) =>
+          x.customerName.includes(keyword2) || x.customerNo?.includes(keyword2.toLocaleUpperCase()),
+      );
       setTargetKeys(result);
     } else if (searchZone2 && keyword2) {
       const result = currentAllSelected.filter(
-        (x) => x.customerName.includes(keyword2) && x.zone == searchZone2,
+        (x) =>
+          (x.customerName.includes(keyword2) ||
+            x.customerNo?.includes(keyword2.toLocaleUpperCase())) &&
+          x.zone == searchZone2,
       );
       setTargetKeys(result);
     } else {
@@ -342,7 +354,7 @@ export const ModalSelectedShop = ({
                       <FlexCol style={{ padding: "4px 8px" }}>
                         <Text level={5}>{item.customerName}</Text>
                         <Text level={6} color='Text3'>
-                          {item.zone}
+                          {item.customerNo} - {item.zone}
                         </Text>
                       </FlexCol>
                     </Row>
@@ -432,7 +444,7 @@ export const ModalSelectedShop = ({
                       <FlexCol style={{ padding: "4px 8px" }}>
                         <Text level={5}>{item.customerName}</Text>
                         <Text level={6} color='Text3'>
-                          {item.zone}
+                          {item.customerNo} - {item.zone}
                         </Text>
                       </FlexCol>
                     </Row>

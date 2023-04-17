@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.4.5] - Release Date: 2023-04-17
+
+- fixed defect condition co
+- fixed defect special request
+- fixed defect order management
 - added zone filter in order management & special request page
 
 ## Features [v0.4.4] - Release Date: 2022-04-05

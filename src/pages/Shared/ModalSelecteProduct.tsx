@@ -83,8 +83,12 @@ export const ModalSelectedProduct = ({
 
   const handleSearchKeyword = (e: any) => {
     setKeyword(e.target.value);
+    const valueUpperCase: string = e.target.value;
     const find = prodList.filter((x) => {
-      const searchName = !e.target.value || x.productName?.includes(e.target.value);
+      const searchName =
+        !e.target.value ||
+        x.productName?.includes(e.target.value) ||
+        x.productCodeNAV?.includes(valueUpperCase);
       const searchGroup = !prodGroup || x.productGroup?.includes(prodGroup);
       const searchLocation = !location || x.productLocation?.includes(location);
       return searchName && searchGroup && searchLocation;
@@ -139,7 +143,7 @@ export const ModalSelectedProduct = ({
     {
       title: <span>ชื่อสินค้า</span>,
       dataIndex: "productName",
-      width: "40%",
+      width: "30%",
       render: (text: string, value: any, index: any) => (
         <FlexRow align='center'>
           <div style={{ marginRight: 16 }}>
@@ -173,6 +177,12 @@ export const ModalSelectedProduct = ({
           </FlexCol>
         </FlexRow>
       ),
+    },
+    {
+      title: <span>Product Code</span>,
+      dataIndex: "productCodeNAV",
+      width: "15%",
+      render: (text: string) => <span>{text}</span>,
     },
     {
       title: <span>ขนาด</span>,
@@ -217,28 +227,26 @@ export const ModalSelectedProduct = ({
               defaultValue={keyword}
             />
           </Col>
-          {company === "ICPL" && (
-            <Col span={6}>
-              <Select
-                data={[
-                  {
-                    key: "",
-                    value: "",
-                    label: "Product Group : ทั้งหมด",
-                  },
-                  ...productGroup.map((p: any) => ({
-                    key: p.product_group,
-                    value: p.product_group,
-                    label: p.product_group,
-                  })),
-                ]}
-                onChange={(e) => handleSearchProdGroup(e)}
-                placeholder='Product Group : ทั้งหมด'
-                style={{ width: "100%" }}
-                value={prodGroup}
-              />
-            </Col>
-          )}
+          <Col span={6}>
+            <Select
+              data={[
+                {
+                  key: "",
+                  value: "",
+                  label: "Product Group : ทั้งหมด",
+                },
+                ...productGroup.map((p: any) => ({
+                  key: p.product_group,
+                  value: p.product_group,
+                  label: p.product_group,
+                })),
+              ]}
+              onChange={(e) => handleSearchProdGroup(e)}
+              placeholder='Product Group : ทั้งหมด'
+              style={{ width: "100%" }}
+              value={prodGroup}
+            />
+          </Col>
           {company === "ICPI" && (
             <Col span={6}>
               <Select
