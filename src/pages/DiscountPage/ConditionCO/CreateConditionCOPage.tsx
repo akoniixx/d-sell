@@ -95,6 +95,8 @@ export const CreateConditionCOPage: React.FC = () => {
           endTime: dayjs(res.endDate),
           comment: res.comment,
         });
+        console.log("check", res?.creditMemoConditionShop);
+
         setSelectedShop(res?.creditMemoConditionShop);
         setSearchShop(res?.creditMemoConditionShop);
 
@@ -859,6 +861,7 @@ export const CreateConditionCOPage: React.FC = () => {
         }
         return shop;
       });
+     
       create.creditMemoConditionShop = create2;
       setCreateCondition(create);
       setCurrent(current + 1);
