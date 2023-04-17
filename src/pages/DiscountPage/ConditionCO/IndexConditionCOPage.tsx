@@ -50,7 +50,6 @@ export const IndexConditionCOPage: React.FC = () => {
       endDate: searchDate?.endDate,
       creditMemoConditionStatus: selectedTab === "all" ? undefined : selectedTab,
     });
-    console.log(getList);
     setDataState(getList);
     setData(getList.data);
   };
