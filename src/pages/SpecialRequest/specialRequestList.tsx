@@ -25,6 +25,7 @@ import { numberFormatter, priceFormatter } from "../../utility/Formatter";
 import { OrderEntity } from "../../entities/OrderEntity";
 import { getOrderStatus, getSpecialRequestStatus } from "../../utility/OrderStatus";
 import Tag from "../../components/Tag/Tag";
+import { zoneDatasource } from "../../datasource/ZoneDatasource";
 
 const SLASH_DMY = "DD/MM/YYYY";
 
@@ -58,6 +59,8 @@ export const SpecialRequestList: React.FC = () => {
     count: 0,
   });
   const [selectedTab, setSelectedTab] = useState<tabKey>("all");
+  const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
+  const [zoneFilter, setZoneFilter] = useState<string[]>();
 
   useEffect(() => {
     if (!loading) fetchData();
@@ -86,9 +89,21 @@ export const SpecialRequestList: React.FC = () => {
   useEffect(() => {
     console.log("change filter");
     fetchData();
-  }, [keyword, statusFilter, dateFilter, page]);
+  }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
+
+  const getZoneByCompany = async () => {
+    const res = await zoneDatasource.getAllZoneByCompany(company);
+    const data = res.map((item: any) => {
+      return {
+        label: item.zoneName,
+        value: item.zoneName,
+        key: item.zoneId,
+      };
+    });
+    setZone(data);
+  };
 
   const fetchData = async () => {
     try {
@@ -97,6 +112,7 @@ export const SpecialRequestList: React.FC = () => {
         company,
         search: keyword,
         status: statusFilter,
+        zone: zoneFilter,
         page,
         take: pageSize,
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
@@ -105,6 +121,9 @@ export const SpecialRequestList: React.FC = () => {
       });
       console.log({ data, statusCount, count });
       setDataState({ data, statusCount, count });
+      if (zone.length <= 0) {
+        getZoneByCompany();
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -115,7 +134,7 @@ export const SpecialRequestList: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
-        <Col className='gutter-row' span={12}>
+        <Col className='gutter-row' span={9}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -128,7 +147,21 @@ export const SpecialRequestList: React.FC = () => {
             <Text color='Text3'>รายการขอโปรโมชันพิเศษเพิ่มเติม</Text>
           </div>
         </Col>
-        <Col span={5}>
+        <Col span={4}>
+          <Select
+            data={zone}
+            style={{ width: "100%" }}
+            placeholder='เขตทั้งหมด'
+            mode='multiple'
+            maxTagCount='responsive'
+            showArrow
+            onChange={(value: string[]) => {
+              setZoneFilter(value);
+              resetPage();
+            }}
+          />
+        </Col>
+        <Col span={4}>
           <Input
             placeholder='ค้นหา...'
             suffix={<SearchOutlined />}

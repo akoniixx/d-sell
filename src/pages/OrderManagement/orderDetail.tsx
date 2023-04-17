@@ -378,14 +378,19 @@ export const OrderDetail: React.FC = () => {
     },
     {
       title: "โปรโมชัน",
-      dataIndex: "promotion",
-      key: "promotion",
-      render: (promotion: number, product: ProductEntity, index: number) => {
+      dataIndex: "orderProductPromotions",
+      key: "orderProductPromotions",
+      render: (promotions: any[], product: ProductEntity, index: number) => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{promotion || "-"}</Text>
-              <Text level={6} color='Text3'></Text>
+              {promotions.length > 0
+                ? promotions.map((promotion, i) => (
+                    <Text level={5} key={i}>
+                      {promotion?.promotionCode}
+                    </Text>
+                  ))
+                : "-"}
             </FlexCol>
           ),
         };
@@ -417,7 +422,30 @@ export const OrderDetail: React.FC = () => {
       },
     },
     {
-      title: "Special REQ.",
+      title: "Special REQ./หน่วย",
+      dataIndex: "specialRequestDiscount",
+      key: "specialRequestDiscount",
+      fixed: "right" as FixedType,
+      render: (discount: number, product: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5} color={discount ? "purple" : "Text3"} fontWeight={700}>
+                {discount
+                  ? "- " +
+                    priceFormatter(discount / product.quantity || "0", undefined, false, true)
+                  : "-"}
+              </Text>
+              <Text level={6} color='Text3'>
+                บาท
+              </Text>
+            </FlexCol>
+          ),
+        };
+      },
+    },
+    {
+      title: "Special REQ. รวม",
       dataIndex: "specialRequestDiscount",
       key: "specialRequestDiscount",
       fixed: "right" as FixedType,
