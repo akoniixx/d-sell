@@ -1,4 +1,5 @@
 import {
+  OrderDeliveryDestKey,
   OrderPaymentMethodName,
   OrderPaymentStatusKey,
   OrderStatusKey,
@@ -15,7 +16,7 @@ export interface OrderEntity {
   customerName?: string;
   customerNo?: string;
   deliveryAddress: string;
-  deliveryDest: string;
+  deliveryDest?: OrderDeliveryDestKey;
   deliveryRemark: string;
   discount?: number;
   isUseCOD?: boolean;

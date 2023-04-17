@@ -13,6 +13,8 @@ export type OrderPaymentMethodName = "CASH" | "CREDIT";
 
 export type OrderPaymentStatusKey = "WAITING_PAID" | "ALREADY_PAID";
 
+export type OrderDeliveryDestKey = "SHOP" | "FACTORY" | "OTHER";
+
 export const ORDER_STATUS = {
   WAIT_APPROVE_ORDER: {
     name_default: "รออนุมัติคำสั่งซื้อ",
@@ -93,4 +95,10 @@ export const ORDER_PAYMENT_STATUS = {
 export const ORDER_PAYMENT_METHOD_NAME = {
   CASH: "เงินสด",
   CREDIT: "เครดิต",
+};
+
+export const ORDER_DELIVERY_DEST_METHOD_NAME = {
+  SHOP: "จัดส่งที่ร้าน",
+  FACTORY: "รับที่โรงงาน ",
+  OTHER: "ส่งรับที่อื่นๆ ",
 };

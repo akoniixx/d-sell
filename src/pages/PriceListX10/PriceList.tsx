@@ -228,7 +228,7 @@ export const PriceListX10: React.FC = () => {
       width: "30%",
     },
     // {
-    //   title: "รายชื่อสมาชิก",
+    //   title: "ชื่อเจ้าของร้าน",
     //   dataIndex: "createdAt",
     //   key: "createdAt",
     //   width: "25%",

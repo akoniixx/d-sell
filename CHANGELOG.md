@@ -1,9 +1,25 @@
 ## [Version - 0]
+
+## Features [v0.4.4] - Release Date: 2022-04-05
+
+- fixed defect special request
+- fixed defect order management
+
+## Features [v0.4.3] - Release Date: 2022-04-05
+
+- added feature preview PDF
+- fixed special request number format
+
+## Features [v0.4.2] - Release Date: 2022-03-31
+
+- added feature create CO manual UX/UI
+
 ## Resolved [v0.4.1] - Release Date: 2023-03-28
 
 - fixed defect search shop & product in condition co menu
 - fixed create after search product & shop
 - fixed clear form after delete product & shop
+- fixed defect special request status
 - updated wording total selected product & shop
 - fixed button add product in "FERT" company
 

@@ -43,6 +43,7 @@ import {
   ORDER_PAYMENT_METHOD_NAME,
   OrderStatusKey,
   OrderPaymentStatusKey,
+  ORDER_DELIVERY_DEST_METHOD_NAME,
 } from "../../definitions/orderStatus";
 import { getOrderDetail, submitToNav, updateOrderStatus } from "../../datasource/OrderDatasourc";
 import { OrderEntity } from "../../entities/OrderEntity";
@@ -69,6 +70,7 @@ const NavResponseBox = styled(CardContainer)`
 
 const DetailItem = ({
   label,
+  labelEn,
   value,
   alignRight,
   fontWeight,
@@ -78,6 +80,7 @@ const DetailItem = ({
   leftSpan,
 }: {
   label: string;
+  labelEn?: string;
   value: string | ReactNode;
   alignRight?: boolean;
   fontWeight?: 400 | 500 | 600 | 700;
@@ -97,12 +100,18 @@ const DetailItem = ({
 }) => {
   return (
     <Row gutter={16} style={{ margin: "10px 0px" }}>
-      <Col span={leftSpan ? leftSpan : alignRight ? 18 : 9}>
+      <Col span={leftSpan ? leftSpan : alignRight ? 14 : 9}>
         <Text fontWeight={fontWeight} fontSize={fontSize}>
           {label} :
         </Text>
+        <br />
+        {labelEn && (
+          <Text fontWeight={fontWeight} fontSize={fontSize}>
+            ({labelEn})
+          </Text>
+        )}
       </Col>
-      <Col span={leftSpan ? 24 - leftSpan : alignRight ? 6 : 15}>
+      <Col span={leftSpan ? 24 - leftSpan : alignRight ? 10 : 15}>
         <Row justify={alignRight ? "end" : "start"}>
           <Text fontWeight={fontWeight} color={color ? color : "Text2"} style={style}>
             {value || "-"}
@@ -397,7 +406,7 @@ export const OrderDetail: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5} color={discount ? "error" : "Text3"} fontWeight={700}>
-                {discount ? "- " + discount : "-"}
+                {discount ? "- " + priceFormatter(discount || "0", undefined, false, true) : "-"}
               </Text>
               <Text level={6} color='Text3'>
                 บาท
@@ -409,15 +418,15 @@ export const OrderDetail: React.FC = () => {
     },
     {
       title: "Special REQ.",
-      dataIndex: "specialReq",
-      key: "specialReq",
+      dataIndex: "specialRequestDiscount",
+      key: "specialRequestDiscount",
       fixed: "right" as FixedType,
       render: (discount: number, product: ProductEntity, index: number) => {
         return {
           children: (
             <FlexCol>
               <Text level={5} color={discount ? "purple" : "Text3"} fontWeight={700}>
-                {discount ? "- " + discount : "-"}
+                {discount ? "- " + priceFormatter(discount || "0", undefined, false, true) : "-"}
               </Text>
               <Text level={6} color='Text3'>
                 บาท
@@ -606,7 +615,9 @@ export const OrderDetail: React.FC = () => {
   const getOption = () => {
     switch (orderData?.status) {
       case "WAIT_APPROVE_ORDER":
-        return (
+        return !isSpecialRequestMode ? (
+          <></>
+        ) : (
           <>
             <br />
             <CardContainer>
@@ -620,7 +631,8 @@ export const OrderDetail: React.FC = () => {
                   <Button
                     title='ปฎิเสธ'
                     typeButton='danger'
-                    onClick={() => updateStatus("REJECT_ORDER")}
+                    onClick={() => setCancelModal(true)}
+                    // onClick={() => updateStatus("REJECT_ORDER")}
                   />
                 </Col>
                 <Col span={3}>
@@ -635,6 +647,8 @@ export const OrderDetail: React.FC = () => {
           </>
         );
       case "WAIT_CONFIRM_ORDER":
+      case "OPEN_ORDER":
+      case "IN_DELIVERY":
         return isSpecialRequestMode ? (
           <></>
         ) : (
@@ -654,8 +668,6 @@ export const OrderDetail: React.FC = () => {
             {orderStatusOption}
           </>
         );
-      case "OPEN_ORDER":
-      case "IN_DELIVERY":
       case "DELIVERY_SUCCESS":
         return <></>;
       default:
@@ -700,7 +712,14 @@ export const OrderDetail: React.FC = () => {
               </Text>
               <DetailBox style={{ height: 220 }}>
                 {/* TODO */}
-                <DetailItem label='การจัดส่ง' value={orderData?.deliveryDest} />
+                <DetailItem
+                  label='การจัดส่ง'
+                  value={
+                    orderData?.deliveryDest
+                      ? ORDER_DELIVERY_DEST_METHOD_NAME[orderData?.deliveryDest]
+                      : "-"
+                  }
+                />
                 <DetailItem label='ที่อยู่' value={orderData?.deliveryAddress} />
                 <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} />
               </DetailBox>
@@ -764,25 +783,29 @@ export const OrderDetail: React.FC = () => {
                 <DetailItem label='รวมเงิน' value=' ' fontWeight={700} fontSize={18} />
                 <DetailBox style={{ backgroundColor: "white", padding: 22 }}>
                   <DetailItem
-                    label='ส่วนลดรายการ (Discount)'
+                    label='ส่วนลดรายการ'
+                    labelEn='Discount'
                     value={priceFormatter(orderData?.discount || "0", undefined, true)}
                     color='error'
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดดูแลราคา (CO. ดูแลราคา / วงเงินเคลม)'
+                    label='ส่วนลดดูแลราคา'
+                    labelEn='CO. ดูแลราคา / วงเงินเคลม'
                     value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
                     color='success'
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดเงินสด (Cash)'
+                    label='ส่วนลดเงินสด'
+                    labelEn='Cash'
                     value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
                     color='secondary'
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดพิเศษ (Special Req.)'
+                    label='ส่วนลดพิเศษ'
+                    labelEn='Special Req.'
                     value={priceFormatter(
                       orderData?.specialRequestDiscount || "0",
                       undefined,
@@ -822,7 +845,11 @@ export const OrderDetail: React.FC = () => {
       </div>
       <Modal open={showCancelModal} footer={false} closable={false} width={420}>
         <FlexCol align='center'>
-          <Text fontWeight={700}>เหตุผลยกเลิกคำสั่งซื้อ (โดยบริษัท)*</Text>
+          <Text fontWeight={700}>
+            {isSpecialRequestMode
+              ? `เหตุผลที่ปฎิเสธคำขอสั่งซื้อพิเศษ*`
+              : `เหตุผลยกเลิกคำสั่งซื้อ (โดยบริษัท)*`}
+          </Text>
           <br />
         </FlexCol>
         <Form form={form}>
@@ -847,7 +874,7 @@ export const OrderDetail: React.FC = () => {
               style={{ width: "100%" }}
               onClick={() =>
                 onSubmitStatus({
-                  status: "COMPANY_CANCEL_ORDER",
+                  status: isSpecialRequestMode ? "REJECT_ORDER" : "COMPANY_CANCEL_ORDER",
                   cancelRemark: form.getFieldValue("cancelRemark"),
                 })
               }

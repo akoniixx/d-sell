@@ -113,8 +113,18 @@ export const CreateCOStep1 = ({ form, isEditing }: Props) => {
           </Col>
           {company === "ICPL" && (
             <Col span={24}>
-              <Form.Item name='type' label='CN / CO' initialValue={"CO"}>
-                <Radio.Group optionType='button'>
+              <Form.Item
+                name='creditMemoType'
+                label='ประเภท ส่วนลดดูแลราคา'
+                initialValue={"CO"}
+                rules={[
+                  {
+                    required: true,
+                    message: "โปรดเลือกส่วนลดดูแลราคา",
+                  },
+                ]}
+              >
+                <Radio.Group optionType='default'>
                   {[
                     {
                       label: "CO",

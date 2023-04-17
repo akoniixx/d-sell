@@ -44,11 +44,16 @@ export const SpecialRequestList: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<any>();
   const [dataState, setDataState] = useState({
     data: [],
-    dashboard: {
-      confirmStatusCount: 0,
-      deliverySuccessCount: 0,
-      inDeliveryCount: 0,
-      waitConfirmStatusCount: 0,
+    statusCount: {
+      COMPANY_CANCEL_ORDER: 0,
+      CONFIRM_ORDER: 0,
+      DELIVERY_SUCCESS: 0,
+      IN_DELIVERY: 0,
+      OPEN_ORDER: 0,
+      REJECT_ORDER: 0,
+      SHOPAPP_CANCEL_ORDER: 0,
+      WAIT_APPROVE_ORDER: 0,
+      WAIT_CONFIRM_ORDER: 0,
     },
     count: 0,
   });
@@ -57,6 +62,26 @@ export const SpecialRequestList: React.FC = () => {
   useEffect(() => {
     if (!loading) fetchData();
   }, []);
+
+  useEffect(() => {
+    if (selectedTab === "all") {
+      setStatusFilter(undefined);
+    } else if (selectedTab === "pending") {
+      setStatusFilter(["WAIT_APPROVE_ORDER"]);
+    } else if (selectedTab === "approved") {
+      setStatusFilter([
+        "COMPANY_CANCEL_ORDER",
+        "CONFIRM_ORDER",
+        "DELIVERY_SUCCESS",
+        "IN_DELIVERY",
+        "OPEN_ORDER",
+        "SHOPAPP_CANCEL_ORDER",
+        "WAIT_CONFIRM_ORDER",
+      ]);
+    } else if (selectedTab === "rejected") {
+      setStatusFilter(["REJECT_ORDER"]);
+    }
+  }, [selectedTab]);
 
   useEffect(() => {
     console.log("change filter");
@@ -68,16 +93,18 @@ export const SpecialRequestList: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, dashboard, count } = await getOrders({
+      const { data, statusCount, count } = await getOrders({
+        company,
         search: keyword,
         status: statusFilter,
         page,
         take: pageSize,
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
         endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
+        isSpecialRequest: true,
       });
-      console.log({ data, dashboard, count });
-      setDataState({ data, dashboard, count });
+      console.log({ data, statusCount, count });
+      setDataState({ data, statusCount, count });
     } catch (e) {
       console.log(e);
     } finally {
@@ -94,7 +121,7 @@ export const SpecialRequestList: React.FC = () => {
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              Special Request
+              อนุมัติคำสั่งซื้อ
             </span>
           </div>
           <div>
@@ -159,14 +186,15 @@ export const SpecialRequestList: React.FC = () => {
     },
     {
       title: "ทั้งหมด",
-      dataIndex: "amount",
-      key: "amount",
-      width: "10%",
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      width: "15%",
+      align: "center" as AlignType,
       render: (value: any, row: any, index: number) => {
         return (
-          <FlexCol>
+          <FlexRow justify='center'>
             <Text level={5}>{priceFormatter(value || "0", 2, true)}</Text>
-          </FlexCol>
+          </FlexRow>
         );
       },
     },
@@ -174,7 +202,7 @@ export const SpecialRequestList: React.FC = () => {
       title: "วันที่สร้าง",
       dataIndex: "createAt",
       key: "createAt",
-      width: "15%",
+      width: "10%",
       render: (value: any, row: any, index: number) => {
         return <Text style={{ textAlign: "center" }}>{moment(value).format(SLASH_DMY)}</Text>;
       },
@@ -222,19 +250,26 @@ export const SpecialRequestList: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `ทั้งหมด (${0})`,
+      label: `ทั้งหมด (${Object.values(dataState?.statusCount).reduce(
+        (sum, cur) => sum + cur,
+        0,
+      )})`,
       key: "all",
     },
     {
-      label: `รออนุมัติ (${0})`,
+      label: `รออนุมัติ (${dataState?.statusCount?.WAIT_APPROVE_ORDER})`,
       key: "pending",
     },
     {
-      label: `อนุมัติ (${0})`,
+      label: `อนุมัติ (${
+        Object.values(dataState?.statusCount).reduce((sum, cur) => sum + cur, 0) -
+        dataState?.statusCount?.WAIT_APPROVE_ORDER -
+        dataState?.statusCount?.REJECT_ORDER
+      })`,
       key: "approved",
     },
     {
-      label: `ไม่อนุมัติ (${0})`,
+      label: `ไม่อนุมัติ (${dataState?.statusCount?.REJECT_ORDER})`,
       key: "rejected",
     },
   ];
