@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.5.0] - Release Date: 2022-04-19
+
+- added component modal select shop
+
 ## Resolved [v0.4.5] - Release Date: 2023-04-17
 
 - fixed defect condition co
