@@ -126,7 +126,7 @@ export const OrderList: React.FC = () => {
         company,
         search: keyword,
         status: statusFilter,
-        zone: zoneFilter,
+        customerZones: zoneFilter,
         page,
         take: pageSize,
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,

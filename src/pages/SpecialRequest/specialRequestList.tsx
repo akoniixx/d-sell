@@ -87,7 +87,13 @@ export const SpecialRequestList: React.FC = () => {
   }, [selectedTab]);
 
   useEffect(() => {
-    console.log("change filter");
+    console.log("change filter", {
+      keyword,
+      statusFilter,
+      zoneFilter,
+      dateFilter,
+      page,
+    });
     fetchData();
   }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
 
@@ -112,7 +118,7 @@ export const SpecialRequestList: React.FC = () => {
         company,
         search: keyword,
         status: statusFilter,
-        zone: zoneFilter,
+        customerZones: zoneFilter,
         page,
         take: pageSize,
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
@@ -150,6 +156,7 @@ export const SpecialRequestList: React.FC = () => {
         <Col span={4}>
           <Select
             data={zone}
+            value={zoneFilter}
             style={{ width: "100%" }}
             placeholder='เขตทั้งหมด'
             mode='multiple'

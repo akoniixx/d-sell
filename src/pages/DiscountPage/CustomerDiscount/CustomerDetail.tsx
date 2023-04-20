@@ -16,7 +16,7 @@ import {
   getCustomerCreditMemo,
   getCustomerCreditMemoHistory,
   getOrderHistory,
-  updateCreditMemo,
+  updateCoManual,
 } from "../../../datasource/CreditMemoDatasource";
 import { DetailBox, FlexCol, FlexRow } from "../../../components/Container/Container";
 import { CheckCircleTwoTone, EditOutlined } from "@ant-design/icons";
@@ -41,7 +41,7 @@ type factorType = -1 | 0 | 1;
 
 export const CustomerCreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
+  const { company, firstname, lastname } = userProfile;
 
   const navigate = useNavigate();
   const { pathname } = window.location;
@@ -298,14 +298,31 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     setFactor(f);
   };
 
+  const saveManualCo = async (val: any) => {
+    setSubmit(true);
+    await updateCoManual(val)
+      .then(async (res: any) => {
+        console.log("updateCoManual", res);
+        if (res?.success) {
+          form.resetFields();
+          setConfirmModal(false);
+          setFormModal(false);
+          toggleFormModal(0);
+          message.success(res?.userMessage || "บันทึกสำเร็จ");
+          fetchData();
+        } else {
+          message.success("เกิดข้อผิดพลาด");
+        }
+      })
+      .catch((e: any) => {
+        console.log(e);
+      })
+      .finally(() => {
+        setSubmit(false);
+      });
+  };
+
   const onSubmitManualCO = () => {
-    const onFinish = () => {
-      form.resetFields();
-      setConfirmModal(false);
-      setFormModal(false);
-      setFactor(0);
-      setSubmit(false);
-    };
     form
       .validateFields()
       .then((values) => {
@@ -319,17 +336,29 @@ export const CustomerCreditMemoDetail: React.FC = () => {
           content: (
             <Text>
               โปรดตรวจสอบ{" "}
-              <span style={{ fontWeight: 700, color: factor ? color.success : color.error }}>
+              <span style={{ fontWeight: 700, color: factor > 0 ? color.success : color.error }}>
                 การ{factor > 0 ? "เพิ่ม" : "ลด"}ยอด
               </span>{" "}
               CO ส่วนลดดูแลราคา ก่อนกดยืนยัน เพราะอาจส่งผลต่อยอดส่วนลดดูแลราคาคงเหลือในระบบ
             </Text>
           ),
           onOk: () => {
-            setSubmit(true);
             console.log("form values", values);
+            const { cnNo, coAmount, date, remark, soNo, total } = values;
             //TODO: call api
-            onFinish();
+            const id = pathSplit[3];
+            const submitData = {
+              customerCompanyId: id,
+              orderDate: date,
+              orderAmount: total,
+              coAmount,
+              soNo,
+              cnNo,
+              remark,
+              updateBy: `${firstname} ${lastname}`,
+              action: factor > 0 ? "increase" : "decrease",
+            };
+            saveManualCo(submitData);
           },
         });
       })
@@ -457,7 +486,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                       label='วันที่ใช้งาน'
                       rules={[{ required: true, message: "*โปรดเลือกวันที่ใช้งาน" }]}
                     >
-                      <DatePicker />
+                      <DatePicker enablePast />
                     </Form.Item>
                     <Form.Item
                       name='total'
