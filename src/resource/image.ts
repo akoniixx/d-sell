@@ -8,4 +8,5 @@ export default {
   icp_international: require("./media/images/LogoICPInter.png"),
   icp_fertilizer: require("./media/images/LogoICPFert.png"),
   product_box: require("./media/images/product-box.png"),
+  empty_shop: require("./media/images/empty_shop.png"),
 };

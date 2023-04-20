@@ -59,7 +59,6 @@ export const DetailConditionCOPage: React.FC = () => {
 
   const getCondition = async () => {
     const getById = await getConditionCoById(conditionId, company);
-    console.log("data",getById);
     setData(getById);
     setSearchData(getById);
   };
