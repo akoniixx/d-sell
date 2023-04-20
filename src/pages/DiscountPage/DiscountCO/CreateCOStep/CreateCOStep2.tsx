@@ -13,6 +13,7 @@ import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../../components/Table/TableContainer";
 import { getZones } from "../../../../datasource/CustomerDatasource";
 import { SearchStore } from "../../../Shared/SearchStore";
+import { ModalSelectStore } from "../../../Shared/ModalSelectStore";
 
 const Form = styled(AntdForm)`
   .table-form-item.ant-form-item {
@@ -73,6 +74,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
       stores,
     });
     setError(false);
+    setSearch(false);
   };
 
   const toggleSearchWindow = () => {
@@ -238,6 +240,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
                             ),
                           );
                           setSelectedStoreKeys([]);
+                          setSelectedStoreList([]);
                         },
                       });
                     }}
@@ -271,14 +274,15 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
           />
         </TableContainer>
       </Form>
-      <Modal open={showSearch} footer={null} closable={false} width={"80vw"}>
-        <SearchStore
-          list={storeList}
-          setList={onSetStore}
-          onClose={toggleSearchWindow}
-          zones={zones}
-        />
-      </Modal>
+      {/* <Modal open={showSearch} footer={null} closable={false} width={"80vw"}> */}
+      <ModalSelectStore
+        callBackShop={onSetStore}
+        showModalShop={showSearch}
+        currentSelectShop={storeList || []}
+        company={company}
+        onClose={toggleSearchWindow}
+      />
+      {/* </Modal> */}
     </>
   );
 };
