@@ -39,6 +39,7 @@ import { numberFormatter } from "../../../utility/Formatter";
 import { ModalSelectedProduct } from "../../Shared/ModalSelecteProduct";
 import { ModalSelectedShop } from "../../Shared/ModalSelectShop";
 import productState from "../../../store/productList";
+import { ModalSelectStore } from "../../Shared/ModalSelectStore";
 
 export const CreateConditionCOPage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -301,8 +302,8 @@ export const CreateConditionCOPage: React.FC = () => {
   const StepTwo = () => {
     const callBackShop = (item: StoreEntity[]) => {
       item = item.map((p: any) => ({ ...p, isChecked: false }));
-      setSelectedShop(item);
-      setSearchShop(item);
+      setSelectedShop([...selectedShop, ...item]);
+      setSearchShop([...selectedShop, ...item]);
       setShowModalShop(!showModalShop);
     };
     const onSearchShop = (e: any) => {
@@ -460,9 +461,8 @@ export const CreateConditionCOPage: React.FC = () => {
           pagination={false}
           scroll={{ y: 500 }}
         />
-        <ModalSelectedShop
-          zoneList={zoneList}
-          shopData={shopList}
+        <ModalSelectStore
+          company={company}
           callBackShop={callBackShop}
           showModalShop={showModalShop}
           onClose={() => setShowModalShop(!setShowModalShop)}
@@ -861,7 +861,7 @@ export const CreateConditionCOPage: React.FC = () => {
         }
         return shop;
       });
-     
+
       create.creditMemoConditionShop = create2;
       setCreateCondition(create);
       setCurrent(current + 1);
