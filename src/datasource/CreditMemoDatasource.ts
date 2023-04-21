@@ -171,6 +171,14 @@ const syncNavision = async (company: string) => {
     .then((res: AxiosResponse) => res)
     .catch((err) => console.log(err));
 };
+
+const updateCoManual = async (params: object) => {
+  return await httpClient
+    .post(`${baseUrl}/credit-memo/use-co-manual`, params)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getCreditMemoList,
   getCustomerCreditMemoList,
@@ -190,4 +198,5 @@ export {
   updateConditionCOStatus,
   deleteConditionCo,
   syncNavision,
+  updateCoManual,
 };

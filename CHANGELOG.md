@@ -10,6 +10,7 @@
 - fixed defect special request
 - fixed defect order management
 - added zone filter in order management & special request page
+- added token unauthorized handler
 
 ## Features [v0.4.4] - Release Date: 2022-04-05
 

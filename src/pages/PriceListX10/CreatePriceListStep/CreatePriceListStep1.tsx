@@ -22,12 +22,10 @@ import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import Select from "../../../components/Select/Select";
 import Transfer from "../../../components/Transfer/Transfer";
-import type { TransferDirection } from "antd/es/transfer";
 import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../components/Table/TableContainer";
-import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
-import { CreditMemoShopEntity } from "../../../entities/CreditMemoEntity";
-import { SearchStore } from "../../Shared/SearchStore";
+import { getZones } from "../../../datasource/CustomerDatasource";
+import { ModalSelectStore } from "../../Shared/ModalSelectStore";
 
 const Form = styled(AntdForm)`
   .table-form-item.ant-form-item {
@@ -84,6 +82,7 @@ export const CreatePriceListStep1 = ({ form, showError, setError }: Step2Props) 
       stores,
     });
     setError(false);
+    setSearch(false);
   };
 
   const toggleSearchWindow = () => {
@@ -223,14 +222,15 @@ export const CreatePriceListStep1 = ({ form, showError, setError }: Step2Props) 
           />
         </TableContainer>
       </Form>
-      <Modal open={showSearch} footer={null} closable={false} width={"80vw"}>
-        <SearchStore
-          list={storeList}
-          setList={onSetStore}
+      {showSearch && (
+        <ModalSelectStore
+          callBackShop={onSetStore}
+          showModalShop={showSearch}
+          currentSelectShop={storeList || []}
+          company={company}
           onClose={toggleSearchWindow}
-          zones={zones}
         />
-      </Modal>
+      )}
     </>
   );
 };

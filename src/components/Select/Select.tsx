@@ -16,7 +16,7 @@ interface Props {
   setValue?: (value: any) => void;
   style?: React.CSSProperties;
   defaultValue?: string | number;
-  value?: string | number;
+  value?: string | number | string[];
   disabled?: boolean;
   edit?: boolean;
   placeholder?: string;

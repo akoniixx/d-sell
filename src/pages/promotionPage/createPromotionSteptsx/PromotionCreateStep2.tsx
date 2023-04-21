@@ -11,7 +11,7 @@ import Select from "../../../components/Select/Select";
 import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../components/Table/TableContainer";
 import { getZones } from "../../../datasource/CustomerDatasource";
-import { SearchStore } from "../../Shared/SearchStore";
+import { ModalSelectStore } from "../../Shared/ModalSelectStore";
 
 interface Step2Props {
   form: FormInstance;
@@ -63,6 +63,7 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
       stores,
     });
     setError(false);
+    setSearch(false);
   };
 
   const toggleSearchWindow = () => {
@@ -227,14 +228,15 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
           pagination={false}
         />
       </TableContainer>
-      <Modal open={showSearch} footer={null} closable={false} width={"80vw"}>
-        <SearchStore
-          list={storeList}
-          setList={onSetStore}
+      {showSearch && (
+        <ModalSelectStore
+          callBackShop={onSetStore}
+          showModalShop={showSearch}
+          currentSelectShop={storeList || []}
+          company={company}
           onClose={toggleSearchWindow}
-          zones={zones}
         />
-      </Modal>
+      )}
     </>
   );
 };
