@@ -245,6 +245,18 @@ export const OrderList: React.FC = () => {
       },
     },
     {
+      title: "เขต",
+      dataIndex: "customerZone",
+      key: "customerZone",
+      render: (value: any, row: any, index: number) => {
+        return (
+          <FlexCol>
+            <Text level={5}>{value || "-"}</Text>
+          </FlexCol>
+        );
+      },
+    },
+    {
       title: "การจัดส่ง",
       dataIndex: "deliveryDest",
       key: "deliveryDest",

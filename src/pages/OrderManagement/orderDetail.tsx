@@ -380,7 +380,8 @@ export const OrderDetail: React.FC = () => {
       title: "โปรโมชัน",
       dataIndex: "orderProductPromotions",
       key: "orderProductPromotions",
-      render: (promotions: any[], product: ProductEntity, index: number) => {
+      render: (orderProductPromotions: any[], product: ProductEntity, index: number) => {
+        const promotions = orderProductPromotions || product?.productPromotionCode;
         return {
           children: (
             <FlexCol>
