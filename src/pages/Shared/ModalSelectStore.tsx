@@ -30,7 +30,6 @@ export const ModalSelectStore = ({
   currentSelectShop: StoreEntity[];
   company: string;
 }) => {
-  console.log("currentSelectShop", currentSelectShop);
   const [zoneList, setZoneList] = useState<ZoneEntity[]>([]);
 
   const [storeList, setStoreList] = useState<StoreEntity[]>([]);
@@ -48,11 +47,6 @@ export const ModalSelectStore = ({
     const getShop = await getCustomers({
       company,
       customerType: "DL",
-    });
-    console.log("fetchStore", {
-      showModalShop,
-      currentSelectShop,
-      company,
     });
     currentSelectShop = currentSelectShop.map((item) => ({ ...item, isChecked: false }));
     const dataWithIschecked = getShop.data
@@ -81,11 +75,6 @@ export const ModalSelectStore = ({
   useEffect(() => {
     fetchZone();
     fetchStore();
-    console.log("useEffect", {
-      showModalShop,
-      currentSelectShop,
-      company,
-    });
   }, []);
 
   const handleSearchZone = (e: any, section: number) => {

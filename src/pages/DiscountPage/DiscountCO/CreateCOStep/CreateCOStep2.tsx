@@ -12,7 +12,6 @@ import Select from "../../../../components/Select/Select";
 import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../../components/Table/TableContainer";
 import { getZones } from "../../../../datasource/CustomerDatasource";
-import { SearchStore } from "../../../Shared/SearchStore";
 import { ModalSelectStore } from "../../../Shared/ModalSelectStore";
 
 const Form = styled(AntdForm)`
@@ -274,15 +273,15 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
           />
         </TableContainer>
       </Form>
-      {/* <Modal open={showSearch} footer={null} closable={false} width={"80vw"}> */}
-      <ModalSelectStore
-        callBackShop={onSetStore}
-        showModalShop={showSearch}
-        currentSelectShop={storeList || []}
-        company={company}
-        onClose={toggleSearchWindow}
-      />
-      {/* </Modal> */}
+      {showSearch && (
+        <ModalSelectStore
+          callBackShop={onSetStore}
+          showModalShop={showSearch}
+          currentSelectShop={storeList || []}
+          company={company}
+          onClose={toggleSearchWindow}
+        />
+      )}
     </>
   );
 };
