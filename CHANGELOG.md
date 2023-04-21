@@ -1,6 +1,10 @@
 ## [Version - 0]
 
-## Features [v0.5.0] - Release Date: 2022-04-19
+## Resolved [v0.5.1] - Release Date: 2022-04-21
+
+- added column customer zone in order management & special request page
+
+## Features [v0.5.0] - Release Date: 2022-04-20
 
 - added component modal select shop
 
