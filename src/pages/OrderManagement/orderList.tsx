@@ -32,6 +32,7 @@ import {
 import { numberFormatter, priceFormatter } from "../../utility/Formatter";
 import { OrderEntity } from "../../entities/OrderEntity";
 import { zoneDatasource } from "../../datasource/ZoneDatasource";
+import { getOrderStatus } from "../../utility/OrderStatus";
 
 const SLASH_DMY = "DD/MM/YYYY";
 const SummaryBox = ({
@@ -289,7 +290,7 @@ export const OrderList: React.FC = () => {
       title: "วันที่ & สถานะ",
       dataIndex: "status",
       key: "status",
-      width: "15%",
+      width: "18%",
       align: "center" as AlignType,
       render: (value: OrderStatusKey, row: OrderEntity, index: number) => {
         return (
@@ -299,7 +300,7 @@ export const OrderList: React.FC = () => {
               fontWeight={700}
               style={{ color: ORDER_STATUS[value]?.color, textAlign: "center" }}
             >
-              {ORDER_STATUS[value]?.name_default || "-"}
+              {getOrderStatus(value, company) || "-"}
             </Text>
             <Text
               level={6}
