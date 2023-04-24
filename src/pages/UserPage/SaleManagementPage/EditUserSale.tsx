@@ -88,6 +88,10 @@ export function EditUserSale() {
   const onFinish = async (values: any) => {
     try {
       setLoading(true);
+      if (userStaffId) {
+        values.userStaffId = userStaffId;
+      }
+      console.log("v", values);
       const res = await SaleListDatasource.updateUserStaff(userStaffId || "", {
         ...values,
         updateBy: `${profile?.firstname} ${profile?.lastname}`,
