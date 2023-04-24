@@ -1,7 +1,9 @@
 ## [Version - 0]
+
 ## Resolved [v0.5.2] - Release Date: 2022-04-21
 
 - fixed param update user staff
+- fixed order status
 
 ## Resolved [v0.5.1] - Release Date: 2022-04-21
 
