@@ -205,7 +205,7 @@ export const OrderList: React.FC = () => {
       title: "รหัสคำสั่งซื้อ",
       dataIndex: "orderNo",
       key: "orderNo",
-      width: 168,
+      width: 138,
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
@@ -249,6 +249,7 @@ export const OrderList: React.FC = () => {
       title: "เขต",
       dataIndex: "customerZone",
       key: "customerZone",
+      width: 100,
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
@@ -261,7 +262,7 @@ export const OrderList: React.FC = () => {
       title: "การจัดส่ง",
       dataIndex: "deliveryDest",
       key: "deliveryDest",
-      width: "10%",
+      width: 110,
       render: (value: OrderDeliveryDestKey, row: any, index: number) => {
         return (
           <FlexCol>
@@ -290,7 +291,7 @@ export const OrderList: React.FC = () => {
       title: "วันที่ & สถานะ",
       dataIndex: "status",
       key: "status",
-      width: "18%",
+      width: 180,
       align: "center" as AlignType,
       render: (value: OrderStatusKey, row: OrderEntity, index: number) => {
         return (

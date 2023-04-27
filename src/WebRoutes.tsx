@@ -48,6 +48,7 @@ import { SpecialRequestList } from "./pages/SpecialRequest/specialRequestList";
 import { IndexConditionCOPage } from "./pages/DiscountPage/ConditionCO/IndexConditionCOPage";
 import { CreateConditionCOPage } from "./pages/DiscountPage/ConditionCO/CreateConditionCOPage";
 import { DetailConditionCOPage } from "./pages/DiscountPage/ConditionCO/DetailConditionCOPage";
+import { PromotionDetail } from "./pages/promotionPage/promotionDetail";
 
 interface IRoute {
   path: string;
@@ -346,6 +347,11 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "promotion/create",
         element: <PromotionCreatePage />,
+        permission: null,
+      },
+      {
+        path: "promotion/detail/:id",
+        element: <PromotionDetail />,
         permission: null,
       },
       {

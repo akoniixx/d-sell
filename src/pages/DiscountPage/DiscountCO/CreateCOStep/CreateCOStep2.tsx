@@ -65,12 +65,13 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
   };
 
   const onSetStore = (stores: any) => {
-    setStoreList(stores);
-    setStoreListFiltered(stores);
+    const newStores = [...storeList, ...stores];
+    setStoreList(newStores);
+    setStoreListFiltered(newStores);
     setFilter(defaultFilter);
     form.setFieldsValue({
       ...form.getFieldsValue(),
-      stores,
+      stores: newStores,
     });
     setError(false);
     setSearch(false);
