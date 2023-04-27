@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.5.3] - Release Date: 2022-04-21
+
+- fixed promotion setting
+- added promotion view page (UI)
+
 ## Resolved [v0.5.2] - Release Date: 2022-04-21
 
 - fixed param update user staff

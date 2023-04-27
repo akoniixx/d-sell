@@ -309,21 +309,21 @@ export const PromotionListPage: React.FC = () => {
       title: "จัดการ",
       dataIndex: "action",
       key: "action",
-      width: "10%",
+      width: "12%",
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <>
               <div className='d-flex flex-row justify-content-between'>
-                {/* <div
+                <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() => navigate("/PromotionPage/promotion/detail/" + row.promotionId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
                   </span>
-                </div> */}
+                </div>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
