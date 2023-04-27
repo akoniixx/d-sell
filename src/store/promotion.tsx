@@ -1,7 +1,8 @@
 import { atom } from "recoil";
+import PromotionSettingEntity from "../entities/PromotionSettingEntity";
 
 export interface PromotionState {
-  promotion?: any;
+  promotion?: PromotionSettingEntity;
 }
 
 const promotionState = atom({

@@ -32,6 +32,7 @@ import { useRecoilValue } from "recoil";
 import promotionState from "../../../store/promotion";
 import { Document, Page, pdfjs } from "react-pdf";
 import PageSpin from "../../../components/Spin/pageSpin";
+import axios from "axios";
 
 const StyledDoc = styled(Document)`
   .react-pdf__Page__textContent.textLayer,
@@ -151,19 +152,6 @@ export const PromotionCreateStep1 = ({
   const promoStateValue = useRecoilValue(promotionState);
 
   const [promotions, setPromotions] = useState();
-
-  // pdf preview
-  const [showModal, setModal] = useState(false);
-  const [numPages, setNumPages] = useState<any>(null);
-  const [pageNumber, setPageNumber] = useState<any>(1);
-  const [memoFileBase64, setMemoFileBase64] = useState<string>();
-
-  const toggleModal = () => setModal(!showModal);
-
-  const onDocumentLoadSuccess = ({ numPages }: any) => {
-    console.log({ numPages });
-    setNumPages(numPages);
-  };
 
   const imgCropProps = {
     modalTitle: "ปรับขนาดรูปภาพ",
@@ -535,10 +523,6 @@ export const PromotionCreateStep1 = ({
                       return false;
                     }
                     console.log("beforeUpload", file);
-                    getBase64(file as RcFile, (url) => {
-                      console.log({ url });
-                      setMemoFileBase64(url);
-                    });
                     return isPDF || Upload.LIST_IGNORE;
                   }}
                   customRequest={({ file, onSuccess }) => {
@@ -601,46 +585,29 @@ export const PromotionCreateStep1 = ({
               <Text
                 level={6}
                 color='Text3'
-                onClick={fileMemo || fileMemoUrl ? toggleModal : undefined}
+                onClick={async () => {
+                  try {
+                    if (fileMemo && (fileMemo as any)?.originFileObj) {
+                      const file = new Blob([(fileMemo as any)?.originFileObj], {
+                        type: "application/pdf",
+                      });
+                      const fileURL = URL.createObjectURL(file);
+                      const pdfWindow = window.open();
+                      if (pdfWindow) pdfWindow.location.href = fileURL || "";
+                    } else if (fileMemoUrl) {
+                      const pdfWindow = window.open();
+                      if (pdfWindow) pdfWindow.location.href = fileMemoUrl || "";
+                    }
+                  } catch (error) {
+                    return { error };
+                  }
+                }}
                 style={{ cursor: fileMemo || fileMemoUrl ? "pointer" : "default" }}
               >
-                {fileMemo || fileMemoUrl
-                  ? (fileMemo as any)?.originFileObj?.name
-                  : "โปรดเลือกไฟล์ .PDF"}
+                {(fileMemo as any)?.originFileObj?.name ||
+                  `${fileMemoUrl?.substring(0, 20)}...` ||
+                  "โปรดเลือกไฟล์ .PDF"}
               </Text>
-              <Modal open={showModal} width={660} footer={null} onCancel={toggleModal}>
-                <div>
-                  {!memoFileBase64 ? (
-                    <PageSpin />
-                  ) : (
-                    <>
-                      <ScrollContainer scrollableX>
-                        <StyledDoc
-                          file={memoFileBase64}
-                          onLoadSuccess={onDocumentLoadSuccess}
-                          options={{
-                            cMapUrl: "cmaps/",
-                            cMapPacked: true,
-                            standardFontDataUrl: "standard_fonts/",
-                            workerSrc: "pdf.worker.js",
-                          }}
-                        >
-                          <Page pageNumber={pageNumber} />
-                        </StyledDoc>
-                      </ScrollContainer>
-                      <Row justify='center'>
-                        <Pagination
-                          current={pageNumber}
-                          pageSize={1}
-                          total={numPages}
-                          onChange={(p) => setPageNumber(p)}
-                          showSizeChanger={false}
-                        />
-                      </Row>
-                    </>
-                  )}
-                </div>
-              </Modal>
             </MemoArea>
           </Col>
         </Row>

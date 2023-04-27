@@ -83,7 +83,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     setLoading(true);
     await getOrderHistory({ customerCompanyId: id })
       .then((res: any) => {
-        console.log(res.data);
+        console.log("getOrderHistory", res.data);
         setData(res?.data);
       })
       .catch((e: any) => {
@@ -348,6 +348,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             //TODO: call api
             const id = pathSplit[3];
             const submitData = {
+              company,
               customerCompanyId: id,
               orderDate: date,
               orderAmount: total,
@@ -549,7 +550,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Tabs
               items={tabsItems}
               onChange={(key: string) => {
-                console.log("onChance tab", key, history);
+                console.log("onChance tab", key, data, history);
                 if (!history) {
                   fetchHistory();
                 }
