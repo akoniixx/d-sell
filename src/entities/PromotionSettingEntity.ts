@@ -10,7 +10,7 @@ export interface PromotionConditionEntity {
 
 export interface PromotionConditionGroupEntity {
   productId: string;
-  condition?: any[];
+  condition?: PromotionConditionEntity[];
   productImage?: string;
   productName?: string;
   packSize?: string;
@@ -26,6 +26,17 @@ export interface PromotionShopEntity {
   customerNo?: number | string;
   customerName?: string;
   zone?: string;
+}
+
+export interface PromotionSettingHistory {
+  promotionHistoryId: string;
+  promotionId: string;
+  action?: string;
+  beforeValue?: string;
+  afterValue?: string;
+  promotionStatus?: boolean;
+  createdAt?: string;
+  createBy?: string;
 }
 
 interface PromotionSettingEntity {

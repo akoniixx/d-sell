@@ -94,6 +94,13 @@ const deletePromotion = async (data: object) => {
     .catch((err) => console.log(err));
 };
 
+const getPromotionLog = async (promotionId: string) => {
+  return await httpClient
+    .post(`${baseUrl}/promotion/promotion-history?promotionId=${promotionId}`, { promotionId })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductFreebies,
   syncProductFreebie,
@@ -108,4 +115,5 @@ export {
   updatePromotionFile,
   updatePromotionStatus,
   deletePromotion,
+  getPromotionLog,
 };
