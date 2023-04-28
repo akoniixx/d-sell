@@ -1,6 +1,10 @@
 ## [Version - 0]
 
-## Resolved [v0.5.3] - Release Date: 2022-04-21
+## Resolved [v0.5.4] - Release Date: 2022-04-28
+
+- added promotion view page
+
+## Resolved [v0.5.3] - Release Date: 2022-04-26
 
 - fixed promotion setting
 - added promotion view page (UI)

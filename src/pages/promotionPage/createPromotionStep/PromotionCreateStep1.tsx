@@ -605,7 +605,7 @@ export const PromotionCreateStep1 = ({
                 style={{ cursor: fileMemo || fileMemoUrl ? "pointer" : "default" }}
               >
                 {(fileMemo as any)?.originFileObj?.name ||
-                  `${fileMemoUrl?.substring(0, 20)}...` ||
+                  (fileMemoUrl && `${fileMemoUrl?.substring(0, 20)}...`) ||
                   "โปรดเลือกไฟล์ .PDF"}
               </Text>
             </MemoArea>

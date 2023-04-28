@@ -6,13 +6,13 @@ import Tabs from "../../components/AntdTabs/AntdTabs";
 import { CardContainer } from "../../components/Card/CardContainer";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import Text from "../../components/Text/Text";
-import { Col, Collapse, Divider, Row, Table } from "antd";
+import { Avatar, Col, Collapse, Divider, Form, Image, Row, Table, Tooltip } from "antd";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import TextArea from "../../components/Input/TextArea";
 import styled from "styled-components";
 import color from "../../resource/color";
 import Tag from "../../components/Tag/Tag";
-import { getPromotionById } from "../../datasource/PromotionDatasource";
+import { getPromotionById, getPromotionLog } from "../../datasource/PromotionDatasource";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import promotionState from "../../store/promotion";
@@ -27,6 +27,12 @@ import { priceFormatter } from "../../utility/Formatter";
 import { ProductName } from "../Shared/AddProduct";
 import { ProductEntity } from "../../entities/PoductEntity";
 import { getProductDetail } from "../../datasource/ProductDatasource";
+import PromotionSettingEntity, {
+  PromotionConditionGroupEntity,
+  PromotionSettingHistory,
+} from "../../entities/PromotionSettingEntity";
+import image from "../../resource/image";
+import Input from "../../components/Input/Input";
 
 const MemoArea = styled.div`
   width: 100%;
@@ -60,7 +66,10 @@ const DetailTab: React.FC = () => {
   const [showPromotion, setShowPromotion] = useState(true);
   const [loading, setLoading] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(false);
-  const [items, setItems] = useState<any[]>();
+  const [items, setItems] = useState<PromotionConditionGroupEntity[]>();
+
+  const imageSizeLong = "160px";
+  const imageSizeShort = "120px";
 
   useEffect(() => {
     if (!loading) fetchPromotion();
@@ -73,7 +82,7 @@ const DetailTab: React.FC = () => {
       .then((res) => {
         console.log("promo", res);
         setPromoState({ ...promoStateValue, promotion: res });
-        fetchProductData();
+        fetchProductData(res.conditionDetail);
       })
       .catch((e) => {
         console.log(e);
@@ -83,11 +92,11 @@ const DetailTab: React.FC = () => {
       });
   };
 
-  const fetchProductData = async () => {
-    const newItems = [...(promotion?.conditionDetail || [])];
+  const fetchProductData = async (items: PromotionConditionGroupEntity[]) => {
+    const newItems = [...items];
     setLoadingProduct(true);
     const result =
-      promotion?.conditionDetail?.map(async (item, i) => {
+      items.map(async (item, i) => {
         await getProductDetail(parseInt(item.productId)).then((res) => {
           newItems[i] = { ...item, ...res };
           setItems(newItems);
@@ -129,24 +138,52 @@ const DetailTab: React.FC = () => {
     <>
       <FlexRow justify='start' style={{ padding: "20px 0" }}>
         <FlexCol style={{ marginRight: 16 }}>
-          <img
-            style={{
-              width: "120px",
-              height: "160px",
-              borderRadius: 4,
-            }}
-            src={promotion?.promotionImageFirst}
-          />
+          {promotion?.promotionImageFirst ? (
+            <Image
+              style={{
+                width: imageSizeShort,
+                height: imageSizeLong,
+                borderRadius: 4,
+                objectFit: "contain",
+              }}
+              src={promotion?.promotionImageFirst}
+            />
+          ) : (
+            <img
+              style={{
+                width: imageSizeShort,
+                height: imageSizeLong,
+                borderRadius: 4,
+                border: "1px solid #eee",
+                objectFit: "contain",
+              }}
+              src={image.product_no_image}
+            />
+          )}
         </FlexCol>
         <FlexCol style={{ marginRight: 16 }}>
-          <img
-            style={{
-              width: "160px",
-              height: "120px",
-              borderRadius: 4,
-            }}
-            src={promotion?.promotionImageSecond}
-          />
+          {promotion?.promotionImageSecond ? (
+            <Image
+              style={{
+                width: imageSizeLong,
+                height: imageSizeShort,
+                borderRadius: 4,
+                objectFit: "contain",
+              }}
+              src={promotion?.promotionImageSecond}
+            />
+          ) : (
+            <img
+              style={{
+                width: imageSizeLong,
+                height: imageSizeShort,
+                borderRadius: 4,
+                border: "1px solid #eee",
+                objectFit: "contain",
+              }}
+              src={image.product_no_image}
+            />
+          )}
         </FlexCol>
       </FlexRow>
       <Row gutter={16}>
@@ -282,58 +319,265 @@ const DetailTab: React.FC = () => {
           </TableContainer>
         </TableOuterContainer>
       ) : (
-        <Collapse
-          // defaultActiveKey={items.map((item) => item.productId)}
-          // activeKey={activeKeys}
-          collapsible='icon'
-          // onChange={onChangeActiveKeys}
-          expandIconPosition='end'
-          expandIcon={({ isActive }) => <DownOutlined rotate={isActive ? 180 : 0} />}
-        >
-          {items?.map((item, i) => {
-            return (
-              <Collapse.Panel
-                header={
-                  <Row style={{ padding: "24px 32px" }}>
-                    <Col span={10}>
-                      <ProductName product={item as ProductEntity} size={84} />
-                    </Col>
-                    <Col span={5}>
-                      <Text>{item.packSize}</Text>
-                      <br />
-                      <Text color='Text3'>
-                        {!loadingProduct
-                          ? priceFormatter(item.unitPrice || "", 2, false, true)
-                          : "..."}
-                      </Text>
-                      <Text color='Text3'>&nbsp;บาท/หน่วย</Text>
-                      <br />
-                      <Text color='Text3'>
-                        {!loadingProduct
-                          ? priceFormatter(item.marketPrice || "", 2, false, true)
-                          : "..."}
-                      </Text>
-                      <Text color='Text3'>&nbsp;บาท/{item.saleUOMTH}</Text>
-                    </Col>
-                    <Col span={8}>
-                      <Text>จำนวน&nbsp;{item?.condition?.length}&nbsp;ขั้นบันได</Text>
-                    </Col>
-                  </Row>
-                }
-                key={i}
-              >
-                ...
-              </Collapse.Panel>
-            );
-          })}
-        </Collapse>
+        <Form layout='vertical'>
+          <Collapse
+            // defaultActiveKey={items.map((item) => item.productId)}
+            // activeKey={activeKeys}
+            collapsible='icon'
+            // onChange={onChangeActiveKeys}
+            expandIconPosition='end'
+            expandIcon={({ isActive }) => <DownOutlined rotate={isActive ? 180 : 0} />}
+          >
+            {items?.map((item, i) => {
+              const { condition } = item;
+              return (
+                <Collapse.Panel
+                  header={
+                    <Row style={{ padding: "24px 32px" }}>
+                      <Col span={10}>
+                        <ProductName product={item as ProductEntity} size={84} />
+                      </Col>
+                      <Col span={5}>
+                        <Text>{item.packSize}</Text>
+                        <br />
+                        <Text color='Text3'>
+                          {!loadingProduct
+                            ? priceFormatter(item.unitPrice || "", 2, false, true)
+                            : "..."}
+                        </Text>
+                        <Text color='Text3'>&nbsp;บาท/หน่วย</Text>
+                        <br />
+                        <Text color='Text3'>
+                          {!loadingProduct
+                            ? priceFormatter(item.marketPrice || "", 2, false, true)
+                            : "..."}
+                        </Text>
+                        <Text color='Text3'>&nbsp;บาท/{item.saleUOMTH}</Text>
+                      </Col>
+                      <Col span={8}>
+                        <Text>จำนวน&nbsp;{item?.condition?.length}&nbsp;ขั้นบันได</Text>
+                      </Col>
+                    </Row>
+                  }
+                  key={i}
+                >
+                  {condition?.map(
+                    ({ quantity, saleUnit, saleUnitDiscount, discountPrice, freebies }, i) => {
+                      return (
+                        <Row key={i} gutter={16} style={{ padding: "20px 16px" }}>
+                          <Col span={8}>
+                            <Form.Item
+                              label='จำนวนที่ซื้อครบ'
+                              name={[i, "quantity"]}
+                              initialValue={quantity}
+                            >
+                              <Input
+                                type='number'
+                                placeholder='ระบุจำนวนที่ซื้อครบ'
+                                min={0}
+                                disabled
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={4}>
+                            <Form.Item
+                              label='หน่วย'
+                              name={[i, "saleUnit"]}
+                              initialValue={item.saleUOMTH}
+                            >
+                              <Input disabled />
+                            </Form.Item>
+                          </Col>
+                          {freebies ? (
+                            <>
+                              <Col
+                                span={12}
+                                style={{ borderLeft: `1px solid ${color.background2}` }}
+                              >
+                                {freebies?.map((f, j) => {
+                                  return (
+                                    <Row key={`${i}-${j}`} gutter={12} align='middle'>
+                                      <Col>
+                                        <FlexCol
+                                          align='center'
+                                          style={{ width: 64, overflow: "hidden" }}
+                                        >
+                                          <Avatar
+                                            src={
+                                              f.productImage === "No"
+                                                ? image.product_no_image
+                                                : f?.productImage ||
+                                                  f?.productFreebiesImage ||
+                                                  image.product_no_image
+                                            }
+                                            size={64}
+                                            shape='square'
+                                          />
+                                          <Tooltip title={f?.productName}>
+                                            <Text
+                                              level={6}
+                                              style={{
+                                                display: "block",
+                                                width: 64,
+                                                height: 22,
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                wordWrap: "break-word",
+                                                whiteSpace: "nowrap",
+                                              }}
+                                            >
+                                              {f?.productName}
+                                            </Text>
+                                          </Tooltip>
+                                        </FlexCol>
+                                      </Col>
+                                      <Col span={9}>
+                                        <Form.Item
+                                          // name={`${productId}-${product?.productId || product?.productFreebiesId}-quantity`}
+                                          label='จำนวนของแถม'
+                                          initialValue={quantity || 1}
+                                        >
+                                          <Input
+                                            type='number'
+                                            placeholder='ระบุจำนวนของแถม'
+                                            value={f.quantity}
+                                            min={1}
+                                            disabled
+                                          />
+                                        </Form.Item>
+                                      </Col>
+                                      <Col span={9}>
+                                        <Form.Item
+                                          label='หน่วย'
+                                          initialValue={f?.saleUOMTH || f?.baseUnitOfMeaEn}
+                                        >
+                                          <Input
+                                            disabled
+                                            value={f?.saleUOMTH || f?.baseUnitOfMeaEn}
+                                          />
+                                        </Form.Item>
+                                      </Col>
+                                    </Row>
+                                  );
+                                })}
+                              </Col>
+                            </>
+                          ) : (
+                            <>
+                              <Col span={6}>
+                                <Form.Item
+                                  label='ราคาที่ต้องการลด'
+                                  name={[i, "discountPrice"]}
+                                  extra={`ราคาขายหลังหักส่วนลด ${
+                                    parseFloat(item.marketPrice || "") -
+                                    parseFloat(`${discountPrice || 0}`)
+                                  } บาท / ${item.saleUOMTH}`}
+                                >
+                                  <Input
+                                    placeholder='ระบุราคา'
+                                    suffix='บาท'
+                                    type='number'
+                                    disabled
+                                  />
+                                </Form.Item>
+                              </Col>
+                              <Col span={6}>
+                                <Form.Item
+                                  label='ต่อหน่วย SKU'
+                                  name={[i, "saleUnitDiscount"]}
+                                  initialValue={item.saleUOMTH}
+                                >
+                                  <Input disabled />
+                                </Form.Item>
+                              </Col>
+                            </>
+                          )}
+                        </Row>
+                      );
+                    },
+                  )}
+                </Collapse.Panel>
+              );
+            })}
+          </Collapse>
+        </Form>
       )}
     </>
   );
 };
 
 const HistoryTab: React.FC = () => {
-  return <></>;
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company } = userProfile;
+
+  const { pathname } = window.location;
+  const pathSplit = pathname.split("/") as Array<string>;
+
+  const [loading, setLoading] = useState(false);
+  const [histories, setHistories] = useState<PromotionSettingHistory[]>();
+
+  useEffect(() => {
+    if (!loading) fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    setLoading(true);
+    const id = pathSplit[4];
+    await getPromotionLog(id)
+      .then((res) => {
+        console.log("getPromotionLog", res);
+        setHistories(res?.map((h: any, i: number) => ({ ...h, key: i })));
+      })
+      .catch((e) => {
+        console.log(e);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const columns = [
+    {
+      title: "วันเวลาที่อัปเดท",
+      dataIndex: "createdAt",
+      align: "center" as AlignType,
+      render: (createdAt: string) => moment(createdAt).format("DD/MM/YYYY HH:mm น."),
+    },
+    {
+      title: "ผู้ใช้งาน",
+      dataIndex: "createBy",
+      align: "center" as AlignType,
+      render: (createBy: string) => createBy || "-",
+    },
+    {
+      title: "กิจกรรม",
+      dataIndex: "action",
+      align: "center" as AlignType,
+    },
+    {
+      title: "สถานะ",
+      dataIndex: "promotionStatus",
+      align: "center" as AlignType,
+      render: (status: string) =>
+        status ? (
+          <Tag color={color.success}>ACTIVE</Tag>
+        ) : (
+          <Tag color={color.warning}>INACTIVE</Tag>
+        ),
+    },
+  ];
+
+  return (
+    <>
+      <br />
+      <Text fontWeight={700}>รายการประวัติการสร้างโปรโมชัน</Text>
+      <br />
+      <br />
+      <TableContainer>
+        <Table columns={columns} dataSource={histories} pagination={false} />
+      </TableContainer>
+    </>
+  );
 };
 
 export const PromotionDetail: React.FC = () => {
