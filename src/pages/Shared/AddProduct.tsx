@@ -43,6 +43,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import productState from "../../store/productList";
 import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
 import { arrayToSet } from "../../utility/converter";
+import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 
 interface ProdNameProps {
   product: ProductEntity;
@@ -127,6 +128,7 @@ const AddProduct = ({
     productGroup: "",
     productCategory: "",
     searchText: "",
+    productLocation: "",
   });
 
   const resetPage = () => {
@@ -135,6 +137,7 @@ const AddProduct = ({
       productGroup: "",
       productCategory: "",
       searchText: "",
+      productLocation: "",
     });
     form.resetFields();
   };
@@ -154,6 +157,7 @@ const AddProduct = ({
       take: pageSize,
       productGroup: filter.productGroup,
       searchText: filter.searchText,
+      productLocation: filter.productLocation,
       page,
     });
     const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }));
@@ -167,6 +171,7 @@ const AddProduct = ({
       productGroup: filter.productGroup,
       searchText: filter.searchText,
       productCategoryId: filter.productCategory,
+      productLocation: filter.productLocation,
       page,
     });
     const newData = data
@@ -244,6 +249,17 @@ const AddProduct = ({
       title: `${showFreebie === "true" ? freebieCount : productCount} สินค้า`,
       dataIndex: "packSize",
       align: "right" as AlignType,
+      render: (value: string, row: ProductEntity) => (
+        <FlexCol align='end' justify='space-around'>
+          <Text>{value}</Text>
+          <br />
+          {row.productLocation && (
+            <Text level={6} color='Text3'>
+              {LOCATION_FULLNAME_MAPPING[row.productLocation]}
+            </Text>
+          )}
+        </FlexCol>
+      ),
     },
   ];
 
@@ -281,6 +297,7 @@ const AddProduct = ({
       productGroup: "",
       productCategory: "",
       searchText: "",
+      productLocation: "",
     });
     setSelectedProd([]);
     setSelectedProdId([]);
@@ -334,7 +351,7 @@ const AddProduct = ({
       <br />
       <Form layout='vertical' form={form}>
         <Row gutter={8} align='bottom'>
-          <Col span={7}>
+          <Col span={5}>
             <Form.Item label='Product Group' name='productGroup'>
               <Select
                 data={[
@@ -356,7 +373,7 @@ const AddProduct = ({
               />
             </Form.Item>
           </Col>
-          <Col span={showFreebie === "true" ? 0 : company === "ICPL" ? 7 : 0}>
+          <Col span={showFreebie === "true" ? 0 : company === "ICPL" ? 5 : 0}>
             <Form.Item label='Startegy Group' name='productCategory'>
               <Select
                 data={[
@@ -376,7 +393,27 @@ const AddProduct = ({
               />
             </Form.Item>
           </Col>
-          <Col span={showFreebie === "true" ? 14 : company === "ICPL" ? 7 : 14}>
+          <Col span={5}>
+            <Form.Item label='Location' name='productLocation'>
+              <Select
+                data={[
+                  {
+                    key: "",
+                    value: "",
+                    label: "ทั้งหมด",
+                  },
+                  ...LOCATION_DATA.filter((l) => l.company === company).map((l: any) => ({
+                    key: l.LocationName,
+                    value: l.LocationName,
+                    label: l.LocationNameTH,
+                  })),
+                ]}
+                onChange={(v) => setFilter({ ...filter, productLocation: v })}
+                value={filter.productLocation}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={showFreebie === "true" ? 14 : company === "ICPL" ? 5 : 10}>
             <Form.Item label='ค้นหาสินค้า' name='searchText'>
               <Input
                 suffix={<SearchOutlined />}
