@@ -74,7 +74,8 @@ export const CreatePriceListStep1 = ({ form, showError, setError }: Step2Props) 
   };
 
   const onSetStore = (stores: any) => {
-    const newStores = [...storeList, ...stores];
+    console.log("tetst");
+    const newStores = [...(storeList || []), ...(stores || [])];
     setStoreList(newStores);
     setStoreListFiltered(newStores);
     setFilter(defaultFilter);
