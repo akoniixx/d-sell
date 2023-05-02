@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.5.5] - Release Date: 2022-04-28
+
+- added product location
+- fixed special price add shop
+
 ## Resolved [v0.5.4] - Release Date: 2022-04-28
 
 - added promotion view page
