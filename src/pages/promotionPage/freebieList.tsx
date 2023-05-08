@@ -123,7 +123,7 @@ export const FreebieListPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row gutter={16}>
-        <Col className='gutter-row' span={12}>
+        <Col className='gutter-row' span={11}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -171,7 +171,7 @@ export const FreebieListPage: React.FC = () => {
             />
           </div>
         </Col>
-        <Col className='gutter-row' span={4}>
+        <Col className='gutter-row' span={5}>
           <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
         </Col>
       </Row>
@@ -277,7 +277,7 @@ export const FreebieListPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/PromotionPage/freebies/edit/" + row.productFreebiesId)}
+                  onClick={() => navigate("/freebies/freebies/edit/" + row.productFreebiesId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <EditOutlined style={{ color: color["primary"] }} />

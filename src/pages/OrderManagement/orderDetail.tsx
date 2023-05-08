@@ -43,8 +43,9 @@ import {
   ORDER_PAYMENT_METHOD_NAME,
   OrderStatusKey,
   OrderPaymentStatusKey,
+  ORDER_DELIVERY_DEST_METHOD_NAME,
 } from "../../definitions/orderStatus";
-import { getOrderDetail, updateOrderStatus } from "../../datasource/OrderDatasourc";
+import { getOrderDetail, submitToNav, updateOrderStatus } from "../../datasource/OrderDatasourc";
 import { OrderEntity } from "../../entities/OrderEntity";
 import { getOrderStatus } from "../../utility/OrderStatus";
 import TextArea from "../../components/Input/TextArea";
@@ -69,6 +70,7 @@ const NavResponseBox = styled(CardContainer)`
 
 const DetailItem = ({
   label,
+  labelEn,
   value,
   alignRight,
   fontWeight,
@@ -78,6 +80,7 @@ const DetailItem = ({
   leftSpan,
 }: {
   label: string;
+  labelEn?: string;
   value: string | ReactNode;
   alignRight?: boolean;
   fontWeight?: 400 | 500 | 600 | 700;
@@ -97,12 +100,18 @@ const DetailItem = ({
 }) => {
   return (
     <Row gutter={16} style={{ margin: "10px 0px" }}>
-      <Col span={leftSpan ? leftSpan : alignRight ? 18 : 9}>
+      <Col span={leftSpan ? leftSpan : alignRight ? 14 : 9}>
         <Text fontWeight={fontWeight} fontSize={fontSize}>
           {label} :
         </Text>
+        <br />
+        {labelEn && (
+          <Text fontWeight={fontWeight} fontSize={fontSize}>
+            ({labelEn})
+          </Text>
+        )}
       </Col>
-      <Col span={leftSpan ? 24 - leftSpan : alignRight ? 6 : 15}>
+      <Col span={leftSpan ? 24 - leftSpan : alignRight ? 10 : 15}>
         <Row justify={alignRight ? "end" : "start"}>
           <Text fontWeight={fontWeight} color={color ? color : "Text2"} style={style}>
             {value || "-"}
@@ -122,11 +131,15 @@ export const OrderDetail: React.FC = () => {
   const pathSplit = pathname.split("/") as Array<string>;
   const path = pathSplit[1];
   const isViewMode = path === "view-order";
+  const isSpecialRequestMode = path === "special-request";
 
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState<OrderEntity>();
   const [updating, setUpdating] = useState(false);
   const [showCancelModal, setCancelModal] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [navSubmitStatus, setNavSubmitStatus] = useState<"success" | "wait" | "failed">("wait");
+  const [navSubmitBody, setNavSubmitBody] = useState<any>();
 
   const [form] = Form.useForm();
   const [navForm] = Form.useForm();
@@ -154,11 +167,11 @@ export const OrderDetail: React.FC = () => {
   const onSubmitStatus = async ({
     status,
     paidStatus,
-    cancleRemark,
+    cancelRemark,
   }: {
     status: OrderStatusKey;
     paidStatus?: OrderPaymentStatusKey;
-    cancleRemark?: string;
+    cancelRemark?: string;
   }) => {
     setUpdating(true);
     const id = pathSplit[2];
@@ -166,7 +179,7 @@ export const OrderDetail: React.FC = () => {
       orderId: id,
       status,
       paidStatus,
-      cancleRemark,
+      cancelRemark,
       updateBy: `${firstname} ${lastname}`,
     })
       .then((res: any) => {
@@ -204,12 +217,45 @@ export const OrderDetail: React.FC = () => {
     });
   };
 
+  const onSubmitOrder = async () => {
+    const { remark } = navForm.getFieldsValue();
+    const orderId = pathSplit[2];
+    const onOk = async () => {
+      setSubmitting(true);
+      await submitToNav({
+        orderId,
+        remark,
+      })
+        .then((res: any) => {
+          const { success, userMessage } = res;
+          if (success) {
+            setNavSubmitStatus("success");
+          } else {
+            setNavSubmitStatus("failed");
+          }
+          setNavSubmitBody({ ...res, orderId, remark });
+        })
+        .catch((e: any) => {
+          console.log(e);
+        })
+        .finally(() => {
+          setSubmitting(false);
+        });
+    };
+    Modal.confirm({
+      title: "ส่งคำสั่งซื้อไปที่ระบบ Navision",
+      onOk,
+    });
+  };
+
   const PageTitle = () => {
     return (
       <PageTitleNested
         title={`ORDER NO: ${orderData?.orderNo}`}
         showBack
-        onBack={() => navigate(`/order`)}
+        onBack={
+          isSpecialRequestMode ? () => navigate(`/special-request`) : () => navigate(`/order`)
+        }
         extra={
           <FlexCol align='end'>
             <Text
@@ -239,7 +285,10 @@ export const OrderDetail: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการคำสั่งซื้อ", path: "/order" },
+              {
+                text: isSpecialRequestMode ? "รายการขอโปรโมชันพิเศษเพิ่มเติม" : "รายการคำสั่งซื้อ",
+                path: isSpecialRequestMode ? "/special-request" : "/order",
+              },
               { text: "รายละเอียดคำสั่งซื้อ", path: window.location.pathname },
             ]}
           />
@@ -302,7 +351,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{quantity}</Text>
               <Text level={6} color='Text3'>
-                {product?.saleUom}
+                {product?.saleUOMTH || product?.saleUOM}
               </Text>
             </FlexCol>
           ),
@@ -319,7 +368,8 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{priceFormatter(marketPrice || "0", undefined, false, true)}</Text>
               <Text level={6} color='Text3'>
-                {" บาท / " + (product?.saleUOMTH || product?.saleUom || "หน่วย")}
+                {" บาท / " +
+                  (product?.saleUOMTH || product?.saleUOM || product?.saleUom || "หน่วย")}
               </Text>
             </FlexCol>
           ),
@@ -328,14 +378,20 @@ export const OrderDetail: React.FC = () => {
     },
     {
       title: "โปรโมชัน",
-      dataIndex: "promotion",
-      key: "promotion",
-      render: (promotion: number, product: ProductEntity, index: number) => {
+      dataIndex: "orderProductPromotions",
+      key: "orderProductPromotions",
+      render: (orderProductPromotions: any[], product: ProductEntity, index: number) => {
+        const promotions = orderProductPromotions || product?.productPromotionCode;
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{promotion || "-"}</Text>
-              <Text level={6} color='Text3'></Text>
+              {promotions.length > 0
+                ? promotions.map((promotion, i) => (
+                    <Text level={5} key={i}>
+                      {promotion?.promotionCode}
+                    </Text>
+                  ))
+                : "-"}
             </FlexCol>
           ),
         };
@@ -356,7 +412,7 @@ export const OrderDetail: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5} color={discount ? "error" : "Text3"} fontWeight={700}>
-                {discount ? "- " + discount : "-"}
+                {discount ? "- " + priceFormatter(discount || "0", undefined, false, true) : "-"}
               </Text>
               <Text level={6} color='Text3'>
                 บาท
@@ -367,16 +423,39 @@ export const OrderDetail: React.FC = () => {
       },
     },
     {
-      title: "Special REQ.",
-      dataIndex: "specialReq",
-      key: "specialReq",
+      title: "Special REQ./หน่วย",
+      dataIndex: "specialRequestDiscount",
+      key: "specialRequestDiscount",
+      fixed: "right" as FixedType,
+      render: (discount: number, product: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5} color={discount ? "purple" : "Text3"} fontWeight={700}>
+                {discount
+                  ? "- " +
+                    priceFormatter(discount / product.quantity || "0", undefined, false, true)
+                  : "-"}
+              </Text>
+              <Text level={6} color='Text3'>
+                บาท
+              </Text>
+            </FlexCol>
+          ),
+        };
+      },
+    },
+    {
+      title: "Special REQ. รวม",
+      dataIndex: "specialRequestDiscount",
+      key: "specialRequestDiscount",
       fixed: "right" as FixedType,
       render: (discount: number, product: ProductEntity, index: number) => {
         return {
           children: (
             <FlexCol>
               <Text level={5} color={discount ? "purple" : "Text3"} fontWeight={700}>
-                {discount ? "- " + discount : "-"}
+                {discount ? "- " + priceFormatter(discount || "0", undefined, false, true) : "-"}
               </Text>
               <Text level={6} color='Text3'>
                 บาท
@@ -463,11 +542,12 @@ export const OrderDetail: React.FC = () => {
   );
 
   const OrderNavOption = () => {
-    const step = "wait"; //"success" 'wait' 'failed';
+    const step = navSubmitStatus; //"success" 'wait' 'failed';
     const info = {
       wait: {
         borderColor: undefined,
         icon: undefined,
+        editable: true,
         title: (
           <Row align='middle' justify='space-between'>
             <Col span={20}>
@@ -483,7 +563,11 @@ export const OrderDetail: React.FC = () => {
             </Col>
             <Col span={4}>
               <Row justify='end'>
-                <Button title='ส่งการสั่งซื้อทันที' style={{ width: "180px" }} />
+                <Button
+                  title='ส่งการสั่งซื้อทันที'
+                  style={{ width: "180px" }}
+                  onClick={onSubmitOrder}
+                />
               </Row>
             </Col>
           </Row>
@@ -492,27 +576,49 @@ export const OrderDetail: React.FC = () => {
       success: {
         borderColor: color.success,
         icon: icons.resultSuccess,
+        editable: false,
         title: (
           <>
             <Text level={2} color='success'>
               ส่งคำสั่งซื้อไปยังระบบ Navision แล้ว
             </Text>
+            <br />
+            <Text>
+              SO Number {navSubmitBody?.responseData?.Order_No} อัปเดทไปยังระบบล่าสุด เมื่อ&nbsp;
+              {moment(navSubmitBody?.responseDateTime).format("DD/MM/YYYY HH:mm")}
+            </Text>
+            <br />
           </>
         ),
       },
       failed: {
         borderColor: color.warning,
         icon: icons.resultFailed,
+        editable: false,
         title: (
           <>
             <Text level={2} color='warning'>
               ส่งคำสั่งซื้อไปยังระบบ Navision ไม่สำเร็จ “โปรดติดต่อทีม Support”
             </Text>
+            <br />
+            <Text>
+              อัปเดทไปยังระบบล่าสุด เมื่อ&nbsp;
+              {moment(navSubmitBody?.responseDateTime).format("DD/MM/YYYY HH:mm")}
+            </Text>
+            <br />
+            <Text level={6} color='error'>
+              message:&nbsp;{navSubmitBody?.userMessage}
+            </Text>
+            <br />
+            <Text level={6} color='error'>
+              ({navSubmitBody?.developerMessage})
+            </Text>
+            <br />
           </>
         ),
       },
     };
-    const { borderColor, icon, title } = info[step];
+    const { borderColor, icon, title, editable } = info[step];
     return (
       <NavResponseBox color={borderColor}>
         <FlexRow style={{ width: "100%" }}>
@@ -521,12 +627,12 @@ export const OrderDetail: React.FC = () => {
               <img src={icon} />
             </div>
           )}
-          <div style={{ width: "100%" }}>
+          <div style={{ width: "100%", paddingLeft: editable ? 0 : 20 }}>
             {title}
             <br />
             <Form form={navForm} layout='vertical'>
-              <Form.Item label='เงื่อนไข Memo'>
-                <TextArea />
+              <Form.Item name='remark' label='เงื่อนไข Memo'>
+                <TextArea disabled={!editable} />
               </Form.Item>
             </Form>
           </div>
@@ -538,7 +644,9 @@ export const OrderDetail: React.FC = () => {
   const getOption = () => {
     switch (orderData?.status) {
       case "WAIT_APPROVE_ORDER":
-        return (
+        return !isSpecialRequestMode ? (
+          <></>
+        ) : (
           <>
             <br />
             <CardContainer>
@@ -552,7 +660,8 @@ export const OrderDetail: React.FC = () => {
                   <Button
                     title='ปฎิเสธ'
                     typeButton='danger'
-                    onClick={() => updateStatus("REJECT_ORDER")}
+                    onClick={() => setCancelModal(true)}
+                    // onClick={() => updateStatus("REJECT_ORDER")}
                   />
                 </Col>
                 <Col span={3}>
@@ -567,17 +676,20 @@ export const OrderDetail: React.FC = () => {
           </>
         );
       case "WAIT_CONFIRM_ORDER":
-        return (
+      case "OPEN_ORDER":
+      case "IN_DELIVERY":
+        return isSpecialRequestMode ? (
+          <></>
+        ) : (
           <>
             <br />
             {orderStatusOption}
           </>
         );
       case "CONFIRM_ORDER":
-      case "OPEN_ORDER":
-      case "IN_DELIVERY":
-      case "DELIVERY_SUCCESS":
-        return (
+        return isSpecialRequestMode ? (
+          <></>
+        ) : (
           <>
             <br />
             <OrderNavOption />
@@ -585,6 +697,8 @@ export const OrderDetail: React.FC = () => {
             {orderStatusOption}
           </>
         );
+      case "DELIVERY_SUCCESS":
+        return <></>;
       default:
         return <></>;
     }
@@ -605,7 +719,7 @@ export const OrderDetail: React.FC = () => {
               </Text>
               <DetailBox style={{ height: 220 }}>
                 <DetailItem label='ชื่อร้านค้า' value={orderData?.customerName} />
-                <DetailItem label='Nav NO.' value={orderData?.navNo} />
+                <DetailItem label='SO NO.' value={orderData?.soNo} />
                 <DetailItem label='Order No.' value={orderData?.orderNo} />
                 <DetailItem
                   label='ช่องทางการจ่ายเงิน'
@@ -627,7 +741,14 @@ export const OrderDetail: React.FC = () => {
               </Text>
               <DetailBox style={{ height: 220 }}>
                 {/* TODO */}
-                <DetailItem label='การจัดส่ง' value={orderData?.deliveryDest} />
+                <DetailItem
+                  label='การจัดส่ง'
+                  value={
+                    orderData?.deliveryDest
+                      ? ORDER_DELIVERY_DEST_METHOD_NAME[orderData?.deliveryDest]
+                      : "-"
+                  }
+                />
                 <DetailItem label='ที่อยู่' value={orderData?.deliveryAddress} />
                 <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} />
               </DetailBox>
@@ -691,31 +812,35 @@ export const OrderDetail: React.FC = () => {
                 <DetailItem label='รวมเงิน' value=' ' fontWeight={700} fontSize={18} />
                 <DetailBox style={{ backgroundColor: "white", padding: 22 }}>
                   <DetailItem
-                    label='ส่วนลดรายการ (Discount)'
+                    label='ส่วนลดรายการ'
+                    labelEn='Discount'
                     value={priceFormatter(orderData?.discount || "0", undefined, true)}
                     color='error'
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดดูแลราคา (CO. ดูแลราคา / วงเงินเคลม)'
-                    value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
-                    color='success'
-                    alignRight
-                  />
-                  <DetailItem
-                    label='ส่วนลดเงินสด (Cash)'
-                    value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
-                    color='secondary'
-                    alignRight
-                  />
-                  <DetailItem
-                    label='ส่วนลดพิเศษ (Special Req.)'
+                    label='ส่วนลดพิเศษ'
+                    labelEn='Special Req.'
                     value={priceFormatter(
                       orderData?.specialRequestDiscount || "0",
                       undefined,
                       true,
                     )}
                     style={{ color: "#9B51E0" }}
+                    alignRight
+                  />
+                  <DetailItem
+                    label='ส่วนลดดูแลราคา'
+                    labelEn='CO. ดูแลราคา / วงเงินเคลม'
+                    value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
+                    color='success'
+                    alignRight
+                  />
+                  <DetailItem
+                    label='ส่วนลดเงินสด'
+                    labelEn='Cash'
+                    value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
+                    color='secondary'
                     alignRight
                   />
                 </DetailBox>
@@ -749,11 +874,15 @@ export const OrderDetail: React.FC = () => {
       </div>
       <Modal open={showCancelModal} footer={false} closable={false} width={420}>
         <FlexCol align='center'>
-          <Text fontWeight={700}>เหตุผลยกเลิกคำสั่งซื้อ (โดยบริษัท)*</Text>
+          <Text fontWeight={700}>
+            {isSpecialRequestMode
+              ? `เหตุผลที่ปฎิเสธคำขอสั่งซื้อพิเศษ*`
+              : `เหตุผลยกเลิกคำสั่งซื้อ (โดยบริษัท)*`}
+          </Text>
           <br />
         </FlexCol>
         <Form form={form}>
-          <Form.Item noStyle name='cancleRemark'>
+          <Form.Item noStyle name='cancelRemark'>
             <TextArea rows={4} placeholder='โปรดระบุเหตุผล...' />
           </Form.Item>
         </Form>
@@ -774,8 +903,8 @@ export const OrderDetail: React.FC = () => {
               style={{ width: "100%" }}
               onClick={() =>
                 onSubmitStatus({
-                  status: "COMPANY_CANCEL_ORDER",
-                  cancleRemark: form.getFieldValue("cancleRemark"),
+                  status: isSpecialRequestMode ? "REJECT_ORDER" : "COMPANY_CANCEL_ORDER",
+                  cancelRemark: form.getFieldValue("cancelRemark"),
                 })
               }
             />

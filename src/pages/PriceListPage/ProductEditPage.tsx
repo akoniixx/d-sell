@@ -191,7 +191,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       setUploading(true);
       if (isFreebie) {
         const res = await updateProductFreebie(data);
-        navigate(`/PromotionPage/freebies`);
+        navigate(`/freebies/freebies`);
       } else {
         const res = await updateProduct(data);
         navigate(`/PriceListPage/DistributionPage/${productId}`);

@@ -47,6 +47,8 @@ import { OrderDetail } from "./pages/OrderManagement/orderDetail";
 import { SpecialRequestList } from "./pages/SpecialRequest/specialRequestList";
 import { IndexConditionCOPage } from "./pages/DiscountPage/ConditionCO/IndexConditionCOPage";
 import { CreateConditionCOPage } from "./pages/DiscountPage/ConditionCO/CreateConditionCOPage";
+import { DetailConditionCOPage } from "./pages/DiscountPage/ConditionCO/DetailConditionCOPage";
+import { PromotionDetail } from "./pages/promotionPage/promotionDetail";
 
 interface IRoute {
   path: string;
@@ -92,6 +94,24 @@ export const protectRoutesData: IRoute[] = [
     index: false,
   },
   {
+    path: "/special-request",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "",
+        element: <SpecialRequestList />,
+        permission: null,
+      },
+      {
+        path: ":id",
+        element: <OrderDetail />,
+        permission: null,
+      },
+    ],
+    index: false,
+  },
+  {
     path: "/view-order",
     element: <RedirectPathPage />,
     permission: null,
@@ -102,13 +122,6 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
     ],
-    index: false,
-  },
-  {
-    path: "/special-request",
-    element: <SpecialRequestList />,
-    permission: null,
-    nestedRoutes: [],
     index: false,
   },
   {
@@ -177,6 +190,16 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "createConditionCo",
         element: <CreateConditionCOPage />,
+        permission: null,
+      },
+      {
+        path: "editConditionCo/:id",
+        element: <CreateConditionCOPage />,
+        permission: null,
+      },
+      {
+        path: "conditionco/detail/:id",
+        element: <DetailConditionCOPage />,
         permission: null,
       },
     ],
@@ -327,10 +350,22 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
+        path: "promotion/detail/:id",
+        element: <PromotionDetail />,
+        permission: null,
+      },
+      {
         path: "promotion/edit/:id",
         element: <PromotionCreatePage />,
         permission: null,
       },
+    ],
+  },
+  {
+    path: "/freebies/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
       {
         path: "freebies",
         element: <FreebieListPage />,

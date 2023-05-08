@@ -12,7 +12,7 @@ import Select from "../../../../components/Select/Select";
 import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../../components/Table/TableContainer";
 import { getZones } from "../../../../datasource/CustomerDatasource";
-import { SearchStore } from "../../../Shared/SearchStore";
+import { ModalSelectStore } from "../../../Shared/ModalSelectStore";
 
 const Form = styled(AntdForm)`
   .table-form-item.ant-form-item {
@@ -65,14 +65,16 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
   };
 
   const onSetStore = (stores: any) => {
-    setStoreList(stores);
-    setStoreListFiltered(stores);
+    const newStores = [...storeList, ...stores];
+    setStoreList(newStores);
+    setStoreListFiltered(newStores);
     setFilter(defaultFilter);
     form.setFieldsValue({
       ...form.getFieldsValue(),
-      stores,
+      stores: newStores,
     });
     setError(false);
+    setSearch(false);
   };
 
   const toggleSearchWindow = () => {
@@ -93,7 +95,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
       width: "25%",
     },
     {
-      title: "ส่วนลดดูแลราคา",
+      title: "ส่วนลดดูแลราคา (บาท)",
       dataIndex: "customerCompanyId",
       align: "center" as AlignType,
       width: "25%",
@@ -238,6 +240,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
                             ),
                           );
                           setSelectedStoreKeys([]);
+                          setSelectedStoreList([]);
                         },
                       });
                     }}
@@ -271,14 +274,15 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
           />
         </TableContainer>
       </Form>
-      <Modal open={showSearch} footer={null} closable={false} width={"80vw"}>
-        <SearchStore
-          list={storeList}
-          setList={onSetStore}
+      {showSearch && (
+        <ModalSelectStore
+          callBackShop={onSetStore}
+          showModalShop={showSearch}
+          currentSelectShop={storeList || []}
+          company={company}
           onClose={toggleSearchWindow}
-          zones={zones}
         />
-      </Modal>
+      )}
     </>
   );
 };

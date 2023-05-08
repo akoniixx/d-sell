@@ -20,9 +20,11 @@ export interface ProductEntity {
   productImage?: string;
   productLocation?: string;
   productName?: string;
+  productPromotionCode?: any[];
   productStatus?: string;
   productStrategy?: string;
   qtySaleUnit?: number;
+  quantity?: number;
   saleUOM?: string;
   saleUom?: string;
   saleUOMTH?: string;

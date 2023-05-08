@@ -21,14 +21,18 @@ import { AlignType } from "rc-table/lib/interface";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import { getOrders } from "../../datasource/OrderDatasourc";
 import {
+  OrderDeliveryDestKey,
   OrderPaymentMethodName,
   OrderStatusKey,
+  ORDER_DELIVERY_DEST_METHOD_NAME,
   ORDER_PAYMENT_METHOD_NAME,
   ORDER_PAYMENT_STATUS,
   ORDER_STATUS,
 } from "../../definitions/orderStatus";
 import { numberFormatter, priceFormatter } from "../../utility/Formatter";
 import { OrderEntity } from "../../entities/OrderEntity";
+import { zoneDatasource } from "../../datasource/ZoneDatasource";
+import { getOrderStatus } from "../../utility/OrderStatus";
 
 const SLASH_DMY = "DD/MM/YYYY";
 const SummaryBox = ({
@@ -70,18 +74,25 @@ export const OrderList: React.FC = () => {
 
   const navigate = useNavigate();
 
+  const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>();
+  const [zoneFilter, setZoneFilter] = useState<string[]>();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [dateFilter, setDateFilter] = useState<any>();
   const [dataState, setDataState] = useState({
     data: [],
-    dashboard: {
-      confirmStatusCount: 0,
-      deliverySuccessCount: 0,
-      inDeliveryCount: 0,
-      waitConfirmStatusCount: 0,
+    statusCount: {
+      COMPANY_CANCEL_ORDER: 0,
+      CONFIRM_ORDER: 0,
+      DELIVERY_SUCCESS: 0,
+      IN_DELIVERY: 0,
+      OPEN_ORDER: 0,
+      REJECT_ORDER: 0,
+      SHOPAPP_CANCEL_ORDER: 0,
+      WAIT_APPROVE_ORDER: 0,
+      WAIT_CONFIRM_ORDER: 0,
     },
     count: 0,
   });
@@ -93,24 +104,40 @@ export const OrderList: React.FC = () => {
   useEffect(() => {
     console.log("change filter");
     fetchData();
-  }, [keyword, statusFilter, dateFilter, page]);
+  }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
+
+  const getZoneByCompany = async () => {
+    const res = await zoneDatasource.getAllZoneByCompany(company);
+    const data = res.map((item: any) => {
+      return {
+        label: item.zoneName,
+        value: item.zoneName,
+        key: item.zoneId,
+      };
+    });
+    setZone(data);
+  };
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, dashboard, count } = await getOrders({
+      const { data, statusCount, count } = await getOrders({
         company,
         search: keyword,
         status: statusFilter,
+        customerZones: zoneFilter,
         page,
         take: pageSize,
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
         endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
       });
-      console.log({ dateFilter });
-      setDataState({ data, dashboard, count });
+      console.log({ data, statusCount, count });
+      setDataState({ data, statusCount, count });
+      if (zone.length <= 0) {
+        getZoneByCompany();
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -150,25 +177,26 @@ export const OrderList: React.FC = () => {
       color: "#FFC804",
       icon: icons.iconWaiting,
       title: "รอยืนยันคำสั่งซื้อ",
-      value: dataState.dashboard.waitConfirmStatusCount,
+      value:
+        dataState?.statusCount?.WAIT_APPROVE_ORDER + dataState?.statusCount?.WAIT_CONFIRM_ORDER,
     },
     {
       color: "#0068F4",
       icon: icons.iconCliboard,
       title: "ยืนยันคำสั่งซื้อแล้ว",
-      value: dataState.dashboard.confirmStatusCount,
+      value: dataState?.statusCount?.CONFIRM_ORDER,
     },
     {
       color: "#FF9138",
       icon: icons.iconTruck,
       title: "กำลังจัดส่ง",
-      value: dataState.dashboard.inDeliveryCount,
+      value: dataState?.statusCount?.IN_DELIVERY,
     },
     {
       color: "#2ED477",
       icon: icons.iconCheckedTruck,
       title: "จัดส่งสำเร็จ",
-      value: dataState.dashboard.deliverySuccessCount,
+      value: dataState?.statusCount?.DELIVERY_SUCCESS,
     },
   ];
 
@@ -177,7 +205,7 @@ export const OrderList: React.FC = () => {
       title: "รหัสคำสั่งซื้อ",
       dataIndex: "orderNo",
       key: "orderNo",
-      width: 168,
+      width: 138,
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
@@ -218,14 +246,27 @@ export const OrderList: React.FC = () => {
       },
     },
     {
-      title: "การจัดส่ง",
-      dataIndex: "zone",
-      key: "zone",
-      width: "10%",
+      title: "เขต",
+      dataIndex: "customerZone",
+      key: "customerZone",
+      width: 100,
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
-            <Text level={5}>{"-"}</Text>
+            <Text level={5}>{value || "-"}</Text>
+          </FlexCol>
+        );
+      },
+    },
+    {
+      title: "การจัดส่ง",
+      dataIndex: "deliveryDest",
+      key: "deliveryDest",
+      width: 110,
+      render: (value: OrderDeliveryDestKey, row: any, index: number) => {
+        return (
+          <FlexCol>
+            <Text level={5}>{value ? ORDER_DELIVERY_DEST_METHOD_NAME[value] : "-"}</Text>
           </FlexCol>
         );
       },
@@ -250,7 +291,7 @@ export const OrderList: React.FC = () => {
       title: "วันที่ & สถานะ",
       dataIndex: "status",
       key: "status",
-      width: "15%",
+      width: 180,
       align: "center" as AlignType,
       render: (value: OrderStatusKey, row: OrderEntity, index: number) => {
         return (
@@ -260,7 +301,7 @@ export const OrderList: React.FC = () => {
               fontWeight={700}
               style={{ color: ORDER_STATUS[value]?.color, textAlign: "center" }}
             >
-              {ORDER_STATUS[value]?.name_default || "-"}
+              {getOrderStatus(value, company) || "-"}
             </Text>
             <Text
               level={6}
@@ -324,8 +365,8 @@ export const OrderList: React.FC = () => {
           </Row>
           <br />
           <br />
-          <Row justify='space-between'>
-            <Col span={8}>
+          <Row justify='space-between' gutter={16}>
+            <Col span={6}>
               <Select
                 data={Object.entries(ORDER_STATUS).map(([key, val]) => ({
                   key,
@@ -333,7 +374,7 @@ export const OrderList: React.FC = () => {
                   label: val.name_default,
                 }))}
                 style={{ width: "100%" }}
-                placeholder='ทั้งหมด'
+                placeholder='สถานะทั้งหมด'
                 mode='multiple'
                 maxTagCount='responsive'
                 showArrow
@@ -343,6 +384,21 @@ export const OrderList: React.FC = () => {
                 }}
               />
             </Col>
+            <Col span={6}>
+              <Select
+                data={zone}
+                style={{ width: "100%" }}
+                placeholder='เขตทั้งหมด'
+                mode='multiple'
+                maxTagCount='responsive'
+                showArrow
+                onChange={(value: string[]) => {
+                  setZoneFilter(value);
+                  resetPage();
+                }}
+              />
+            </Col>
+            <Col span={4}></Col>
             <Col span={8}>
               <Input
                 placeholder='ค้นหา...'

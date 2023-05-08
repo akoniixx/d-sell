@@ -11,3 +11,7 @@ export const inputNumberValidator = ({ min, message }: { min?: number; message?:
     },
   };
 };
+
+export const isNumeric = (value: string) => {
+  return /^-?\d+$/.test(value);
+};

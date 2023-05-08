@@ -1,5 +1,67 @@
 ## [Version - 0]
 
+## Resolved [v0.5.5] - Release Date: 2022-04-28
+
+- added product location
+- fixed special price add shop
+
+## Resolved [v0.5.4] - Release Date: 2022-04-28
+
+- added promotion view page
+
+## Resolved [v0.5.3] - Release Date: 2022-04-26
+
+- fixed promotion setting
+- added promotion view page (UI)
+
+## Resolved [v0.5.2] - Release Date: 2022-04-21
+
+- fixed param update user staff
+- fixed order status
+
+## Resolved [v0.5.1] - Release Date: 2022-04-21
+
+- added column customer zone in order management & special request page
+
+## Features [v0.5.0] - Release Date: 2022-04-20
+
+- added component modal select shop
+
+## Resolved [v0.4.5] - Release Date: 2023-04-17
+
+- fixed defect condition co
+- fixed defect special request
+- fixed defect order management
+- added zone filter in order management & special request page
+- added token unauthorized handler
+
+## Features [v0.4.4] - Release Date: 2022-04-05
+
+- fixed defect special request
+- fixed defect order management
+
+## Features [v0.4.3] - Release Date: 2022-04-05
+
+- added feature preview PDF
+- fixed special request number format
+
+## Features [v0.4.2] - Release Date: 2022-03-31
+
+- added feature create CO manual UX/UI
+
+## Resolved [v0.4.1] - Release Date: 2023-03-28
+
+- fixed defect search shop & product in condition co menu
+- fixed create after search product & shop
+- fixed clear form after delete product & shop
+- fixed defect special request status
+- updated wording total selected product & shop
+- fixed button add product in "FERT" company
+
+## Features [v0.4.0] - Release Date: 2022-03-27
+
+- added feature condition co
+
 ## Resolved [v0.3.8] - Release Date: 2023-20-03
 
 - Defect: Credit memo index, add, edit, customer list

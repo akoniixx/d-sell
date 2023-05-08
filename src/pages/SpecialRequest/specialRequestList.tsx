@@ -25,6 +25,7 @@ import { numberFormatter, priceFormatter } from "../../utility/Formatter";
 import { OrderEntity } from "../../entities/OrderEntity";
 import { getOrderStatus, getSpecialRequestStatus } from "../../utility/OrderStatus";
 import Tag from "../../components/Tag/Tag";
+import { zoneDatasource } from "../../datasource/ZoneDatasource";
 
 const SLASH_DMY = "DD/MM/YYYY";
 
@@ -44,40 +45,91 @@ export const SpecialRequestList: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<any>();
   const [dataState, setDataState] = useState({
     data: [],
-    dashboard: {
-      confirmStatusCount: 0,
-      deliverySuccessCount: 0,
-      inDeliveryCount: 0,
-      waitConfirmStatusCount: 0,
+    statusCount: {
+      COMPANY_CANCEL_ORDER: 0,
+      CONFIRM_ORDER: 0,
+      DELIVERY_SUCCESS: 0,
+      IN_DELIVERY: 0,
+      OPEN_ORDER: 0,
+      REJECT_ORDER: 0,
+      SHOPAPP_CANCEL_ORDER: 0,
+      WAIT_APPROVE_ORDER: 0,
+      WAIT_CONFIRM_ORDER: 0,
     },
     count: 0,
   });
   const [selectedTab, setSelectedTab] = useState<tabKey>("all");
+  const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
+  const [zoneFilter, setZoneFilter] = useState<string[]>();
 
   useEffect(() => {
     if (!loading) fetchData();
   }, []);
 
   useEffect(() => {
-    console.log("change filter");
+    if (selectedTab === "all") {
+      setStatusFilter(undefined);
+    } else if (selectedTab === "pending") {
+      setStatusFilter(["WAIT_APPROVE_ORDER"]);
+    } else if (selectedTab === "approved") {
+      setStatusFilter([
+        "COMPANY_CANCEL_ORDER",
+        "CONFIRM_ORDER",
+        "DELIVERY_SUCCESS",
+        "IN_DELIVERY",
+        "OPEN_ORDER",
+        "SHOPAPP_CANCEL_ORDER",
+        "WAIT_CONFIRM_ORDER",
+      ]);
+    } else if (selectedTab === "rejected") {
+      setStatusFilter(["REJECT_ORDER"]);
+    }
+  }, [selectedTab]);
+
+  useEffect(() => {
+    console.log("change filter", {
+      keyword,
+      statusFilter,
+      zoneFilter,
+      dateFilter,
+      page,
+    });
     fetchData();
-  }, [keyword, statusFilter, dateFilter]);
+  }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
+
+  const getZoneByCompany = async () => {
+    const res = await zoneDatasource.getAllZoneByCompany(company);
+    const data = res.map((item: any) => {
+      return {
+        label: item.zoneName,
+        value: item.zoneName,
+        key: item.zoneId,
+      };
+    });
+    setZone(data);
+  };
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, dashboard, count } = await getOrders({
+      const { data, statusCount, count } = await getOrders({
+        company,
         search: keyword,
         status: statusFilter,
+        customerZones: zoneFilter,
         page,
         take: pageSize,
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
         endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
+        isSpecialRequest: true,
       });
-      console.log({ dateFilter });
-      setDataState({ data, dashboard, count });
+      console.log({ data, statusCount, count });
+      setDataState({ data, statusCount, count });
+      if (zone.length <= 0) {
+        getZoneByCompany();
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -88,20 +140,35 @@ export const SpecialRequestList: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
-        <Col className='gutter-row' span={12}>
+        <Col className='gutter-row' span={9}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              Special Request
+              อนุมัติคำสั่งซื้อ
             </span>
           </div>
           <div>
             <Text color='Text3'>รายการขอโปรโมชันพิเศษเพิ่มเติม</Text>
           </div>
         </Col>
-        <Col span={5}>
+        <Col span={4}>
+          <Select
+            data={zone}
+            value={zoneFilter}
+            style={{ width: "100%" }}
+            placeholder='เขตทั้งหมด'
+            mode='multiple'
+            maxTagCount='responsive'
+            showArrow
+            onChange={(value: string[]) => {
+              setZoneFilter(value);
+              resetPage();
+            }}
+          />
+        </Col>
+        <Col span={4}>
           <Input
             placeholder='ค้นหา...'
             suffix={<SearchOutlined />}
@@ -136,48 +203,50 @@ export const SpecialRequestList: React.FC = () => {
 
   const columns = [
     {
-      title: "เลขโปรโมชั่น",
-      dataIndex: "promotionId",
+      title: "หมายเลขออเดอร์",
+      dataIndex: "orderNo",
       key: "orderNo",
-    },
-    {
-      title: "NAV NO.",
-      dataIndex: "soNo",
-      key: "soNo",
-      render: (value: any, row: any, index: number) => {
-        return (
-          <FlexCol>
-            <Text level={5}>{value || "-"}</Text>
-          </FlexCol>
-        );
-      },
+      width: "15%",
     },
     {
       title: "ร้านค้า",
       dataIndex: "customerName",
       key: "customerName",
-      width: "20%",
+      width: "25%",
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
             <Text level={5}>{value || "-"}</Text>
             <Text level={6} color='Text3'>
-              {row.customerNo}
+              {row.customerNo || "-"}
             </Text>
           </FlexCol>
         );
       },
     },
     {
-      title: "ทั้งหมด",
-      dataIndex: "amount",
-      key: "amount",
-      width: "10%",
+      title: "เขต",
+      dataIndex: "customerZone",
+      key: "customerZone",
       render: (value: any, row: any, index: number) => {
         return (
           <FlexCol>
-            <Text level={5}>{priceFormatter(value || "0", 2, true)}</Text>
+            <Text level={5}>{value || "-"}</Text>
           </FlexCol>
+        );
+      },
+    },
+    {
+      title: "ทั้งหมด",
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      width: "15%",
+      align: "center" as AlignType,
+      render: (value: any, row: any, index: number) => {
+        return (
+          <FlexRow justify='center'>
+            <Text level={5}>{priceFormatter(value || "0", 2, true)}</Text>
+          </FlexRow>
         );
       },
     },
@@ -185,6 +254,7 @@ export const SpecialRequestList: React.FC = () => {
       title: "วันที่สร้าง",
       dataIndex: "createAt",
       key: "createAt",
+      width: "10%",
       render: (value: any, row: any, index: number) => {
         return <Text style={{ textAlign: "center" }}>{moment(value).format(SLASH_DMY)}</Text>;
       },
@@ -212,7 +282,7 @@ export const SpecialRequestList: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/order/" + orderId)}
+                  onClick={() => navigate("/special-request/" + orderId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
@@ -232,19 +302,26 @@ export const SpecialRequestList: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `ทั้งหมด (${0})`,
+      label: `ทั้งหมด (${Object.values(dataState?.statusCount).reduce(
+        (sum, cur) => sum + cur,
+        0,
+      )})`,
       key: "all",
     },
     {
-      label: `รออนุมัติ (${0})`,
+      label: `รออนุมัติ (${dataState?.statusCount?.WAIT_APPROVE_ORDER})`,
       key: "pending",
     },
     {
-      label: `อนุมัติ (${0})`,
+      label: `อนุมัติ (${
+        Object.values(dataState?.statusCount).reduce((sum, cur) => sum + cur, 0) -
+        dataState?.statusCount?.WAIT_APPROVE_ORDER -
+        dataState?.statusCount?.REJECT_ORDER
+      })`,
       key: "approved",
     },
     {
-      label: `ไม่อนุมัติ (${0})`,
+      label: `ไม่อนุมัติ (${dataState?.statusCount?.REJECT_ORDER})`,
       key: "rejected",
     },
   ];
@@ -272,6 +349,7 @@ export const SpecialRequestList: React.FC = () => {
               current: page,
               total: dataState.count,
               showSizeChanger: false,
+              onChange: (page) => setPage(page),
               position: ["bottomCenter"],
             }}
             size='large'

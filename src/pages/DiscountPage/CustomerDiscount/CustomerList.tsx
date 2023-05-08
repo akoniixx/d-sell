@@ -161,7 +161,7 @@ export const CustomerDiscountListPage: React.FC = () => {
       },
     },
     {
-      title: "รายชื่อสมาชิก",
+      title: "ชื่อเจ้าของร้าน",
       dataIndex: "firstname",
       key: "name",
       width: "20%",
@@ -176,7 +176,7 @@ export const CustomerDiscountListPage: React.FC = () => {
       },
     },
     {
-      title: "โซน",
+      title: "เขต",
       dataIndex: "zone",
       key: "zone",
       width: "15%",
