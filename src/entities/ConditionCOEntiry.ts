@@ -1,6 +1,7 @@
 export interface ConditionCOEntiry {
   creditMemoConditionId: string;
   creditMemoConditionName: string;
+  creditMemoConditionCode: string;
   company: string;
   startDate: string;
   endDate: string;
@@ -17,6 +18,7 @@ export interface ConditionCOEntiry {
 export interface CreateConditionCOEntiry {
   creditMemoConditionId?: string;
   creditMemoConditionName: string;
+  creditMemoConditionCode: string;
   company: string;
   startDate: string;
   endDate: string;
@@ -64,6 +66,7 @@ export const creditMemoConditionShop_INIT: creditMemoConditionShop = {
 
 export const CreateConditionCOEntiry_INIT: CreateConditionCOEntiry = {
   creditMemoConditionName: "",
+  creditMemoConditionCode: "",
   company: "",
   startDate: "",
   endDate: "",

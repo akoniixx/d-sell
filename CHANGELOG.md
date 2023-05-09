@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.5.7] - Release Date: 2022-05-09
+
+- added creditMemoConditionCode in condition co menu
+
 ## Resolved [v0.5.6] - Release Date: 2022-05-09
 
 - fixed credit memo

@@ -341,6 +341,7 @@ export const DetailConditionCOPage: React.FC = () => {
         <PageTitle />
         <br />
         <DetailBox>
+          <DetailItem label='รหัสรายการ' value={data?.creditMemoConditionCode || ""} />
           <DetailItem label='ชื่อรายการ' value={data?.creditMemoConditionName || ""} />
           <DetailItem
             label='ระยะเวลา'
