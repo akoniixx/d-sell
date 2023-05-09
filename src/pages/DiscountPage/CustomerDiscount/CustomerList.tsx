@@ -105,7 +105,7 @@ export const CustomerDiscountListPage: React.FC = () => {
         <Col className='gutter-row' xl={5} sm={6}>
           <Button
             type='primary'
-            title='+ สร้าง Credit Memo'
+            title='+ สร้าง ส่วนลดดูแลราคา'
             height={40}
             onClick={() => navigate(`/discount/create`)}
           />

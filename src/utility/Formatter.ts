@@ -1,9 +1,11 @@
 import moment from "moment";
 
 const SLASH_DMY = "DD/MM/YYYY";
+const SLASH_DMYHM = "DD/MM/YYYY HH:mm น.";
 
-export const dateFormatter = (d: string) => {
-  return moment(d).add(543, "year").format(SLASH_DMY);
+export const dateFormatter = (d: string, withTime?: boolean) => {
+  const format = withTime ? SLASH_DMYHM : SLASH_DMY;
+  return moment(d).add(543, "year").format(format);
 };
 
 export const priceFormatter = (
@@ -22,7 +24,9 @@ export const priceFormatter = (
   const num = typeof price === "number" ? price : parseFloat(price);
   const result = formatter.format(num);
 
-  return hideUnit
+  return isNaN(num)
+    ? "-"
+    : hideUnit
     ? `${formatter.format(num)}`
     : reverseUnit
     ? `${formatter.format(num)} ฿`

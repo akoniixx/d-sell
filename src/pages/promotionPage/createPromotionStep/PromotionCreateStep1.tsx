@@ -331,16 +331,37 @@ export const PromotionCreateStep1 = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name='promotionName'
-              label='ชื่อโปรโมชัน'
+              name='promotionCode'
+              label='รหัสโปรโมชัน'
               rules={[
                 {
                   required: true,
-                  message: "*โปรดระบุชื่อโปรโมชัน",
+                  message: "*โปรดระบุรหัสโปรโมชัน",
+                },
+                {
+                  max: 22,
+                  message: "*รหัสโปรโมชันต้องมีความยาวไม่เกิน 22 ตัวอักษร",
+                },
+                {
+                  validator: async (rule, value) => {
+                    if (isEditing) return;
+                    const { success } = await checkPromotionCode({
+                      promotionCode: value,
+                      company,
+                    });
+                    if (!success) {
+                      throw new Error();
+                    }
+                  },
+                  message: "*รหัสโปรโมชันนี้ถูกใช้แล้ว",
+                },
+                {
+                  pattern: /^[^* ]*$/,
+                  message: "*รหัสโปรโมชันต้องไม่มี * และช่องว่าง",
                 },
               ]}
             >
-              <Input placeholder='ระบุชื่อโปรโมชัน' />
+              <Input placeholder='ระบุรหัสโปรโมชัน' disabled={isEditing} />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -371,37 +392,16 @@ export const PromotionCreateStep1 = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              name='promotionCode'
-              label='รหัสโปรโมชัน'
+              name='promotionName'
+              label='ชื่อโปรโมชัน'
               rules={[
                 {
                   required: true,
-                  message: "*โปรดระบุรหัสโปรโมชัน",
-                },
-                {
-                  max: 22,
-                  message: "*รหัสโปรโมชันต้องมีความยาวไม่เกิน 22 ตัวอักษร",
-                },
-                {
-                  validator: async (rule, value) => {
-                    if (isEditing) return;
-                    const { success } = await checkPromotionCode({
-                      promotionCode: value,
-                      company,
-                    });
-                    if (!success) {
-                      throw new Error();
-                    }
-                  },
-                  message: "*รหัสโปรโมชันนี้ถูกใช้แล้ว",
-                },
-                {
-                  pattern: /^[A-Za-zก-๙][A-Za-z0-9ก-๙]*$/,
-                  message: "*รหัสโปรโมชันต้องประกอบด้วยตัวอักษรหรือตัวเลขเท่านั้น",
+                  message: "*โปรดระบุชื่อโปรโมชัน",
                 },
               ]}
             >
-              <Input placeholder='ระบุรหัสโปรโมชัน' disabled={isEditing} />
+              <Input placeholder='ระบุชื่อโปรโมชัน' />
             </Form.Item>
           </Col>
         </Row>
@@ -419,7 +419,7 @@ export const PromotionCreateStep1 = ({
                     },
                   ]}
                 >
-                  <DatePicker style={{ width: "100%" }} />
+                  <DatePicker style={{ width: "100%" }} enablePast />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -452,6 +452,7 @@ export const PromotionCreateStep1 = ({
                       const startDate = form.getFieldValue("startDate");
                       return current && current.isBefore(dayjs(startDate));
                     }}
+                    enablePast
                   />
                 </Form.Item>
               </Col>

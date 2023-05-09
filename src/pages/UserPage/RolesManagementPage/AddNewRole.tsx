@@ -244,7 +244,7 @@ export default function AddNewRole(): JSX.Element {
                 <Form.Item noStyle name='discountCo'>
                   <CheckboxGroup
                     data={websiteBackOffice.discountCo}
-                    name='Discount (CO) / (ส่วนลดดูแลราคา)'
+                    name='Discount (CO) / ( ส่วนลดดูแลราคา)'
                   />
                 </Form.Item>
               </Col>
