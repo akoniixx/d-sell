@@ -82,7 +82,7 @@ export const DiscountCreatePage: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title={isEditing ? "แก้ไข Credit Memo" : "สร้าง Credit Memo"}
+        title={isEditing ? "แก้ไข ส่วนลดดูแลราคา" : "สร้าง ส่วนลดดูแลราคา"}
         showBack
         extra={
           <>
@@ -114,9 +114,9 @@ export const DiscountCreatePage: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการ เพิ่ม/ลด Credit Memo", path: "/discount/list" },
+              { text: "รายการ เพิ่ม/ลด ส่วนลดดูแลราคา", path: "/discount/list" },
               {
-                text: isEditing ? "แก้ไข Credit Memo" : "สร้าง Credit Memo",
+                text: isEditing ? "แก้ไข ส่วนลดดูแลราคา" : "สร้าง ส่วนลดดูแลราคา",
                 path: window.location.pathname,
               },
             ]}
@@ -277,7 +277,7 @@ export const DiscountCreatePage: React.FC = () => {
           <Text level={4} align='center'>
             {isDone ? (
               <>
-                {isEditing ? "แก้ไข" : "สร้าง"} Credit Memo
+                {isEditing ? "แก้ไข" : "สร้าง"} ส่วนลดดูแลราคา
                 <br />
                 สำเร็จ
               </>
@@ -285,7 +285,7 @@ export const DiscountCreatePage: React.FC = () => {
               <>
                 กำลัง{isEditing ? "แก้ไข" : "สร้าง"}
                 <br />
-                Credit Memo
+                ส่วนลดดูแลราคา
               </>
             )}
           </Text>

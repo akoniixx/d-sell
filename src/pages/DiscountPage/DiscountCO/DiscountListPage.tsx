@@ -135,7 +135,7 @@ export const DiscountListPage: React.FC = () => {
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              รายการ เพิ่ม/ลด Credit Memo
+              รายการ เพิ่ม/ลด ส่วนลดดูแลราคา
             </span>
           </div>
         </Col>

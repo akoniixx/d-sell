@@ -1,5 +1,4 @@
 import {
-  Button,
   Col,
   Form,
   FormInstance,
@@ -23,11 +22,23 @@ import TextArea from "../../../../components/Input/TextArea";
 import dayjs, { Dayjs } from "dayjs";
 import { PromotionType, PROMOTION_TYPE_NAME } from "../../../../definitions/promotion";
 import { checkPromotionCode, getPromotion } from "../../../../datasource/PromotionDatasource";
+import Button from "../../../../components/Button/Button";
 
 interface Props {
   form: FormInstance;
   isEditing?: boolean;
 }
+
+const MemoArea = styled.div`
+  width: 100%;
+  background: ${color.background1};
+  border: 1px solid ${color.background2};
+  border-radius: 8px;
+
+  display: flex;
+  align-items: center;
+  padding: 16px;
+`;
 
 export const CreateCOStep1 = ({ form, isEditing }: Props) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -57,7 +68,7 @@ export const CreateCOStep1 = ({ form, isEditing }: Props) => {
   return (
     <>
       <Text level={5} fontWeight={700}>
-        รายละเอียด Credit Memo
+        รายละเอียด ส่วนลดดูแลราคา
       </Text>
       <br />
       <br />
@@ -80,11 +91,11 @@ export const CreateCOStep1 = ({ form, isEditing }: Props) => {
           {/* <Col span={12}>
             <Form.Item
               name='startDate'
-              label='วันที่เริ่ม Credit Memo'
+              label='วันที่เริ่ม ส่วนลดดูแลราคา'
               rules={[
                 {
                   required: true,
-                  message: "*โปรดเลือกวันที่เริ่ม Credit Memo",
+                  message: "*โปรดเลือกวันที่เริ่ม ส่วนลดดูแลราคา",
                 },
               ]}
             >
@@ -94,23 +105,18 @@ export const CreateCOStep1 = ({ form, isEditing }: Props) => {
           <Col span={12}>
             <Form.Item
               name='startTime'
-              label='เวลาเริ่ม Credit Memo'
+              label='เวลาเริ่ม ส่วนลดดูแลราคา'
               initialValue={dayjs("00:00", "HH:mm")}
               rules={[
                 {
                   required: true,
-                  message: "*โปรดเลือกเวลาเริ่ม Credit Memo",
+                  message: "*โปรดเลือกเวลาเริ่ม ส่วนลดดูแลราคา",
                 },
               ]}
             >
               <TimePicker allowClear={false} />
             </Form.Item>
           </Col> */}
-          <Col span={24}>
-            <Form.Item name='remark' label='หมายเหตุเพิ่มเติม'>
-              <TextArea />
-            </Form.Item>
-          </Col>
           {company === "ICPL" && (
             <Col span={24}>
               <Form.Item
@@ -120,7 +126,7 @@ export const CreateCOStep1 = ({ form, isEditing }: Props) => {
                 rules={[
                   {
                     required: true,
-                    message: "โปรดเลือกส่วนลดดูแลราคา",
+                    message: "โปรดเลือก ส่วนลดดูแลราคา",
                   },
                 ]}
               >
@@ -143,6 +149,21 @@ export const CreateCOStep1 = ({ form, isEditing }: Props) => {
               </Form.Item>
             </Col>
           )}
+          <Col span={12}>
+            <Form.Item name='creditMemoFile' label='ไฟล์ ส่วนลดดูแลราคา'>
+              <MemoArea>
+                <Button title='เลือกไฟล์' style={{ width: 128, marginRight: 18 }} />
+                <Text color='Text3' level={6}>
+                  โปรดเลือกไฟล์ .PDF หรือ .XLXS
+                </Text>
+              </MemoArea>
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item name='remark' label='หมายเหตุเพิ่มเติม'>
+              <TextArea />
+            </Form.Item>
+          </Col>
         </Row>
       </Form>
     </>

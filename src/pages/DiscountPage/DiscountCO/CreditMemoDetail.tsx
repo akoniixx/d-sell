@@ -83,7 +83,7 @@ export const CreditMemoDetail: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title='รายละเอียด Credit Memo'
+        title='รายละเอียด ส่วนลดดูแลราคา'
         showBack
         extra={
           <Button
@@ -97,8 +97,8 @@ export const CreditMemoDetail: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการ เพิ่ม/ลด Credit Memo", path: "/discount/list" },
-              { text: "รายละเอียด Credit Memo", path: window.location.pathname },
+              { text: "รายการ เพิ่ม/ลด ส่วนลดดูแลราคา", path: "/discount/list" },
+              { text: "รายละเอียด ส่วนลดดูแลราคา", path: window.location.pathname },
             ]}
           />
         }
@@ -149,7 +149,7 @@ export const CreditMemoDetail: React.FC = () => {
       align: "center" as AlignType,
     },
     {
-      title: "ส่วนลดดูแลราคา",
+      title: " ส่วนลดดูแลราคา",
       dataIndex: "receiveAmount",
       key: "receiveAmount",
       align: "center" as AlignType,
@@ -206,7 +206,7 @@ export const CreditMemoDetail: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `รายละเอียด Credit Memo`,
+      label: `รายละเอียด ส่วนลดดูแลราคา`,
       key: "1",
       children: (
         <>
@@ -222,7 +222,7 @@ export const CreditMemoDetail: React.FC = () => {
           ))}
           <br />
           <br />
-          <Text fontWeight={700}>รายการ Credit Memo</Text>
+          <Text fontWeight={700}>รายการ ส่วนลดดูแลราคา</Text>
           <br />
           <br />
           <TableContainer>
@@ -240,13 +240,13 @@ export const CreditMemoDetail: React.FC = () => {
       ),
     },
     {
-      label: `ประวัติการสร้าง Credit Memo`,
+      label: `ประวัติการสร้าง ส่วนลดดูแลราคา`,
       key: "2",
       children: (
         <>
           <Row style={{ margin: "16px 0px" }}>
             <Text fontWeight={700} level={4}>
-              รายการประวัติการสร้าง Credit Memo
+              รายการประวัติการสร้าง ส่วนลดดูแลราคา
             </Text>
           </Row>
           <TableContainer>

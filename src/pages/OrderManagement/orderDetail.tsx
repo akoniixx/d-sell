@@ -830,7 +830,7 @@ export const OrderDetail: React.FC = () => {
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดดูแลราคา'
+                    label=' ส่วนลดดูแลราคา'
                     labelEn='CO. ดูแลราคา / วงเงินเคลม'
                     value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
                     color='success'

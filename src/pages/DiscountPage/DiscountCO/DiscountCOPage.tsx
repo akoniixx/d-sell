@@ -31,7 +31,7 @@ export const DiscountCOPage: React.FC = () => {
       <div className='d-flex flex-row justify-content-between my-4'>
         <div>
           <span className='card-label font-weight-bolder text-dark' style={{ fontSize: 20 }}>
-            รายการ เพิ่ม/ลด Credit Memo
+            รายการ เพิ่ม/ลด ส่วนลดดูแลราคา
           </span>
         </div>
 
@@ -42,7 +42,7 @@ export const DiscountCOPage: React.FC = () => {
                 type='text'
                 id='keyword-input'
                 className='form-control'
-                placeholder='ค้นหา Credit Memo'
+                placeholder='ค้นหา ส่วนลดดูแลราคา'
                 value={keyword}
               />
               <div className='input-group-append'>
@@ -218,7 +218,7 @@ export const DiscountCOPage: React.FC = () => {
 
       <Modal open={isModalDeleteVisible} onCancel={() => setIsModalDeleteVisible(false)}>
         <p style={{ color: "#464E5F", fontSize: 24 }}>ต้องการลบข้อมูลตำแหน่งผู้ใช้งานนี้</p>
-        <p style={{ color: "#BABCBE", fontSize: 16 }}>โปรดยืนยันการลบข้อมูลรายการ Credit Memo</p>
+        <p style={{ color: "#BABCBE", fontSize: 16 }}>โปรดยืนยันการลบข้อมูลรายการ ส่วนลดดูแลราคา</p>
       </Modal>
     </>
   );

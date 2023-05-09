@@ -1,5 +1,11 @@
 ## [Version - 0]
 
+## Resolved [v0.5.6] - Release Date: 2022-05-09
+
+- fixed credit memo
+- fixed promotion setting
+- fixed CO manual
+
 ## Resolved [v0.5.5] - Release Date: 2022-04-28
 
 - added product location
@@ -64,7 +70,7 @@
 
 ## Resolved [v0.3.8] - Release Date: 2023-20-03
 
-- Defect: Credit memo index, add, edit, customer list
+- Defect: ส่วนลดดูแลราคา index, add, edit, customer list
 
 ## Resolved [v0.3.7] - Release Date: 2023-10-03
 

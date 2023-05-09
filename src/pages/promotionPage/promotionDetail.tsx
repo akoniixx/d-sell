@@ -55,7 +55,6 @@ const DetailTab: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
-  const navigate = useNavigate();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
 
@@ -581,6 +580,10 @@ const HistoryTab: React.FC = () => {
 };
 
 export const PromotionDetail: React.FC = () => {
+  const { pathname } = window.location;
+  const pathSplit = pathname.split("/") as Array<string>;
+  const navigate = useNavigate();
+
   const PageTitle = () => {
     return (
       <PageTitleNested
@@ -597,7 +600,13 @@ export const PromotionDetail: React.FC = () => {
             ]}
           />
         }
-        extra={<Button title='แก้ไขโปรโมชัน' icon={<EditOutlined />} />}
+        extra={
+          <Button
+            title='แก้ไขโปรโมชัน'
+            icon={<EditOutlined />}
+            onClick={() => navigate(`/PromotionPage/promotion/edit/${pathSplit[4]}`)}
+          />
+        }
       />
     );
   };

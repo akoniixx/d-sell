@@ -2,6 +2,7 @@ import styled from "styled-components";
 import color from "../../resource/color";
 
 const TableContainer = styled.div`
+  font-family: "IBM Plex Sans Thai";
   border: 1px solid ${color["background2"]};
   border-bottom: none;
   border-radius: 8px;
