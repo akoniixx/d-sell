@@ -604,7 +604,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                             if (value && (isNaN(value) || parseFloat(value) <= 0)) {
                               return Promise.reject("จำนวนยอดสั่งซื้อต้องเป็นตัวเลขมากกว่า 0");
                             }
-                            if (value && (parseFloat(value) * 100) % 1 !== 0) {
+                            if (value && value.split(".")[1] && value.split(".")[1].length > 2) {
                               return Promise.reject("ทศนิยมต้องไม่เกิน 2 ตำแหน่ง");
                             }
                             return Promise.resolve();
@@ -631,7 +631,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                             if (value && (isNaN(value) || parseFloat(value) <= 0)) {
                               return Promise.reject(" ส่วนลดดูแลราคาที่ใช้ต้องเป็นตัวเลขมากกว่า 0");
                             }
-                            if (value && (parseFloat(value) * 100) % 1 !== 0) {
+                            if (value && value.split(".")[1] && value.split(".")[1].length > 2) {
                               return Promise.reject("ทศนิยมต้องไม่เกิน 2 ตำแหน่ง");
                             }
                             return Promise.resolve();
