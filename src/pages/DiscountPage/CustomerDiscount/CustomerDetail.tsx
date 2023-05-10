@@ -187,7 +187,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       dataIndex: "soNo",
       key: "soNo",
       align: "center" as AlignType,
-      render: (value: string) => {
+      render: (value: string, row: any) => {
         return value || "-";
       },
     },
