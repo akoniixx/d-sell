@@ -45,6 +45,7 @@ export const DiscountCreatePage: React.FC = () => {
     stores: undefined,
     items: undefined,
   });
+  const [fileMemo, setFileMemo] = useState<any>();
   const [defaultData, setDefaultData] = useState<any>();
   const [showStep2Error, setStep2Error] = useState(false);
 
@@ -127,7 +128,13 @@ export const DiscountCreatePage: React.FC = () => {
   };
 
   const stepsComponents = [
-    <CreateCOStep1 form={form1} isEditing={isEditing} key={0} />,
+    <CreateCOStep1
+      form={form1}
+      isEditing={isEditing}
+      fileMemo={fileMemo}
+      setFileMemo={setFileMemo}
+      key={0}
+    />,
     <CreateCOStep2 form={form2} showError={showStep2Error} setError={setStep2Error} key={1} />,
   ];
 
@@ -183,7 +190,7 @@ export const DiscountCreatePage: React.FC = () => {
     const { startDate, startTime } = creditMemoData;
     const id = isEditing ? pathSplit[3] : undefined;
     const username = `${firstname} ${lastname}`;
-    const submitData = {
+    const submitDataObj = {
       ...data,
       creditMemoId: id,
       company,
@@ -191,7 +198,15 @@ export const DiscountCreatePage: React.FC = () => {
       createBy: isEditing ? undefined : username,
       updateBy: isEditing ? username : undefined,
     };
-
+    const submitData = new FormData();
+    Object.entries(submitDataObj).forEach(([key, value]) => {
+      if (!["file", "creditMemoShop"].includes(key) && value) submitData.append(key, `${value}`);
+    });
+    submitDataObj?.creditMemoShop?.forEach((shop: CreditMemoShopEntity) => {
+      const str = JSON.stringify(shop);
+      submitData.append("creditMemoShop", str);
+    });
+    submitData.append("file", fileMemo?.originFileObj);
     const callback = (res: any) => {
       const { success, responseData, developerMessage, userMessage } = res;
       // const promotionId = responseData?.promotionId || id;
@@ -212,7 +227,7 @@ export const DiscountCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
-    // console.log({ submitData });
+    // console.log({ submitDataObj, fileMemo });
     // return;
 
     if (!isEditing) {

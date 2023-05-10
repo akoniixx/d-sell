@@ -27,6 +27,8 @@ import Button from "../../../../components/Button/Button";
 interface Props {
   form: FormInstance;
   isEditing?: boolean;
+  fileMemo: any;
+  setFileMemo: any;
 }
 
 const MemoArea = styled.div`
@@ -40,7 +42,7 @@ const MemoArea = styled.div`
   padding: 16px;
 `;
 
-export const CreateCOStep1 = ({ form, isEditing }: Props) => {
+export const CreateCOStep1 = ({ form, fileMemo, setFileMemo }: Props) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
@@ -150,11 +152,47 @@ export const CreateCOStep1 = ({ form, isEditing }: Props) => {
             </Col>
           )}
           <Col span={12}>
-            <Form.Item name='creditMemoFile' label='ไฟล์ ส่วนลดดูแลราคา'>
+            <Form.Item name='file' label='ไฟล์ ส่วนลดดูแลราคา'>
               <MemoArea>
-                <Button title='เลือกไฟล์' style={{ width: 128, marginRight: 18 }} />
+                <Upload
+                  beforeUpload={(file) => {
+                    const isPDF = file.type === "application/pdf";
+                    if (!isPDF) {
+                      message.error(`อัปโหลดเฉพาะไฟล์ .PDF หรือ .XLXS เท่านั้น`);
+                      return false;
+                    }
+                    console.log("beforeUpload", file);
+                    return isPDF || Upload.LIST_IGNORE;
+                  }}
+                  customRequest={({ file, onSuccess }) => {
+                    console.log("customRequest");
+                    if (onSuccess) {
+                      onSuccess(file);
+                    }
+                  }}
+                  onChange={({ file }: any) => {
+                    if (file.status === "uploading") {
+                      setFileMemo(file);
+                      file.status = "done";
+                    }
+                    if (file.status === "done") {
+                      setFileMemo(file);
+                    }
+                    console.log("onChange", file);
+                    return "success";
+                  }}
+                  onRemove={() => {
+                    setFileMemo(undefined);
+                  }}
+                  maxCount={1}
+                  showUploadList={false}
+                >
+                  <Button title='เลือกไฟล์' style={{ width: 128, marginRight: 18 }} />
+                </Upload>
                 <Text color='Text3' level={6}>
-                  โปรดเลือกไฟล์ .PDF หรือ .XLXS
+                  {fileMemo && fileMemo.originFileObj
+                    ? fileMemo.originFileObj.name
+                    : "โปรดเลือกไฟล์ .PDF หรือ .XLXS"}
                 </Text>
               </MemoArea>
             </Form.Item>

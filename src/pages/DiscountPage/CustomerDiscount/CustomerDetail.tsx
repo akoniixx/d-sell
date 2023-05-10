@@ -187,6 +187,9 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       dataIndex: "soNo",
       key: "soNo",
       align: "center" as AlignType,
+      render: (value: string) => {
+        return value || "-";
+      },
     },
     {
       title: "จำนวนยอดสั่งซื้อ",
@@ -631,7 +634,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                     <Form.Item
                       name='soNo'
                       label='Sale Order Number'
-                      rules={[{ required: true, message: "*โปรดระบุเลข SO No." }]}
+                      // rules={[{ required: true, message: "*โปรดระบุเลข SO No." }]}
                     >
                       <Input />
                     </Form.Item>
