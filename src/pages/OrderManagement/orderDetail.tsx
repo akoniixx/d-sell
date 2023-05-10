@@ -717,7 +717,7 @@ export const OrderDetail: React.FC = () => {
               <Text level={4} fontWeight={700}>
                 รายละเอียดคำสั่งซื้อ
               </Text>
-              <DetailBox style={{ height: 220 }}>
+              <DetailBox style={{ height: 260 }}>
                 <DetailItem label='ชื่อร้านค้า' value={orderData?.customerName} />
                 <DetailItem label='SO NO.' value={orderData?.soNo} />
                 <DetailItem label='Order No.' value={orderData?.orderNo} />
@@ -739,7 +739,7 @@ export const OrderDetail: React.FC = () => {
               <Text level={4} fontWeight={700}>
                 รายละเอียดการจัดส่ง
               </Text>
-              <DetailBox style={{ height: 220 }}>
+              <DetailBox style={{ height: 260 }}>
                 {/* TODO */}
                 <DetailItem
                   label='การจัดส่ง'
@@ -751,6 +751,7 @@ export const OrderDetail: React.FC = () => {
                 />
                 <DetailItem label='ที่อยู่' value={orderData?.deliveryAddress} />
                 <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} />
+                <DetailItem label='ข้อมูลทะเบียนรถ' value={orderData?.numberPlate} />
               </DetailBox>
             </CardContainer>
           </Col>

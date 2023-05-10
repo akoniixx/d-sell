@@ -21,6 +21,7 @@ export interface OrderEntity {
   discount?: number;
   isUseCOD?: boolean;
   navNo?: string;
+  numberPlate?: string;
   orderId: string;
   orderNo?: string;
   orderProducts?: ProductEntity[];
