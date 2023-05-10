@@ -46,6 +46,7 @@ export const DiscountCreatePage: React.FC = () => {
     items: undefined,
   });
   const [fileMemo, setFileMemo] = useState<any>();
+  const [fileMemoUrl, setFileMemoUrl] = useState<any>();
   const [defaultData, setDefaultData] = useState<any>();
   const [showStep2Error, setStep2Error] = useState(false);
 
@@ -133,6 +134,7 @@ export const DiscountCreatePage: React.FC = () => {
       isEditing={isEditing}
       fileMemo={fileMemo}
       setFileMemo={setFileMemo}
+      fileUrl={""}
       key={0}
     />,
     <CreateCOStep2 form={form2} showError={showStep2Error} setError={setStep2Error} key={1} />,

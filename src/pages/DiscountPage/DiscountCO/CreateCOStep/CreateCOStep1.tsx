@@ -29,6 +29,7 @@ interface Props {
   isEditing?: boolean;
   fileMemo: any;
   setFileMemo: any;
+  fileUrl?: string;
 }
 
 const MemoArea = styled.div`
@@ -42,7 +43,7 @@ const MemoArea = styled.div`
   padding: 16px;
 `;
 
-export const CreateCOStep1 = ({ form, fileMemo, setFileMemo }: Props) => {
+export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
 
