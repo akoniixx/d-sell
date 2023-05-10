@@ -185,8 +185,17 @@ export const IndexConditionCOPage: React.FC = () => {
       key: "creditMemoConditionName",
       width: "25%",
       render: (value: any, row: any) => {
+        console.log(row);
         return {
-          children: <Text>{value}</Text>,
+          children: (
+            <>
+              <Text>{value}</Text>
+              <br />
+              <Text fontSize={14} style={{ color: color.Grey }}>
+                {row.creditMemoConditionCode}
+              </Text>
+            </>
+          ),
         };
       },
     },
