@@ -89,15 +89,14 @@ export const CreateConditionCOPage: React.FC = () => {
       .then((res) => {
         setCoData(res);
         form1.setFieldsValue({
-          promotionName: res.creditMemoConditionName,
+          conditionName: res.creditMemoConditionName,
+          conditionCode: res.creditMemoConditionCode,
           startDate: dayjs(res.startDate),
           endDate: dayjs(res.endDate),
           startTime: dayjs(res.startDate),
           endTime: dayjs(res.endDate),
           comment: res.comment,
         });
-        console.log("check", res?.creditMemoConditionShop);
-
         setSelectedShop(res?.creditMemoConditionShop);
         setSearchShop(res?.creditMemoConditionShop);
 
@@ -209,12 +208,41 @@ export const CreateConditionCOPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name='promotionName'
+                name='conditionCode'
+                label='รหัสเงื่อนไข CO'
+                rules={[
+                  {
+                    required: true,
+                    message: "*โปรดระบุรหัสเงื่อนไข CO",
+                  },
+                  {
+                    max: 20,
+                    message: "*รหัสโปรโมชันต้องมีความยาวไม่เกิน 20 ตัวอักษร",
+                  },
+                  {
+                    pattern: /^[^* ]*$/,
+                    message: "*รหัสโปรโมชันต้องไม่มี * และช่องว่าง",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder='ระบุชื่อรหัสเงื่อนไข CO'
+                  autoComplete='off'
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name='conditionName'
                 label='ชื่อรายการเงื่อนไข CO'
                 rules={[
                   {
                     required: true,
                     message: "*โปรดระบุชื่อรายการเงื่อนไข CO",
+                  },
+                  {
+                    max: 50,
+                    message: "*รหัสโปรโมชันต้องมีความยาวไม่เกิน 50 ตัวอักษร",
                   },
                 ]}
               >
@@ -827,7 +855,8 @@ export const CreateConditionCOPage: React.FC = () => {
       form1
         .validateFields()
         .then((f1) => {
-          create.creditMemoConditionName = f1.promotionName;
+          create.creditMemoConditionName = f1.conditionName;
+          create.creditMemoConditionCode = f1.conditionCode;
           create.comment = f1.comment || "";
           create.company = company;
           create.updateBy = userProfile.firstname + " " + userProfile.lastname;
