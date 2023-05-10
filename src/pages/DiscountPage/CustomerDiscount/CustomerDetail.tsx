@@ -170,7 +170,13 @@ export const CustomerCreditMemoDetail: React.FC = () => {
           <FlexCol align='center'>
             <AntdButton
               icon={<EyeOutlined />}
-              style={{ backgroundColor: "#2A76A0", color: "white", height: 40 }}
+              style={{
+                backgroundColor: "#2A76A0",
+                borderColor: "#2A76A0",
+                color: "white",
+                height: 40,
+                width: "100%",
+              }}
               onClick={() => setShowManualCoDetail(row)}
             >
               ดูรายละเอียด
@@ -188,7 +194,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       key: "soNo",
       align: "center" as AlignType,
       render: (value: string, row: any) => {
-        return value || "-";
+        return (row.orderId ? row.order?.soNo : value) || "-";
       },
     },
     {
@@ -595,8 +601,11 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                         { required: true, message: "*โปรดระบุจำนวนยอดสั่งซื้อ" },
                         {
                           validator: (rule, value, callback) => {
-                            if (value && (!isNumeric(value) || parseFloat(value) <= 0)) {
+                            if (value && (isNaN(value) || parseFloat(value) <= 0)) {
                               return Promise.reject("จำนวนยอดสั่งซื้อต้องเป็นตัวเลขมากกว่า 0");
+                            }
+                            if (value && (parseFloat(value) * 100) % 1 !== 0) {
+                              return Promise.reject("ทศนิยมต้องไม่เกิน 2 ตำแหน่ง");
                             }
                             return Promise.resolve();
                           },
@@ -617,12 +626,13 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                           validator: (rule, value, callback) => {
                             // console.log("validator", factor);
                             if (factor < 0 && parseFloat(value) > parseFloat(profile?.balance)) {
-                              return Promise.reject(
-                                "*ยอดลดที่ใช้ เกิน ส่วนลดดูแลราคาคงเหลือในระบบ",
-                              );
+                              return Promise.reject("*ยอดลดที่ใช้ เกินส่วนลดดูแลราคาคงเหลือในระบบ");
                             }
-                            if (value && (!isNumeric(value) || parseFloat(value) <= 0)) {
+                            if (value && (isNaN(value) || parseFloat(value) <= 0)) {
                               return Promise.reject(" ส่วนลดดูแลราคาที่ใช้ต้องเป็นตัวเลขมากกว่า 0");
+                            }
+                            if (value && (parseFloat(value) * 100) % 1 !== 0) {
+                              return Promise.reject("ทศนิยมต้องไม่เกิน 2 ตำแหน่ง");
                             }
                             return Promise.resolve();
                           },
