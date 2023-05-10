@@ -339,8 +339,8 @@ export const PromotionCreateStep1 = ({
                   message: "*โปรดระบุรหัสโปรโมชัน",
                 },
                 {
-                  max: 22,
-                  message: "*รหัสโปรโมชันต้องมีความยาวไม่เกิน 22 ตัวอักษร",
+                  max: 20,
+                  message: "*รหัสโปรโมชันต้องมีความยาวไม่เกิน 20 ตัวอักษร",
                 },
                 {
                   validator: async (rule, value) => {
@@ -398,6 +398,10 @@ export const PromotionCreateStep1 = ({
                 {
                   required: true,
                   message: "*โปรดระบุชื่อโปรโมชัน",
+                },
+                {
+                  max: 50,
+                  message: "*ชื่อโปรโมชันต้องมีความยาวไม่เกิน 50 ตัวอักษร",
                 },
               ]}
             >
