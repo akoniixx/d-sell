@@ -190,10 +190,31 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) =
                 >
                   <Button title='เลือกไฟล์' style={{ width: 128, marginRight: 18 }} />
                 </Upload>
-                <Text color='Text3' level={6}>
-                  {fileMemo && fileMemo.originFileObj
-                    ? fileMemo.originFileObj.name
-                    : "โปรดเลือกไฟล์ .PDF หรือ .XLXS"}
+                <Text
+                  color='Text3'
+                  level={6}
+                  onClick={async () => {
+                    try {
+                      if (fileMemo && (fileMemo as any)?.originFileObj) {
+                        const file = new Blob([(fileMemo as any)?.originFileObj], {
+                          type: "application/pdf",
+                        });
+                        const fileURL = URL.createObjectURL(file);
+                        const pdfWindow = window.open();
+                        if (pdfWindow) pdfWindow.location.href = fileURL || "";
+                      } else if (fileUrl) {
+                        const pdfWindow = window.open();
+                        if (pdfWindow) pdfWindow.location.href = fileUrl || "";
+                      }
+                    } catch (error) {
+                      return { error };
+                    }
+                  }}
+                  style={{ cursor: fileMemo || fileUrl ? "pointer" : "default" }}
+                >
+                  {(fileMemo as any)?.originFileObj?.name ||
+                    (fileUrl && `${fileUrl?.substring(0, 20)}...`) ||
+                    "โปรดเลือกไฟล์ .PDF"}
                 </Text>
               </MemoArea>
             </Form.Item>
