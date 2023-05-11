@@ -7,52 +7,15 @@ import {
   matchRoutes,
   useMatches,
 } from "react-router-dom";
-import { useRecoilValue } from "recoil";
 import Layouts from "./components/Layout/Layout";
-import { roleAtom } from "./store/RoleAtom";
-import { checkPermission, redirectByRole } from "./utility/func/RedirectByPermission";
-import { protectRoutesData } from "./WebRoutes";
 
 const ProtectRoute = ({ isAuth, children }: { isAuth: boolean; children?: JSX.Element }) => {
-  const roleData = useRecoilValue(roleAtom);
-
-  const useCurrentPath = () => {
-    const location = useLocation();
-    const newRoutes = protectRoutesData.reduce((acc: any, cur) => {
-      if (cur.nestedRoutes.length > 0) {
-        return [
-          ...acc,
-          ...cur.nestedRoutes.map((el) => {
-            return {
-              ...el,
-              path: cur.path.replace("/*", "") + "/" + el.path.replace("/*", ""),
-            };
-          }),
-        ];
-      } else {
-        return [...acc, cur];
-      }
-    }, []);
-    const result: any = matchRoutes(newRoutes, location);
-
-    return result?.[0]?.route?.path || "/";
-  };
-  const currentPath = useCurrentPath();
-
   const navigate = useNavigate();
-
-  if (!isAuth) {
-    return <Navigate to='' replace />;
-  }
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (roleData && currentPath === "/") {
-      navigate(`/home`);
+    if (!isAuth) {
+      navigate("/");
     }
-    if (roleData && !checkPermission(roleData?.menus, currentPath)) {
-      navigate(`/home`);
-    }
-  }, [roleData, currentPath, navigate]);
+  }, [navigate, isAuth]);
 
   return children ? (
     children

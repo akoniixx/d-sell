@@ -15,12 +15,6 @@ interface Props {
   form: FormInstance;
 }
 export default function RolesList({ form }: Props) {
-  const onClickSelectAll = () => {
-    console.log("select all");
-  };
-  const onClearAll = () => {
-    console.log("clear all");
-  };
   const { commonCheckList, manageCheckList } = useMemo(() => {
     const commonCheckList = Object.keys(staticRolesObject).map((key) => {
       return {
@@ -36,6 +30,39 @@ export default function RolesList({ form }: Props) {
     });
     return { commonCheckList, manageCheckList };
   }, []);
+
+  const onClickSelectAll = () => {
+    const listCommonData = commonCheckList.reduce((acc, cur) => {
+      const data: any = cur.list;
+      const list = data.map((el: any) => el.value);
+      if (!cur.isNested) {
+        return { ...acc, [cur.menuName]: list };
+      } else {
+        const listNested = data.reduce((accNested: any, curNested: any) => {
+          const listNested = curNested?.listNested?.map((el: any) => el.value);
+          return { ...accNested, [curNested.groupNameNested]: listNested };
+        }, {});
+        return { ...acc, [cur.menuName]: listNested };
+      }
+    }, {});
+    const listManageData = manageCheckList.reduce((acc, cur) => {
+      const data: any = cur.list;
+      const list = data.map((el: any) => el.value);
+      if (!cur.isNested) {
+        return { ...acc, [cur.menuName]: list };
+      } else {
+        const listNested = data.reduce((accNested: any, curNested: any) => {
+          const listNested = curNested?.listNested?.map((el: any) => el.value);
+          return { ...accNested, [curNested.groupNameNested]: listNested };
+        }, {});
+        return { ...acc, [cur.menuName]: listNested };
+      }
+    }, {});
+    form.setFieldsValue({ ...listCommonData, ...listManageData });
+  };
+  const onClearAll = () => {
+    form.resetFields();
+  };
   return (
     <CardRole>
       <Row

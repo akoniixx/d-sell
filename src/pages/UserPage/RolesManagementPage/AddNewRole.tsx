@@ -20,15 +20,48 @@ import { defaultPropsForm } from "../../../utility/DefaultProps";
 interface FormData {
   rolename: string;
   roledescription?: string;
-  priceList: string[];
-  orderManagement: string[];
-  specialRequest: string[];
-  promotionSetting: string[];
-  discountCo: string[];
-  saleManagement: string[];
-  roleManagement: string[];
-}
 
+  manageOrder: string[];
+  specialRequest: string[];
+  productList: string[];
+  priceSpecialExclusive: string[];
+  promotionSetting: string[];
+  freebieList: string[];
+  discountCo: {
+    discountList: string[];
+    manageConditionStore: string[];
+    manageCondition: string[];
+  };
+  manageUser: {
+    userList: string[];
+    manageRoles: string[];
+  };
+  manageStore: {
+    storeList: string[];
+    approvePhone: string[];
+  };
+}
+interface Keys {
+  manageOrder: string[];
+  specialRequest: string[];
+  productList: string[];
+  priceSpecialExclusive: string[];
+  promotionSetting: string[];
+  freebieList: string[];
+  discountCo: {
+    discountList: string[];
+    manageConditionStore: string[];
+    manageCondition: string[];
+  };
+  manageUser: {
+    userList: string[];
+    manageRoles: string[];
+  };
+  manageStore: {
+    storeList: string[];
+    approvePhone: string[];
+  };
+}
 const Bottom = styled(Row)`
   border-top: 1px solid ${color.background2};
   padding-top: 16px;
@@ -42,21 +75,26 @@ export default function AddNewRole(): JSX.Element {
   const profile = useRecoilValue(profileAtom);
 
   const onFinish = async (values: FormData) => {
-    console.log(values);
-    // const { rolename, roledescription, ...rest } = values;
-    // const keyObj = Object.keys(rest);
-    // const menus = keyObj.map((item) => {
-    //   return {
-    //     menuName: item,
-    //     permission: rest[item as keyof typeof rest],
-    //   };
-    // });
-    // const payload = {
-    //   rolename,
-    //   roledescription,
-    //   company: profile?.company,
-    //   menus,
-    //   updateBy: `${profile?.firstname} ${profile?.lastname}`,
+    try {
+      const { rolename, roledescription, ...rest } = values;
+      const formatMenu = Object.keys(rest as any).map((key) => {
+        return {
+          menuName: key,
+          menu: rest[key as keyof Keys],
+        };
+      });
+      const payload = {
+        rolename,
+        roledescription,
+        company: profile?.company,
+        menus: formatMenu,
+        updateBy: `${profile?.firstname} ${profile?.lastname}`,
+      };
+      console.log(JSON.stringify(payload, null, 2));
+    } catch (error) {
+      console.log(error);
+    }
+
     // };
     // setLoading(true);
     // const res = await roleDatasource.createNewRole(payload);

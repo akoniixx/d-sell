@@ -147,7 +147,6 @@ interface StaticRoles {
 }
 
 export const staticRolesObject: StaticRoles = {
-  // Common
   manageOrder: {
     groupName: "จัดการคำสั่งซื้อ",
     list: [
@@ -256,7 +255,7 @@ export const staticRolesObject: StaticRoles = {
     list: [
       {
         label: "รายการส่วนลด",
-        groupNameNested: "distcountList",
+        groupNameNested: "discountList",
         listNested: [
           {
             label: "ดูรายการส่วนลด",
@@ -376,7 +375,7 @@ export const staticManageRoles: StaticRoles = {
       },
     ],
   },
-  manageProduct: {
+  manageStore: {
     isNested: true,
     groupName: "จัดการสินค้า",
     list: [
@@ -419,3 +418,52 @@ export const staticManageRoles: StaticRoles = {
     ],
   },
 };
+
+export const mockRoles = [
+  {
+    menuName: "manageOrder",
+    menu: ["viewOrder", "manageOrder", "connectNavision"],
+  },
+  {
+    menuName: "specialRequest",
+    menu: ["viewOrder", "approveOrder"],
+  },
+  {
+    menuName: "productList",
+    menu: ["viewProduct", "editProduct", "connectNavision"],
+  },
+  {
+    menuName: "priceSpecialExclusive",
+    menu: ["viewPrice", "createPrice", "editPrice", "deletePrice"],
+  },
+  {
+    menuName: "promotionSetting",
+    menu: ["viewPromotion", "createPromotion", "editPromotion", "deletePromotion"],
+  },
+  {
+    menuName: "freebieList",
+    menu: ["viewFreebie", "editFreebie"],
+  },
+  {
+    menuName: "discountCo",
+    menu: {
+      discountList: ["viewDiscount", "createDiscount", "editDiscount", "deleteDiscount"],
+      manageConditionStore: ["viewDiscount", "createDiscount", "editDiscount", "deleteDiscount"],
+      manageCondition: ["viewCondition", "createCondition", "editCondition", "deleteCondition"],
+    },
+  },
+  {
+    menuName: "manageUser",
+    menu: {
+      userList: ["viewUser", "addUser", "editUser", "deleteUser"],
+      manageRoles: ["viewRoles", "addRoles", "editRoles", "deleteRoles"],
+    },
+  },
+  {
+    menuName: "manageStore",
+    menu: {
+      storeList: ["viewStore", "createStore", "editStore", "deleteStore"],
+      approvePhone: ["viewApprovePhone", "approvePhone"],
+    },
+  },
+];
