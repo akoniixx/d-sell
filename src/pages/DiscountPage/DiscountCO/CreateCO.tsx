@@ -63,6 +63,7 @@ export const DiscountCreatePage: React.FC = () => {
       .then((res: any) => {
         console.log("creditMemo", res);
         setDefaultData(res);
+        setFileMemoUrl(res.filePath);
         form1.setFieldsValue({
           ...res,
         });
@@ -134,7 +135,7 @@ export const DiscountCreatePage: React.FC = () => {
       isEditing={isEditing}
       fileMemo={fileMemo}
       setFileMemo={setFileMemo}
-      fileUrl={""}
+      fileUrl={fileMemoUrl}
       key={0}
     />,
     <CreateCOStep2 form={form2} showError={showStep2Error} setError={setStep2Error} key={1} />,

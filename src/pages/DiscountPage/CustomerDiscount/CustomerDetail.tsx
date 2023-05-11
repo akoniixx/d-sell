@@ -492,7 +492,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                     </Text>
                     &nbsp;&nbsp;&nbsp;
                     <Text fontWeight={700} fontSize={32} color='primary'>
-                      {priceFormatter(profile?.balance, 0, true)}
+                      {priceFormatter(profile?.balance, 2, true)}
                     </Text>
                   </DetailBox>
                 </Row>
