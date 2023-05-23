@@ -30,7 +30,7 @@ import promotionState from "../../store/promotion";
 
 export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
+  const { company, firstname, lastname } = userProfile;
 
   const navigate = useNavigate();
   const { pathname } = window.location;
@@ -315,6 +315,8 @@ export const PromotionCreatePage: React.FC = () => {
           : undefined,
       startTime: undefined,
       endTime: undefined,
+      createBy: isEditing ? undefined : `${firstname} ${lastname}`,
+      updateBy: isEditing ? `${firstname} ${lastname}` : undefined,
     };
     const promoList = form3.getFieldsValue();
     if (promotionType === PromotionType.FREEBIES_NOT_MIX) {

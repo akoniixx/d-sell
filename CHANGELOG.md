@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Features [v0.5.9] - Release Date: 2022-05-10
+
+- Feature: Promotion Setting: Dupplicate Condition
+- fixed promotion setting defect
+
 ## Resolved [v0.5.8] - Release Date: 2022-05-09
 
 - fixed credit memo
