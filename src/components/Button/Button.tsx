@@ -1,8 +1,8 @@
 import { Button as AntButton, ButtonProps, Row } from "antd";
-import React from "react";
+import React, { CSSProperties } from "react";
 import styled, { css } from "styled-components";
 import color from "../../resource/color";
-import Text from "../Text/Text";
+import Text, { TextType } from "../Text/Text";
 
 interface StyledButton {
   $typeButton?:
@@ -37,6 +37,9 @@ const ButtonStyled = styled(AntButton)<StyledButton>`
         background-color: ${color.error} !important;
         color: white;
         border: 1px solid ${color.error} !important;
+        .anticon {
+          color: white;
+        }
       `;
     }
     if ($typeButton === "primary-light") {
@@ -85,11 +88,13 @@ interface Props extends ButtonProps, StyledButton {
     | "success";
   icon?: React.ReactNode;
   level?: 1 | 2 | 3 | 4 | 5 | 6;
+  textStyle?: TextType;
 }
 export default function Button({
   title,
   typeButton = "primary",
   icon,
+  textStyle,
   ...props
 }: Props): JSX.Element {
   return (
@@ -116,6 +121,7 @@ export default function Button({
                 ? "white"
                 : "Text1"
             }
+            {...textStyle}
           >
             {title}
           </Text>

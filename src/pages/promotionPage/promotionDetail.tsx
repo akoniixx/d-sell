@@ -320,10 +320,7 @@ const DetailTab: React.FC = () => {
       ) : (
         <Form layout='vertical'>
           <Collapse
-            // defaultActiveKey={items.map((item) => item.productId)}
-            // activeKey={activeKeys}
             collapsible='icon'
-            // onChange={onChangeActiveKeys}
             expandIconPosition='end'
             expandIcon={({ isActive }) => <DownOutlined rotate={isActive ? 180 : 0} />}
           >
@@ -361,13 +358,13 @@ const DetailTab: React.FC = () => {
                   key={i}
                 >
                   {condition?.map(
-                    ({ quantity, saleUnit, saleUnitDiscount, discountPrice, freebies }, i) => {
+                    ({ quantity, saleUnit, saleUnitDiscount, discountPrice, freebies }, j) => {
                       return (
-                        <Row key={i} gutter={16} style={{ padding: "20px 16px" }}>
+                        <Row key={j} gutter={16} style={{ padding: "20px 16px" }}>
                           <Col span={8}>
                             <Form.Item
                               label='จำนวนที่ซื้อครบ'
-                              name={[i, "quantity"]}
+                              name={[`${i}-${j}`, "quantity"]}
                               initialValue={quantity}
                             >
                               <Input
@@ -381,7 +378,7 @@ const DetailTab: React.FC = () => {
                           <Col span={4}>
                             <Form.Item
                               label='หน่วย'
-                              name={[i, "saleUnit"]}
+                              name={[`${i}-${j}`, "saleUnit"]}
                               initialValue={item.saleUOMTH}
                             >
                               <Input disabled />
@@ -393,9 +390,9 @@ const DetailTab: React.FC = () => {
                                 span={12}
                                 style={{ borderLeft: `1px solid ${color.background2}` }}
                               >
-                                {freebies?.map((f, j) => {
+                                {freebies?.map((f, k) => {
                                   return (
-                                    <Row key={`${i}-${j}`} gutter={12} align='middle'>
+                                    <Row key={`${i}-${j}-${k}`} gutter={12} align='middle'>
                                       <Col>
                                         <FlexCol
                                           align='center'
@@ -466,24 +463,20 @@ const DetailTab: React.FC = () => {
                               <Col span={6}>
                                 <Form.Item
                                   label='ราคาที่ต้องการลด'
-                                  name={[i, "discountPrice"]}
+                                  name={[`${i}-${j}`, "discountPrice"]}
                                   extra={`ราคาขายหลังหักส่วนลด ${
                                     parseFloat(item.marketPrice || "") -
                                     parseFloat(`${discountPrice || 0}`)
                                   } บาท / ${item.saleUOMTH}`}
+                                  initialValue={discountPrice}
                                 >
-                                  <Input
-                                    placeholder='ระบุราคา'
-                                    suffix='บาท'
-                                    type='number'
-                                    disabled
-                                  />
+                                  <Input placeholder='-' suffix='บาท' type='number' disabled />
                                 </Form.Item>
                               </Col>
                               <Col span={6}>
                                 <Form.Item
                                   label='ต่อหน่วย SKU'
-                                  name={[i, "saleUnitDiscount"]}
+                                  name={[`${i}-${j}`, "saleUnitDiscount"]}
                                   initialValue={item.saleUOMTH}
                                 >
                                   <Input disabled />
