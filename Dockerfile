@@ -1,6 +1,6 @@
 # Dockerfile
 # 1st Stage
-FROM node:alpine AS builder
+FROM node:18.16.0-alpine AS builder
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY package.json .
