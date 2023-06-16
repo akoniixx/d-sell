@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Improve [v0.5.10] - Release Date: 2022-05-15
+
+- changed format date time in order menu
+
 ## Features [v0.5.9] - Release Date: 2022-05-10
 
 - Feature: Promotion Setting: Dupplicate Condition

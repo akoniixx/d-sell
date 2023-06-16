@@ -34,7 +34,7 @@ import { OrderEntity } from "../../entities/OrderEntity";
 import { zoneDatasource } from "../../datasource/ZoneDatasource";
 import { getOrderStatus } from "../../utility/OrderStatus";
 
-const SLASH_DMY = "DD/MM/YYYY";
+const SLASH_DMY = "DD/MM/YYYY HH:mm";
 const SummaryBox = ({
   title,
   value,
@@ -133,7 +133,6 @@ export const OrderList: React.FC = () => {
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
         endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
       });
-      console.log({ data, statusCount, count });
       setDataState({ data, statusCount, count });
       if (zone.length <= 0) {
         getZoneByCompany();
