@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bo-sellcoda
+  namespace: development-bo-sellcoda
+  labels:
+    app: bo-sellcoda
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bo-sellcoda
+  template:
+    metadata:
+      labels:
+        app: bo-sellcoda
+    spec:
+      containers:
+        - name: bo-sellcoda
+          image: asia.gcr.io/iconkaset-app/sellcoda/bo-sellcoda:<VERSION>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 20m
+              memory: 100Mi
+            limits:
+              cpu: 50m
+              memory: 200Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 60
+          envFrom:
+          # - secretRef:
+          #     name: bo-sellcoda-dev
+            - configMapRef:
+                name: bo-sellcoda-dev
+      imagePullSecrets:
+      - name: gcr-image-pull-secret

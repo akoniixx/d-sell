@@ -1,0 +1,164 @@
+# Define the stages of the pipeline
+stages:
+  - build
+  - deploy
+  - notification
+
+image: docker:stable
+
+# Define variables and environment-specific configuration
+variables:
+  PROJECT_ID: iconkaset-app
+  REGISTRY_HOSTNAME: asia.gcr.io/${PROJECT_ID}
+  IMAGE_NAME: sellcoda/bo-sellcoda
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  SECRET_NAME: gcr-image-pull-secret
+services:
+  - docker:24.0.0-dind
+
+# Define the Docker build job
+build-dev:
+  stage: build
+  image: google/cloud-sdk
+  before_script:
+  - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
+  - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+  - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+  script:
+    - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:develop-latest .
+    - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+    - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:develop-latest
+  only:
+    - develop
+
+# build-staging:
+#   stage: build
+#   image: google/cloud-sdk
+#   before_script:
+#   - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
+#   - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+#   - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+#   script:
+#     - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:staging-latest .
+#     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+#     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:staging-latest
+#   only:
+#     - staging
+
+# build-prod:
+#   stage: build
+#   image: google/cloud-sdk
+#   before_script:
+#   - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
+#   - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+#   - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+#   script:
+#     - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:main-latest .
+#     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+#     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:main-latest
+#   only:
+#     - main
+
+# Define the Kubernetes deployment job
+deploy-dev:
+  stage: deploy
+  image: google/cloud-sdk
+  variables:
+    CLUSTER_NAME: ick-dev
+    ZONE: asia-southeast1-a
+    NAMESPACE: development-bo-sellcoda
+  script:
+    - echo $SERVICE_ACCOUNT_KEY > SERVICE_ACCOUNT_KEY.json
+    - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+    - gcloud config set project $PROJECT_ID
+    - gcloud config set container/cluster $CLUSTER_NAME
+    - gcloud config set compute/zone $ZONE
+    - gcloud container clusters get-credentials $CLUSTER_NAME --zone $ZONE --project ${PROJECT_ID}
+    - bash k8s/dev/check-namespace-dev.bash
+    - sed -i "s/<VERSION>/${IMAGE_TAG}/g" k8s/dev/deployment-dev.yaml
+    - bash k8s/dev/gcr-image-pull-secret-dev.bash
+    - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia.gcr.io" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
+    - kubectl apply -f k8s/dev/configmap-dev.yaml
+    - kubectl apply -f k8s/dev/deployment-dev.yaml
+    - kubectl apply -f k8s/dev/service-dev.yaml
+    - kubectl apply -f k8s/dev/ingress-dev.yaml
+  only:
+    - develop
+
+# deploy-staging:
+#   stage: deploy
+#   image: google/cloud-sdk
+#   variables:
+#     CLUSTER_NAME: ick-staging
+#     ZONE: asia-southeast1-a
+#     NAMESPACE: staging-bo-sellcoda
+#   script:
+#     - echo $SERVICE_ACCOUNT_KEY > SERVICE_ACCOUNT_KEY.json
+#     - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+#     - gcloud config set project $PROJECT_ID
+#     - gcloud config set container/cluster $CLUSTER_NAME
+#     - gcloud config set compute/zone $ZONE
+#     - gcloud container clusters get-credentials $CLUSTER_NAME --zone $ZONE --project ${PROJECT_ID}
+#     - bash k8s/staging/check-namespace-staging.bash
+#     - sed -i "s/<VERSION>/${IMAGE_TAG}/g" k8s/staging/deployment-staging.yaml
+#     - bash k8s/staging/gcr-image-pull-secret-staging.bash
+#     - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia.gcr.io" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
+#     - kubectl apply -f k8s/staging/configmap-staging.yaml
+#     - kubectl apply -f k8s/staging/deployment-staging.yaml
+#     - kubectl apply -f k8s/staging/service-staging.yaml
+#     - kubectl apply -f k8s/staging/ingress-staging.yaml
+#   only:
+#     - staging
+
+# deploy-prod:
+#   stage: deploy
+#   image: google/cloud-sdk
+#   variables:
+#     CLUSTER_NAME: ick-prod
+#     ZONE: asia-southeast1-a
+#     NAMESPACE: production-bo-sellcoda
+#   script:
+#     - echo $SERVICE_ACCOUNT_KEY > SERVICE_ACCOUNT_KEY.json
+#     - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+#     - gcloud config set project $PROJECT_ID
+#     - gcloud config set container/cluster $CLUSTER_NAME
+#     - gcloud config set compute/zone $ZONE
+#     - gcloud container clusters get-credentials $CLUSTER_NAME --zone $ZONE --project ${PROJECT_ID}
+#     - bash k8s/prod/check-namespace-prod.bash
+#     - sed -i "s/<VERSION>/${IMAGE_TAG}/g" k8s/prod/deployment-prod.yaml
+#     - bash k8s/prod/gcr-image-pull-secret-prod.bash
+#     - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia.gcr.io" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
+#     - kubectl apply -f k8s/prod/configmap-prod.yaml
+#     - kubectl apply -f k8s/prod/deployment-prod.yaml
+#     - kubectl apply -f k8s/prod/service-prod.yaml
+#     - kubectl apply -f k8s/prod/ingress-prod.yaml
+#   only:
+#     - main
+
+success_notification:
+  image: alpine:latest
+  stage: notification
+  script:
+    - apk add --update git curl
+    - wget https://raw.githubusercontent.com/DiscordHooks/gitlab-ci-discord-webhook/master/send.sh
+    - chmod +x send.sh
+    - /bin/ash ./send.sh success $WEBHOOK_URL
+  when: on_success
+  only:
+    - develop
+    - staging
+    - main
+
+failure_notification:
+  image: alpine:latest
+  stage: notification
+  script:
+    - apk add --update git curl
+    - wget https://raw.githubusercontent.com/DiscordHooks/gitlab-ci-discord-webhook/master/send.sh
+    - chmod +x send.sh
+    - /bin/ash ./send.sh failure $WEBHOOK_URL
+  when: on_failure
+  only:
+    - develop
+    - staging
+    - main
