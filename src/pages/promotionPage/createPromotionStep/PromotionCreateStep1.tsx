@@ -356,7 +356,7 @@ export const PromotionCreateStep1 = ({
                   message: "*รหัสโปรโมชันนี้ถูกใช้แล้ว",
                 },
                 {
-                  pattern: /^[^* ]*$/,
+                  pattern: /^[^*]*$/,
                   message: "*รหัสโปรโมชันต้องไม่มี * และช่องว่าง",
                 },
               ]}

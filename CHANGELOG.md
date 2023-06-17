@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.5.11] - Release Date: 2022-05-16
+
+- promotion code can fill space
+
 ## Improve [v0.5.10] - Release Date: 2022-05-15
 
 - changed format date time in order menu
