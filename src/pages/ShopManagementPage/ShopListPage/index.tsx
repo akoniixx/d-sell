@@ -255,6 +255,7 @@ function ShopListPage(): JSX.Element {
                 <MenuTable
                   hideDelete
                   hideEdit
+                  hindSync
                   onClickList={() => {
                     onClickDetail(data?.customerId || "");
                   }}
