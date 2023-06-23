@@ -461,11 +461,20 @@ export const SpecialPriceDetail: React.FC = () => {
       dataIndex: "product",
       key: "unitPrice",
       render: (product: ProductEntity, row: any, index: number) => {
+        const unitPerPack =
+          parseInt(product?.marketPrice || "1") / parseInt(product?.unitPrice || "1");
+        const newMarketPrice = parseFloat(product?.marketPrice || "") + row.value;
+        const newUnitPrice = newMarketPrice / unitPerPack;
         return {
           children: (
             <FlexCol>
-              <Text level={5}>
+              <Text level={5} color='Text3' style={{ textDecoration: "line-through" }}>
                 {priceFormatter(product?.unitPrice || "", undefined, false, true)}
+              </Text>
+              <Text level={5}>
+                {newUnitPrice
+                  ? priceFormatter(newUnitPrice, undefined, false, true)
+                  : priceFormatter(product?.marketPrice || "", undefined, false, true)}
               </Text>
               <Text level={6} color='Text3'>
                 {" บาท / " + product?.saleUOMTH || product?.saleUOM}
@@ -483,8 +492,18 @@ export const SpecialPriceDetail: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>
+              <Text level={5} color='Text3' style={{ textDecoration: "line-through" }}>
                 {priceFormatter(product?.marketPrice || "", undefined, false, true)}
+              </Text>
+              <Text level={5}>
+                {row.value && product.marketPrice
+                  ? priceFormatter(
+                      parseFloat(product.marketPrice) + row.value,
+                      undefined,
+                      false,
+                      true,
+                    )
+                  : priceFormatter(product?.marketPrice || "", undefined, false, true)}
               </Text>
               <Text level={6} color='Text3'>
                 {" บาท / " + product?.saleUOMTH || product?.saleUOM}

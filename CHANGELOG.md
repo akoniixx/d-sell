@@ -1,4 +1,10 @@
 ## [Version - 0]
+
+## Improve [v0.5.13] - Release Date: 2022-06-23
+
+- added sorting order items
+- added new price for special price
+
 ## Improve [v0.5.12] - Release Date: 2022-06-23
 
 - added sync phone button in shop management

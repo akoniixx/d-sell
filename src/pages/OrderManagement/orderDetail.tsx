@@ -760,7 +760,11 @@ export const OrderDetail: React.FC = () => {
         <CardContainer>
           <Table
             columns={columns}
-            dataSource={orderData?.orderProducts || []}
+            dataSource={
+              orderData?.orderProducts?.sort((a, b) =>
+                ("" + a.productCodeNAV).localeCompare(b.productCodeNAV || ""),
+              ) || []
+            }
             pagination={false}
             scroll={{ x: "max-content" }}
           />
