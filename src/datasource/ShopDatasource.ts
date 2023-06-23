@@ -6,6 +6,8 @@ import {
   PayloadCustomerEntity,
 } from "../entities/CustomerEntity";
 
+const token = localStorage.getItem("token") || "";
+
 const getCustomerById = async (id?: string) => {
   const url = `${BASE_URL}/auth/customer/get-customer?customerId=${id}`;
   return await httpClient.get(url).then((res: AxiosResponse) => res.data);
@@ -120,6 +122,13 @@ const updateApproveTel = async ({
       throw err;
     });
 };
+const syncCustomerTel = async (cusCode: string, company?: string) => {
+  console.log(cusCode);
+  const url = `https://system.icpladda.com/CustomerSellcoda/SyncCustomerNAV?company=${company}&cus_no=${cusCode}&token=${JSON.parse(
+    token,
+  )}`;
+  return await httpClient.post(url).then((res: AxiosResponse) => res.data);
+};
 export const shopDatasource = {
   getAllDealerZoneBySaleId,
   getCustomerById,
@@ -131,4 +140,5 @@ export const shopDatasource = {
   getApproveTelById,
   updateApproveTel,
   getBrandList,
+  syncCustomerTel,
 };

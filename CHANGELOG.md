@@ -1,4 +1,7 @@
 ## [Version - 0]
+## Improve [v0.5.12] - Release Date: 2022-06-23
+
+- added sync phone button in shop management
 
 ## Resolved [v0.5.11] - Release Date: 2022-05-16
 

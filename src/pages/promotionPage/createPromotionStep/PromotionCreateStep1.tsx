@@ -178,7 +178,6 @@ export const PromotionCreateStep1 = ({
         promoList = promoList.filter((p: any) => p.value !== currentCode);
       }
       setPromotions(promoList);
-      console.log(data);
     } catch (e) {
       console.log(e);
     }
@@ -357,7 +356,7 @@ export const PromotionCreateStep1 = ({
                 },
                 {
                   pattern: /^[^*]*$/,
-                  message: "*รหัสโปรโมชันต้องไม่มี * และช่องว่าง",
+                  message: "*รหัสโปรโมชันต้องไม่มีเครื่องหมาย (*)",
                 },
               ]}
             >
