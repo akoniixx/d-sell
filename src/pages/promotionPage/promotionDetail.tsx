@@ -79,7 +79,6 @@ const DetailTab: React.FC = () => {
     const id = pathSplit[4];
     await getPromotionById(id)
       .then((res) => {
-        console.log("promo", res);
         setPromoState({ ...promoStateValue, promotion: res });
         fetchProductData(res.conditionDetail);
       })
@@ -308,15 +307,14 @@ const DetailTab: React.FC = () => {
       <br />
       <br />
       {!showPromotion ? (
-        <TableOuterContainer>
-          <TableContainer>
-            <Table
-              columns={columns}
-              dataSource={promotion?.promotionShop?.map((s) => ({ ...s, key: s.promotionShopId }))}
-              pagination={false}
-            />
-          </TableContainer>
-        </TableOuterContainer>
+        <TableContainer>
+          <Table
+            columns={columns}
+            dataSource={promotion?.promotionShop?.map((s) => ({ ...s, key: s.promotionShopId }))}
+            pagination={false}
+            scroll={{ y: 600 }}
+          />
+        </TableContainer>
       ) : (
         <Form layout='vertical'>
           <Collapse
@@ -517,7 +515,6 @@ const HistoryTab: React.FC = () => {
     const id = pathSplit[4];
     await getPromotionLog(id)
       .then((res) => {
-        console.log("getPromotionLog", res);
         setHistories(res?.map((h: any, i: number) => ({ ...h, key: i })));
       })
       .catch((e) => {

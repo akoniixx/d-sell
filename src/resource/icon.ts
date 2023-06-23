@@ -9,6 +9,7 @@ export default {
   iconDoubleRightDisable: require("./media/icons/iconDoubleRightDisable.png"),
   iconDoubleLeftDisable: require("./media/icons/iconDoubleLeftDisable.png"),
   listIcon: require("./media/icons/listIcon.png"),
+  syncIcon: require("./media/icons/iconsync.png"),
   writeIcon: require("./media/icons/writeIcon.png"),
   trashIcon: require("./media/icons/trashIcon.png"),
   backLeft: require("./media/icons/backLeft.png"),

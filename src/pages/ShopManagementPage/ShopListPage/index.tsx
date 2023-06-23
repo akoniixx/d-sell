@@ -35,6 +35,7 @@ function ShopListPage(): JSX.Element {
   const [form] = Form.useForm();
   const [visible, setVisible] = React.useState<boolean>(false);
   const [debouncedValueSearch, loadingDebouncing] = useDebounce(keyword, 500);
+
   const getZoneByCompany = async () => {
     const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
     const data = res.map((item: any) => {
@@ -145,6 +146,10 @@ function ShopListPage(): JSX.Element {
     },
     [navigate],
   );
+  const syncByCustomerCode = async (value: string) => {
+    await shopDatasource.syncCustomerTel(value, profile?.company).then((res) => console.log(res));
+  };
+
   const newZone = useMemo(() => {
     if (zone) {
       return [{ label: "เขต : ทั้งหมด", value: "all", key: "all" }, ...zone];
@@ -244,14 +249,21 @@ function ShopListPage(): JSX.Element {
           };
 
           if (item.key === "action") {
+            const findCusCode = data.customerCompany?.find((el) => el.company === profile?.company);
             return (
-              <MenuTable
-                hideDelete
-                hideEdit
-                onClickList={() => {
-                  onClickDetail(data?.customerId || "");
-                }}
-              />
+              <>
+                <MenuTable
+                  hideDelete
+                  hideEdit
+                  onClickList={() => {
+                    onClickDetail(data?.customerId || "");
+                  }}
+                  onClickSync={() => {
+                    syncByCustomerCode(findCusCode?.customerNo || "");
+                  }}
+                  disableSync={!findCusCode ? true : false}
+                />
+              </>
             );
           }
           if (item.key === "shopName") {
@@ -333,6 +345,7 @@ function ShopListPage(): JSX.Element {
     });
     return columns;
   }, [onClickDetail]);
+
   return (
     <CardContainer>
       <PageTitle
