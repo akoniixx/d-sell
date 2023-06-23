@@ -13,7 +13,9 @@ metadata:
     nginx.org/proxy-read-timeout: "900s"
     nginx.org/proxy-send-timeout: "900s"
     nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, PATCH, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "false"
 spec:
   tls:
     - hosts:
