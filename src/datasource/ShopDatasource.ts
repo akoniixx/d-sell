@@ -123,11 +123,12 @@ const updateApproveTel = async ({
     });
 };
 const syncCustomerTel = async (cusCode: string, company?: string) => {
-  console.log(cusCode);
-  const url = `https://system.icpladda.com/CustomerSellcoda/SyncCustomerNAV?company=${company}&cus_no=${cusCode}&token=${JSON.parse(
-    token,
-  )}`;
-  return await httpClient.post(url).then((res: AxiosResponse) => res.data);
+  return await httpClient
+    .post(`${BASE_URL}/nav/customer`, {
+      company: company,
+      cusNo: cusCode,
+    })
+    .then((res: AxiosResponse) => res.data);
 };
 export const shopDatasource = {
   getAllDealerZoneBySaleId,
