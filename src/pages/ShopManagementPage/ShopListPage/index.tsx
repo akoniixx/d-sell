@@ -1,4 +1,5 @@
-import { Form, Row } from "antd";
+import { CheckCircleTwoTone } from "@ant-design/icons";
+import { Form, Row, Modal } from "antd";
 import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import { createSearchParams, useNavigate } from "react-router-dom";
@@ -7,10 +8,10 @@ import { useRecoilValue } from "recoil";
 import Swal from "sweetalert2";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
+import { FlexCol } from "../../../components/Container/Container";
 import Input from "../../../components/Input/Input";
 import SearchInput from "../../../components/Input/SearchInput";
 import MenuTable from "../../../components/MenuTable/MenuTable";
-import Modal from "../../../components/Modal/Modal";
 import PageTitle from "../../../components/PageTitle/PageTitle";
 import Select from "../../../components/Select/Select";
 import TablePagination from "../../../components/Table/TablePagination";
@@ -19,6 +20,7 @@ import { shopDatasource } from "../../../datasource/ShopDatasource";
 import { zoneDatasource } from "../../../datasource/ZoneDatasource";
 import { CustomerEntityShopListIndex } from "../../../entities/CustomerEntity";
 import useDebounce from "../../../hook/useDebounce";
+import { color } from "../../../resource";
 import { profileAtom } from "../../../store/ProfileAtom";
 
 function ShopListPage(): JSX.Element {
@@ -35,6 +37,7 @@ function ShopListPage(): JSX.Element {
   const [form] = Form.useForm();
   const [visible, setVisible] = React.useState<boolean>(false);
   const [debouncedValueSearch, loadingDebouncing] = useDebounce(keyword, 500);
+  const [isCreating, setIsCreating] = React.useState(false);
 
   const getZoneByCompany = async () => {
     const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
@@ -51,7 +54,7 @@ function ShopListPage(): JSX.Element {
     getZoneByCompany();
   });
 
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     ["shopList", page, debouncedValueSearch, currentZone],
     async () => {
       return await shopDatasource.getAllCustomer({
@@ -147,7 +150,16 @@ function ShopListPage(): JSX.Element {
     [navigate],
   );
   const syncByCustomerCode = async (value: string) => {
-    await shopDatasource.syncCustomerTel(value, profile?.company).then((res) => console.log(res));
+    await shopDatasource.syncCustomerTel(value, profile?.company).then((res) => {
+      if (res.success) {
+        setTimeout(() => {
+          setIsCreating(false);
+          refetch();
+        }, 1000);
+      } else {
+        setIsCreating(false);
+      }
+    });
   };
 
   const newZone = useMemo(() => {
@@ -157,6 +169,7 @@ function ShopListPage(): JSX.Element {
       return [{ label: "เขต : ทั้งหมด", value: "all", key: "all" }];
     }
   }, [zone]);
+
   const defaultTableColumns = useMemo(() => {
     const staticData = [
       {
@@ -179,7 +192,11 @@ function ShopListPage(): JSX.Element {
         dataIndex: "zone",
         key: "zone",
       },
-
+      {
+        title: "เบอร์โทร",
+        dataIndex: "telephone",
+        key: "telephone",
+      },
       {
         title: (
           <Text color='success' fontWeight={600}>
@@ -231,6 +248,7 @@ function ShopListPage(): JSX.Element {
             firstname: "",
             lastname: "",
           };
+          const telephone = data?.customerToUserShops[0]?.userShop;
           const isActive = data.customerCompany?.find((el) => el.isActive);
           const ICPL = data.customerCompany?.find((el) => el.company === "ICPL");
           const ICPF = data.customerCompany?.find((el) => el.company === "ICPF");
@@ -255,14 +273,13 @@ function ShopListPage(): JSX.Element {
                 <MenuTable
                   hideDelete
                   hideEdit
-                  hindSync
                   onClickList={() => {
                     onClickDetail(data?.customerId || "");
                   }}
                   onClickSync={() => {
                     syncByCustomerCode(findCusCode?.customerNo || "");
+                    setIsCreating(!isCreating);
                   }}
-                  disableSync={!findCusCode ? true : false}
                 />
               </>
             );
@@ -329,10 +346,25 @@ function ShopListPage(): JSX.Element {
           }
           if (item.key === "zone") {
             const isHasValue = Object.values(userShop).some((el) => el);
+            //const isHasSecondTel = Object.values(telephone).some((el) => el);
             if (!isHasValue) return <Text>-</Text>;
             return (
               <div>
-                <Text>{`${userShop.nametitle} ${userShop.firstname} ${userShop.lastname}`}</Text>
+                <Text>{`${userShop.nametitle || ""} ${userShop.firstname || ""} ${
+                  userShop.lastname || ""
+                }`}</Text>
+              </div>
+            );
+          }
+          if (item.key === "telephone") {
+            const isHasValueTel = telephone?.telephone;
+            const isHasValueSec = telephone?.secondtelephone;
+            return (
+              <div>
+                <Text>{isHasValueTel ? `${telephone?.telephone}` : "-"}</Text>
+                <Text>{isHasValueSec && ","}</Text>
+                <br />
+                {isHasValueSec && <Text>{`${telephone?.secondtelephone}`}</Text>}
               </div>
             );
           }
@@ -598,6 +630,15 @@ function ShopListPage(): JSX.Element {
             }}
           />
         </div>
+      </Modal>
+      <Modal open={isCreating} footer={null} width={220} closable={false}>
+        <FlexCol align='space-around' justify='center' style={{ width: 172, height: 172 }}>
+          <CheckCircleTwoTone twoToneColor={color.success} style={{ fontSize: 36 }} />
+          <br />
+          <Text level={4} align='center'>
+            Sync ข้อมูลสำเร็จ
+          </Text>
+        </FlexCol>
       </Modal>
     </CardContainer>
   );

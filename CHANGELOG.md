@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Improve [v0.5.14] - Release Date: 2022-06-29
+
+- connected api sync phone button in shop management
+- added telephone in shop management after synced
+
 ## Improve [v0.5.13] - Release Date: 2022-06-23
 
 - added sorting order items
