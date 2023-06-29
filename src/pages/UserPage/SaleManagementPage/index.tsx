@@ -209,6 +209,7 @@ function SaleManagementPage() {
             return (
               <MenuTable
                 hideDelete
+                hindSync
                 hideEdit={!includeEdit}
                 onClickList={() => {
                   setDetailData(data);
