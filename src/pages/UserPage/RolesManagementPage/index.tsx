@@ -159,6 +159,7 @@ export default function RolesManagementPage(): JSX.Element {
                 hideDelete={!includeDelete}
                 hideList={!includeView}
                 hideEdit={!includeEdit}
+                hindSync
                 titleModalWarning='ต้องการลบข้อมูลบทบาทผู้ใช้งานนี้'
                 descriptionModalWarning='โปรดยืนยันการลบข้อมูลบทบาทผู้ใช้งาน'
                 onClickDelete={() => onClickDelete(data.roleId)}

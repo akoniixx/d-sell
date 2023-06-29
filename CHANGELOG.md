@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.5.15] - Release Date: 2022-06-29
+
+- removed sync button
+
 ## Improve [v0.5.14] - Release Date: 2022-06-29
 
 - connected api sync phone button in shop management
