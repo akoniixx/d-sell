@@ -54,7 +54,7 @@ function ShopListPage(): JSX.Element {
     getZoneByCompany();
   });
 
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     ["shopList", page, debouncedValueSearch, currentZone],
     async () => {
       return await shopDatasource.getAllCustomer({
@@ -154,6 +154,7 @@ function ShopListPage(): JSX.Element {
       if (res.success) {
         setTimeout(() => {
           setIsCreating(false);
+          refetch();
         }, 1000);
       } else {
         setIsCreating(false);
@@ -168,6 +169,7 @@ function ShopListPage(): JSX.Element {
       return [{ label: "เขต : ทั้งหมด", value: "all", key: "all" }];
     }
   }, [zone]);
+
   const defaultTableColumns = useMemo(() => {
     const staticData = [
       {
@@ -189,6 +191,11 @@ function ShopListPage(): JSX.Element {
         title: "ชื่อเจ้าของร้าน",
         dataIndex: "zone",
         key: "zone",
+      },
+      {
+        title: "เบอร์โทร",
+        dataIndex: "telephone",
+        key: "telephone",
       },
       {
         title: (
@@ -343,12 +350,21 @@ function ShopListPage(): JSX.Element {
             if (!isHasValue) return <Text>-</Text>;
             return (
               <div>
-                <Text>{`${userShop.nametitle} ${userShop.firstname} ${userShop.lastname}`}</Text>
+                <Text>{`${userShop.nametitle || ""} ${userShop.firstname || ""} ${
+                  userShop.lastname || ""
+                }`}</Text>
+              </div>
+            );
+          }
+          if (item.key === "telephone") {
+            const isHasValueTel = telephone?.telephone;
+            const isHasValueSec = telephone?.secondtelephone;
+            return (
+              <div>
+                <Text>{isHasValueTel ? `${telephone?.telephone}` : "-"}</Text>
+                <Text>{isHasValueSec && ","}</Text>
                 <br />
-                <Text
-                  level={6}
-                  color='Text3'
-                >{`${telephone?.telephone} ${telephone?.secondtelephone}`}</Text>
+                {isHasValueSec && <Text>{`${telephone?.secondtelephone}`}</Text>}
               </div>
             );
           }
