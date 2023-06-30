@@ -28,6 +28,8 @@ build-dev:
     - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:develop-latest .
     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:develop-latest
+    - docker image rm ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+    - docker image rm ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:develop-latest
   only:
     - develop
 
@@ -42,6 +44,8 @@ build-dev:
 #     - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:staging-latest .
 #     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
 #     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:staging-latest
+#     - docker image rm ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+#     - docker image rm ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:staging-latest
 #   only:
 #     - staging
 
@@ -56,6 +60,8 @@ build-dev:
 #     - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:main-latest .
 #     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
 #     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:main-latest
+#     - docker image rm ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+#     - docker image rm ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:main-latest
 #   only:
 #     - main
 
