@@ -4,7 +4,7 @@
 
 - added get PO button for icpi in order management
 - added customer code & zone in detail order management
-- fiexd total price in order management
+- fixed total price in order management
 
 ## Resolved [v0.5.15] - Release Date: 2023-06-29
 
