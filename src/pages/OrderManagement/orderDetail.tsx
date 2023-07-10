@@ -1,27 +1,10 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import {
-  Row,
-  Col,
-  Divider,
-  Form,
-  message,
-  Modal,
-  Spin,
-  Tabs,
-  Tag,
-  Table,
-  Avatar,
-  Radio,
-  Space,
-} from "antd";
+import { Row, Col, Divider, Form, Modal, Table, Avatar } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import styled from "styled-components";
-import { PromotionType } from "../../definitions/promotion";
-import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
 import {
   DetailBox as DetailBoxStyled,
@@ -153,7 +136,6 @@ export const OrderDetail: React.FC = () => {
     const id = pathSplit[2];
     await getOrderDetail(id)
       .then((res: OrderEntity) => {
-        console.log("getOrderDetail", res);
         setOrderData(res);
       })
       .catch((e: any) => {
@@ -184,7 +166,6 @@ export const OrderDetail: React.FC = () => {
     })
       .then((res: any) => {
         navigate(0);
-        console.log("res", res);
       })
       .catch((e: any) => {
         console.log(e);
@@ -719,6 +700,8 @@ export const OrderDetail: React.FC = () => {
               </Text>
               <DetailBox style={{ height: 260 }}>
                 <DetailItem label='ชื่อร้านค้า' value={orderData?.customerName} />
+                <DetailItem label='Customer Code' value={orderData?.customerNo} />
+                <DetailItem label='เขต' value={orderData?.customerZone} />
                 <DetailItem label='SO NO.' value={orderData?.soNo} />
                 <DetailItem label='Order No.' value={orderData?.orderNo} />
                 <DetailItem
@@ -750,7 +733,7 @@ export const OrderDetail: React.FC = () => {
                   }
                 />
                 <DetailItem label='ที่อยู่' value={orderData?.deliveryAddress} />
-                <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} />
+                {/* <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} /> */}
                 <DetailItem label='ข้อมูลทะเบียนรถ' value={orderData?.numberPlate} />
               </DetailBox>
             </CardContainer>
@@ -782,6 +765,11 @@ export const OrderDetail: React.FC = () => {
                 หมายเหตุ (สำหรับ Sale Co)
               </Text>
               <DetailBox>{orderData?.saleCoRemark || "-"}</DetailBox>
+              <br />
+              <Text level={5} fontWeight={700}>
+                หมายเหตุ (การจัดส่ง)
+              </Text>
+              <DetailBox>{orderData?.deliveryRemark || "-"}</DetailBox>
               <br />
               <Text level={5} fontWeight={700}>
                 หมายเหตุ (ขอส่วนลดพิเศษเพิ่ม)

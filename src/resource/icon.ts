@@ -23,4 +23,5 @@ export default {
   resultFailed: require("./media/icons/resultFailed.png"),
   infoIcon: require("./media/icons/infoIcon.png"),
   pdfIcon: require("./media/icons/pdfIcon.svg"),
+  downloadFileIcon: require("./media/icons/downloadFile.png"),
 };

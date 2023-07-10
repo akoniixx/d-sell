@@ -41,4 +41,5 @@ export interface OrderEntity {
   userShopName?: string;
   userStaffId?: string;
   userStaffName?: string;
+  customerZone?: string;
 }
