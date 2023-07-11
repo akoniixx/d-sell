@@ -26,4 +26,17 @@ const updateSpecialPrice = async (data: object) => {
     .catch((err) => console.log(err));
 };
 
-export { getSpecialPriceList, getSpecialPriceByCustomerId, createSpecialPrice, updateSpecialPrice };
+const deleteSpecialPrice = async (data: object) => {
+  return await httpClient
+    .delete(`${baseUrl}`, { data })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+export {
+  getSpecialPriceList,
+  getSpecialPriceByCustomerId,
+  createSpecialPrice,
+  updateSpecialPrice,
+  deleteSpecialPrice,
+};

@@ -1,25 +1,14 @@
-import React, { useEffect, useState, memo, ReactNode } from "react";
+import React, { useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { Table, Tabs, Row, Col, Input, Select, Avatar, Tag, Card, Button } from "antd";
+import { Row, Col, Tag, Card, Button } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { EditOutlined, FormOutlined, SearchOutlined } from "@ant-design/icons";
-import { Option } from "antd/lib/mentions";
-import {
-  getProductBrand,
-  getProductCategory,
-  getProductDetail,
-  getProductGroup,
-  getProductList,
-} from "../../datasource/ProductDatasource";
+import { EditOutlined } from "@ant-design/icons";
+import { getProductDetail } from "../../datasource/ProductDatasource";
 import { nameFormatter, priceFormatter } from "../../utility/Formatter";
-import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import { BrandEntity } from "../../entities/BrandEntity";
 import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { STATUS_COLOR_MAPPING } from "../../definitions/product";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "../../store/ProfileAtom";
-import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import { useEffectOnce } from "react-use";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import image from "../../resource/image";
@@ -87,7 +76,6 @@ export const DistributionPageDetail: React.FC = (props: any) => {
         data = await getProductDetail(id);
       }
       setDataState(data);
-      console.log({ pathSplit, data });
     } catch (e) {
       console.log(e);
     } finally {
@@ -168,21 +156,20 @@ export const DistributionPageDetail: React.FC = (props: any) => {
   const dataGroup2 = [
     {
       label: "ปริมาณสินค้า / หน่วย",
-      value: qtySaleUnit + " " + (company === "ICPL" ? baseUOM : packingUOM),
+      value: qtySaleUnit + " " + (company === "ICPL" ? baseUOM || "Unit" : packingUOM),
     },
     {
       label: "ราคากลาง (Base price)",
       value:
         priceFormatter(parseFloat(unitPrice || "")) +
         "/" +
-        (company === "ICPL" ? baseUOM : packingUOM),
+        (company === "ICPL" ? baseUOM || "Unit" : packingUOM),
     },
   ];
-
   const dataGroup3 = [
     {
       label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(marketPrice || "")) + "/" + (saleUOMTH || saleUOM),
+      value: priceFormatter(parseFloat(marketPrice || "")) + "/" + (saleUOM || "Unit"),
     },
   ];
 

@@ -1,8 +1,7 @@
-import React, { useEffect, useState, memo, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Tabs, Row, Col, Avatar, Tag, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, SyncOutlined } from "@ant-design/icons";
-import { Option } from "antd/lib/mentions";
 import {
   getProductBrand,
   getProductCategory,
@@ -16,8 +15,6 @@ import Text from "../../components/Text/Text";
 import { BrandEntity } from "../../entities/BrandEntity";
 import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { STATUS_COLOR_MAPPING } from "../../definitions/product";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
 import image from "../../resource/image";
@@ -25,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import Button from "../../components/Button/Button";
+import { getBrandByCompany } from "../../datasource/BrandDatasource";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -54,10 +52,13 @@ export const DistributionPage: React.FC = () => {
     categories: [],
     brands: [],
   });
+  const [brand, setBrand] = useState<string>();
+  const [dataBrand, setDataBrand] = useState<BrandEntity[]>([]);
 
   useEffect(() => {
     if (!loading) fetchProduct();
-  }, [keyword, prodGroup, location, page]);
+    fetchBrand();
+  }, [keyword, prodGroup, location, page, brand]);
 
   const resetPage = () => setPage(1);
 
@@ -71,6 +72,7 @@ export const DistributionPage: React.FC = () => {
         searchText: keyword,
         productLocation: location,
         page,
+        productBrandId: brand,
       });
 
       const { responseData } = await getProductGroup(company);
@@ -89,6 +91,11 @@ export const DistributionPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+  const fetchBrand = () => {
+    getBrandByCompany(company).then((res) => {
+      setDataBrand(res);
+    });
   };
 
   const onSyncProduct = async () => {
@@ -114,7 +121,7 @@ export const DistributionPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row>
-        <Col className='gutter-row' span={12}>
+        <Col className='gutter-row' span={8}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -123,23 +130,6 @@ export const DistributionPage: React.FC = () => {
               รายการสินค้า
             </span>
           </div>
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <Select
-            defaultValue={prodGroup}
-            style={style}
-            allowClear
-            onChange={(value: string) => {
-              setProdGroup(value);
-              resetPage();
-            }}
-            placeholder='เลือกกลุ่มสินค้า'
-            data={dataState.groups.map((group: ProductGroupEntity) => ({
-              key: group.product_group,
-              label: group.product_group,
-              value: group.product_group,
-            }))}
-          />
         </Col>
         <Col className='gutter-row' span={4}>
           <div style={style}>
@@ -162,6 +152,43 @@ export const DistributionPage: React.FC = () => {
             />
           </div>
         </Col>
+        {dataBrand.length && (
+          <Col className='gutter-row' span={4}>
+            <Select
+              defaultValue={brand}
+              style={style}
+              allowClear
+              onChange={(value: string) => {
+                setBrand(value);
+                resetPage();
+              }}
+              placeholder='เลือกยี่ห้อสินค้า'
+              data={dataBrand?.map((item: any) => ({
+                key: item.productBrandId,
+                label: item.productBrandName,
+                value: item.productBrandId,
+              }))}
+            />
+          </Col>
+        )}
+
+        <Col className='gutter-row' span={4}>
+          <Select
+            defaultValue={prodGroup}
+            style={style}
+            allowClear
+            onChange={(value: string) => {
+              setProdGroup(value);
+              resetPage();
+            }}
+            placeholder='เลือกกลุ่มสินค้า'
+            data={dataState.groups.map((group: ProductGroupEntity) => ({
+              key: group.product_group,
+              label: group.product_group,
+              value: group.product_group,
+            }))}
+          />
+        </Col>
         <Col className='gutter-row' span={4}>
           <Button
             title='เชื่อมต่อ Navision'
@@ -177,8 +204,8 @@ export const DistributionPage: React.FC = () => {
   const tabsItems = [
     { label: "ทั้งหมด", key: "ALL" },
     ...(dataState?.count_location?.map(({ product_location, count }) => ({
-      label: (LOCATION_FULLNAME_MAPPING[product_location] || "- ") + `(${count})`,
-      key: product_location,
+      key: `${product_location}`,
+      label: (LOCATION_FULLNAME_MAPPING[`${product_location}`] || "- ") + ` (${count})`,
     })) || []),
   ];
 
@@ -264,6 +291,7 @@ export const DistributionPage: React.FC = () => {
       title: "Product Brands",
       dataIndex: "productBrandId",
       key: "productBrandId",
+      width: "180px",
       // width: "15%",
       render: (value: any, row: any, index: number) => {
         const brand: BrandEntity =
@@ -370,19 +398,18 @@ export const DistributionPage: React.FC = () => {
     },
   ];
 
+  const changeTeb = (key: string) => {
+    setLocation(key === "ALL" ? undefined : `${key}`);
+    resetPage();
+  };
+
   return (
     <>
       <div className='container '>
         <CardContainer>
           <PageTitle />
           <br />
-          <Tabs
-            items={tabsItems}
-            onChange={(key: string) => {
-              setLocation(key === "ALL" ? undefined : key);
-              resetPage();
-            }}
-          />
+          <Tabs items={tabsItems} onChange={changeTeb} />
           <Table
             className='rounded-lg'
             columns={columns}

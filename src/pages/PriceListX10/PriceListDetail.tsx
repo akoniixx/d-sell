@@ -15,18 +15,14 @@ import {
   Space,
 } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import styled from "styled-components";
-import { PromotionType } from "../../definitions/promotion";
-import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import {
   CheckCircleTwoTone,
-  CloseOutlined,
   DeleteOutlined,
   EditOutlined,
   SearchOutlined,
@@ -35,8 +31,6 @@ import color from "../../resource/color";
 import image from "../../resource/image";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
-import Steps from "../../components/StepAntd/steps";
 import TableContainer from "../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../components/Spin/pageSpin";
@@ -51,6 +45,7 @@ import { priceFormatter } from "../../utility/Formatter";
 import { getProductGroup } from "../../datasource/ProductDatasource";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import AddProduct from "../Shared/AddProduct";
+import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 
 const DetailBox = styled.div`
   padding: 32px;
@@ -110,7 +105,6 @@ export const SpecialPriceDetail: React.FC = () => {
   };
 
   const setProd = (list: ProductEntity[]) => {
-    console.log(list);
     const loginName = firstname + " " + lastname;
     const { customerId, customerCompanyId, customerName, zone } = data;
     const filteredItems = [...items].filter((item) =>
@@ -176,7 +170,6 @@ export const SpecialPriceDetail: React.FC = () => {
     const id = pathSplit[3];
     await getCustomersById(id)
       .then((res: any) => {
-        console.log("getCustomersById", res);
         setData(res);
       })
       .catch((e: any) => {
@@ -187,7 +180,6 @@ export const SpecialPriceDetail: React.FC = () => {
       });
     await getSpecialPriceByCustomerId(id)
       .then((res: { responseData: any[] }) => {
-        console.log("getSpecialPriceByCustomerId", res);
         setPriceList({
           all: res?.responseData,
           up: res?.responseData?.filter((d) => d.value >= 0),
@@ -433,6 +425,9 @@ export const SpecialPriceDetail: React.FC = () => {
                 <Text level={6} color='Text3'>
                   {product?.commonName}
                 </Text>
+                <Text level={6} color='Text3'>
+                  {LOCATION_FULLNAME_MAPPING[product?.productLocation || "-"]}
+                </Text>
               </FlexCol>
             </FlexRow>
           ),
@@ -477,7 +472,7 @@ export const SpecialPriceDetail: React.FC = () => {
                   : priceFormatter(product?.marketPrice || "", undefined, false, true)}
               </Text>
               <Text level={6} color='Text3'>
-                {" บาท / " + product?.saleUOMTH || product?.saleUOM}
+                {" บาท / "} {product?.baseUOM || "Unit"}
               </Text>
             </FlexCol>
           ),
@@ -517,7 +512,6 @@ export const SpecialPriceDetail: React.FC = () => {
   ];
 
   const onSubmit = async () => {
-    console.log(items);
     // set deleted
     const data = [...items].map((item) => {
       const type = form.getFieldValue(`${item.productId}-type`);
@@ -591,6 +585,7 @@ export const SpecialPriceDetail: React.FC = () => {
               </Text>
               <DetailBox>
                 <DetailItem label='ชื่อร้านค้า' value={data?.customerName} />
+                <DetailItem label='Customer No.' value={data?.customerNo} />
                 <DetailItem label='เขต' value={data?.zone} />
               </DetailBox>
             </CardContainer>
