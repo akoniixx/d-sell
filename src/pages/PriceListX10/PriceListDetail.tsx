@@ -265,7 +265,7 @@ export const SpecialPriceDetail: React.FC = () => {
   const detailColumns = isEditing
     ? [
         {
-          title: "TYPE",
+          title: "ประเภท",
           dataIndex: "product",
           key: "type",
           width: 126,
@@ -297,7 +297,7 @@ export const SpecialPriceDetail: React.FC = () => {
           },
         },
         {
-          title: "SPECIAL PRICE",
+          title: "ราคาพิเศษ / หน่วยขาย",
           dataIndex: "product",
           key: "specialPrice",
           render: (product: ProductEntity, row: any, index: number) => {
@@ -383,7 +383,7 @@ export const SpecialPriceDetail: React.FC = () => {
       ]
     : [
         {
-          title: "SPECIAL PRICE",
+          title: "ราคาพิเศษ / หน่วยขาย",
           dataIndex: "product",
           key: "specialPrice",
           render: (product: ProductEntity, row: any, index: number) => {
@@ -452,7 +452,7 @@ export const SpecialPriceDetail: React.FC = () => {
       },
     },
     {
-      title: "UNIT PRICE",
+      title: "ราคา / หน่วย",
       dataIndex: "product",
       key: "unitPrice",
       render: (product: ProductEntity, row: any, index: number) => {
@@ -480,7 +480,7 @@ export const SpecialPriceDetail: React.FC = () => {
       },
     },
     {
-      title: "PACK PRICE",
+      title: "ราคา / หน่วยขาย",
       dataIndex: "product",
       key: "packPrice",
       render: (product: ProductEntity, row: any, index: number) => {
@@ -552,8 +552,6 @@ export const SpecialPriceDetail: React.FC = () => {
         console.log(developerMessage);
       }
     };
-    // console.log({ submitData });
-    // return;
     form
       .validateFields()
       .then(async (values) => {

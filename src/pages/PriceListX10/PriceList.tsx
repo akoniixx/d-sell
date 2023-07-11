@@ -213,12 +213,6 @@ export const PriceListX10: React.FC = () => {
 
   const columns = [
     {
-      title: "No. Member",
-      dataIndex: "customerCompanyId",
-      key: "customerCompanyId",
-      width: "15%",
-    },
-    {
       title: "Customer No.",
       dataIndex: "customerNo",
       key: "customerNo",
