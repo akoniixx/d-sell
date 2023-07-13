@@ -1,29 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Divider, Form, message, Modal, Spin, Tabs, Tag, Table } from "antd";
+import { Row, Col, Divider, Tabs, Tag, Table } from "antd";
 import { CardContainer } from "../../../components/Card/CardContainer";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../../components/Button/Button";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
-import styled from "styled-components";
-import { PromotionType } from "../../../definitions/promotion";
-import productState from "../../../store/productList";
-import { ProductEntity } from "../../../entities/PoductEntity";
-import {
-  createCreditMemo,
-  getCreditHistory,
-  getCreditMemoById,
-  getCustomerCreditMemo,
-  updateCreditMemo,
-} from "../../../datasource/CreditMemoDatasource";
-import { FlexCol, FlexRow } from "../../../components/Container/Container";
-import { CheckCircleTwoTone, EditOutlined } from "@ant-design/icons";
+import { getCreditHistory, getCreditMemoById } from "../../../datasource/CreditMemoDatasource";
+import { EditOutlined } from "@ant-design/icons";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import Steps from "../../../components/StepAntd/steps";
-import { StoreEntity } from "../../../entities/StoreEntity";
 import { CreditMemoEntity } from "../../../entities/CreditMemoEntity";
 import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
@@ -53,7 +39,6 @@ export const CreditMemoDetail: React.FC = () => {
     const id = pathSplit[3];
     await getCreditMemoById(id)
       .then((res: any) => {
-        console.log("getCreditMemoById", res);
         setData(res);
       })
       .catch((e: any) => {
@@ -69,7 +54,6 @@ export const CreditMemoDetail: React.FC = () => {
     const id = pathSplit[3];
     await getCreditHistory(id)
       .then((res: any) => {
-        console.log("getCreditHistory", res);
         setHistory(res);
       })
       .catch((e: any) => {
@@ -138,8 +122,8 @@ export const CreditMemoDetail: React.FC = () => {
   const creditMemoColumn = [
     {
       title: "รหัสร้านค้า",
-      dataIndex: "customerCompanyId",
-      key: "customerCompanyId",
+      dataIndex: "customerNo",
+      key: "customerNo",
       align: "center" as AlignType,
     },
     {
@@ -149,7 +133,13 @@ export const CreditMemoDetail: React.FC = () => {
       align: "center" as AlignType,
     },
     {
-      title: " ส่วนลดดูแลราคา",
+      title: "เขต",
+      dataIndex: "zone",
+      key: "zone",
+      align: "center" as AlignType,
+    },
+    {
+      title: "ส่วนลดดูแลราคา",
       dataIndex: "receiveAmount",
       key: "receiveAmount",
       align: "center" as AlignType,
@@ -230,10 +220,7 @@ export const CreditMemoDetail: React.FC = () => {
               columns={creditMemoColumn}
               dataSource={data?.creditMemoShop?.map((s: any, i: any) => ({ ...s, key: i }))}
               loading={loading}
-              pagination={{
-                pageSize: 8,
-                position: ["bottomCenter"],
-              }}
+              pagination={false}
             />
           </TableContainer>
         </>
@@ -245,19 +232,18 @@ export const CreditMemoDetail: React.FC = () => {
       children: (
         <>
           <Row style={{ margin: "16px 0px" }}>
-            <Text fontWeight={700} level={4}>
-              รายการประวัติการสร้าง ส่วนลดดูแลราคา
-            </Text>
+            <Col>
+              <Text fontWeight={700} level={4}>
+                รายการประวัติการสร้าง ส่วนลดดูแลราคา
+              </Text>
+            </Col>
           </Row>
           <TableContainer>
             <Table
               dataSource={history}
               columns={creditMemoHistoryColumn}
               loading={historyLoading}
-              pagination={{
-                pageSize: 8,
-                position: ["bottomCenter"],
-              }}
+              pagination={false}
             />
           </TableContainer>
         </>

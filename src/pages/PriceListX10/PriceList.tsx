@@ -88,22 +88,29 @@ export const PriceListX10: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, count, count_status } = await getCustomers({
+      const { data } = await getCustomers({
         company,
         cutomerType: "DL",
       });
-      const { responseData } = await getSpecialPriceList({});
+      const mapCusDate = data.map((a: any) => ({ ...a, last_update: "" }));
+      const { responseData } = await getSpecialPriceList({ company });
       const specialPriceList = responseData?.filter((r: any) =>
-        data?.find((d: any) => d.customerCompanyId === r.customer_company_id),
+        mapCusDate?.find((d: any) => d.customerCompanyId === r.customer_company_id),
       );
-      const specialPriceData = data?.map((d: StoreEntity, i: number) => {
-        const found = responseData?.find((r: any) => d.customerCompanyId === r.customer_company_id);
-        return {
-          ...d,
-          status: found && found.count && parseInt(found.count) > 0,
-          key: i,
-        };
-      });
+      const specialPriceData = mapCusDate
+        ?.map((d: any, i: number) => {
+          const found = responseData?.find(
+            (r: any) => d.customerCompanyId === r.customer_company_id,
+          );
+          return {
+            ...d,
+            status: found && found.count && parseInt(found.count) > 0,
+            key: i,
+            last_update: found ? found.last_update : d.last_update,
+          };
+        })
+        .sort((a: any, b: any) => (a.last_update < b.last_update ? 1 : -1));
+
       const zoneData = await getZones(company);
       setZones(zoneData.map((d: StoreEntity, i: number) => ({ ...d, key: i })));
       setDataState({
@@ -159,13 +166,13 @@ export const PriceListX10: React.FC = () => {
               onPressEnter={(e) => {
                 const value = (e.target as HTMLTextAreaElement).value;
                 setKeyword(value);
-                // resetPage();
+                resetPage();
               }}
               onChange={(e) => {
                 const value = (e.target as HTMLInputElement).value;
                 if (!value) {
                   setKeyword("");
-                  // resetPage();
+                  resetPage();
                 }
               }}
             />

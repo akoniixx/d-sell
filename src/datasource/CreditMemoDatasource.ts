@@ -62,6 +62,7 @@ const createCreditMemo = async (data: object) => {
 };
 
 const updateCreditMemo = async (data: object) => {
+  console.log("api", data);
   return await httpClient
     .patch(`${baseUrl}/credit-memo`, data)
     .then((res: AxiosResponse) => res.data)

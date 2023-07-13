@@ -418,6 +418,9 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                         </ProdImage>
                       )}
                     </Upload>
+                    <span style={{ color: color.error }}>
+                      รูปภาพประกอบสินค้า JPG, PNG. Size of 800*800px 1:1
+                    </span>
                     {/* </ImgCrop> */}
                   </Form.Item>
                 ) : (

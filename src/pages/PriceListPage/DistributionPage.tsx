@@ -54,11 +54,12 @@ export const DistributionPage: React.FC = () => {
   });
   const [brand, setBrand] = useState<string>();
   const [dataBrand, setDataBrand] = useState<BrandEntity[]>([]);
+  const [status, setStatus] = useState<string>();
 
   useEffect(() => {
     if (!loading) fetchProduct();
     fetchBrand();
-  }, [keyword, prodGroup, location, page, brand]);
+  }, [keyword, prodGroup, location, page, brand, status]);
 
   const resetPage = () => setPage(1);
 
@@ -73,6 +74,7 @@ export const DistributionPage: React.FC = () => {
         productLocation: location,
         page,
         productBrandId: brand,
+        productStatus: status,
       });
 
       const { responseData } = await getProductGroup(company);
@@ -121,7 +123,7 @@ export const DistributionPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row>
-        <Col className='gutter-row' span={8}>
+        <Col className='gutter-row' span={4}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -171,7 +173,22 @@ export const DistributionPage: React.FC = () => {
             />
           </Col>
         )}
-
+        <Col className='gutter-row' span={4}>
+          <Select
+            defaultValue={status}
+            style={style}
+            allowClear
+            onChange={(value: string) => {
+              setStatus(value);
+              resetPage();
+            }}
+            placeholder='เลือกสถานะ'
+            data={[
+              { key: "ACTIVE", label: "Active", value: "ACTIVE" },
+              { key: "INACTIVE", label: "Inactive", value: "INACTIVE" },
+            ]}
+          />
+        </Col>
         <Col className='gutter-row' span={4}>
           <Select
             defaultValue={prodGroup}
@@ -412,7 +429,9 @@ export const DistributionPage: React.FC = () => {
           <Tabs items={tabsItems} onChange={changeTeb} />
           <Table
             className='rounded-lg'
-            columns={columns}
+            columns={
+              company === "ICPL" ? columns : columns.filter((x) => x.dataIndex !== "unitPrice")
+            }
             scroll={{ x: "max-content" }}
             dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i }))}
             pagination={{

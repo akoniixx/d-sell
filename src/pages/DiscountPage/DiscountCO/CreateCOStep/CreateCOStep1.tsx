@@ -6,22 +6,15 @@ import {
   Row,
   Upload,
   Select as AntdSelect,
-  Checkbox,
   Radio,
 } from "antd";
-import React, { useEffect, useState, memo, useMemo } from "react";
-import { FlexCol, FlexRow } from "../../../../components/Container/Container";
+import React, { useEffect, useState } from "react";
 import Text from "../../../../components/Text/Text";
 import styled from "styled-components";
 import color from "../../../../resource/color";
-import { UploadOutlined } from "@ant-design/icons";
 import Input from "../../../../components/Input/Input";
-import Select from "../../../../components/Select/Select";
-import DatePicker, { TimePicker } from "../../../../components/DatePicker/DatePicker";
 import TextArea from "../../../../components/Input/TextArea";
-import dayjs, { Dayjs } from "dayjs";
-import { PromotionType, PROMOTION_TYPE_NAME } from "../../../../definitions/promotion";
-import { checkPromotionCode, getPromotion } from "../../../../datasource/PromotionDatasource";
+import { getPromotion } from "../../../../datasource/PromotionDatasource";
 import Button from "../../../../components/Button/Button";
 
 interface Props {
@@ -62,7 +55,6 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) =
           value: `${p.creditMemoCode}`,
         })),
       );
-      console.log(data);
     } catch (e) {
       console.log(e);
     }
@@ -84,42 +76,13 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) =
               rules={[
                 {
                   required: true,
-                  message: "*โปรดระบุชื่อรายการ*",
+                  message: "*โปรดระบุชื่อรายการ",
                 },
               ]}
             >
-              <Input placeholder='ระบุชื่อรายการ*' />
+              <Input placeholder='ระบุชื่อรายการ*' autoComplete="off"/>
             </Form.Item>
           </Col>
-          {/* <Col span={12}>
-            <Form.Item
-              name='startDate'
-              label='วันที่เริ่ม ส่วนลดดูแลราคา'
-              rules={[
-                {
-                  required: true,
-                  message: "*โปรดเลือกวันที่เริ่ม ส่วนลดดูแลราคา",
-                },
-              ]}
-            >
-              <DatePicker style={{ width: "100%" }} />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name='startTime'
-              label='เวลาเริ่ม ส่วนลดดูแลราคา'
-              initialValue={dayjs("00:00", "HH:mm")}
-              rules={[
-                {
-                  required: true,
-                  message: "*โปรดเลือกเวลาเริ่ม ส่วนลดดูแลราคา",
-                },
-              ]}
-            >
-              <TimePicker allowClear={false} />
-            </Form.Item>
-          </Col> */}
           {company === "ICPL" && (
             <Col span={24}>
               <Form.Item
@@ -162,17 +125,16 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) =
                       message.error(`อัปโหลดเฉพาะไฟล์ .PDF หรือ .XLXS เท่านั้น`);
                       return false;
                     }
-                    console.log("beforeUpload", file);
                     return isPDF || Upload.LIST_IGNORE;
                   }}
                   customRequest={({ file, onSuccess }) => {
-                    console.log("customRequest");
                     if (onSuccess) {
                       onSuccess(file);
                     }
                   }}
                   onChange={({ file }: any) => {
                     if (file.status === "uploading") {
+                      console.log("f",file);
                       setFileMemo(file);
                       file.status = "done";
                     }

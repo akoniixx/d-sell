@@ -5,6 +5,7 @@ export interface CreditMemoShopEntity {
   creditMemoShopId: string;
   customerCompanyId: string | number;
   customerName: string;
+  customerNo: string;
   receiveAmount: number;
   updateBy?: string;
   updatedAt?: string;

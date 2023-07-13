@@ -1,5 +1,5 @@
-import React, { useEffect, useState, memo } from "react";
-import { Table, Tabs, Modal, Switch, Row, Col, Pagination, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Table, Tabs, Modal, Switch, Row, Col, message } from "antd";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import {
   DeleteOutlined,
@@ -18,8 +18,7 @@ import {
   syncNavision,
   updateCreditMemoStatus,
 } from "../../../datasource/CreditMemoDatasource";
-import moment from "moment";
-import { dateFormatter, nameFormatter } from "../../../utility/Formatter";
+import { dateFormatter } from "../../../utility/Formatter";
 import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import color from "../../../resource/color";
@@ -36,7 +35,6 @@ export const DiscountListPage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
 
-  const showSyncButton = company === "ICPF";
   const [loadingSyncProduct, setLoadingSyncProduct] = useState(false);
 
   const navigate = useNavigate();
@@ -61,11 +59,6 @@ export const DiscountListPage: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      console.log({
-        dateFilter,
-        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format(REQUEST_DMY) : undefined,
-        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format(REQUEST_DMY) : undefined,
-      });
       const { data, count, count_status } = await getCreditMemoList({
         company,
         creditMemoStatus: statusFilter,
@@ -80,7 +73,6 @@ export const DiscountListPage: React.FC = () => {
         count,
         count_status,
       });
-      console.log({ data, count, count_status });
     } catch (e) {
       console.log(e);
     } finally {
@@ -109,7 +101,6 @@ export const DiscountListPage: React.FC = () => {
         setLoadingSyncProduct(true);
         await syncNavision(company)
           .then((res: any) => {
-            console.log(res);
             const { success } = res.data;
             if (success) {
               navigate(0);
@@ -119,7 +110,6 @@ export const DiscountListPage: React.FC = () => {
           })
           .catch((err) => console.log("err", err))
           .finally(() => {
-            console.log("sync product done");
             setLoadingSyncProduct(false);
           });
       },
@@ -129,7 +119,7 @@ export const DiscountListPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
-        <Col className='gutter-row' xl={showSyncButton ? 7 : 10} sm={showSyncButton ? 4 : 6}>
+        <Col className='gutter-row' span={10}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -139,18 +129,10 @@ export const DiscountListPage: React.FC = () => {
             </span>
           </div>
         </Col>
-        <Col className='gutter-row' xl={showSyncButton ? 3 : 0} sm={showSyncButton ? 2 : 0}>
-          <Button
-            title='Navision'
-            icon={<SyncOutlined />}
-            onClick={onSyncProduct}
-            loading={loadingSyncProduct}
-          />
-        </Col>
         <Col className='gutter-row' xl={4} sm={6}>
           <div style={style}>
             <Input
-              placeholder='ค้นหา Credit Memo'
+              placeholder='ค้นหา ส่วนลดดูแลราคา'
               prefix={<SearchOutlined style={{ color: "grey" }} />}
               defaultValue={keyword}
               onPressEnter={(e: any) => {
@@ -179,14 +161,26 @@ export const DiscountListPage: React.FC = () => {
             }}
           />
         </Col>
-        <Col className='gutter-row' xl={4} sm={6}>
-          <Button
-            type='primary'
-            title='+ สร้าง Credit Memo'
-            height={40}
-            onClick={() => navigate(`/discount/create`)}
-          />
-        </Col>
+        {company !== "ICPF" ? (
+          <Col className='gutter-row' xl={4} sm={6}>
+            <Button
+              type='primary'
+              title='+ สร้างส่วนลดดูแลราคา'
+              height={40}
+              onClick={() => navigate(`/discount/create`)}
+            />
+          </Col>
+        ) : (
+          <Col className='gutter-row' xl={4} sm={6}>
+            <Button
+              title='Navision'
+              icon={<SyncOutlined />}
+              onClick={onSyncProduct}
+              loading={loadingSyncProduct}
+              height={40}
+            />
+          </Col>
+        )}
       </Row>
     );
   };
@@ -214,13 +208,13 @@ export const DiscountListPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Credit Memo Code",
+      title: "ส่วนลดดูแลราคา No.",
       dataIndex: "creditMemoCode",
       key: "creditMemoCode",
       width: "15%",
     },
     {
-      title: "ชื่อรายการ Credit Memo",
+      title: "ชื่อรายการ ส่วนลดดูแลราคา",
       dataIndex: "creditMemoName",
       key: "creditMemoName",
       width: "20%",
@@ -277,8 +271,8 @@ export const DiscountListPage: React.FC = () => {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <>
-              <div className='d-flex flex-row justify-content-between'>
+            <Row justify={"start"} gutter={8}>
+              <Col span={8}>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() => navigate("/discount/detail/" + row.creditMemoId)}
@@ -287,6 +281,8 @@ export const DiscountListPage: React.FC = () => {
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
+              </Col>
+              <Col span={8}>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() => navigate("/discount/edit/" + row.creditMemoId)}
@@ -295,43 +291,47 @@ export const DiscountListPage: React.FC = () => {
                     <EditOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={async () => {
-                    Modal.confirm({
-                      title: "ต้องการลบข้อมูล",
-                      content: "โปรดยืนยันการลบข้อมูลรายการ Credit Memo",
-                      onOk: async () => {
-                        await deleteCreditMemo({
-                          creditMemoId: row?.creditMemoId,
-                          updateBy: `${firstname} ${lastname}`,
-                        })
-                          .then(({ success, userMessage }: any) => {
-                            if (success) {
-                              Modal.success({
-                                title: "ลบข้อมูลสำเร็จ",
-                                onOk: () => navigate(0),
-                              });
-                            } else {
-                              Modal.error({
-                                title: "ลบข้อมูลไม่สำเร็จ",
-                                content: userMessage,
-                              });
-                            }
+              </Col>
+              {company !== "ICPF" && (
+                <Col span={8}>
+                  <div
+                    className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                    onClick={async () => {
+                      Modal.confirm({
+                        title: "ต้องการลบข้อมูล",
+                        content: "โปรดยืนยันการลบข้อมูลรายการ ส่วนลดดูแลราคา",
+                        onOk: async () => {
+                          await deleteCreditMemo({
+                            creditMemoId: row?.creditMemoId,
+                            updateBy: `${firstname} ${lastname}`,
                           })
-                          .catch((e: any) => {
-                            console.log(e);
-                          });
-                      },
-                    });
-                  }}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <DeleteOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-              </div>
-            </>
+                            .then(({ success, userMessage }: any) => {
+                              if (success) {
+                                Modal.success({
+                                  title: "ลบข้อมูลสำเร็จ",
+                                  onOk: () => navigate(0),
+                                });
+                              } else {
+                                Modal.error({
+                                  title: "ลบข้อมูลไม่สำเร็จ",
+                                  content: userMessage,
+                                });
+                              }
+                            })
+                            .catch((e: any) => {
+                              console.log(e);
+                            });
+                        },
+                      });
+                    }}
+                  >
+                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                      <DeleteOutlined style={{ color: color["primary"] }} />
+                    </span>
+                  </div>
+                </Col>
+              )}
+            </Row>
           ),
         };
       },
@@ -353,7 +353,7 @@ export const DiscountListPage: React.FC = () => {
           />
           <Table
             className='rounded-lg'
-            columns={columns}
+            columns={company === "ICPF" ? columns.filter((x) => x.dataIndex !== "status") : columns}
             dataSource={dataState.data}
             pagination={{
               pageSize,

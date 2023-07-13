@@ -1,10 +1,10 @@
-import { Col, Form as AntdForm, FormInstance, message, Modal, Row, Table } from "antd";
+import { Col, Form as AntdForm, FormInstance, Modal, Row, Table } from "antd";
 import React, { useEffect, useState } from "react";
-import { FlexCol, FlexRow } from "../../../../components/Container/Container";
+import { FlexRow } from "../../../../components/Container/Container";
 import Text from "../../../../components/Text/Text";
 import styled from "styled-components";
 import color from "../../../../resource/color";
-import { CloseOutlined, DeleteFilled, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteFilled, SearchOutlined } from "@ant-design/icons";
 import { StoreEntity, ZoneEntity } from "../../../../entities/StoreEntity";
 import Button from "../../../../components/Button/Button";
 import Input from "../../../../components/Input/Input";
@@ -13,6 +13,7 @@ import { AlignType } from "rc-table/lib/interface";
 import TableContainer from "../../../../components/Table/TableContainer";
 import { getZones } from "../../../../datasource/CustomerDatasource";
 import { ModalSelectStore } from "../../../Shared/ModalSelectStore";
+import { numberFormatter } from "../../../../utility/Formatter";
 
 const Form = styled(AntdForm)`
   .table-form-item.ant-form-item {
@@ -65,7 +66,8 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
   };
 
   const onSetStore = (stores: any) => {
-    const newStores = [...(storeList || []), ...stores];
+    const mapStore = stores.map((x: any) => ({ ...x, usedAmount: 0 }));
+    const newStores = [...(storeList || []), ...mapStore];
     setStoreList(newStores);
     setStoreListFiltered(newStores);
     setFilter(defaultFilter);
@@ -96,10 +98,28 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
       title: "เขตการขาย",
       dataIndex: "zone",
       align: "center" as AlignType,
-      width: "25%",
+      width: "10%",
     },
     {
-      title: " ส่วนลดดูแลราคา (บาท)",
+      title: "ยอดที่ใช้ไป (บาท)",
+      dataIndex: "usedAmount",
+      align: "center" as AlignType,
+      width: "15%",
+      render: (value: any) => {
+        return numberFormatter(value, 0);
+      },
+    },
+    {
+      title: "ยอดคงเหลือเดิม (บาท)",
+      dataIndex: "balance",
+      align: "center" as AlignType,
+      width: "15%",
+      render: (value: any) => {
+        return numberFormatter(value, 0);
+      },
+    },
+    {
+      title: "ส่วนลดดูแลราคา (บาท)",
       dataIndex: "customerCompanyId",
       align: "center" as AlignType,
       width: "25%",
@@ -113,7 +133,6 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
               message: "โปรดระบุ ส่วนลดดูแลราคา",
             },
             {
-              // message: ` ส่วนลดดูแลราคาน้อยกว่ายอดคงเหลือ ยอดคงเหลือ = ${row.balance} บาท โปรดระบุใหม่`,
               validator: (rule, value, callback) => {
                 if (isEditing && parseFloat(row.usedAmount) > parseFloat(value)) {
                   return Promise.reject(
@@ -136,13 +155,15 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: StoreEntity[]) => {
-      // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
       setSelectedStoreList(selectedRows);
       setSelectedStoreKeys(selectedRowKeys);
     },
-    getCheckboxProps: (record: StoreEntity) => ({
-      name: record.customerName,
-    }),
+    getCheckboxProps: (record: StoreEntity) => {
+      return {
+        name: record.customerName,
+        disabled: parseFloat(record?.usedAmount) != 0,
+      };
+    },
     selectedRowKeys: selectedStoreKeys,
   };
 
