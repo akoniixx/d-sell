@@ -39,6 +39,7 @@ import {
 import Select from "../../components/Select/Select";
 import type { UploadFile } from "antd/es/upload/interface";
 import ImgCrop from "../../components/ImgCrop/ImgCrop";
+import image from "../../resource/image";
 
 const Container = styled.div`
   margin: 32px 0px 10px 0px;
@@ -156,8 +157,6 @@ export const DistributionPageEdit: React.FC = (props: any) => {
           },
         ]);
       }
-
-      console.log({ data, file });
     } catch (e) {
       console.log(e);
     } finally {
@@ -393,36 +392,68 @@ export const DistributionPageEdit: React.FC = (props: any) => {
             </Row>
             <Form form={form} layout='vertical' onFinish={updateData}>
               <Row style={{ padding: "16px 0px" }}>
-                <Form.Item valuePropName='file' name={"productImage"}>
-                  {/* <ImgCrop aspect={1}> */}
-                  <Upload
-                    listType='picture-card'
-                    maxCount={1}
-                    beforeUpload={() => false}
-                    fileList={fileList}
-                    customRequest={() => {
-                      console.log("customRequest");
-                    }}
-                    onChange={({ file, fileList: newFileList }: any) => {
-                      setFile(file);
-                      setFileList(newFileList);
-                      return "success";
-                    }}
-                    onRemove={() => {
-                      console.log("onremove");
-                      setFile(undefined);
-                      setFileList([]);
-                      setRemoved(true);
-                    }}
-                  >
-                    {!fileList?.length && (
-                      <ProdImage>
-                        <CameraOutlined />
-                      </ProdImage>
+                {company !== "ICPL" ? (
+                  <Form.Item valuePropName='file' name={"productImage"}>
+                    {/* <ImgCrop aspect={1}> */}
+                    <Upload
+                      listType='picture-card'
+                      maxCount={1}
+                      beforeUpload={() => false}
+                      fileList={fileList}
+                      //customRequest={() => {}}
+                      onChange={({ file, fileList: newFileList }: any) => {
+                        setFile(file);
+                        setFileList(newFileList);
+                        return "success";
+                      }}
+                      onRemove={() => {
+                        setFile(undefined);
+                        setFileList([]);
+                        setRemoved(true);
+                      }}
+                    >
+                      {!fileList?.length && (
+                        <ProdImage>
+                          <CameraOutlined />
+                        </ProdImage>
+                      )}
+                    </Upload>
+                    <span style={{ color: color.error }}>
+                      รูปภาพประกอบสินค้า JPG, PNG. Size of 800*800px 1:1
+                    </span>
+                    {/* </ImgCrop> */}
+                  </Form.Item>
+                ) : (
+                  <>
+                    {productImage ? (
+                      <Container>
+                        <ProdImage>
+                          <img
+                            src={productImage}
+                            style={{
+                              width: "136px",
+                              height: "136px",
+                              objectFit: "contain",
+                            }}
+                          />
+                        </ProdImage>
+                      </Container>
+                    ) : (
+                      <Container>
+                        <ProdImage>
+                          <img
+                            src={image.product_no_image}
+                            style={{
+                              width: "136px",
+                              height: "136px",
+                              objectFit: "contain",
+                            }}
+                          />
+                        </ProdImage>
+                      </Container>
                     )}
-                  </Upload>
-                  {/* </ImgCrop> */}
-                </Form.Item>
+                  </>
+                )}
               </Row>
               <Row gutter={24}>
                 {dataGroup1

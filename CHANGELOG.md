@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Improve [v0.5.17] - Release Date: 2023-07-13
+
+- added delete button special price
+- added filter brand & status in price list
+
 ## Improve [v0.5.16] - Release Date: 2023-07-10
 
 - added get PO button for icpi in order management

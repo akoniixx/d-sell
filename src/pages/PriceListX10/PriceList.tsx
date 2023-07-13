@@ -1,26 +1,16 @@
-import React, { useEffect, useState, memo } from "react";
-import { Table, Tabs, Modal, Switch, Row, Col, Pagination, Tag } from "antd";
+import React, { useEffect, useState } from "react";
+import { Table, Tabs, Modal, Row, Col, Tag } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  SearchOutlined,
-  UnorderedListOutlined,
-} from "@ant-design/icons";
-import { RangePicker } from "../../components/DatePicker/DatePicker";
+import { DeleteOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
-import { getCreditMemoList } from "../../datasource/CreditMemoDatasource";
-import moment from "moment";
-import { FlexCol } from "../../components/Container/Container";
-import Text from "../../components/Text/Text";
 import color from "../../resource/color";
 import Select from "../../components/Select/Select";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import customerCompanyState from "../../store/customerCompany";
 import { getCustomers, getZones } from "../../datasource/CustomerDatasource";
-import { getSpecialPriceList } from "../../datasource/SpecialPriceDatasource";
+import { deleteSpecialPrice, getSpecialPriceList } from "../../datasource/SpecialPriceDatasource";
 import { StoreEntity, ZoneEntity } from "../../entities/StoreEntity";
 import { AlignType } from "rc-table/lib/interface";
 
@@ -98,22 +88,29 @@ export const PriceListX10: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, count, count_status } = await getCustomers({
+      const { data } = await getCustomers({
         company,
         cutomerType: "DL",
       });
-      const { responseData } = await getSpecialPriceList({});
+      const mapCusDate = data.map((a: any) => ({ ...a, last_update: "" }));
+      const { responseData } = await getSpecialPriceList({ company });
       const specialPriceList = responseData?.filter((r: any) =>
-        data?.find((d: any) => d.customerCompanyId === r.customer_company_id),
+        mapCusDate?.find((d: any) => d.customerCompanyId === r.customer_company_id),
       );
-      const specialPriceData = data?.map((d: StoreEntity, i: number) => {
-        const found = responseData?.find((r: any) => d.customerCompanyId === r.customer_company_id);
-        return {
-          ...d,
-          status: found && found.count && parseInt(found.count) > 0,
-          key: i,
-        };
-      });
+      const specialPriceData = mapCusDate
+        ?.map((d: any, i: number) => {
+          const found = responseData?.find(
+            (r: any) => d.customerCompanyId === r.customer_company_id,
+          );
+          return {
+            ...d,
+            status: found && found.count && parseInt(found.count) > 0,
+            key: i,
+            last_update: found ? found.last_update : d.last_update,
+          };
+        })
+        .sort((a: any, b: any) => (a.last_update < b.last_update ? 1 : -1));
+
       const zoneData = await getZones(company);
       setZones(zoneData.map((d: StoreEntity, i: number) => ({ ...d, key: i })));
       setDataState({
@@ -123,22 +120,27 @@ export const PriceListX10: React.FC = () => {
       });
       setStatusCount({
         ALL: specialPriceData?.length || 0,
-        true: specialPriceList?.length || 0,
-        false: (specialPriceData?.length || 0) - (responseData?.length || 0),
+        true: specialPriceData.filter((x: any) => x.status).length || 0,
+        false: specialPriceData.filter((x: any) => !x.status).length || 0,
       });
       setCustomerCompanyState({
         data,
         specialPrice: specialPriceData,
         specialPriceCount: responseData,
       });
-      console.log({
-        responseData,
-      });
     } catch (e) {
       console.log(e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const deleteSpecial = async (cusComId: string, company: string) => {
+    await deleteSpecialPrice({ company: company, customerCompanyId: cusComId }).then((res) => {
+      if (res.success) {
+        fetchData();
+      }
+    });
   };
 
   const PageTitle = () => {
@@ -157,19 +159,20 @@ export const PriceListX10: React.FC = () => {
         <Col className='gutter-row' xl={4} sm={6}>
           <div style={style}>
             <Input
+              allowClear
               placeholder='ค้นหาร้านค้า...'
               prefix={<SearchOutlined style={{ color: "grey" }} />}
               defaultValue={keyword}
               onPressEnter={(e) => {
                 const value = (e.target as HTMLTextAreaElement).value;
                 setKeyword(value);
-                // resetPage();
+                resetPage();
               }}
               onChange={(e) => {
                 const value = (e.target as HTMLInputElement).value;
                 if (!value) {
                   setKeyword("");
-                  // resetPage();
+                  resetPage();
                 }
               }}
             />
@@ -177,6 +180,7 @@ export const PriceListX10: React.FC = () => {
         </Col>
         <Col className='gutter-row' xl={4} sm={6}>
           <Select
+            allowClear
             data={[
               { label: "ทั้งหมด", key: "" },
               ...zones.map((z) => ({ label: z.zoneName, key: z.zoneName })),
@@ -216,9 +220,9 @@ export const PriceListX10: React.FC = () => {
 
   const columns = [
     {
-      title: "No. Member",
-      dataIndex: "customerCompanyId",
-      key: "customerCompanyId",
+      title: "Customer No.",
+      dataIndex: "customerNo",
+      key: "customerNo",
       width: "20%",
     },
     {
@@ -227,15 +231,6 @@ export const PriceListX10: React.FC = () => {
       key: "customerName",
       width: "30%",
     },
-    // {
-    //   title: "ชื่อเจ้าของร้าน",
-    //   dataIndex: "createdAt",
-    //   key: "createdAt",
-    //   width: "25%",
-    //   render: (value: string) => {
-    //     return moment(value).format(SLASH_DMY);
-    //   },
-    // },
     {
       title: "เขต",
       dataIndex: "zone",
@@ -262,8 +257,8 @@ export const PriceListX10: React.FC = () => {
       render: (value: any, row: any, index: number) => {
         return {
           children: row.status ? (
-            <>
-              <div className='d-flex flex-row justify-content-between'>
+            <Row justify={"start"} gutter={12}>
+              <Col span={6}>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() => navigate("/price/detail/" + row.customerCompanyId)}
@@ -272,8 +267,27 @@ export const PriceListX10: React.FC = () => {
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
-              </div>
-            </>
+              </Col>
+              <Col span={6}>
+                <div
+                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                  onClick={() =>
+                    Modal.confirm({
+                      title: "ต้องการลบร้านค้านี้ที่มีสินค้าราคาพิเศษ ?",
+                      okText: "ยืนยัน",
+                      cancelText: "ยกเลิก",
+                      onOk: () => {
+                        deleteSpecial(row.customerCompanyId, company);
+                      },
+                    })
+                  }
+                >
+                  <span className='svg-icon svg-icon-danger svg-icon-2x'>
+                    <DeleteOutlined style={{ color: color["error"] }} />
+                  </span>
+                </div>
+              </Col>
+            </Row>
           ) : (
             <>
               <div style={{ height: 32 }} />
