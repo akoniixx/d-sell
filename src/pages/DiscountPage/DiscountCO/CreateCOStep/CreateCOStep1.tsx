@@ -1,13 +1,4 @@
-import {
-  Col,
-  Form,
-  FormInstance,
-  message,
-  Row,
-  Upload,
-  Select as AntdSelect,
-  Radio,
-} from "antd";
+import { Col, Form, FormInstance, message, Row, Upload, Select as AntdSelect, Radio } from "antd";
 import React, { useEffect, useState } from "react";
 import Text from "../../../../components/Text/Text";
 import styled from "styled-components";
@@ -36,11 +27,11 @@ const MemoArea = styled.div`
   padding: 16px;
 `;
 
-export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) => {
+export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl, isEditing }: Props) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
-
   const [promotions, setPromotions] = useState();
+  const [isEdit, setEdit] = useState(isEditing);
 
   useEffect(() => {
     fetchPromotion();
@@ -80,7 +71,7 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) =
                 },
               ]}
             >
-              <Input placeholder='ระบุชื่อรายการ*' autoComplete="off"/>
+              <Input placeholder='ระบุชื่อรายการ*' autoComplete='off' />
             </Form.Item>
           </Col>
           {company === "ICPL" && (
@@ -107,7 +98,7 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) =
                       value: "CN",
                     },
                   ].map(({ label, value }) => (
-                    <Radio value={value} key={value}>
+                    <Radio value={value} key={value} disabled={isEdit}>
                       {label}
                     </Radio>
                   ))}
@@ -134,7 +125,6 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl }: Props) =
                   }}
                   onChange={({ file }: any) => {
                     if (file.status === "uploading") {
-                      console.log("f",file);
                       setFileMemo(file);
                       file.status = "done";
                     }
