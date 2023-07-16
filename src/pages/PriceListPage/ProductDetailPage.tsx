@@ -1,6 +1,6 @@
 import React, { useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { Row, Col, Tag, Card, Button } from "antd";
+import { Row, Col, Tag, Card, Button, Image } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { EditOutlined } from "@ant-design/icons";
 import { getProductDetail } from "../../datasource/ProductDatasource";
@@ -228,8 +228,13 @@ export const DistributionPageDetail: React.FC = (props: any) => {
         <CardContainer>
           <PageTitle />
           <Container>
-            <ProdImage
+            <Image
               src={(isFreebie ? productFreebiesImage : productImage) || image.product_no_image}
+              style={{
+                width: "136px",
+                height: "136px",
+                objectFit: "contain",
+              }}
             />
           </Container>
           <Container>

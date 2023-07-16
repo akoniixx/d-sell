@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { Row, Col, Divider, Form, Modal, Table, Avatar } from "antd";
+import { Row, Col, Divider, Form, Modal, Table, Avatar, Image } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
@@ -288,10 +288,13 @@ export const OrderDetail: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar
+                <Image
                   src={row?.productImage || image.product_no_image}
-                  size={50}
-                  shape='square'
+                  style={{
+                    width: "55px",
+                    height: "55px",
+                    objectFit: "contain",
+                  }}
                 />
               </div>
               <FlexCol>

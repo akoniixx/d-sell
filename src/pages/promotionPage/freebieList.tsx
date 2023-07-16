@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tabs, Row, Col, Avatar, Tag, Modal, message } from "antd";
+import { Table, Tabs, Row, Col, Image, Tag, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { EditOutlined, SearchOutlined, SyncOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { SearchOutlined, SyncOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { nameFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
@@ -181,19 +181,39 @@ export const FreebieListPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar
+                <Image
                   src={row.productFreebiesImage || image.product_no_image}
-                  size={50}
-                  shape='square'
+                  style={{
+                    width: "55px",
+                    height: "55px",
+                    objectFit: "contain",
+                  }}
                 />
               </div>
               <FlexCol>
                 <Text level={5}>{row.productName}</Text>
                 <Text level={6} color='Text3'>
-                  {value}
+                  {row.productFreebiesCodeNAV}
                 </Text>
               </FlexCol>
             </FlexRow>
+          ),
+        };
+      },
+    },
+    {
+      title: "หน่วยสินค้า",
+      dataIndex: "unit",
+      key: "unit",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <FlexCol>
+              <Text level={5}>{row.baseUnitOfMeaEn || "-"}</Text>
+              <Text level={6} color='Text3'>
+                {row.baseUnitOfMeaTh || "-"}
+              </Text>
+            </FlexCol>
           ),
         };
       },

@@ -157,13 +157,13 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     {
       key: 1,
       name: "MKT 02/66 ราคาพิเศษ 123",
-      img: image.error404,
+      img: image.icp_international,
       code: "Memo 16-64",
     },
     {
       key: 2,
       name: "MKT 02/66 ราคาพิเศษ 456",
-      img: image.error404,
+      img: image.login,
       code: "Memo 16-65",
     },
   ];
@@ -403,29 +403,25 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                 <>
                   {productImage ? (
                     <Container>
-                      <ProdImage>
-                        <img
-                          src={productImage}
-                          style={{
-                            width: "136px",
-                            height: "136px",
-                            objectFit: "contain",
-                          }}
-                        />
-                      </ProdImage>
+                      <Image
+                        src={productImage}
+                        style={{
+                          width: "136px",
+                          height: "136px",
+                          objectFit: "contain",
+                        }}
+                      />
                     </Container>
                   ) : (
                     <Container>
-                      <ProdImage>
-                        <img
-                          src={image.product_no_image}
-                          style={{
-                            width: "136px",
-                            height: "136px",
-                            objectFit: "contain",
-                          }}
-                        />
-                      </ProdImage>
+                      <Image
+                        src={image.product_no_image}
+                        style={{
+                          width: "136px",
+                          height: "136px",
+                          objectFit: "contain",
+                        }}
+                      />
                     </Container>
                   )}
                 </>
@@ -551,8 +547,11 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                   ))}
                 </>
               ) : (
-                <div style={{display : 'flex', justifyContent: 'center'}}>
-                  <Text align='center' color="Text3"> ไม่พบข้อมูลโปรโมชัน</Text>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <Text align='center' color='Text3'>
+                    {" "}
+                    ไม่พบข้อมูลโปรโมชัน
+                  </Text>
                 </div>
               )}
             </CardContainer>
