@@ -5,7 +5,7 @@ import Button from "../../../components/Button/Button";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
 import { getCreditHistory, getCreditMemoById } from "../../../datasource/CreditMemoDatasource";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
@@ -15,8 +15,13 @@ import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../../components/Spin/pageSpin";
 import { numberFormatter } from "../../../utility/Formatter";
+import Input from "../../../components/Input/Input";
+import Select from "../../../components/Select/Select";
+import { getZones } from "../../../datasource/CustomerDatasource";
+import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
+import { coPricePeriod } from "../../../definitions/coPricePeriod";
 
-const SLASH_DMY = "DD/MM/YYYY";
+const SLASH_DMY = "DD/MM/YYYY HH:mm:ss";
 export const CreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -27,11 +32,17 @@ export const CreditMemoDetail: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<CreditMemoEntity>();
+  const [dataSearch, setDataSerach] = useState<CreditMemoEntity>();
   const [historyLoading, setHistoryLoading] = useState(false);
   const [history, setHistory] = useState();
+  const [zones, setZones] = useState<ZoneEntity[]>([]);
+  const [searchZone, setSearchZone] = useState("");
+  const [searchCus, setSearchCus] = useState("");
+  const [searchPeriod, setSearchPeriod] = useState<any>({ min: "", max: "" });
 
   useEffect(() => {
     fetchData();
+    fetchZone();
   }, []);
 
   const fetchData = async () => {
@@ -40,6 +51,7 @@ export const CreditMemoDetail: React.FC = () => {
     await getCreditMemoById(id)
       .then((res: any) => {
         setData(res);
+        setDataSerach(res);
       })
       .catch((e: any) => {
         console.log(e);
@@ -48,13 +60,17 @@ export const CreditMemoDetail: React.FC = () => {
         setLoading(false);
       });
   };
-
+  const fetchZone = async () => {
+    const zoneData = await getZones(company);
+    setZones(zoneData.map((d: StoreEntity, i: number) => ({ ...d, key: i })));
+  };
   const fetchHistory = async () => {
     setHistoryLoading(true);
     const id = pathSplit[3];
     await getCreditHistory(id)
       .then((res: any) => {
-        setHistory(res);
+        const sorting = res.sort((a: any, b: any) => (a.createdAt < b.createdAt ? 1 : -1));
+        setHistory(sorting);
       })
       .catch((e: any) => {
         console.log(e);
@@ -63,7 +79,6 @@ export const CreditMemoDetail: React.FC = () => {
         setHistoryLoading(false);
       });
   };
-
   const PageTitle = () => {
     return (
       <PageTitleNested
@@ -89,7 +104,6 @@ export const CreditMemoDetail: React.FC = () => {
       />
     );
   };
-
   const descriptionItems = [
     {
       label: "สถานะ",
@@ -118,7 +132,6 @@ export const CreditMemoDetail: React.FC = () => {
       value: data?.updateBy || "-",
     },
   ];
-
   const creditMemoColumn = [
     {
       title: "รหัสร้านค้า",
@@ -139,7 +152,7 @@ export const CreditMemoDetail: React.FC = () => {
       align: "center" as AlignType,
     },
     {
-      title: "ส่วนลดดูแลราคา",
+      title: "ส่วนลดดูแลราคา (บาท)",
       dataIndex: "receiveAmount",
       key: "receiveAmount",
       align: "center" as AlignType,
@@ -148,7 +161,6 @@ export const CreditMemoDetail: React.FC = () => {
       },
     },
   ];
-
   const creditMemoHistoryColumn = [
     {
       title: "วันเวลาที่อัปเดท",
@@ -180,7 +192,7 @@ export const CreditMemoDetail: React.FC = () => {
       key: "beforeValue",
       align: "center" as AlignType,
       render: (value: string) => {
-        return value || "-";
+        return numberFormatter(value, 0) || "-";
       },
     },
     {
@@ -189,10 +201,82 @@ export const CreditMemoDetail: React.FC = () => {
       key: "afterValue",
       align: "center" as AlignType,
       render: (value: string) => {
-        return value || "-";
+        return numberFormatter(value, 0) || "-";
       },
     },
   ];
+
+  const searchPricePeriod = (e: any) => {
+    const findPeriod = coPricePeriod.find((x) => x.key === e);
+    if (findPeriod || searchZone || searchCus) {
+      setSearchPeriod({ min: findPeriod?.min, max: findPeriod?.max });
+      const findData = data?.creditMemoShop.filter((x) => {
+        const searchPeriod =
+          !findPeriod?.min ||
+          (x.receiveAmount >= findPeriod?.min && x.receiveAmount <= findPeriod?.max);
+        const findZone = !searchZone || x.zone.includes(searchZone);
+        const findCus =
+          !searchCus ||
+          x.customerName.includes(searchCus) ||
+          x.customerNo.toLocaleLowerCase().includes(searchCus);
+        return searchPeriod && findZone && findCus;
+      });
+      const map: any = { ...data };
+      map.creditMemoShop = findData;
+      setDataSerach(map);
+    } else {
+      setSearchPeriod({ min: "", max: "" });
+      setDataSerach(data);
+    }
+  };
+
+  const searchCusZone = (e: any) => {
+    if (e || searchPeriod.min || searchPeriod.max || searchCus) {
+      setSearchZone(e);
+      const findData = data?.creditMemoShop.filter((x) => {
+        const findPeriod =
+          !searchPeriod?.min ||
+          (x.receiveAmount >= (searchPeriod?.min || 0) &&
+            x.receiveAmount <= (searchPeriod?.max || 0));
+        const findZone = !e || x.zone.includes(e);
+        const findCus =
+          !searchCus ||
+          x.customerName.includes(searchCus) ||
+          x.customerNo.toLocaleLowerCase().includes(searchCus);
+        return findPeriod && findZone && findCus;
+      });
+      const map: any = { ...data };
+      map.creditMemoShop = findData;
+      setDataSerach(map);
+    } else {
+      setSearchZone("");
+      setDataSerach(data);
+    }
+  };
+
+  const searchCusName = (e: any) => {
+    if (e.target.value || searchPeriod.min || searchPeriod.max || searchZone) {
+      setSearchCus(e.target.value);
+      const findData = data?.creditMemoShop.filter((x) => {
+        const findPeriod =
+          !searchPeriod?.min ||
+          (x.receiveAmount >= (searchPeriod?.min || 0) &&
+            x.receiveAmount <= (searchPeriod?.max || 0));
+        const findZone = !searchZone || x.zone.includes(searchZone);
+        const findCus =
+          !e.target.value ||
+          x.customerName.includes(e.target.value) ||
+          x.customerNo.toLocaleLowerCase().includes(e.target.value);
+        return findPeriod && findZone && findCus;
+      });
+      const map: any = { ...data };
+      map.creditMemoShop = findData;
+      setDataSerach(map);
+    } else {
+      setSearchCus("");
+      setDataSerach(data);
+    }
+  };
 
   const tabsItems = [
     {
@@ -211,16 +295,52 @@ export const CreditMemoDetail: React.FC = () => {
             </Row>
           ))}
           <br />
-          <br />
-          <Text fontWeight={700}>รายการ ส่วนลดดูแลราคา</Text>
-          <br />
+          <Row gutter={8}>
+            <Col span={12}>
+              <Text fontWeight={700}>รายการ ส่วนลดดูแลราคา</Text>
+            </Col>
+            <Col span={4}>
+              <Select
+                allowClear
+                data={[
+                  ...coPricePeriod.map((z: any) => ({
+                    label: z.lable,
+                    key: z.key,
+                    value: z.key,
+                  })),
+                ]}
+                placeholder='เลือกช่วงราคา'
+                style={{ width: "100%" }}
+                onChange={(e) => searchPricePeriod(e)}
+              />
+            </Col>
+            <Col span={4}>
+              <Select
+                allowClear
+                data={[...zones.map((z) => ({ label: z.zoneName, key: z.zoneName }))]}
+                placeholder='เขตร้านค้า : ทั้งหมด'
+                style={{ width: "100%" }}
+                onChange={searchCusZone}
+              />
+            </Col>
+            <Col span={4}>
+              <Input
+                allowClear
+                placeholder='ค้นหาร้านค้า...'
+                prefix={<SearchOutlined style={{ color: "grey" }} />}
+                onChange={(e) => searchCusName(e)}
+              />
+            </Col>
+          </Row>
           <br />
           <TableContainer>
             <Table
               columns={creditMemoColumn}
-              dataSource={data?.creditMemoShop?.map((s: any, i: any) => ({ ...s, key: i }))}
+              dataSource={dataSearch?.creditMemoShop?.map((s: any, i: any) => ({ ...s, key: i }))}
               loading={loading}
               pagination={false}
+              scroll={{ y: 500 }}
+              style={{ height: "500px" }}
             />
           </TableContainer>
         </>

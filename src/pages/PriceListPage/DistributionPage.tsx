@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tabs, Row, Col, Avatar, Tag, Modal, message } from "antd";
+import { Table, Tabs, Row, Col, Tag, Modal, message, Image } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, SyncOutlined } from "@ant-design/icons";
 import {
@@ -175,22 +175,6 @@ export const DistributionPage: React.FC = () => {
         )}
         <Col className='gutter-row' span={4}>
           <Select
-            defaultValue={status}
-            style={style}
-            allowClear
-            onChange={(value: string) => {
-              setStatus(value);
-              resetPage();
-            }}
-            placeholder='เลือกสถานะ'
-            data={[
-              { key: "ACTIVE", label: "Active", value: "ACTIVE" },
-              { key: "INACTIVE", label: "Inactive", value: "INACTIVE" },
-            ]}
-          />
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <Select
             defaultValue={prodGroup}
             style={style}
             allowClear
@@ -204,6 +188,23 @@ export const DistributionPage: React.FC = () => {
               label: group.product_group,
               value: group.product_group,
             }))}
+          />
+        </Col>
+        <Col className='gutter-row' span={4}>
+          <Select
+            defaultValue={status}
+            style={style}
+            allowClear
+            onChange={(value: string) => {
+              setStatus(value);
+              resetPage();
+            }}
+            placeholder='เลือกสถานะ'
+            data={[
+              { key: "ACTIVE", label: "Active", value: "ACTIVE" },
+              { key: "HOLD", label: "Hold", value: "HOLD" },
+              { key: "INACTIVE", label: "Inactive", value: "INACTIVE" },
+            ]}
           />
         </Col>
         <Col className='gutter-row' span={4}>
@@ -237,7 +238,14 @@ export const DistributionPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar src={row.productImage || image.product_no_image} size={50} shape='square' />
+                <Image
+                  src={row.productImage || image.product_no_image}
+                  style={{
+                    width: "55px",
+                    height: "55px",
+                    objectFit: "contain",
+                  }}
+                />
               </div>
               <FlexCol>
                 <Text level={5}>{row.productName}</Text>

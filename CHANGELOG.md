@@ -1,5 +1,12 @@
 ## [Version - 0]
 
+## Improve [v0.5.18] - Release Date: 2023-07-17
+
+- changed wording "Credit Memo" to "ส่วนลดดูแลราคา" in CO menu
+- added search zone in CO menu
+- added promotion in freebie menu
+- added freebie ribbon badge in order menu
+
 ## Improve [v0.5.17] - Release Date: 2023-07-13
 
 - added delete button special price

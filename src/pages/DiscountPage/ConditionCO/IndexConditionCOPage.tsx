@@ -141,7 +141,7 @@ export const IndexConditionCOPage: React.FC = () => {
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              รายการเงื่อนไข CO
+              รายการเงื่อนไขส่วนลดดูแลราคา
             </span>
           </div>
         </Col>
@@ -185,7 +185,6 @@ export const IndexConditionCOPage: React.FC = () => {
       key: "creditMemoConditionName",
       width: "25%",
       render: (value: any, row: any) => {
-        console.log(row);
         return {
           children: (
             <>
