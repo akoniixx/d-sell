@@ -4,6 +4,7 @@
 
 - fixed advance promotion view
 - fixed advance promotion create (mix by vol)
+- added product location in promotion setting page
 
 ## Features [v0.6.0] - Release Date: 2023-05-10
 
