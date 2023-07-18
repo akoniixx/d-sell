@@ -9,4 +9,5 @@ export default {
   icp_fertilizer: require("./media/images/LogoICPFert.png"),
   product_box: require("./media/images/product-box.png"),
   empty_shop: require("./media/images/empty_shop.png"),
+  emptyPromotion: require("./media/images/default_promotion.jpg"),
 };

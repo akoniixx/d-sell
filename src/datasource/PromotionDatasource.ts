@@ -24,6 +24,13 @@ const getProductFreebieDetail = async (productId: number) => {
     .catch((err) => console.log(err));
 };
 
+const getProductFreebiePromotionDetail = async (productId: number) => {
+  return await httpClient
+    .get(`${baseUrl}/product-freebies/freebies-promotion/${productId}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const getProductFreebieGroup = async (company: string) => {
   return await httpClient
     .get(`${baseUrl}/product-freebies/product-group/${company}`)
@@ -116,4 +123,5 @@ export {
   updatePromotionStatus,
   deletePromotion,
   getPromotionLog,
+  getProductFreebiePromotionDetail,
 };

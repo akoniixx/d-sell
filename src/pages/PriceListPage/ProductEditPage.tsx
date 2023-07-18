@@ -23,6 +23,7 @@ import TextArea from "../../components/Input/TextArea";
 import { ProductCategoryEntity } from "../../entities/ProductCategoryEntity";
 import {
   getProductFreebieDetail,
+  getProductFreebiePromotionDetail,
   updateProductFreebie,
 } from "../../datasource/PromotionDatasource";
 import Select from "../../components/Select/Select";
@@ -93,7 +94,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  const [dataState, setDataState] = useState<ProductEntity>();
+  const [dataState, setDataState] = useState<any>();
   const [categories, setCategories] = useState<Array<ProductCategoryEntity>>();
   const [file, setFile] = useState<any>();
   const [uploading, setUploading] = useState(false);
@@ -107,15 +108,13 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-
       let data;
       const id = parseInt(pathSplit[4]);
       if (isFreebie) {
-        data = await getProductFreebieDetail(id);
+        data = await getProductFreebiePromotionDetail(id);
       } else {
         data = await getProductDetail(parseInt(pathSplit[4]));
       }
-
       const userProfile = JSON.parse(localStorage.getItem("profile")!);
       const { company } = userProfile;
       const categories = await getProductCategory(company);
@@ -152,21 +151,6 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       setLoading(false);
     }
   };
-
-  const mockPromoton: any = [
-    {
-      key: 1,
-      name: "MKT 02/66 ราคาพิเศษ 123",
-      img: image.icp_international,
-      code: "Memo 16-64",
-    },
-    {
-      key: 2,
-      name: "MKT 02/66 ราคาพิเศษ 456",
-      img: image.login,
-      code: "Memo 16-65",
-    },
-  ];
 
   const updateData = async () => {
     const { description, productCategoryId, productStatus } = form.getFieldsValue();
@@ -226,6 +210,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     productFreebiesCodeNAV,
     productFreebiesImage,
     productFreebiesStatus,
+    promotionOfProduct,
   } = dataState || {};
 
   const dataGroup1 = isFreebie
@@ -511,26 +496,26 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       </Col>
       {isFreebie && (
         <Col span={8}>
-          <CardSection title='โปรโมชันที่เข้าร่วมของแถม' bgColor='#1B4586' textColor='white'>
+          <CardSection title='โปรโมชันที่ของแถมเข้าร่วม' bgColor='#1B4586' textColor='white'>
             <CardContainer style={{ borderRadius: "5px", height: "500px" }}>
-              {mockPromoton?.length > 0 ? (
+              {promotionOfProduct?.length > 0 ? (
                 <>
-                  {mockPromoton?.map((x: any) => (
+                  {promotionOfProduct?.map((x: any) => (
                     <>
-                      <Row justify={"space-between"} key={x.key}>
+                      <Row justify={"space-between"} key={x.promotionId}>
                         <Col span={3}>
-                          <Image src={x.img} width={70} />
+                          <Image src={x.promotionImageSecond || image.emptyPromotion} width={70} />
                         </Col>
                         <Col span={13}>
-                          <Text level={6}>{x.name}</Text>
+                          <Text level={6}>{x.promotionName}</Text>
                           <br />
                           <Text color='Text3' level={6}>
-                            {x.code}
+                            {x.promotionCode}
                           </Text>
                         </Col>
                         <Col span={2}>
                           <Link
-                            to={`/PromotionPage/promotion/detail/5c47d272-14b2-47f3-84ae-425bcad22da2`}
+                            to={`/PromotionPage/promotion/detail/${x.promotionId}`}
                             rel='noopener noreferrer'
                             target='_blank'
                           >
