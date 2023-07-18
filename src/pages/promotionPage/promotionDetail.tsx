@@ -507,11 +507,19 @@ const DetailTab: React.FC = () => {
                                           <Col span={9}>
                                             <Form.Item
                                               label='หน่วย'
-                                              initialValue={f?.saleUOMTH || f?.baseUnitOfMeaEn}
+                                              initialValue={
+                                                f?.baseUnitOfMeaTh ||
+                                                f?.saleUOMTH ||
+                                                f?.baseUnitOfMeaEn
+                                              }
                                             >
                                               <Input
                                                 disabled
-                                                value={f?.saleUOMTH || f?.baseUnitOfMeaEn}
+                                                value={
+                                                  f?.baseUnitOfMeaTh ||
+                                                  f?.saleUOMTH ||
+                                                  f?.baseUnitOfMeaEn
+                                                }
                                               />
                                             </Form.Item>
                                           </Col>
@@ -692,11 +700,19 @@ const DetailTab: React.FC = () => {
                                         <Col span={9}>
                                           <Form.Item
                                             label='หน่วย'
-                                            initialValue={f?.saleUOMTH || f?.baseUnitOfMeaEn}
+                                            initialValue={
+                                              f?.baseUnitOfMeaTh ||
+                                              f?.saleUOMTH ||
+                                              f?.baseUnitOfMeaEn
+                                            }
                                           >
                                             <Input
                                               disabled
-                                              value={f?.saleUOMTH || f?.baseUnitOfMeaEn}
+                                              value={
+                                                f?.baseUnitOfMeaTh ||
+                                                f?.saleUOMTH ||
+                                                f?.baseUnitOfMeaEn
+                                              }
                                             />
                                           </Form.Item>
                                         </Col>

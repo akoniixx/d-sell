@@ -249,32 +249,34 @@ export const CollapsePanelItem = ({
               {...restField}
               label='จำนวนที่ซื้อครบ'
               name={[name, "quantity"]}
-              rules={[
-                { required: true, message: "โปรดระบุจำนวนที่ซื้อครบ" },
-                {
-                  // message: "จำนวนที่ซื้อครบต้องมากกว่า 0 และไม่ซ้ำกัน",
-                  validator(rule, value, callback) {
-                    if (!value) callback();
-                    if (parseInt(value) <= 0) {
-                      callback("จำนวนที่ซื้อครบต้องมากกว่า 0");
-                      // throw new Error();
-                    }
-                    const findDupplicate =
-                      form?.getFieldValue(currentKey) &&
-                      form
-                        .getFieldValue(currentKey)
-                        .reduce(
-                          (acc: number, item: any) => (item?.quantity === value ? acc + 1 : acc),
-                          0,
-                        );
-                    if (fields && fields.length > 1 && findDupplicate > 1) {
-                      callback("จำนวนที่ซื้อครบต้องไม่ซ้ำกัน");
-                      // throw new Error();
-                    }
-                    callback();
+              rules={
+                promotionGroupOption !== PromotionGroupOption.WEIGHT && [
+                  { required: true, message: "โปรดระบุจำนวนที่ซื้อครบ" },
+                  {
+                    // message: "จำนวนที่ซื้อครบต้องมากกว่า 0 และไม่ซ้ำกัน",
+                    validator(rule, value, callback) {
+                      if (!value) callback();
+                      if (parseInt(value) <= 0) {
+                        callback("จำนวนที่ซื้อครบต้องมากกว่า 0");
+                        // throw new Error();
+                      }
+                      const findDupplicate =
+                        form?.getFieldValue(currentKey) &&
+                        form
+                          .getFieldValue(currentKey)
+                          .reduce(
+                            (acc: number, item: any) => (item?.quantity === value ? acc + 1 : acc),
+                            0,
+                          );
+                      if (fields && fields.length > 1 && findDupplicate > 1) {
+                        callback("จำนวนที่ซื้อครบต้องไม่ซ้ำกัน");
+                        // throw new Error();
+                      }
+                      callback();
+                    },
                   },
-                },
-              ]}
+                ]
+              }
             >
               <Input type='number' placeholder='ระบุจำนวนที่ซื้อครบ' min={0} />
             </Form.Item>
