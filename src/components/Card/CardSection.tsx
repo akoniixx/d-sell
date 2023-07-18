@@ -15,10 +15,8 @@ interface Props {
   children?: React.ReactNode;
   extra?: React.ReactNode;
   leftComponent?: React.ReactNode;
-  bgColor?: string;
-  textColor?: string;
 }
-function CardSection({ children, extra, style, title, leftComponent, bgColor,textColor }: Props) {
+function CardSection({ children, extra, style, title, leftComponent }: Props) {
   return (
     <CardSectionStyled style={style}>
       <Row
@@ -28,10 +26,10 @@ function CardSection({ children, extra, style, title, leftComponent, bgColor,tex
           alignItems: "center",
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8,
-          backgroundColor: bgColor,
+          backgroundColor: color.background1,
         }}
       >
-        {leftComponent ? leftComponent : <Text style={{color : textColor}} fontWeight={700}>{title}</Text>}
+        {leftComponent ? leftComponent : <Text fontWeight={700}>{title}</Text>}
         {extra}
       </Row>
       {children}

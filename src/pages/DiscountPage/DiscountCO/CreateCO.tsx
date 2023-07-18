@@ -168,7 +168,7 @@ export const DiscountCreatePage: React.FC = () => {
               })),
             };
             setCreditMemoData(data);
-            onSubmit(defaultData.creditMemoStatus, data);
+            onSubmit(true, data);
           }
         })
         .catch((errInfo) => {
@@ -186,17 +186,13 @@ export const DiscountCreatePage: React.FC = () => {
       ...data,
       creditMemoId: id,
       company,
-      creditMemoStatus: creditMemoStatus,
+      creditMemoStatus,
       createBy: isEditing ? undefined : username,
       updateBy: isEditing ? username : undefined,
     };
     const submitData = new FormData();
     Object.entries(submitDataObj).forEach(([key, value]) => {
-      if (key === "creditMemoStatus") {
-        submitData.append("creditMemoStatus", String(creditMemoStatus));
-      } else {
-        if (!["file", "creditMemoShop"].includes(key) && value) submitData.append(key, `${value}`);
-      }
+      if (!["file", "creditMemoShop"].includes(key) && value) submitData.append(key, `${value}`);
     });
     submitDataObj?.creditMemoShop?.forEach((shop: CreditMemoShopEntity) => {
       const str = JSON.stringify(shop);
@@ -204,7 +200,7 @@ export const DiscountCreatePage: React.FC = () => {
     });
     submitData.append("file", fileMemo?.originFileObj);
     const callback = (res: any) => {
-      const { success, userMessage } = res;
+      const { success, responseData, developerMessage, userMessage } = res;
       const onDone = () => {
         setDone(true);
         setTimeout(() => {

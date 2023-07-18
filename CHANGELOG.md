@@ -1,22 +1,5 @@
 ## [Version - 0]
 
-## Resolved [v0.6.1] - Release Date: 2023-05-09
-
-- fixed advance promotion view
-- fixed advance promotion create (mix by vol)
-- added product location in promotion setting page
-
-## Features [v0.6.0] - Release Date: 2023-05-10
-
-- Feature: Advance Promotion Setting
-
-## Improve [v0.5.18] - Release Date: 2023-07-17
-
-- changed wording "Credit Memo" to "ส่วนลดดูแลราคา" in CO menu
-- added search zone in CO menu
-- added promotion in freebie menu
-- added freebie ribbon badge in order menu
-
 ## Improve [v0.5.17] - Release Date: 2023-07-13
 
 - added delete button special price

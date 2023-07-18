@@ -1,18 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { Table, Row, Col } from "antd";
+import React, { useEffect, useState, memo } from "react";
+import { Table, Tabs, Modal, Switch, Row, Col, Pagination } from "antd";
 import { CardContainer } from "../../../components/Card/CardContainer";
-import { SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  SearchOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
+import { RangePicker } from "../../../components/DatePicker/DatePicker";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
-import { getCustomerCreditMemoList } from "../../../datasource/CreditMemoDatasource";
+import {
+  getCreditMemoList,
+  getCustomerCreditMemoList,
+} from "../../../datasource/CreditMemoDatasource";
+import moment from "moment";
 import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import color from "../../../resource/color";
 import { priceFormatter } from "../../../utility/Formatter";
-import { getZones } from "../../../datasource/CustomerDatasource";
-import Select from "../../../components/Select/Select";
-import { AlignType } from "rc-table/lib/interface";
 
 type FixedType = "left" | "right" | boolean;
 
@@ -32,13 +39,10 @@ export const CustomerDiscountListPage: React.FC = () => {
     count_status: [],
     data: [],
   });
-  const [zones, setZones] = useState<any>();
-  const [searchZone, setSearchZone] = useState<any>();
 
   useEffect(() => {
     if (!loading) fetchData();
-    fetchZone();
-  }, [keyword, statusFilter, page, searchZone]);
+  }, [keyword, statusFilter, page]);
 
   const resetPage = () => setPage(1);
 
@@ -51,70 +55,48 @@ export const CustomerDiscountListPage: React.FC = () => {
         searchText: keyword,
         take: pageSize,
         page,
-        zone: searchZone,
       });
       setDataState({
         data: data?.map((e: any, i: number) => ({ ...e, key: i })),
         count,
         count_status,
       });
+      console.log({ data, count, count_status });
     } catch (e) {
       console.log(e);
     } finally {
       setLoading(false);
     }
   };
-  const fetchZone = async () => {
-    const zoneData = await getZones(company);
-    const data = zoneData.map((item: any) => {
-      return {
-        label: item.zoneName,
-        value: item.zoneName,
-        key: item.zoneId,
-      };
-    });
-    setZones(data);
-  };
 
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
-        <Col className='gutter-row' xl={10} sm={12}>
+        <Col className='gutter-row' xl={14} sm={12}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              ส่วนลดดูแลราคารายร้าน
+              Discount CO รายร้าน
             </span>
           </div>
         </Col>
-        <Col span={4}>
-          <Select
-            allowClear
-            value={searchZone}
-            placeholder='เขตร้านค้า : ทั้งหมด'
-            data={zones}
-            style={{ width: "100%" }}
-            onChange={(e) => setSearchZone(e)}
-          />
-        </Col>
         <Col className='gutter-row' xl={5} sm={6}>
           <Input
-            allowClear
-            placeholder='ค้นหาร้านค้า/รหัสร้านค้า'
+            placeholder='ค้นหาร้านค้า'
             prefix={<SearchOutlined style={{ color: "grey" }} />}
             defaultValue={keyword}
             onPressEnter={(e: any) => {
               const value = (e.target as HTMLTextAreaElement).value;
               setKeyword(value);
-              resetPage();
+              // resetPage();
             }}
             onChange={(e: any) => {
               const value = (e.target as HTMLInputElement).value;
               if (!value) {
                 setKeyword("");
-                resetPage();
+                // resetPage();
               }
             }}
             style={{ width: "100%" }}
@@ -123,7 +105,7 @@ export const CustomerDiscountListPage: React.FC = () => {
         <Col className='gutter-row' xl={5} sm={6}>
           <Button
             type='primary'
-            title='+ สร้างส่วนลดดูแลราคา'
+            title='+ สร้าง ส่วนลดดูแลราคา'
             height={40}
             onClick={() => navigate(`/discount/create`)}
           />
@@ -155,16 +137,16 @@ export const CustomerDiscountListPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Customer No",
-      dataIndex: "customer_no",
-      key: "customer_no",
+      title: "Customer Company ID",
+      dataIndex: "customer_company_id",
+      key: "customer_company_id",
       width: "15%",
     },
     {
       title: "ชื่อร้านค้า",
       dataIndex: "customer_name",
       key: "customername",
-      width: "25%",
+      width: "20%",
       render: (value: string, row: any) => {
         return (
           <>
@@ -197,14 +179,13 @@ export const CustomerDiscountListPage: React.FC = () => {
       title: "เขต",
       dataIndex: "zone",
       key: "zone",
-      width: "10%",
+      width: "15%",
     },
     {
-      title: <div style={{ display: "flex", justifyContent: "flex-start" }}>ยอดคงเหลือ</div>,
+      title: "ยอดคงเหลือ",
       dataIndex: "balance",
       key: "balance",
       width: "15%",
-      align: "right" as AlignType,
       render: (value: string, row: any) => {
         return priceFormatter(value, undefined, true);
       },
@@ -242,12 +223,19 @@ export const CustomerDiscountListPage: React.FC = () => {
         <CardContainer>
           <PageTitle />
           <br />
+          {/* <Tabs
+            items={tabsItems}
+            onChange={(key: string) => {
+              setStatusFilter(key === "ALL" ? undefined : key);
+              resetPage();
+            }}
+          /> */}
+          <br />
           <Table
             className='rounded-lg'
             columns={columns}
             dataSource={dataState.data}
             pagination={{
-              showSizeChanger: false,
               pageSize,
               current: page,
               onChange: (page) => setPage(page),

@@ -1,11 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Table, Tabs, Row, Col, Image, Tag, Modal, message } from "antd";
+import React, { useEffect, useState, memo, useMemo } from "react";
+import { Table, Tabs, Row, Col, Avatar, Tag, Switch, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { SearchOutlined, SyncOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import { nameFormatter } from "../../utility/Formatter";
+import { EditOutlined, DeleteOutlined, SearchOutlined, SyncOutlined } from "@ant-design/icons";
+import { Option } from "antd/lib/mentions";
+import {
+  getProductBrand,
+  getProductCategory,
+  getProductGroup,
+} from "../../datasource/ProductDatasource";
+import { nameFormatter, priceFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
+import { BrandEntity } from "../../entities/BrandEntity";
 import { STATUS_COLOR_MAPPING } from "../../definitions/product";
+import { useRecoilValue } from "recoil";
+import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
 import image from "../../resource/image";
@@ -64,12 +73,25 @@ export const FreebieListPage: React.FC = () => {
         productFreebiesStatus: statusFilter,
         page,
       });
+
       const { responseData } = await getProductFreebieGroup(company);
       setDataState({
         data,
         count,
         count_status,
         groups: responseData,
+      });
+      console.log({
+        company,
+        prodGroup,
+        keyword,
+        statusFilter,
+        page,
+        data,
+        count_status,
+        count,
+        responseData,
+        userProfile,
       });
     } catch (e) {
       console.log(e);
@@ -176,24 +198,22 @@ export const FreebieListPage: React.FC = () => {
       title: "ชื่อของแถม",
       dataIndex: "commonName",
       key: "commonName",
+      // width: "12%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Image
+                <Avatar
                   src={row.productFreebiesImage || image.product_no_image}
-                  style={{
-                    width: "55px",
-                    height: "55px",
-                    objectFit: "contain",
-                  }}
+                  size={50}
+                  shape='square'
                 />
               </div>
               <FlexCol>
                 <Text level={5}>{row.productName}</Text>
                 <Text level={6} color='Text3'>
-                  {row.productFreebiesCodeNAV}
+                  {value}
                 </Text>
               </FlexCol>
             </FlexRow>
@@ -201,23 +221,21 @@ export const FreebieListPage: React.FC = () => {
         };
       },
     },
-    {
-      title: "หน่วยสินค้า",
-      dataIndex: "unit",
-      key: "unit",
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: (
-            <FlexCol>
-              <Text level={5}>{row.baseUnitOfMeaEn || "-"}</Text>
-              <Text level={6} color='Text3'>
-                {row.baseUnitOfMeaTh || "-"}
-              </Text>
-            </FlexCol>
-          ),
-        };
-      },
-    },
+    // {
+    //   title: "รหัสสินค้า",
+    //   dataIndex: "productFreebiesCodeNAV",
+    //   key: "productFreebiesCodeNAV",
+    //   // width: "18%",
+    //   render: (value: any, row: any, index: number) => {
+    //     return {
+    //       children: (
+    //         <FlexCol>
+    //           <Text level={5}>{value}</Text>
+    //         </FlexCol>
+    //       ),
+    //     };
+    //   },
+    // },
     {
       title: "หมวด",
       dataIndex: "productGroup",
@@ -239,6 +257,7 @@ export const FreebieListPage: React.FC = () => {
       title: "สถานะ",
       dataIndex: "productFreebiesStatus",
       key: "productFreebiesStatus",
+      // width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
           children: <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>,
@@ -261,7 +280,7 @@ export const FreebieListPage: React.FC = () => {
                   onClick={() => navigate("/freebies/freebies/edit/" + row.productFreebiesId)}
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined style={{ color: color["primary"] }} />
+                    <EditOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
               </div>

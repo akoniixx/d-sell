@@ -16,9 +16,7 @@ const getCreditMemoList = async (params: object) => {
 const getCustomerCreditMemoList = async (params: object) => {
   return await httpClient
     .get(`${baseUrl}/credit-memo-shop`, { params })
-    .then((res: AxiosResponse) => {
-      return res.data;
-    })
+    .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
 
@@ -64,6 +62,7 @@ const createCreditMemo = async (data: object) => {
 };
 
 const updateCreditMemo = async (data: object) => {
+  console.log("api", data);
   return await httpClient
     .patch(`${baseUrl}/credit-memo`, data)
     .then((res: AxiosResponse) => res.data)

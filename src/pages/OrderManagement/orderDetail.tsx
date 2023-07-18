@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { Row, Col, Divider, Form, Modal, Table, Image, Badge } from "antd";
+import { Row, Col, Divider, Form, Modal, Table, Avatar } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
@@ -288,13 +288,10 @@ export const OrderDetail: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Image
+                <Avatar
                   src={row?.productImage || image.product_no_image}
-                  style={{
-                    width: "55px",
-                    height: "55px",
-                    objectFit: "contain",
-                  }}
+                  size={50}
+                  shape='square'
                 />
               </div>
               <FlexCol>
@@ -455,24 +452,16 @@ export const OrderDetail: React.FC = () => {
       key: "price",
       fixed: "right" as FixedType,
       render: (price: number, product: ProductEntity, index: number) => {
-        console.log(product);
         return {
           children: (
-            <>
-              {!price && (
-                <div style={{ position: "relative", bottom: 26, right: -10 }}>
-                  <Badge.Ribbon text='ของแถม' placement='end'></Badge.Ribbon>
-                </div>
-              )}
-              <FlexCol>
-                <Text level={5} color='primary' fontWeight={700}>
-                  {priceFormatter(price || "0", undefined, false, true)}
-                </Text>
-                <Text level={6} color='Text3'>
-                  {"บาท"}
-                </Text>
-              </FlexCol>
-            </>
+            <FlexCol>
+              <Text level={5} color='primary' fontWeight={700}>
+                {priceFormatter(price || "0", undefined, false, true)}
+              </Text>
+              <Text level={6} color='Text3'>
+                {"บาท"}
+              </Text>
+            </FlexCol>
           ),
         };
       },
@@ -752,22 +741,6 @@ export const OrderDetail: React.FC = () => {
         </Row>
         <br />
         <CardContainer>
-          <Row>
-            <Col span={12}>
-              <Text level={4} fontWeight={700}>
-                รายการสินค้า
-              </Text>
-            </Col>
-            <Col span={12}>
-              <div style={{ display: "flex", justifyContent: "end", paddingRight: 8, gap: 8 }}>
-                <Image src={icons.ribbonBadgeBlue} preview={false} width={20} />{" "}
-                <span>ของแถมโปรโมชั่น</span>
-                <Image src={icons.ribbonBadgeRed} preview={false} width={20} />{" "}
-                <span>ของแถม Special Request</span>
-              </div>
-            </Col>
-          </Row>
-          <br/>
           <Table
             columns={columns}
             dataSource={

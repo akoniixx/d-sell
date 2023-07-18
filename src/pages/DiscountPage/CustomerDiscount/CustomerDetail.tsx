@@ -1,20 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Form, message, Modal, Tabs, Table, Button as AntdButton } from "antd";
+import {
+  Row,
+  Col,
+  Divider,
+  Form,
+  message,
+  Modal,
+  Spin,
+  Tabs,
+  Tag,
+  Table,
+  Button as AntdButton,
+} from "antd";
 import { CardContainer } from "../../../components/Card/CardContainer";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../../components/Button/Button";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
+import styled from "styled-components";
+import { PromotionType } from "../../../definitions/promotion";
+import productState from "../../../store/productList";
+import { ProductEntity } from "../../../entities/PoductEntity";
 import {
+  createCreditMemo,
+  getCreditHistory,
+  getCreditMemoById,
   getCustomerCreditMemo,
   getCustomerCreditMemoHistory,
   getOrderHistory,
   updateCoManual,
 } from "../../../datasource/CreditMemoDatasource";
-import { DetailBox, FlexCol } from "../../../components/Container/Container";
-import { EyeOutlined } from "@ant-design/icons";
+import { DetailBox, FlexCol, FlexRow } from "../../../components/Container/Container";
+import { CheckCircleTwoTone, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import moment from "moment";
+import Steps from "../../../components/StepAntd/steps";
+import { StoreEntity } from "../../../entities/StoreEntity";
+import { CreditMemoEntity } from "../../../entities/CreditMemoEntity";
 import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../../components/Spin/pageSpin";
@@ -23,6 +47,7 @@ import { useForm } from "antd/lib/form/Form";
 import Input from "../../../components/Input/Input";
 import DatePicker from "../../../components/DatePicker/DatePicker";
 import TextArea from "../../../components/Input/TextArea";
+import { isNumeric } from "../../../utility/validator";
 import "moment/locale/th";
 
 type factorType = -1 | 0 | 1;
@@ -30,7 +55,8 @@ type factorType = -1 | 0 | 1;
 export const CustomerCreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
-  
+
+  const navigate = useNavigate();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
 
@@ -59,6 +85,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     const id = pathSplit[3];
     await getCustomerCreditMemo(id)
       .then(async (res: any) => {
+        console.log("profile", res);
         setProfile(res);
       })
       .catch((e: any) => {
@@ -71,6 +98,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     setLoading(true);
     await getOrderHistory({ customerCompanyId: id })
       .then((res: any) => {
+        console.log("getOrderHistory", res.data);
         setData(res?.data);
       })
       .catch((e: any) => {
@@ -85,8 +113,10 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     setHistoryLoading(true);
     const id = pathSplit[3];
     // แก้ API
+    console.log("getCreditHistory", id);
     await getCustomerCreditMemoHistory(id)
       .then((res: any) => {
+        console.log("getCreditHistory", res);
         setHistory(
           res
             ?.filter((h: any) => h?.action === "สร้าง ส่วนลดดูแลราคา")
@@ -123,10 +153,9 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       title: "วันที่ใช้งาน",
       dataIndex: "updateAt",
       key: "updateAt",
-      width : '10%',
       align: "center" as AlignType,
       render: (value: string) => {
-        return dateFormatter(value, true);
+        return dateFormatter(value);
       },
     },
     {
@@ -136,9 +165,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       align: "center" as AlignType,
       render: (value: string, row: any) => {
         return value ? (
-          <Link to={`/view-order/${value}`} rel='noopener noreferrer' target='_blank'>
-            <Button title='ดูรายละเอียด' />
-          </Link>
+          <Button title='ดูรายละเอียด' onClick={() => navigate(`/view-order/${value}`)} />
         ) : (
           <FlexCol align='center'>
             <AntdButton
@@ -263,8 +290,10 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Table
               columns={creditMemoColumn}
               dataSource={data?.map((s: any, i: any) => ({ ...s, key: i }))}
-              pagination={false}
-              scroll={{ y: 500 }}
+              pagination={{
+                pageSize: 8,
+                position: ["bottomCenter"],
+              }}
             />
           </TableContainer>
           <Modal
@@ -325,7 +354,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       ),
     },
     {
-      label: `ประวัติ ส่วนลดดูแลราคา`,
+      label: `ประวัติได้รับ ส่วนลดดูแลราคา`,
       key: "2",
       children: (
         <>
@@ -333,8 +362,10 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Table
               dataSource={history}
               columns={historyColumns}
-              pagination={false}
-              scroll={{ y: 500 }}
+              pagination={{
+                pageSize: 8,
+                position: ["bottomCenter"],
+              }}
             />
           </TableContainer>
         </>
@@ -376,6 +407,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     setSubmit(true);
     await updateCoManual(val)
       .then(async (res: any) => {
+        console.log("updateCoManual", res);
         if (res?.success) {
           form.resetFields();
           setConfirmModal(false);
@@ -416,6 +448,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             </Text>
           ),
           onOk: () => {
+            console.log("form values", values);
             const { cnNo, coAmount, date, remark, soNo, total } = values;
             //TODO: call api
             const id = pathSplit[3];
@@ -591,6 +624,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                         },
                         {
                           validator: (rule, value, callback) => {
+                            // console.log("validator", factor);
                             if (factor < 0 && parseFloat(value) > parseFloat(profile?.balance)) {
                               return Promise.reject("*ยอดลดที่ใช้ เกินส่วนลดดูแลราคาคงเหลือในระบบ");
                             }
@@ -627,6 +661,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Tabs
               items={tabsItems}
               onChange={(key: string) => {
+                console.log("onChance tab", key, data, history);
                 if (!history) {
                   fetchHistory();
                 }
