@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.6.1] - Release Date: 2023-05-09
+
+- fixed advance promotion view
+- fixed advance promotion create (mix by vol)
+
 ## Features [v0.6.0] - Release Date: 2023-05-10
 
 - Feature: Advance Promotion Setting
