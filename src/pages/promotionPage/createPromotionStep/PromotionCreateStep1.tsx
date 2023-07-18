@@ -376,16 +376,11 @@ export const PromotionCreateStep1 = ({
             >
               <Select
                 placeholder='เลือกประเภทโปรโมชัน'
-                data={[
-                  {
-                    key: PromotionType.DISCOUNT_NOT_MIX,
-                    label: PROMOTION_TYPE_NAME[PromotionType.DISCOUNT_NOT_MIX],
-                  },
-                  {
-                    key: PromotionType.FREEBIES_NOT_MIX,
-                    label: PROMOTION_TYPE_NAME[PromotionType.FREEBIES_NOT_MIX],
-                  },
-                ]}
+                data={Object.entries(PROMOTION_TYPE_NAME).map(([key, label]) => ({
+                  key: key,
+                  value: key,
+                  label: `${label}`,
+                }))}
               />
             </Form.Item>
           </Col>

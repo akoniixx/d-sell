@@ -1,3 +1,4 @@
+import { PromotionType } from "../definitions/promotion";
 import { ProductEntity } from "./PoductEntity";
 
 export interface PromotionConditionEntity {
@@ -17,6 +18,10 @@ export interface PromotionConditionGroupEntity {
   unitPrice?: string;
   marketPrice?: string;
   saleUOMTH?: string;
+  products?: ProductEntity[];
+  conditionDiscount?: any;
+  conditionFreebies?: any;
+  detail?: string;
 }
 
 export interface PromotionShopEntity {
@@ -40,11 +45,11 @@ export interface PromotionSettingHistory {
 }
 
 interface PromotionSettingEntity {
-  promotionId?: string;
+  promotionId: string;
   company?: string;
   promotionCode?: string;
   promotionName?: string;
-  promotionType?: string;
+  promotionType: PromotionType;
   startDate?: string;
   endDate?: string;
   fileMemoPath?: string;

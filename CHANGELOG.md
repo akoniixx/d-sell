@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.6.0] - Release Date: 2023-05-10
+
+- Feature: Advance Promotion Setting
+
 ## Improve [v0.5.18] - Release Date: 2023-07-17
 
 - changed wording "Credit Memo" to "ส่วนลดดูแลราคา" in CO menu
