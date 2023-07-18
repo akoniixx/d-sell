@@ -50,15 +50,6 @@ interface ProdNameProps {
   size?: number;
 }
 
-interface SearchProps {
-  list: ProductEntity[];
-  setList: any;
-  onClose: any;
-  withFreebies?: boolean;
-  isReplacing?: string;
-  customTitle?: ReactNode;
-}
-
 export const ProductName = ({ product, size }: ProdNameProps) => {
   const withFrame = (e: ReactNode) => (
     <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>{e}</div>
@@ -94,6 +85,16 @@ export const ProductName = ({ product, size }: ProdNameProps) => {
   );
 };
 
+interface SearchProps {
+  list: ProductEntity[];
+  setList: any;
+  onClose: any;
+  withFreebies?: boolean;
+  isReplacing?: string;
+  customTitle?: ReactNode;
+  notFilteredProductList?: string[];
+}
+
 const AddProduct = ({
   list,
   setList,
@@ -101,6 +102,7 @@ const AddProduct = ({
   withFreebies,
   isReplacing,
   customTitle,
+  notFilteredProductList,
 }: SearchProps) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -164,6 +166,7 @@ const AddProduct = ({
     setFreebies(newData);
     setFreebieCount(count);
   };
+
   const fetchProductList = async () => {
     const { data, count } = await getProductList({
       company,
@@ -191,6 +194,7 @@ const AddProduct = ({
       }));
     }
   };
+
   const fetchProduct = async () => {
     try {
       setLoading(true);
@@ -274,7 +278,7 @@ const AddProduct = ({
       setList(selectedProduct[0]);
     } else {
       let newList = [
-        ...list,
+        ...(notFilteredProductList ? [] : list),
         // ...productList.allData.filter((item: any) => selectedProductId.includes(item.productId)),
         ...productList.allData.filter((item: any) => allSelectedList.has(item.productId)),
       ];
@@ -454,6 +458,7 @@ const AddProduct = ({
               ? freebies
               : products.filter(
                   (item) =>
+                    notFilteredProductList?.find((id) => `${item.productId}` === `${id}`) ||
                     !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`),
                 )
           }
