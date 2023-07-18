@@ -51,6 +51,8 @@ interface ProdNameProps {
 }
 
 export const ProductName = ({ product, size }: ProdNameProps) => {
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company } = userProfile;
   const withFrame = (e: ReactNode) => (
     <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>{e}</div>
   );
@@ -77,7 +79,12 @@ export const ProductName = ({ product, size }: ProdNameProps) => {
         )}
         {withFrame(
           <Text level={5} color='Text3'>
-            {product.productGroup}
+            {product.productGroup}&nbsp;
+            {company === "ICPI" && product.productLocation && (
+              <Text level={6} color='Text3'>
+                &nbsp;&nbsp;({LOCATION_FULLNAME_MAPPING[product.productLocation]})
+              </Text>
+            )}
           </Text>,
         )}
       </FlexCol>
