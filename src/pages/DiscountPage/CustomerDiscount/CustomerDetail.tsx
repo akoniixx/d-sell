@@ -109,7 +109,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "Discount CO รายร้าน", path: "/discount/customerList" },
+              { text: "ส่วนลดดูแลรายร้าน", path: "/discount/customerList" },
               { text: "รายละเอียดร้านค้า", path: window.location.pathname },
             ]}
           />
@@ -491,7 +491,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                 </Text>
               </Col>
               <Col span={6}>
-                <Button title='+ เพิ่ม CO ดูแลราคาแบบ Manual' onClick={toggleConfirmModal} />
+                <Button title='+ เพิ่มส่วนลดดูแลราคาแบบ Manual' onClick={toggleConfirmModal} />
                 <Modal
                   open={showConfirmModal}
                   onCancel={toggleConfirmModal}

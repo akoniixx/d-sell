@@ -60,7 +60,9 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
       title: "ชื่อสินค้า",
       dataIndex: "productName",
       ellipsis: true,
-      render: (value: string, row: ProductEntity) => <ProductName product={row} />,
+      render: (value: string, row: ProductEntity) => (
+        <ProductName product={row} showLocation={true} />
+      ),
     },
     {
       title: "ขนาด",
@@ -73,7 +75,7 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
             <FlexCol>
               <Text level={5}>{value}</Text>
               <Text level={6} color='Text3'>
-                {row.productCodeNAV}
+                {row.saleUOMTH || " "}
               </Text>
             </FlexCol>
           ),

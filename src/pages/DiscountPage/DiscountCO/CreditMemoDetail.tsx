@@ -266,7 +266,9 @@ export const CreditMemoDetail: React.FC = () => {
         const findCus =
           !e.target.value ||
           x.customerName.includes(e.target.value) ||
-          x.customerNo.toLocaleLowerCase().includes(e.target.value);
+          (x.customerNo && x.customerNo.toLocaleLowerCase().includes(e.target.value));
+
+        console.log("f", findCus);
         return findPeriod && findZone && findCus;
       });
       const map: any = { ...data };
@@ -297,7 +299,7 @@ export const CreditMemoDetail: React.FC = () => {
           <br />
           <Row gutter={8}>
             <Col span={12}>
-              <Text fontWeight={700}>รายการ ส่วนลดดูแลราคา</Text>
+              <Text fontWeight={700}>รายการส่วนลดดูแลราคา</Text>
             </Col>
             <Col span={4}>
               <Select
@@ -333,6 +335,11 @@ export const CreditMemoDetail: React.FC = () => {
             </Col>
           </Row>
           <br />
+          <Row justify={"end"}>
+            <Col>
+              <Text>{`จำนวนที่เลือก ${dataSearch?.creditMemoShop.length} ร้านค้า`}</Text>
+            </Col>
+          </Row>
           <TableContainer>
             <Table
               columns={creditMemoColumn}

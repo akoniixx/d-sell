@@ -108,7 +108,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      let data;
+      let data: any = {};
       const id = parseInt(pathSplit[4]);
       if (isFreebie) {
         data = await getProductFreebiePromotionDetail(id);
@@ -118,7 +118,6 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       const userProfile = JSON.parse(localStorage.getItem("profile")!);
       const { company } = userProfile;
       const categories = await getProductCategory(company);
-
       setDataState(data);
       setCategories(categories);
 
@@ -134,7 +133,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
           (data.saleUOMTH || data.saleUOM),
       });
 
-      const url = isFreebie ? data.productFreebiesImage : data.productImage;
+      const url = isFreebie ? data.productFreebies?.productFreebiesImage : data.productImage;
       if (url) {
         setFileList([
           {
@@ -211,6 +210,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     productFreebiesImage,
     productFreebiesStatus,
     promotionOfProduct,
+    productFreebies,
   } = dataState || {};
 
   const dataGroup1 = isFreebie
@@ -218,13 +218,19 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         {
           name: "productName",
           label: "ชื่อสินค้า",
-          value: productName,
+          value: productFreebies?.productName,
+          freebieHide: false,
+        },
+        {
+          name: "productCodeNAV",
+          label: "รหัสสินค้า",
+          value: isFreebie ? productFreebies?.productFreebiesCodeNAV : productCodeNAV,
           freebieHide: false,
         },
         {
           name: "productGroup",
           label: "ชื่อหมวด",
-          value: productGroup,
+          value: productFreebies?.productGroup,
           freebieHide: false,
         },
       ]
@@ -232,7 +238,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         {
           name: "productCodeNAV",
           label: "รหัสสินค้า",
-          value: isFreebie ? productFreebiesCodeNAV : productCodeNAV,
+          value: isFreebie ? productFreebies?.productFreebiesCodeNAV : productCodeNAV,
           freebieHide: true,
         },
         {
@@ -427,7 +433,14 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                   </Col>
                   <Col xl={12} sm={12}>
                     <Form.Item label='หน่วย'>
-                      <Input value={baseUnitOfMeaTh ? baseUnitOfMeaTh : baseUnitOfMeaEn} disabled />
+                      <Input
+                        value={
+                          productFreebies?.baseUnitOfMeaTh
+                            ? productFreebies?.baseUnitOfMeaTh
+                            : productFreebies?.baseUnitOfMeaEn
+                        }
+                        disabled
+                      />
                     </Form.Item>
                   </Col>
                 </>
@@ -459,9 +472,9 @@ export const DistributionPageEdit: React.FC = (props: any) => {
             <Row>
               <Col span={24}>
                 <Form.Item
-                  label={isFreebie ? "คุณสมบัติ" : "คุณสมบัติและ ประโยชน์"}
+                  label={isFreebie ? "คุณสมบัติ" : "คุณสมบัติและประโยชน์"}
                   name='description'
-                  initialValue={description}
+                  initialValue={isFreebie ? productFreebies?.description : description}
                 >
                   <TextArea disabled={isFreebie} />
                 </Form.Item>
@@ -471,7 +484,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
             <Form.Item
               label={"สถานะสินค้า"}
               name='productStatus'
-              initialValue={isFreebie ? productFreebiesStatus : productStatus}
+              initialValue={isFreebie ? productFreebies?.productFreebiesStatus : productStatus}
             >
               <Radio.Group disabled={!isFreebie}>
                 <Radio value={"ACTIVE"}>ใช้งาน</Radio>
@@ -498,8 +511,10 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         <Col span={8}>
           <CardSection title='โปรโมชันที่ของแถมเข้าร่วม' bgColor='#1B4586' textColor='white'>
             <CardContainer style={{ borderRadius: "5px", height: "500px" }}>
-              {promotionOfProduct?.length > 0 ? (
+              {promotionOfProduct?.length || 0 > 0 ? (
                 <>
+                  <Text>รายการทั้งหมด {promotionOfProduct?.length} รายการ</Text>
+                  <Divider />
                   {promotionOfProduct?.map((x: any) => (
                     <>
                       <Row justify={"space-between"} key={x.promotionId}>
@@ -532,12 +547,18 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                   ))}
                 </>
               ) : (
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <Text align='center' color='Text3'>
-                    {" "}
-                    ไม่พบข้อมูลโปรโมชัน
-                  </Text>
-                </div>
+                <>
+                  <Text>รายการทั้งหมด {promotionOfProduct?.length} รายการ</Text>
+                  <Divider />
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <Image src={image.emptyProFreebie} preview={false} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <Text align='center' color='Text3'>
+                    ไม่มีโปรโมชันที่ของแถมเข้าร่วม
+                    </Text>
+                  </div>
+                </>
               )}
             </CardContainer>
           </CardSection>
