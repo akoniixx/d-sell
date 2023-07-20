@@ -326,7 +326,7 @@ export const DiscountListPage: React.FC = () => {
                     }}
                   >
                     <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                      <DeleteOutlined style={{ color: color["primary"] }} />
+                      <DeleteOutlined style={{ color: color["error"] }} />
                     </span>
                   </div>
                 </Col>

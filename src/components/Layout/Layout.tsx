@@ -58,7 +58,7 @@ export const pathLists = [
   {
     path: "/discount",
     name: "discountList",
-    title: "ส่วนลด (CO)",
+    title: "ส่วนลดดูแลราคา",
     permission: null,
     // permission: {
     //   name: "discountCo",
@@ -68,17 +68,17 @@ export const pathLists = [
       {
         path: "/list",
         name: "discountList",
-        title: "รายการส่วนลด",
+        title: "ส่วนลดทั้งหมด",
       },
       {
         path: "/customerList",
         name: "customerList",
-        title: "ส่วนลด CO รายร้าน",
+        title: "ส่วนลดรายร้าน",
       },
       {
         path: "/conditionCo",
         name: "conditionCo",
-        title: "เงื่อนไข CO",
+        title: "เงื่อนไขส่วนลด",
       },
     ],
   },

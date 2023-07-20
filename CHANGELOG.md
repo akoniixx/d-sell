@@ -1,5 +1,12 @@
 ## [Version - 0]
 
+## Improve [v0.5.19] - Release Date: 2023-07-19
+
+- fixed can not search shop without customer code in co
+- fixed show location in product list
+- fixed wording "Credit Memo" to "ส่วนลดดูแลราคา" in CO menu
+- fixed promotion code in order menu
+
 ## Improve [v0.5.18] - Release Date: 2023-07-17
 
 - changed wording "Credit Memo" to "ส่วนลดดูแลราคา" in CO menu

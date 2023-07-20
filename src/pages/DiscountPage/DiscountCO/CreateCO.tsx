@@ -168,7 +168,7 @@ export const DiscountCreatePage: React.FC = () => {
               })),
             };
             setCreditMemoData(data);
-            onSubmit(defaultData.creditMemoStatus, data);
+            onSubmit(defaultData ? defaultData.creditMemoStatus : true, data);
           }
         })
         .catch((errInfo) => {
