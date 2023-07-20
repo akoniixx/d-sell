@@ -20,6 +20,7 @@ import Select from "../../../components/Select/Select";
 import { getZones } from "../../../datasource/CustomerDatasource";
 import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
 import { coPricePeriod } from "../../../definitions/coPricePeriod";
+import Link from "antd/lib/typography/Link";
 
 const SLASH_DMY = "DD/MM/YYYY HH:mm:ss";
 export const CreditMemoDetail: React.FC = () => {
@@ -39,6 +40,7 @@ export const CreditMemoDetail: React.FC = () => {
   const [searchZone, setSearchZone] = useState("");
   const [searchCus, setSearchCus] = useState("");
   const [searchPeriod, setSearchPeriod] = useState<any>({ min: "", max: "" });
+  const [file, setFile] = useState("-");
 
   useEffect(() => {
     fetchData();
@@ -50,6 +52,7 @@ export const CreditMemoDetail: React.FC = () => {
     const id = pathSplit[3];
     await getCreditMemoById(id)
       .then((res: any) => {
+        setFile(res.filePath);
         setData(res);
         setDataSerach(res);
       })
@@ -128,6 +131,10 @@ export const CreditMemoDetail: React.FC = () => {
       value: data?.remark || "-",
     },
     {
+      label: "ไฟล์ส่วนลดดูแลราคา",
+      value: data?.filePath || "-",
+    },
+    {
       label: "อัปเดทโดย",
       value: data?.updateBy || "-",
     },
@@ -157,7 +164,7 @@ export const CreditMemoDetail: React.FC = () => {
       key: "receiveAmount",
       align: "center" as AlignType,
       render: (value: any) => {
-        return numberFormatter(value, 0);
+        return numberFormatter(value, 2);
       },
     },
   ];
@@ -286,16 +293,35 @@ export const CreditMemoDetail: React.FC = () => {
       key: "1",
       children: (
         <>
-          {descriptionItems.map(({ label, value }, i) => (
-            <Row key={i} style={{ margin: "12px 0px" }}>
-              <Col xl={6} sm={8}>
-                <Text color='Text3'>{label}</Text>
-              </Col>
-              <Col xl={18} sm={16}>
-                <Text>{value}</Text>
-              </Col>
-            </Row>
-          ))}
+          {descriptionItems.map(({ label, value }, i) => {
+            return label !== "ไฟล์ส่วนลดดูแลราคา" ? (
+              <Row key={i} style={{ margin: "12px 0px" }}>
+                <Col xl={6} sm={8}>
+                  <Text color='Text3'>{label}</Text>
+                </Col>
+                <Col xl={18} sm={16}>
+                  <Text>{value}</Text>
+                </Col>
+              </Row>
+            ) : (
+              <Row key={i} style={{ margin: "12px 0px" }}>
+                <Col xl={6} sm={8}>
+                  <Text color='Text3'>{label}</Text>
+                </Col>
+                <Col xl={18} sm={16}>
+                  <Link href={file} target='_blank'>
+                    {file ? (
+                      <Text underline level={5} color='primary'>
+                        ดูไฟล์ส่วนลดดูแลราคา
+                      </Text>
+                    ) : (
+                      <Text level={5}>-</Text>
+                    )}
+                  </Link>
+                </Col>
+              </Row>
+            );
+          })}
           <br />
           <Row gutter={8}>
             <Col span={12}>

@@ -113,7 +113,7 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl, isEditing 
                   beforeUpload={(file) => {
                     const isPDF = file.type === "application/pdf";
                     if (!isPDF) {
-                      message.error(`อัปโหลดเฉพาะไฟล์ .PDF หรือ .XLXS เท่านั้น`);
+                      message.error(`อัปโหลดเฉพาะไฟล์ .PDF เท่านั้น`);
                       return false;
                     }
                     return isPDF || Upload.LIST_IGNORE;
@@ -131,7 +131,6 @@ export const CreateCOStep1 = ({ form, fileMemo, setFileMemo, fileUrl, isEditing 
                     if (file.status === "done") {
                       setFileMemo(file);
                     }
-                    console.log("onChange", file);
                     return "success";
                   }}
                   onRemove={() => {
