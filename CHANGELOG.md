@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Improve [v0.5.21] - Release Date: 2023-07-21
+
+- fixed decimal price in CO menu
+- added attachment in view CO
+
 ## Improve [v0.5.20] - Release Date: 2023-07-20
 
 - changed "เงินสด" before "CO" in amount order

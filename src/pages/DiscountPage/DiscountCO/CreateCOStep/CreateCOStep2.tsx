@@ -106,7 +106,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
       align: "center" as AlignType,
       width: "15%",
       render: (value: any) => {
-        return numberFormatter(value, 0);
+        return numberFormatter(value, 2);
       },
     },
     {
@@ -115,7 +115,7 @@ export const CreateCOStep2 = ({ form, showError, setError }: Step2Props) => {
       align: "center" as AlignType,
       width: "15%",
       render: (value: any) => {
-        return numberFormatter(value, 0);
+        return numberFormatter(value, 2);
       },
     },
     {
