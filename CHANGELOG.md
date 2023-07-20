@@ -1,6 +1,10 @@
 ## [Version - 0]
 
-## Improve [v0.5.21] - Release Date: 2023-07-21
+## Improve [v0.5.22] - Release Date: 2023-07-20
+
+- fixed history in CO menu
+
+## Improve [v0.5.21] - Release Date: 2023-07-20
 
 - fixed decimal price in CO menu
 - added attachment in view CO
@@ -8,7 +12,7 @@
 ## Improve [v0.5.20] - Release Date: 2023-07-20
 
 - changed "เงินสด" before "CO" in amount order
-- fixed show description with enter in product menu 
+- fixed show description with enter in product menu
 
 ## Improve [v0.5.19] - Release Date: 2023-07-19
 

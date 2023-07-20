@@ -30,7 +30,7 @@ type factorType = -1 | 0 | 1;
 export const CustomerCreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
-  
+
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
 
@@ -87,11 +87,9 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     // แก้ API
     await getCustomerCreditMemoHistory(id)
       .then((res: any) => {
-        setHistory(
-          res
-            ?.filter((h: any) => h?.action === "สร้าง ส่วนลดดูแลราคา")
-            .map((h: any, i: number) => ({ ...h, key: i })),
-        );
+        res?.map((h: any, i: number) => ({ ...h, key: i }));
+        const sorting = res.sort((a: any, b: any) => (a.createdAt < b.createdAt ? 1 : -1));
+        setHistory(sorting);
       })
       .catch((e: any) => {
         console.log(e);
@@ -123,7 +121,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       title: "วันที่ใช้งาน",
       dataIndex: "updateAt",
       key: "updateAt",
-      width : '10%',
+      width: "10%",
       align: "center" as AlignType,
       render: (value: string) => {
         return dateFormatter(value, true);
@@ -221,7 +219,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       align: "center" as AlignType,
       width: "20%",
       render: (value: string) => {
-        return dateFormatter(value);
+        return dateFormatter(value, true);
       },
     },
     {
