@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Improve [v0.5.20] - Release Date: 2023-07-20
+
+- changed "เงินสด" before "CO" in amount order
+- fixed show description with enter in product menu 
+
 ## Improve [v0.5.19] - Release Date: 2023-07-19
 
 - fixed can not search shop without customer code in co

@@ -187,7 +187,7 @@ export const DiscountListPage: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `ทั้งหมด (${
+      label: `All (${
         dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0
       })`,
       key: "ALL",

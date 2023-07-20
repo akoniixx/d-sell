@@ -136,7 +136,6 @@ export const OrderDetail: React.FC = () => {
     const id = pathSplit[2];
     await getOrderDetail(id)
       .then((res: OrderEntity) => {
-        console.log("res", res);
         setOrderData(res);
       })
       .catch((e: any) => {
@@ -365,7 +364,7 @@ export const OrderDetail: React.FC = () => {
       title: "โปรโมชัน",
       dataIndex: "orderProductPromotions",
       key: "orderProductPromotions",
-      width: '8%',
+      width: "8%",
       render: (orderProductPromotions: any[], product: any, index: number) => {
         const findPromotion = () => {
           let promotion = "";
@@ -846,6 +845,7 @@ export const OrderDetail: React.FC = () => {
                     value={priceFormatter(orderData?.discount || "0", undefined, true)}
                     color='error'
                     alignRight
+                    style={{ color: "#2ED477" }}
                   />
                   <DetailItem
                     label='ส่วนลดพิเศษ'
@@ -859,18 +859,20 @@ export const OrderDetail: React.FC = () => {
                     alignRight
                   />
                   <DetailItem
+                    label='ส่วนลดเงินสด'
+                    labelEn='Cash'
+                    value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
+                    color='secondary'
+                    style={{ color: "#FF9138" }}
+                    alignRight
+                  />
+                  <DetailItem
                     label=' ส่วนลดดูแลราคา'
                     labelEn='CO. ดูแลราคา / วงเงินเคลม'
                     value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
                     color='success'
                     alignRight
-                  />
-                  <DetailItem
-                    label='ส่วนลดเงินสด'
-                    labelEn='Cash'
-                    value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
-                    color='secondary'
-                    alignRight
+                    style={{ color: "#F46363" }}
                   />
                 </DetailBox>
                 <br />

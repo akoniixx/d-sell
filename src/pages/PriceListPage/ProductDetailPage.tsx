@@ -17,6 +17,7 @@ import { ProductEntity } from "../../entities/PoductEntity";
 import styled from "styled-components";
 import { ProductCategoryEntity } from "../../entities/ProductCategoryEntity";
 import { getProductFreebieDetail } from "../../datasource/PromotionDatasource";
+import TextArea from "antd/lib/input/TextArea";
 
 const Container = styled.div`
   margin: 32px 0px 10px 0px;
@@ -115,7 +116,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     productFreebiesCodeNAV,
     productFreebiesImage,
   } = dataState || {};
-
+  
   const dataGroup1 = [
     {
       label: "Product Brands",
@@ -175,7 +176,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
 
   const dataGroup4 = [
     {
-      label: "คุณสมบัติและ ประโยชน์",
+      label: "คุณสมบัติและประโยชน์",
       value: description,
     },
   ];
@@ -265,9 +266,21 @@ export const DistributionPageDetail: React.FC = (props: any) => {
             </>
           )}
           <Container>
-            {dataGroup4.map((p: DescProps, i) => (
-              <ProdDesc {...p} key={i} />
-            ))}
+            <Row align='middle' style={{ padding: "8px 0px" }}>
+              <Col xl={6} sm={8}>
+                <Text level={5} color='Text3'>
+                  คุณสมบัติและประโยชน์
+                </Text>
+              </Col>
+              <Col xl={18} sm={16}>
+                <TextArea
+                  rows={description?.length ? 5 : 0}
+                  value={description || "-"}
+                  bordered={false}
+                  style={{ fontFamily: "Sarabun", fontSize: "16px", padding: 0 }}
+                />
+              </Col>
+            </Row>
           </Container>
         </CardContainer>
       </div>

@@ -78,7 +78,6 @@ export const DistributionPage: React.FC = () => {
         productStatus: status,
         productCategoryId: categoryGroup,
       });
-
       const { responseData } = await getProductGroup(company);
       const brands = await getProductBrand(company);
       const categories = await getProductCategory(company);
