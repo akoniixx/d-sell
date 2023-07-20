@@ -182,7 +182,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         const res = await updateProduct(data);
         navigate(`/PriceListPage/DistributionPage/${productId}`);
       }
-      // message.success('บันทึกข้อมูลสำเร็จ');
+      //message.success('บันทึกข้อมูลสำเร็จ');
     } catch (e) {
       console.log(e);
     } finally {
@@ -555,7 +555,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                   </div>
                   <div style={{ display: "flex", justifyContent: "center" }}>
                     <Text align='center' color='Text3'>
-                    ไม่มีโปรโมชันที่ของแถมเข้าร่วม
+                      ไม่มีโปรโมชันที่ของแถมเข้าร่วม
                     </Text>
                   </div>
                 </>
