@@ -206,6 +206,7 @@ export const OrderDetail: React.FC = () => {
       await submitToNav({
         orderId,
         remark,
+        updateBy: `${firstname} ${lastname}`,
       })
         .then((res: any) => {
           const { success, userMessage } = res;

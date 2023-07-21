@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Improve [v0.5.23] - Release Date: 2023-07-21
+
+- send update by when order open in NAV
+
 ## Improve [v0.5.22] - Release Date: 2023-07-20
 
 - fixed history in CO menu
