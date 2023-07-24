@@ -6,7 +6,7 @@ metadata:
   namespace: production-bo-sellcoda
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-body-size: 20m
     nginx.org/proxy-connect-timeout: "900s"
