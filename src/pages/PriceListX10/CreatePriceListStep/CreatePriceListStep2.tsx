@@ -2,41 +2,24 @@ import {
   Col,
   Form as AntdForm,
   FormInstance,
-  message,
   Row,
-  Upload,
   Select as AntdSelect,
   Table,
-  Divider,
-  Avatar,
   Modal,
   Radio,
   Space,
 } from "antd";
-import React, { useEffect, useState, memo, useMemo } from "react";
-import { FlexCol, FlexRow } from "../../../components/Container/Container";
+import React, { useEffect, useState } from "react";
+import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import styled from "styled-components";
 import color from "../../../resource/color";
-import { CloseOutlined, DeleteOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import Input from "../../../components/Input/Input";
-import Select from "../../../components/Select/Select";
-import DatePicker, { TimePicker } from "../../../components/DatePicker/DatePicker";
-import TextArea from "../../../components/Input/TextArea";
-import dayjs, { Dayjs } from "dayjs";
-import { PromotionType, PROMOTION_TYPE_NAME } from "../../../definitions/promotion";
-import { checkPromotionCode, getPromotion } from "../../../datasource/PromotionDatasource";
 import TableContainer from "../../../components/Table/TableContainer";
 import Button from "../../../components/Button/Button";
 import { ProductEntity } from "../../../entities/PoductEntity";
 import { AlignType } from "rc-table/lib/interface";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import productState from "../../../store/productList";
-import {
-  getProductCategory,
-  getProductGroup,
-  getProductList,
-} from "../../../datasource/ProductDatasource";
 import { priceFormatter } from "../../../utility/Formatter";
 import AddProduct, { ProductName } from "../../Shared/AddProduct";
 
@@ -77,7 +60,9 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
       title: "ชื่อสินค้า",
       dataIndex: "productName",
       ellipsis: true,
-      render: (value: string, row: ProductEntity) => <ProductName product={row} />,
+      render: (value: string, row: ProductEntity) => (
+        <ProductName product={row} showLocation={true} />
+      ),
     },
     {
       title: "ขนาด",
@@ -90,7 +75,7 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
             <FlexCol>
               <Text level={5}>{value}</Text>
               <Text level={6} color='Text3'>
-                {row.productCodeNAV}
+                {row.saleUOMTH || " "}
               </Text>
             </FlexCol>
           ),
@@ -108,7 +93,7 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
             <FlexCol>
               <Text level={5}>{priceFormatter(value)}</Text>
               <Text level={6} color='Text3'>
-                {row.saleUOM}
+                {row.baseUOM || "Unit"}
               </Text>
             </FlexCol>
           ),
@@ -128,7 +113,7 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
                 {priceFormatter(value || "")}
               </Text>
               <Text level={6} color='Text3'>
-                {row.saleUOM}
+                {row.saleUOMTH || row.saleUOM}
               </Text>
             </FlexCol>
           ),

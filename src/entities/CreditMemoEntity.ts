@@ -26,4 +26,5 @@ export interface CreditMemoEntity {
   remark?: string;
   updateBy?: string;
   updatedAt?: string;
+  filePath?: string;
 }

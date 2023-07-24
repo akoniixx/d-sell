@@ -6,7 +6,6 @@ import dayjs from "dayjs";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
@@ -37,8 +36,6 @@ import color from "../../../resource/color";
 import image from "../../../resource/image";
 import { numberFormatter } from "../../../utility/Formatter";
 import { ModalSelectedProduct } from "../../Shared/ModalSelecteProduct";
-import { ModalSelectedShop } from "../../Shared/ModalSelectShop";
-import productState from "../../../store/productList";
 import { ModalSelectStore } from "../../Shared/ModalSelectStore";
 
 export const CreateConditionCOPage: React.FC = () => {
@@ -80,8 +77,6 @@ export const CreateConditionCOPage: React.FC = () => {
   // only use in edit mode
   const [loadingCoData, setLoadingCoData] = useState(false);
   const [coData, setCoData] = useState<ConditionCOEntiry>();
-  const recoilProductState = useRecoilValue(productState);
-  const setSetRecoilProductState = useSetRecoilState(productState);
 
   const fetchCoData = async () => {
     setLoadingCoData(true);
@@ -151,7 +146,7 @@ export const CreateConditionCOPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title={isEditing ? "แก้ไขเงื่อนไข CO" : "เพิ่มเงื่อนไข CO"}
+        title={isEditing ? "แก้ไขเงื่อนไขส่วนลดดูแลราคา" : "เพิ่มเงื่อนไขส่วนลดดูแลราคา"}
         showBack
         extra={
           <StepAntd
@@ -172,7 +167,7 @@ export const CreateConditionCOPage: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "เพิ่มเงื่อนไข CO", path: "/discount/conditionCo" },
+              { text: "เพิ่มเงื่อนไขส่วนลดดูแลราคา", path: "/discount/conditionCo" },
               {
                 text: isEditing ? "แก้ไขข้อมูลเบื้องต้น" : "เพิ่มข้อมูลเบื้องต้น",
                 path: window.location.pathname,
@@ -209,11 +204,11 @@ export const CreateConditionCOPage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name='conditionCode'
-                label='รหัสเงื่อนไข CO'
+                label='รหัสเงื่อนไขส่วนลดดูแลราคา'
                 rules={[
                   {
                     required: true,
-                    message: "*โปรดระบุรหัสเงื่อนไข CO",
+                    message: "*โปรดระบุรหัสเงื่อนไขส่วนลดดูแลราคา",
                   },
                   {
                     max: 20,
@@ -226,7 +221,7 @@ export const CreateConditionCOPage: React.FC = () => {
                 ]}
               >
                 <Input
-                  placeholder='ระบุชื่อรหัสเงื่อนไข CO'
+                  placeholder='ระบุชื่อรหัสเงื่อนไขส่วนลดดูแลราคา'
                   autoComplete='off'
                 />
               </Form.Item>
@@ -234,11 +229,11 @@ export const CreateConditionCOPage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name='conditionName'
-                label='ชื่อรายการเงื่อนไข CO'
+                label='ชื่อรายการเงื่อนไขดูแลราคา'
                 rules={[
                   {
                     required: true,
-                    message: "*โปรดระบุชื่อรายการเงื่อนไข CO",
+                    message: "*โปรดระบุชื่อรายการเงื่อนไขส่วนลดดูแลราคา",
                   },
                   {
                     max: 50,
@@ -246,7 +241,7 @@ export const CreateConditionCOPage: React.FC = () => {
                   },
                 ]}
               >
-                <Input placeholder='ระบุชื่อรายการเงื่อนไข CO' autoComplete='off' />
+                <Input placeholder='ระบุชื่อรายการเงื่อนไขส่วนลดดูแลราคา' autoComplete='off' />
               </Form.Item>
             </Col>
           </Row>

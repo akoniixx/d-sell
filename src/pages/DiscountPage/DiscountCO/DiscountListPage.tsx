@@ -187,7 +187,7 @@ export const DiscountListPage: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `ทั้งหมด (${
+      label: `All (${
         dataState?.count_status?.reduce((prev, { count }) => prev + parseInt(count), 0) || 0
       })`,
       key: "ALL",
@@ -326,7 +326,7 @@ export const DiscountListPage: React.FC = () => {
                     }}
                   >
                     <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                      <DeleteOutlined style={{ color: color["primary"] }} />
+                      <DeleteOutlined style={{ color: color["error"] }} />
                     </span>
                   </div>
                 </Col>

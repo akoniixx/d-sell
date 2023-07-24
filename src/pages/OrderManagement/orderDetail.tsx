@@ -206,6 +206,7 @@ export const OrderDetail: React.FC = () => {
       await submitToNav({
         orderId,
         remark,
+        updateBy: `${firstname} ${lastname}`,
       })
         .then((res: any) => {
           const { success, userMessage } = res;
@@ -364,18 +365,27 @@ export const OrderDetail: React.FC = () => {
       title: "โปรโมชัน",
       dataIndex: "orderProductPromotions",
       key: "orderProductPromotions",
-      render: (orderProductPromotions: any[], product: ProductEntity, index: number) => {
-        const promotions = orderProductPromotions || product?.productPromotionCode;
+      width: "8%",
+      render: (orderProductPromotions: any[], product: any, index: number) => {
+        const findPromotion = () => {
+          let promotion = "";
+          if (product?.orderProductPromotions.length) {
+            const p: any = [];
+            for (let i = 0; product?.orderProductPromotions.length > i; i++) {
+              p.push(product?.orderProductPromotions[i].promotionCode);
+            }
+            promotion = p.map((a: any) => a).join(", ");
+          } else {
+            promotion = product.productPromotionCode;
+          }
+          return promotion || "-";
+        };
         return {
           children: (
             <FlexCol>
-              {promotions.length > 0
-                ? promotions.map((promotion, i) => (
-                    <Text level={5} key={i}>
-                      {promotion?.promotionCode}
-                    </Text>
-                  ))
-                : "-"}
+              <Text key={index} level={5}>
+                {findPromotion()}
+              </Text>
             </FlexCol>
           ),
         };
@@ -455,7 +465,6 @@ export const OrderDetail: React.FC = () => {
       key: "price",
       fixed: "right" as FixedType,
       render: (price: number, product: ProductEntity, index: number) => {
-        console.log(product);
         return {
           children: (
             <>
@@ -767,7 +776,7 @@ export const OrderDetail: React.FC = () => {
               </div>
             </Col>
           </Row>
-          <br/>
+          <br />
           <Table
             columns={columns}
             dataSource={
@@ -837,6 +846,7 @@ export const OrderDetail: React.FC = () => {
                     value={priceFormatter(orderData?.discount || "0", undefined, true)}
                     color='error'
                     alignRight
+                    style={{ color: "#2ED477" }}
                   />
                   <DetailItem
                     label='ส่วนลดพิเศษ'
@@ -850,18 +860,20 @@ export const OrderDetail: React.FC = () => {
                     alignRight
                   />
                   <DetailItem
+                    label='ส่วนลดเงินสด'
+                    labelEn='Cash'
+                    value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
+                    color='secondary'
+                    style={{ color: "#FF9138" }}
+                    alignRight
+                  />
+                  <DetailItem
                     label=' ส่วนลดดูแลราคา'
                     labelEn='CO. ดูแลราคา / วงเงินเคลม'
                     value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
                     color='success'
                     alignRight
-                  />
-                  <DetailItem
-                    label='ส่วนลดเงินสด'
-                    labelEn='Cash'
-                    value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
-                    color='secondary'
-                    alignRight
+                    style={{ color: "#F46363" }}
                   />
                 </DetailBox>
                 <br />

@@ -48,9 +48,19 @@ import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../definitions/loca
 interface ProdNameProps {
   product: ProductEntity;
   size?: number;
+  showLocation?: boolean;
 }
 
-export const ProductName = ({ product, size }: ProdNameProps) => {
+interface SearchProps {
+  list: ProductEntity[];
+  setList: any;
+  onClose: any;
+  withFreebies?: boolean;
+  isReplacing?: string;
+  customTitle?: ReactNode;
+}
+
+export const ProductName = ({ product, size, showLocation }: ProdNameProps) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
   const withFrame = (e: ReactNode) => (
@@ -85,8 +95,27 @@ export const ProductName = ({ product, size }: ProdNameProps) => {
                 &nbsp;&nbsp;({LOCATION_FULLNAME_MAPPING[product.productLocation]})
               </Text>
             )}
+            {product.productCodeNAV}
           </Text>,
         )}
+        {product.commonName &&
+          withFrame(
+            <Text level={5} color='Text3'>
+              {product.commonName}
+            </Text>,
+          )}
+        {product.productGroup &&
+          withFrame(
+            <Text level={5} color='Text3'>
+              {product.productGroup}
+            </Text>,
+          )}
+        {showLocation &&
+          withFrame(
+            <Text level={5} color='Text3'>
+              {LOCATION_FULLNAME_MAPPING[product?.productLocation || "-"]}
+            </Text>,
+          )}
       </FlexCol>
     </FlexRow>
   );

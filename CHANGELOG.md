@@ -10,6 +10,31 @@
 
 - Feature: Advance Promotion Setting
 
+## Improve [v0.5.23] - Release Date: 2023-07-21
+
+- send update by when order open in NAV
+
+## Improve [v0.5.22] - Release Date: 2023-07-20
+
+- fixed history in CO menu
+
+## Improve [v0.5.21] - Release Date: 2023-07-20
+
+- fixed decimal price in CO menu
+- added attachment in view CO
+
+## Improve [v0.5.20] - Release Date: 2023-07-20
+
+- changed "เงินสด" before "CO" in amount order
+- fixed show description with enter in product menu
+
+## Improve [v0.5.19] - Release Date: 2023-07-19
+
+- fixed can not search shop without customer code in co
+- fixed show location in product list
+- fixed wording "Credit Memo" to "ส่วนลดดูแลราคา" in CO menu
+- fixed promotion code in order menu
+
 ## Improve [v0.5.18] - Release Date: 2023-07-17
 
 - changed wording "Credit Memo" to "ส่วนลดดูแลราคา" in CO menu

@@ -78,8 +78,8 @@ export const CustomerDiscountListPage: React.FC = () => {
 
   const PageTitle = () => {
     return (
-      <Row align='middle' gutter={16}>
-        <Col className='gutter-row' xl={10} sm={12}>
+      <Row justify={"space-between"} gutter={8}>
+        <Col span={company === "ICPF" ? 15 : 11}>
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -99,7 +99,7 @@ export const CustomerDiscountListPage: React.FC = () => {
             onChange={(e) => setSearchZone(e)}
           />
         </Col>
-        <Col className='gutter-row' xl={5} sm={6}>
+        <Col span={5}>
           <Input
             allowClear
             placeholder='ค้นหาร้านค้า/รหัสร้านค้า'
@@ -120,14 +120,16 @@ export const CustomerDiscountListPage: React.FC = () => {
             style={{ width: "100%" }}
           />
         </Col>
-        <Col className='gutter-row' xl={5} sm={6}>
-          <Button
-            type='primary'
-            title='+ สร้างส่วนลดดูแลราคา'
-            height={40}
-            onClick={() => navigate(`/discount/create`)}
-          />
-        </Col>
+        {company !== "ICPF" && (
+          <Col span={4}>
+            <Button
+              type='primary'
+              title='+ สร้างส่วนลดดูแลราคา'
+              height={40}
+              onClick={() => navigate(`/discount/create`)}
+            />
+          </Col>
+        )}
       </Row>
     );
   };

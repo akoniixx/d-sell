@@ -55,11 +55,12 @@ export const DistributionPage: React.FC = () => {
   const [brand, setBrand] = useState<string>();
   const [dataBrand, setDataBrand] = useState<BrandEntity[]>([]);
   const [status, setStatus] = useState<string>();
+  const [categoryGroup, setCategoryGroup] = useState<string>();
 
   useEffect(() => {
     if (!loading) fetchProduct();
     fetchBrand();
-  }, [keyword, prodGroup, location, page, brand, status]);
+  }, [keyword, prodGroup, location, page, brand, status, categoryGroup]);
 
   const resetPage = () => setPage(1);
 
@@ -75,8 +76,8 @@ export const DistributionPage: React.FC = () => {
         page,
         productBrandId: brand,
         productStatus: status,
+        productCategoryId: categoryGroup,
       });
-
       const { responseData } = await getProductGroup(company);
       const brands = await getProductBrand(company);
       const categories = await getProductCategory(company);
@@ -122,19 +123,31 @@ export const DistributionPage: React.FC = () => {
 
   const PageTitle = () => {
     return (
-      <Row>
-        <Col className='gutter-row' span={4}>
-          <div>
-            <span
-              className='card-label font-weight-bolder text-dark'
-              style={{ fontSize: 20, fontWeight: "bold" }}
-            >
-              รายการสินค้า
-            </span>
-          </div>
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <div style={style}>
+      <>
+        <Row>
+          <Col className='gutter-row' span={20}>
+            <div>
+              <span
+                className='card-label font-weight-bolder text-dark'
+                style={{ fontSize: 20, fontWeight: "bold" }}
+              >
+                รายการสินค้า
+              </span>
+            </div>
+          </Col>
+
+          <Col className='gutter-row' span={4}>
+            <Button
+              title='เชื่อมต่อ Navision'
+              icon={<SyncOutlined />}
+              onClick={onSyncProduct}
+              loading={loadingSyncProduct}
+            />
+          </Col>
+        </Row>
+        <br />
+        <Row justify={"space-between"} gutter={8}>
+          <Col span={company === "ICPL" ? 8 : 12}>
             <Input
               placeholder='ค้นหาชื่อสินค้า'
               prefix={<SearchOutlined style={{ color: "grey" }} />}
@@ -152,70 +165,82 @@ export const DistributionPage: React.FC = () => {
                 }
               }}
             />
-          </div>
-        </Col>
-        {dataBrand.length && (
-          <Col className='gutter-row' span={4}>
+          </Col>
+          {dataBrand.length && (
+            <Col span={4}>
+              <Select
+                defaultValue={brand}
+                allowClear
+                onChange={(value: string) => {
+                  setBrand(value);
+                  resetPage();
+                }}
+                placeholder='เลือกยี่ห้อสินค้า'
+                data={dataBrand?.map((item: any) => ({
+                  key: item.productBrandId,
+                  label: item.productBrandName,
+                  value: item.productBrandId,
+                }))}
+                style={{ width: "100%" }}
+              />
+            </Col>
+          )}
+          <Col span={4}>
             <Select
-              defaultValue={brand}
-              style={style}
+              defaultValue={prodGroup}
               allowClear
               onChange={(value: string) => {
-                setBrand(value);
+                setProdGroup(value);
                 resetPage();
               }}
-              placeholder='เลือกยี่ห้อสินค้า'
-              data={dataBrand?.map((item: any) => ({
-                key: item.productBrandId,
-                label: item.productBrandName,
-                value: item.productBrandId,
+              placeholder='เลือกกลุ่มสินค้า'
+              data={dataState.groups.map((group: ProductGroupEntity) => ({
+                key: group.product_group,
+                label: group.product_group,
+                value: group.product_group,
               }))}
+              style={{ width: "100%" }}
             />
           </Col>
-        )}
-        <Col className='gutter-row' span={4}>
-          <Select
-            defaultValue={prodGroup}
-            style={style}
-            allowClear
-            onChange={(value: string) => {
-              setProdGroup(value);
-              resetPage();
-            }}
-            placeholder='เลือกกลุ่มสินค้า'
-            data={dataState.groups.map((group: ProductGroupEntity) => ({
-              key: group.product_group,
-              label: group.product_group,
-              value: group.product_group,
-            }))}
-          />
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <Select
-            defaultValue={status}
-            style={style}
-            allowClear
-            onChange={(value: string) => {
-              setStatus(value);
-              resetPage();
-            }}
-            placeholder='เลือกสถานะ'
-            data={[
-              { key: "ACTIVE", label: "Active", value: "ACTIVE" },
-              { key: "HOLD", label: "Hold", value: "HOLD" },
-              { key: "INACTIVE", label: "Inactive", value: "INACTIVE" },
-            ]}
-          />
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <Button
-            title='เชื่อมต่อ Navision'
-            icon={<SyncOutlined />}
-            onClick={onSyncProduct}
-            loading={loadingSyncProduct}
-          />
-        </Col>
-      </Row>
+          {company === "ICPL" && (
+            <Col span={4}>
+              <Select
+                defaultValue={categoryGroup}
+                allowClear
+                onChange={(value: string) => {
+                  setCategoryGroup(value);
+                  resetPage();
+                }}
+                placeholder='เลือก Strategy Group'
+                data={dataState.categories.map((group: any) => ({
+                  key: group.productCategoryId,
+                  label: group.productCategoryName,
+                  value: group.productCategoryId,
+                }))}
+                style={{ width: "100%" }}
+              />
+            </Col>
+          )}
+
+          <Col span={4}>
+            <Select
+              defaultValue={status}
+              allowClear
+              onChange={(value: string) => {
+                setStatus(value);
+                resetPage();
+              }}
+              placeholder='เลือกสถานะ'
+              data={[
+                { key: "ACTIVE", label: "Active", value: "ACTIVE" },
+                { key: "HOLD", label: "Hold", value: "HOLD" },
+                { key: "INACTIVE", label: "Inactive", value: "INACTIVE" },
+              ]}
+              style={{ width: "100%" }}
+            />
+          </Col>
+        </Row>
+      </>
     );
   };
 
