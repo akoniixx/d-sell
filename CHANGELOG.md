@@ -1,5 +1,15 @@
 ## [Version - 0]
 
+## Resolved [v0.6.1] - Release Date: 2023-05-09
+
+- fixed advance promotion view
+- fixed advance promotion create (mix by vol)
+- added product location in promotion setting page
+
+## Features [v0.6.0] - Release Date: 2023-05-10
+
+- Feature: Advance Promotion Setting
+
 ## Improve [v0.5.23] - Release Date: 2023-07-21
 
 - send update by when order open in NAV

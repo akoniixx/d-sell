@@ -38,7 +38,7 @@ interface Props {
   setOpen: (a: boolean) => void;
   items: ProductEntity[];
   form: FormInstance;
-  promotionType?: PromotionType;
+  promotionType: PromotionType;
 }
 
 export const PromotionCreateStep3Dupplicate = ({

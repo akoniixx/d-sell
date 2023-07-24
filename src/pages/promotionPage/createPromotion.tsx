@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { PromotionCreateStep1 } from "./createPromotionStep/PromotionCreateStep1";
 import { PromotionCreateStep2 } from "./createPromotionStep/PromotionCreateStep2";
 import { PromotionCreateStep3 } from "./createPromotionStep/PromotionCreateStep3";
-import { PromotionType } from "../../definitions/promotion";
+import { PromotionGroup, PromotionType } from "../../definitions/promotion";
 import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
 import {
@@ -27,6 +27,7 @@ import moment from "moment";
 import Steps from "../../components/StepAntd/steps";
 import dayjs, { Dayjs } from "dayjs";
 import promotionState from "../../store/promotion";
+import { PromotionConditionGroupEntity } from "../../entities/PromotionSettingEntity";
 
 export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -106,9 +107,31 @@ export const PromotionCreatePage: React.FC = () => {
         form2.setFieldsValue({
           stores: res.promotionShop,
         });
-        form3.setFieldValue("items", res.conditionDetail);
-        (res.conditionDetail as any[])?.forEach((p: any) => {
-          form3.setFieldValue(`promotion-${p.productId}`, p.condition || []);
+        if (PromotionGroup.MIX.includes(res.promotionType)) {
+          let newList: ProductEntity[] = [];
+          let newGroupKeys: number[] = [];
+          const conditionDetail: PromotionConditionGroupEntity[] = res?.conditionDetail;
+          conditionDetail?.forEach(({ products, conditionDiscount, conditionFreebies }, i) => {
+            if (products) {
+              const groupKey = i + 1;
+              const nextList = products.map((p) => (p.groupKey ? p : { ...p, groupKey }));
+              newList = [...newList, ...nextList];
+              newGroupKeys = [...newGroupKeys, groupKey];
+            }
+          });
+          console.log({
+            newList,
+          });
+          form3.setFieldValue("items", newList);
+        } else {
+          form3.setFieldValue("items", res.conditionDetail);
+        }
+        (res.conditionDetail as any[])?.forEach((p: any, i: number) => {
+          if (PromotionGroup.MIX.includes(res?.promotionType)) {
+            form3.setFieldValue(`${i + 1}`, p.conditionFreebies || p.conditionDiscount || []);
+          } else {
+            form3.setFieldValue(`promotion-${p.productId}`, p.condition || []);
+          }
         });
       })
       .catch((e) => {
@@ -335,7 +358,7 @@ export const PromotionCreatePage: React.FC = () => {
           condition: value,
         };
       });
-    } else {
+    } else if (promotionType === PromotionType.DISCOUNT_NOT_MIX) {
       submitData.conditionDetailDiscount = Object.entries(promoList).map(([key, value]) => {
         const [pKey, productId] = key.split("-");
         const { productName, productCategory, productImage, packSize } =
@@ -349,6 +372,53 @@ export const PromotionCreatePage: React.FC = () => {
           productImage,
           packsize: packSize,
           condition: value,
+        };
+      });
+    } else if (promotionType === PromotionType.FREEBIES_MIX) {
+      console.log("FREEBIES_MIX");
+      submitData.conditionDetailDiscount = undefined;
+      submitData.conditionMixFreebies = Object.entries(promoList).map(
+        ([key, conditionFreebies]) => {
+          return {
+            products: promoStateValue.productGroup
+              .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+              .map((item: ProductEntity) => ({
+                ...item,
+                typeMix: promoStateValue.promotionGroupOption,
+              })),
+            conditionFreebies,
+          };
+        },
+      );
+    } else if (promotionType === PromotionType.DISCOUNT_MIX) {
+      console.log("DISCOUNT_MIX", promoStateValue.productGroup);
+      submitData.conditionDetailDiscount = undefined;
+      submitData.conditionMixDiscount = Object.entries(promoList).map(
+        ([key, conditionDiscount]) => {
+          return {
+            products: promoStateValue.productGroup
+              .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+              .map((item: ProductEntity) => ({
+                ...item,
+                typeMix: promoStateValue.promotionGroupOption,
+              })),
+            conditionDiscount,
+          };
+        },
+      );
+    } else if (promotionType === PromotionType.OTHER) {
+      console.log("OTHER");
+      submitData.conditionDetailDiscount = undefined;
+      submitData.conditionOther = Object.entries(promoList).map(([key, values]) => {
+        const { detail } = (values as any[])[0];
+        return {
+          products: promoStateValue.productGroup
+            .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+            .map((item: ProductEntity) => ({
+              ...item,
+              typeMix: promoStateValue.promotionGroupOption,
+            })),
+          detail,
         };
       });
     }

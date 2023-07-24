@@ -52,6 +52,13 @@ const syncProduct = async (data: { company: string }) => {
     .catch((err) => console.log(err));
 };
 
+const getProductUnit = async (company: string, itemNo: string) => {
+  return await httpClient
+    .get(`${BASE_URL}/nav/uom-nav?company=${company}&itemNo=${itemNo}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductList,
   getProductGroup,
@@ -60,4 +67,5 @@ export {
   getProductDetail,
   updateProduct,
   syncProduct,
+  getProductUnit,
 };

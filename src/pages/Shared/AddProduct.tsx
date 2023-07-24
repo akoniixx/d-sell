@@ -61,6 +61,8 @@ interface SearchProps {
 }
 
 export const ProductName = ({ product, size, showLocation }: ProdNameProps) => {
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company } = userProfile;
   const withFrame = (e: ReactNode) => (
     <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>{e}</div>
   );
@@ -82,6 +84,17 @@ export const ProductName = ({ product, size, showLocation }: ProdNameProps) => {
         {withFrame(<Text level={5}>{product.productName}</Text>)}
         {withFrame(
           <Text level={5} color='Text3'>
+            {product.commonName}
+          </Text>,
+        )}
+        {withFrame(
+          <Text level={5} color='Text3'>
+            {product.productGroup}&nbsp;
+            {company === "ICPI" && product.productLocation && (
+              <Text level={6} color='Text3'>
+                &nbsp;&nbsp;({LOCATION_FULLNAME_MAPPING[product.productLocation]})
+              </Text>
+            )}
             {product.productCodeNAV}
           </Text>,
         )}
@@ -108,6 +121,16 @@ export const ProductName = ({ product, size, showLocation }: ProdNameProps) => {
   );
 };
 
+interface SearchProps {
+  list: ProductEntity[];
+  setList: any;
+  onClose: any;
+  withFreebies?: boolean;
+  isReplacing?: string;
+  customTitle?: ReactNode;
+  notFilteredProductList?: string[];
+}
+
 const AddProduct = ({
   list,
   setList,
@@ -115,6 +138,7 @@ const AddProduct = ({
   withFreebies,
   isReplacing,
   customTitle,
+  notFilteredProductList,
 }: SearchProps) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -178,6 +202,7 @@ const AddProduct = ({
     setFreebies(newData);
     setFreebieCount(count);
   };
+
   const fetchProductList = async () => {
     const { data, count } = await getProductList({
       company,
@@ -205,6 +230,7 @@ const AddProduct = ({
       }));
     }
   };
+
   const fetchProduct = async () => {
     try {
       setLoading(true);
@@ -288,7 +314,7 @@ const AddProduct = ({
       setList(selectedProduct[0]);
     } else {
       let newList = [
-        ...list,
+        ...(notFilteredProductList ? [] : list),
         // ...productList.allData.filter((item: any) => selectedProductId.includes(item.productId)),
         ...productList.allData.filter((item: any) => allSelectedList.has(item.productId)),
       ];
@@ -468,6 +494,7 @@ const AddProduct = ({
               ? freebies
               : products.filter(
                   (item) =>
+                    notFilteredProductList?.find((id) => `${item.productId}` === `${id}`) ||
                     !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`),
                 )
           }

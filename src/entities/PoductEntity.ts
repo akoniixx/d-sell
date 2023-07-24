@@ -37,5 +37,6 @@ export interface ProductEntity {
   productFreebiesImage?: string;
   productFreebiesStatus?: string;
   isChecked?: boolean;
+  groupKey?: number;
   promotionOfProduct?: any[];
 }
