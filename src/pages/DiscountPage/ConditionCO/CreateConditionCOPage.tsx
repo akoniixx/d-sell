@@ -22,7 +22,11 @@ import {
   updateConditionCO,
 } from "../../../datasource/CreditMemoDatasource";
 import { getCustomers, getZones } from "../../../datasource/CustomerDatasource";
-import { getProductGroup } from "../../../datasource/ProductDatasource";
+import {
+  getProductBrand,
+  getProductCategory,
+  getProductGroup,
+} from "../../../datasource/ProductDatasource";
 import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
 import {
   ConditionCOEntiry,
@@ -56,6 +60,8 @@ export const CreateConditionCOPage: React.FC = () => {
   const [zoneList, setZoneList] = useState<ZoneEntity[]>([]);
   const [shopList, setShopList] = useState<StoreEntity[]>([]);
   const [productGroup, setProductGroup] = useState<ProductGroupEntity[]>([]);
+  const [strategyGroup, setStrategyGroup] = useState<any>([]);
+  const [selectedStrategy, setSelectedStrategy] = useState("");
 
   const [showModalProd, setShowModalProd] = useState<boolean>(false);
   const [showModalShop, setShowModalShop] = useState<boolean>(false);
@@ -64,6 +70,8 @@ export const CreateConditionCOPage: React.FC = () => {
   const [searchProd, setSearchProd] = useState<ProductEntity[]>([]);
   const [selectedShop, setSelectedShop] = useState<StoreEntity[]>([]);
   const [searchShop, setSearchShop] = useState<StoreEntity[]>([]);
+  const [brand, setBrand] = useState<any>([]);
+  const [selectedBrand, setSelectedBrand] = useState("");
 
   const [createCondition, setCreateCondition] = useState<CreateConditionCOEntiry>(
     CreateConditionCOEntiry_INIT,
@@ -78,8 +86,16 @@ export const CreateConditionCOPage: React.FC = () => {
   const [loadingCoData, setLoadingCoData] = useState(false);
   const [coData, setCoData] = useState<ConditionCOEntiry>();
 
+  const fetchBrand = async () => {
+    const getBrand = await getProductBrand(company).then((res) => {
+      setBrand(res);
+      return res;
+    });
+    return getBrand;
+  };
   const fetchCoData = async () => {
     setLoadingCoData(true);
+    const getBrand: any = await fetchBrand();
     await getConditionCoById(id, company)
       .then((res) => {
         setCoData(res);
@@ -95,7 +111,12 @@ export const CreateConditionCOPage: React.FC = () => {
         setSelectedShop(res?.creditMemoConditionShop);
         setSearchShop(res?.creditMemoConditionShop);
 
-        const newProd = res?.creditMemoConditionProduct || [];
+        const newProd =
+          res?.creditMemoConditionProduct?.map((x: any) => ({
+            ...x,
+            productBrandName: getBrand?.find((y: any) => y.productBrandId === x.productBrandId)
+              .productBrandName,
+          })) || [];
         setSelectedProd(newProd);
         setSearchProd(newProd);
         res?.creditMemoConditionProduct?.forEach((p: any) => {
@@ -130,11 +151,19 @@ export const CreateConditionCOPage: React.FC = () => {
       getProdGroup.responseData.map((d: any, index: number) => ({ ...d, key: index })),
     );
   };
+  const fetchCatetory = async () => {
+    const getCatetory = await getProductCategory(company).then((res) => {
+      return res;
+    });
+    setStrategyGroup(getCatetory);
+  };
 
   useEffect(() => {
+    fetchBrand();
     fetchZone();
     fetchShop();
     fetchProductGroup();
+    fetchCatetory();
   }, []);
 
   useEffect(() => {
@@ -188,6 +217,9 @@ export const CreateConditionCOPage: React.FC = () => {
     setSearchProdGroup("");
     setSearchKeywordProd("");
     setSearchLocation("");
+    setSelectedBrand("");
+    setSelectedStrategy("");
+    console.log(searchProd);
     setSelectedProd(searchProd);
   };
 
@@ -220,10 +252,7 @@ export const CreateConditionCOPage: React.FC = () => {
                   },
                 ]}
               >
-                <Input
-                  placeholder='ระบุชื่อรหัสเงื่อนไขส่วนลดดูแลราคา'
-                  autoComplete='off'
-                />
+                <Input placeholder='ระบุชื่อรหัสเงื่อนไขส่วนลดดูแลราคา' autoComplete='off' />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -497,54 +526,130 @@ export const CreateConditionCOPage: React.FC = () => {
   const StepThree = () => {
     const onSearchProd = (e: any) => {
       setSearchKeywordProd(e.target.value);
-      const valueUpperCase: string = e.target.value;
+      const valueUpperCase: string = e.target.value.toUpperCase();
       const find = searchProd.filter((x) => {
         const searchName =
           !e.target.value ||
           x.productName?.includes(e.target.value) ||
-          x.productCodeNAV?.includes(valueUpperCase.toLocaleUpperCase());
+          x.productCodeNAV?.includes(valueUpperCase);
         const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
         const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
-        return searchName && searchGroup && searchLocat;
+        const searchStrategy = !selectedStrategy || x.productCategoryId?.includes(selectedStrategy);
+        const searchBrand = !selectedBrand || x.productBrandId?.includes(selectedBrand);
+        return searchName && searchGroup && searchLocat && searchStrategy && searchBrand;
       });
       setSelectedProd(find);
     };
     const onSearchProdGroup = (e: any) => {
       setSearchProdGroup(e);
+      const valueUpperCase: string = searchKeywordProd.toUpperCase();
       const find = searchProd.filter((x) => {
-        const searchName = !searchKeywordProd || x.productName?.includes(searchKeywordProd);
+        const searchName =
+          !searchKeywordProd ||
+          x.productName?.includes(searchKeywordProd) ||
+          x.productName?.includes(valueUpperCase);
         const searchGroup = !e || x.productGroup?.includes(e);
-        return searchName && searchGroup;
+        const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
+        const searchStrategy = !selectedStrategy || x.productCategoryId?.includes(selectedStrategy);
+        const searchBrand = !selectedBrand || x.productBrandId?.includes(selectedBrand);
+        return searchName && searchGroup && searchLocat && searchStrategy && searchBrand;
       });
       setSelectedProd(find);
     };
     const handleSearchLocation = (e: any) => {
       setSearchLocation(e);
+      const valueUpperCase: string = searchKeywordProd.toUpperCase();
       const find = searchProd.filter((x) => {
-        const searchName = !searchKeywordProd || x.productName?.includes(searchKeywordProd);
+        const searchName =
+          !searchKeywordProd ||
+          x.productName?.includes(searchKeywordProd) ||
+          x.productName?.includes(valueUpperCase);
         const searchLocat = !e || x.productLocation?.includes(e);
-        return searchName && searchLocat;
+        const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
+        const searchStrategy = !selectedStrategy || x.productCategoryId?.includes(selectedStrategy);
+        const searchBrand = !selectedBrand || x.productBrandId?.includes(selectedBrand);
+        return searchName && searchGroup && searchLocat && searchStrategy && searchBrand;
+      });
+      setSelectedProd(find);
+    };
+    const handleSearchStrategy = (e: any) => {
+      setSelectedStrategy(e);
+      const valueUpperCase: string = searchKeywordProd.toUpperCase();
+      const find = searchProd.filter((x) => {
+        const searchName =
+          !searchKeywordProd ||
+          x.productName?.includes(searchKeywordProd) ||
+          x.productName?.includes(valueUpperCase);
+        const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
+        const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
+        const searchStrategy = !e || x.productCategoryId?.includes(e);
+        const searchBrand = !selectedBrand || x.productBrandId?.includes(selectedBrand);
+        return searchName && searchGroup && searchLocat && searchStrategy && searchBrand;
+      });
+      setSelectedProd(find);
+    };
+    const handleSearchBrand = (e: any) => {
+      setSelectedBrand(e);
+      const valueUpperCase: string = searchKeywordProd.toUpperCase();
+      const find = searchProd.filter((x) => {
+        const searchName =
+          !searchKeywordProd ||
+          x.productName?.includes(searchKeywordProd) ||
+          x.productName?.includes(valueUpperCase);
+        const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
+        const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
+        const searchStrategy = !selectedStrategy || x.productCategoryId?.includes(selectedStrategy);
+        const searchBrand = !e || x.productBrandId?.includes(e);
+        return searchName && searchGroup && searchLocat && searchStrategy && searchBrand;
       });
       setSelectedProd(find);
     };
     const handleCheckBoxDelete = (e: any, prodId: string) => {
-      const checkBoxed = selectedProd.map((item) =>
-        _.set(item, "isChecked", item.productId === prodId ? e.target.checked : item.isChecked),
-      );
-      setSelectedProd(checkBoxed);
+      const checkBoxed = searchProd.map((item) => ({
+        ...item,
+        isChecked: item.productId === prodId ? e.target.checked : item.isChecked,
+      }));
       setSearchProd(checkBoxed);
+      const valueUpperCase: string = searchKeywordProd.toUpperCase();
+      const find = checkBoxed.filter((x) => {
+        const searchName =
+          !searchKeywordProd ||
+          x.productName?.includes(searchKeywordProd) ||
+          x.productName?.includes(valueUpperCase);
+        const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
+        const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
+        const searchStrategy = !selectedStrategy || x.productCategoryId?.includes(selectedStrategy);
+        const searchBrand = !selectedBrand || x.productBrandId?.includes(selectedBrand);
+        return searchName && searchGroup && searchLocat && searchStrategy && searchBrand;
+      });
+      setSelectedProd(find);
     };
     const handleAllCheckBoxDelete = (e: any) => {
       const checkBoxed = selectedProd.map((item) => ({ ...item, isChecked: e.target.checked }));
-      setSelectedProd(checkBoxed);
       const mapData = searchProd.map((item) => {
-        const findObj = checkBoxed.find((el) => el.productId === item.productId);
-        if (findObj) {
-          return { ...item, isChecked: true };
+        const matching = checkBoxed.find((i) => i.productId === item.productId);
+        if (matching) {
+          return { ...matching, isChecked: e.target.checked };
         }
-        return { ...item, isChecked: false };
+        return {
+          ...item,
+          isChecked: item.isChecked,
+        };
       });
       setSearchProd(mapData);
+      const valueUpperCase: string = searchKeywordProd.toUpperCase();
+      const find = mapData.filter((x) => {
+        const searchName =
+          !searchKeywordProd ||
+          x.productName?.includes(searchKeywordProd) ||
+          x.productName?.includes(valueUpperCase);
+        const searchLocat = !searchLocation || x.productLocation?.includes(searchLocation);
+        const searchGroup = !searchProdGroup || x.productGroup?.includes(searchProdGroup);
+        const searchStrategy = !selectedStrategy || x.productCategoryId?.includes(selectedStrategy);
+        const searchBrand = !selectedBrand || x.productBrandId?.includes(selectedBrand);
+        return searchName && searchGroup && searchLocat && searchStrategy && searchBrand;
+      });
+      setSelectedProd(find);
     };
     const handleDelete = () => {
       selectedProd.forEach((item) => {
@@ -557,7 +662,6 @@ export const CreateConditionCOPage: React.FC = () => {
       setSearchProd(deleted);
     };
     const callBackProduct = (item: ProductEntity[]) => {
-      console.log(item);
       item = item.map((p: any) => ({ ...p, isChecked: false }));
       setSelectedProd(item);
       setSearchProd(item);
@@ -599,19 +703,28 @@ export const CreateConditionCOPage: React.FC = () => {
               />
             </div>
             <FlexCol>
-              <div style={{ height: 25 }}>
+              <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>
                 <Text level={5}>{value.productName}</Text>
               </div>
-              <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>
-                <Text level={5} style={{ color: color.Grey }}>
-                  {value.commonName}
-                </Text>
-              </div>
+              {value.commonName && (
+                <div style={{ height: 25, textOverflow: "ellipsis" }}>
+                  <Text level={6} style={{ color: color.Grey }}>
+                    {value.commonName}
+                  </Text>
+                </div>
+              )}
               <div style={{ height: 25 }}>
-                <Text level={5} style={{ color: color.Grey }}>
-                  {value.productGroup}
+                <Text level={6} style={{ color: color.Grey }}>
+                  Product Group : {value.productGroup}
                 </Text>
               </div>
+              {value.productStrategy && (
+                <div style={{ height: 25 }}>
+                  <Text level={6} style={{ color: color.Grey }}>
+                    Strategy Group : {value.productStrategy}
+                  </Text>
+                </div>
+              )}
             </FlexCol>
           </FlexRow>
         ),
@@ -619,33 +732,65 @@ export const CreateConditionCOPage: React.FC = () => {
       {
         title: <span>Product Code</span>,
         dataIndex: "productCodeNAV",
-        width: "10%",
-        render: (text: string) => <span>{text}</span>,
-      },
-      {
-        title: <span>ขนาด</span>,
-        dataIndex: "packSize",
-        render: (text: string) => <span>{text}</span>,
-      },
-      {
-        title: <span>ราคา/หน่วย</span>,
-        dataIndex: "unitPrice",
-        render: (text: string) => <span>{numberFormatter(text)}</span>,
+        width: "18%",
+        render: (text: string, value: any) => (
+          <FlexRow>
+            <FlexCol>
+              <div style={{ height: 25 }}>
+                <Text level={5}>{text}</Text>
+              </div>
+              <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>
+                <Text level={6} style={{ color: color.Grey }}>
+                  Pack Size : {value.packSize}
+                </Text>
+              </div>
+            </FlexCol>
+          </FlexRow>
+        ),
       },
       {
         title: <span>ราคาขาย</span>,
-        dataIndex: "marketPrice",
-        render: (text: string) => <span>{numberFormatter(text)}</span>,
+        dataIndex: "unitPrice",
+        render: (text: string, value: any) => (
+          <FlexRow>
+            <FlexCol>
+              <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>
+                <Text level={5}>
+                  {numberFormatter(value.marketPrice)} บาท/{value.saleUOMTH}
+                </Text>
+              </div>
+              <div style={{ height: 25 }}>
+                <Text level={6} style={{ color: color.Grey }}>
+                  ราคา/หน่วย : <br />
+                  {numberFormatter(text)} บาท/{value.baseUOM}
+                </Text>
+              </div>
+            </FlexCol>
+          </FlexRow>
+        ),
       },
       {
         title: <span>สถานที่</span>,
         dataIndex: "productLocation",
-        width: "10%",
-        render: (text: string) => <span>{LOCATION_FULLNAME_MAPPING[text]}</span>,
+        width: "15%",
+        render: (text: string, value: any) => (
+          <FlexRow>
+            <FlexCol>
+              <div style={{ height: 25 }}>
+                <Text level={5}>{LOCATION_FULLNAME_MAPPING[text]}</Text>
+              </div>
+              <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>
+                <Text level={6} style={{ color: color.Grey }}>
+                  ยี่ห้อ : {value.productBrandName}
+                </Text>
+              </div>
+            </FlexCol>
+          </FlexRow>
+        ),
       },
       {
         title: <span>ลดราคาขาย (บาท)</span>,
-        width: "20%",
+        width: "15%",
         render: (text: string, row: any, index: number) => (
           <>
             <Form.Item
@@ -681,16 +826,16 @@ export const CreateConditionCOPage: React.FC = () => {
           {searchProd.length > 0 ? (
             <Col span={19}>
               <Row gutter={8}>
-                <Col span={company === "ICPF" ? 10 : 6}>
+                <Col span={6}>
                   <Input
-                    placeholder='ค้นหาสินค้า...'
+                    placeholder='ค้นหาชื่อสินค้าหรือรหัสสินค้า...'
                     suffix={<SearchOutlined />}
                     style={{ width: "100%" }}
                     onPressEnter={(e) => onSearchProd(e)}
                     defaultValue={searchKeywordProd}
                   />
                 </Col>
-                <Col span={7}>
+                <Col span={5}>
                   <Select
                     data={[
                       {
@@ -708,6 +853,49 @@ export const CreateConditionCOPage: React.FC = () => {
                     style={{ width: "100%" }}
                     onChange={(e) => onSearchProdGroup(e)}
                     value={searchProdGroup}
+                  />
+                </Col>
+                {company === "ICPL" && (
+                  <Col span={5}>
+                    <Select
+                      data={[
+                        {
+                          key: "",
+                          value: "",
+                          label: "Strategy Group: ทั้งหมด",
+                        },
+                        ...strategyGroup.map((p: any) => ({
+                          key: p.productCategoryId,
+                          value: p.productCategoryId,
+                          label: p.productCategoryName,
+                        })),
+                      ]}
+                      onChange={(e) => handleSearchStrategy(e)}
+                      placeholder='Strategy Group : ทั้งหมด'
+                      style={{ width: "100%" }}
+                      value={selectedStrategy}
+                    />
+                  </Col>
+                )}
+
+                <Col span={4}>
+                  <Select
+                    data={[
+                      {
+                        key: "",
+                        value: "",
+                        label: "ยี่ห้อ: ทั้งหมด",
+                      },
+                      ...brand.map((p: any) => ({
+                        key: p.productBrandId,
+                        value: p.productBrandId,
+                        label: p.productBrandName,
+                      })),
+                    ]}
+                    onChange={(e) => handleSearchBrand(e)}
+                    placeholder='ยี่ห้อ : ทั้งหมด'
+                    style={{ width: "100%" }}
+                    value={selectedBrand}
                   />
                 </Col>
                 {company === "ICPI" && (
@@ -734,7 +922,7 @@ export const CreateConditionCOPage: React.FC = () => {
                     />
                   </Col>
                 )}
-                <Col span={4}>
+                <Col span={3}>
                   <Button
                     title='ล้างการค้นหา'
                     typeButton='primary-light'
@@ -757,7 +945,13 @@ export const CreateConditionCOPage: React.FC = () => {
             )}
           </Col>
           <Col span={3}>
-            <Button title='+ เพิ่มสินค้า' onClick={() => setShowModalProd(!showModalProd)} />
+            <Button
+              title='+ เพิ่มสินค้า'
+              onClick={() => {
+                onClearSearchProd();
+                setShowModalProd(!showModalProd);
+              }}
+            />
           </Col>
         </Row>
         <br />

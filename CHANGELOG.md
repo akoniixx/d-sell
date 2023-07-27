@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Improve [v0.6.2] - Release Date: 2023-07-27
+
+- added search brand in condition co
+
 ## Resolved [v0.6.1] - Release Date: 2023-05-09
 
 - fixed advance promotion view
