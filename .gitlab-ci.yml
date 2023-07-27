@@ -20,10 +20,14 @@ services:
 build-dev:
   stage: build
   image: google/cloud-sdk
+  variables:
+    SECRET_KEY: sellcoda-bo-dev-secrets-build
   before_script:
-  - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
-  - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
-  - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
+    - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - bash k8s/dev/run-get-secret.bash ${PROJECT_ID} ${SECRET_KEY} .env  # pull env from secret manager
+    # - ls -lrt .env; cat .env
   script:
     - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:develop-latest .
     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
@@ -37,10 +41,14 @@ build-dev:
 build-staging:
   stage: build
   image: google/cloud-sdk
+  variables:
+    SECRET_KEY: sellcoda-bo-staging-secrets-build
   before_script:
-  - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
-  - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
-  - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
+    - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - bash k8s/staging/run-get-secret.bash ${PROJECT_ID} ${SECRET_KEY} .env  # pull env from secret manager
+    # - ls -lrt .env; cat .env
   script:
     - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:staging-latest .
     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
@@ -54,10 +62,14 @@ build-staging:
 build-prod:
   stage: build
   image: google/cloud-sdk
+  variables:
+    SECRET_KEY: sellcoda-bo-prod-secrets-build
   before_script:
-  - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
-  - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
-  - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
+    - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
+    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - bash k8s/prod/run-get-secret.bash ${PROJECT_ID} ${SECRET_KEY} .env  # pull env from secret manager
+    # - ls -lrt .env; cat .env
   script:
     - docker build -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG} -t ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:main-latest .
     - docker push ${REGISTRY_HOSTNAME}/${IMAGE_NAME}:${IMAGE_TAG}
