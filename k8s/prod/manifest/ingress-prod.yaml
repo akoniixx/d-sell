@@ -5,7 +5,6 @@ metadata:
   name: bo-sellcoda
   namespace: production-bo-sellcoda
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-body-size: 20m
@@ -15,6 +14,7 @@ metadata:
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
 spec:
+  ingressClassNmae: nginx
   tls:
     - hosts:
       - bo-sellcoda.iconkaset.com
