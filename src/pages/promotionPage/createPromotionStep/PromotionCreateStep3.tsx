@@ -910,7 +910,8 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
           </FlexRow>
         </Col>
       </Row>
-      {PromotionGroup.MIX.includes(promotionType) && (
+      {(promotionType === PromotionType.DISCOUNT_MIX ||
+        promotionType === PromotionType.FREEBIES_MIX) && (
         <>
           <Row align='middle' style={{ padding: "16px 0 12px" }}>
             <Text fontWeight={700}>กำหนดโปรโมชั่นสินค้าที่คละตาม&nbsp;&nbsp;</Text>
