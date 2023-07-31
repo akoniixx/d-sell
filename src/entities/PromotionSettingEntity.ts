@@ -1,4 +1,4 @@
-import { PromotionType } from "../definitions/promotion";
+import { PromotionGroupOption, PromotionType } from "../definitions/promotion";
 import { ProductEntity } from "./PoductEntity";
 
 export interface PromotionConditionEntity {

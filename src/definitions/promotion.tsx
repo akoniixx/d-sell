@@ -21,7 +21,7 @@ export const PromotionGroup = {
 
 export enum PromotionGroupOption {
   UNIT = "Quantity",
-  WEIGHT = "Weight",
+  WEIGHT = "Size",
 }
 
 export const PROMOTION_GROUP_OPTION_NAME = {

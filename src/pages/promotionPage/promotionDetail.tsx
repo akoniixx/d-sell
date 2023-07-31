@@ -52,6 +52,7 @@ import PromotionSettingEntity, {
 import image from "../../resource/image";
 import Input from "../../components/Input/Input";
 import { CollapsePanelHeader, CollapsePanelItem } from "./createPromotionStep/PromotionCreateStep3";
+import { useForm } from "antd/lib/form/Form";
 
 const MemoArea = styled.div`
   width: 100%;
@@ -79,6 +80,8 @@ const DetailTab: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(false);
   const [items, setItems] = useState<PromotionConditionGroupEntity[]>();
+
+  const [form] = useForm();
 
   const imageSizeLong = "160px";
   const imageSizeShort = "120px";
@@ -335,6 +338,7 @@ const DetailTab: React.FC = () => {
             promotion.conditionDetail &&
             Object.values(promotion.conditionDetail).map(
               ({ products, conditionDiscount, conditionFreebies, detail }, i) => {
+                const { typeMix, size } = conditionDiscount || conditionFreebies;
                 return (
                   <GroupCardContainer key={i}>
                     <Card
@@ -356,7 +360,7 @@ const DetailTab: React.FC = () => {
                         </Row>
                       }
                     >
-                      {promotion.comment === PromotionGroupOption.WEIGHT && (
+                      {typeMix === PromotionGroupOption.WEIGHT && size && (
                         <div
                           style={{
                             backgroundColor: "#3362AA",
@@ -373,8 +377,9 @@ const DetailTab: React.FC = () => {
                                       จำนวนน้ำหนักที่ซื้อครบ
                                     </Text>
                                   }
+                                  initialValue={size}
                                 >
-                                  <Input />
+                                  <Input value={size} disabled />
                                 </Form.Item>
                               </Col>
                               <Col span={4}>
@@ -406,156 +411,169 @@ const DetailTab: React.FC = () => {
                               viewOnly
                               promotionType={promotion?.promotionType}
                               key={j}
+                              withForm={
+                                promotion.promotionType === PromotionType.DISCOUNT_MIX &&
+                                typeMix === PromotionGroupOption.WEIGHT
+                                  ? form
+                                  : undefined
+                              }
+                              promotionGroupOption={typeMix}
                             />
                           );
                         })}
                       </div>
-                      {(conditionDiscount || conditionFreebies)?.map(
-                        (
-                          {
-                            quantity,
-                            saleUnit,
-                            saleUnitDiscount,
-                            discountPrice,
-                            freebies,
-                          }: PromotionConditionEntity,
-                          j: number,
-                        ) => {
-                          return (
-                            <Row key={j} gutter={16} style={{ padding: "20px 16px" }}>
-                              <Col span={8}>
-                                <Form.Item
-                                  label='จำนวนที่ซื้อครบ'
-                                  name={[`${i}-${j}`, "quantity"]}
-                                  initialValue={quantity}
-                                >
-                                  <Input
-                                    type='number'
-                                    placeholder='ระบุจำนวนที่ซื้อครบ'
-                                    min={0}
-                                    disabled
-                                  />
-                                </Form.Item>
-                              </Col>
-                              <Col span={4}>
-                                <Form.Item
-                                  label='หน่วย'
-                                  name={[`${i}-${j}`, "saleUnit"]}
-                                  initialValue={saleUnit || (products && products[0].saleUOMTH)}
-                                >
-                                  <Input disabled />
-                                </Form.Item>
-                              </Col>
-                              {freebies ? (
-                                <>
-                                  <Col
-                                    span={12}
-                                    style={{ borderLeft: `1px solid ${color.background2}` }}
+                      {Array.isArray(conditionDiscount || conditionFreebies) &&
+                        (conditionDiscount || conditionFreebies)?.map(
+                          (
+                            {
+                              quantity,
+                              saleUnit,
+                              saleUnitDiscount,
+                              discountPrice,
+                              freebies,
+                            }: PromotionConditionEntity,
+                            j: number,
+                          ) => {
+                            return (
+                              <Row key={j} gutter={16} style={{ padding: "20px 16px" }}>
+                                <Col span={8}>
+                                  <Form.Item
+                                    label='จำนวนที่ซื้อครบ'
+                                    name={[`${i}-${j}`, "quantity"]}
+                                    initialValue={quantity}
                                   >
-                                    {freebies?.map((f, k) => {
-                                      return (
-                                        <Row key={`${i}-${j}-${k}`} gutter={12} align='middle'>
-                                          <Col>
-                                            <FlexCol
-                                              align='center'
-                                              style={{ width: 64, overflow: "hidden" }}
-                                            >
-                                              <Avatar
-                                                src={
-                                                  f.productImage === "No"
-                                                    ? image.product_no_image
-                                                    : f?.productImage ||
-                                                      f?.productFreebiesImage ||
-                                                      image.product_no_image
-                                                }
-                                                size={64}
-                                                shape='square'
-                                              />
-                                              <Tooltip title={f?.productName}>
-                                                <Text
-                                                  level={6}
-                                                  style={{
-                                                    display: "block",
-                                                    width: 64,
-                                                    height: 22,
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    wordWrap: "break-word",
-                                                    whiteSpace: "nowrap",
-                                                  }}
-                                                >
-                                                  {f?.productName}
-                                                </Text>
-                                              </Tooltip>
-                                            </FlexCol>
-                                          </Col>
-                                          <Col span={9}>
-                                            <Form.Item
-                                              // name={`${productId}-${product?.productId || product?.productFreebiesId}-quantity`}
-                                              label='จำนวนของแถม'
-                                              initialValue={quantity || 1}
-                                            >
-                                              <Input
-                                                type='number'
-                                                placeholder='ระบุจำนวนของแถม'
-                                                value={f.quantity}
-                                                min={1}
-                                                disabled
-                                              />
-                                            </Form.Item>
-                                          </Col>
-                                          <Col span={9}>
-                                            <Form.Item
-                                              label='หน่วย'
-                                              initialValue={
-                                                f?.baseUnitOfMeaTh ||
-                                                f?.saleUOMTH ||
-                                                f?.baseUnitOfMeaEn
-                                              }
-                                            >
-                                              <Input
-                                                disabled
-                                                value={
+                                    <Input
+                                      type='number'
+                                      placeholder='ระบุจำนวนที่ซื้อครบ'
+                                      min={0}
+                                      disabled
+                                    />
+                                  </Form.Item>
+                                </Col>
+                                <Col span={4}>
+                                  <Form.Item
+                                    label='หน่วย'
+                                    name={[`${i}-${j}`, "saleUnit"]}
+                                    initialValue={saleUnit || (products && products[0].saleUOMTH)}
+                                  >
+                                    <Input disabled />
+                                  </Form.Item>
+                                </Col>
+                                {freebies ? (
+                                  <>
+                                    <Col
+                                      span={12}
+                                      style={{ borderLeft: `1px solid ${color.background2}` }}
+                                    >
+                                      {freebies?.map((f, k) => {
+                                        return (
+                                          <Row key={`${i}-${j}-${k}`} gutter={12} align='middle'>
+                                            <Col>
+                                              <FlexCol
+                                                align='center'
+                                                style={{ width: 64, overflow: "hidden" }}
+                                              >
+                                                <Avatar
+                                                  src={
+                                                    f.productImage === "No"
+                                                      ? image.product_no_image
+                                                      : f?.productImage ||
+                                                        f?.productFreebiesImage ||
+                                                        image.product_no_image
+                                                  }
+                                                  size={64}
+                                                  shape='square'
+                                                />
+                                                <Tooltip title={f?.productName}>
+                                                  <Text
+                                                    level={6}
+                                                    style={{
+                                                      display: "block",
+                                                      width: 64,
+                                                      height: 22,
+                                                      overflow: "hidden",
+                                                      textOverflow: "ellipsis",
+                                                      wordWrap: "break-word",
+                                                      whiteSpace: "nowrap",
+                                                    }}
+                                                  >
+                                                    {f?.productName}
+                                                  </Text>
+                                                </Tooltip>
+                                              </FlexCol>
+                                            </Col>
+                                            <Col span={9}>
+                                              <Form.Item
+                                                // name={`${productId}-${product?.productId || product?.productFreebiesId}-quantity`}
+                                                label='จำนวนของแถม'
+                                                initialValue={quantity || 1}
+                                              >
+                                                <Input
+                                                  type='number'
+                                                  placeholder='ระบุจำนวนของแถม'
+                                                  value={f.quantity}
+                                                  min={1}
+                                                  disabled
+                                                />
+                                              </Form.Item>
+                                            </Col>
+                                            <Col span={9}>
+                                              <Form.Item
+                                                label='หน่วย'
+                                                initialValue={
                                                   f?.baseUnitOfMeaTh ||
                                                   f?.saleUOMTH ||
                                                   f?.baseUnitOfMeaEn
                                                 }
-                                              />
-                                            </Form.Item>
-                                          </Col>
-                                        </Row>
-                                      );
-                                    })}
-                                  </Col>
-                                </>
-                              ) : (
-                                <>
-                                  <Col span={6}>
-                                    <Form.Item
-                                      label='ราคาที่ต้องการลด'
-                                      name={[`${i}-${j}`, "discountPrice"]}
-                                      initialValue={discountPrice}
-                                    >
-                                      <Input placeholder='-' suffix='บาท' type='number' disabled />
-                                    </Form.Item>
-                                  </Col>
-                                  <Col span={6}>
-                                    <Form.Item
-                                      label='ต่อหน่วย SKU'
-                                      name={[`${i}-${j}`, "saleUnitDiscount"]}
-                                      initialValue={
-                                        saleUnitDiscount || (products && products[0].saleUOMTH)
-                                      }
-                                    >
-                                      <Input disabled />
-                                    </Form.Item>
-                                  </Col>
-                                </>
-                              )}
-                            </Row>
-                          );
-                        },
-                      )}
+                                              >
+                                                <Input
+                                                  disabled
+                                                  value={
+                                                    f?.baseUnitOfMeaTh ||
+                                                    f?.saleUOMTH ||
+                                                    f?.baseUnitOfMeaEn
+                                                  }
+                                                />
+                                              </Form.Item>
+                                            </Col>
+                                          </Row>
+                                        );
+                                      })}
+                                    </Col>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Col span={6}>
+                                      <Form.Item
+                                        label='ราคาที่ต้องการลด'
+                                        name={[`${i}-${j}`, "discountPrice"]}
+                                        initialValue={discountPrice}
+                                      >
+                                        <Input
+                                          placeholder='-'
+                                          suffix='บาท'
+                                          type='number'
+                                          disabled
+                                        />
+                                      </Form.Item>
+                                    </Col>
+                                    <Col span={6}>
+                                      <Form.Item
+                                        label='ต่อหน่วย SKU'
+                                        name={[`${i}-${j}`, "saleUnitDiscount"]}
+                                        initialValue={
+                                          saleUnitDiscount || (products && products[0].saleUOMTH)
+                                        }
+                                      >
+                                        <Input disabled />
+                                      </Form.Item>
+                                    </Col>
+                                  </>
+                                )}
+                              </Row>
+                            );
+                          },
+                        )}
                       {detail && (
                         <div style={{ padding: "20px 16px" }}>
                           <Form.Item label='รายละเอียดโปรโมชัน'>

@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Improve [v0.6.3] - Release Date: 2023-07-27
+
+- fixed advance promotion create & view
+
 ## Improve [v0.6.2] - Release Date: 2023-07-27
 
 - added search brand in condition co
