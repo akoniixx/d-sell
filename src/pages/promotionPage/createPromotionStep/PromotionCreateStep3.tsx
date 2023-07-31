@@ -43,6 +43,7 @@ import { GroupCardContainer } from "../../../components/Card/CardContainer";
 import TextArea from "../../../components/Input/TextArea";
 import Select from "../../../components/Select/Select";
 import { ObjectType } from "typescript";
+import { isInteger } from "lodash";
 
 const AddProductContainer = styled.div`
   display: flex;
@@ -88,6 +89,7 @@ export const CollapsePanelHeader = ({
   hideCheckbox,
   uneditable,
   withForm,
+  groupKey,
   onDeleteProduct,
   promotionType,
   promotionGroupOption,
@@ -102,6 +104,7 @@ export const CollapsePanelHeader = ({
   hideCheckbox?: boolean;
   uneditable?: boolean;
   withForm?: FormInstance;
+  groupKey?: React.Key;
   onDeleteProduct?: (p: string) => void;
   promotionType: PromotionType;
   promotionGroupOption?: PromotionGroupOption;
@@ -150,7 +153,8 @@ export const CollapsePanelHeader = ({
             item={item}
             promotionType={promotionType}
             promotionGroupOption={promotionGroupOption}
-            name={item.productId}
+            name={groupKey + "-" + item.productId}
+            uneditable={uneditable}
             i={0}
           />
         )}
@@ -196,6 +200,8 @@ export const CollapsePanelItem = ({
   onRemove,
   extra,
   name,
+  hideDivider,
+  uneditable,
 }: {
   fieldKey: React.Key;
   restField?: any;
@@ -209,6 +215,8 @@ export const CollapsePanelItem = ({
   onRemove?: (n: any) => void;
   extra?: any;
   name: React.Key;
+  hideDivider?: boolean;
+  uneditable?: boolean;
 }) => {
   const span = {
     qty: 8,
@@ -374,7 +382,7 @@ export const CollapsePanelItem = ({
                     },
                   ]}
                 >
-                  <Input placeholder='ระบุราคา' suffix='บาท' type='number' />
+                  <Input placeholder='ระบุราคา' suffix='บาท' type='number' disabled={uneditable} />
                 </Form.Item>
               </Col>
               <Col span={span.saleUnitDiscount}>
@@ -408,7 +416,8 @@ export const CollapsePanelItem = ({
         </Row>
       )}
       {(promotionType === PromotionType.FREEBIES_NOT_MIX ||
-        promotionType === PromotionType.FREEBIES_MIX) && <Divider />}
+        promotionType === PromotionType.FREEBIES_MIX) &&
+        !hideDivider && <Divider />}
     </>
   );
 };
@@ -687,9 +696,12 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
   const [editingGroup, setEditingGroup] = useState<number>();
 
   useEffect(() => {
-    console.log("useEffect", form.getFieldValue("items"));
+    console.log("useEffect", form.getFieldsValue());
     if (isEditing && promoStateValue.promotion) {
       fetchProductData();
+    }
+    if (promoStateValue.promotionGroupOption) {
+      setPromotionGroupOption(promoStateValue.promotionGroupOption);
     }
   }, [promoStateValue]);
 
@@ -740,12 +752,16 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
   const setProd = (list: ProductEntity[]) => {
     if (PromotionGroup.MIX.includes(promotionType)) {
       let newList: ProductEntity[];
-      if (editingGroup) {
+      if (list.length <= 0) {
+        newList = items;
+      } else if (editingGroup) {
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey: editingGroup }));
+        newList = [...items, ...newList];
         setEditingGroup(undefined);
       } else {
         const groupKey = groupKeys.length > 0 ? groupKeys[groupKeys.length - 1] + 1 : 1;
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey }));
+        newList = [...items, ...newList];
         setGroupKeys([...groupKeys, groupKey]);
       }
       setItems(newList);
@@ -989,32 +1005,44 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
                         padding: "16px 16px 0 16px",
                       }}
                     >
-                      <Form>
-                        <Row gutter={16}>
-                          <Col span={5}>
-                            <Form.Item
-                              label={
-                                <Text color='white' fontSize={14}>
-                                  จำนวนน้ำหนักที่ซื้อครบ
-                                </Text>
-                              }
-                            >
-                              <Input />
-                            </Form.Item>
-                          </Col>
-                          <Col span={4}>
-                            <Form.Item
-                              label={
-                                <Text color='white' fontSize={14}>
-                                  หน่วย
-                                </Text>
-                              }
-                            >
-                              <Input disabled value={"kg / L"} />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      </Form>
+                      <Row gutter={16}>
+                        <Col span={5}>
+                          <Form.Item
+                            name={groupKey + "-weight"}
+                            label={
+                              <Text color='white' fontSize={14}>
+                                จำนวนน้ำหนักที่ซื้อครบ
+                              </Text>
+                            }
+                            rules={[
+                              { required: true, message: "โปรดระบุจำนวนน้ำหนัก/ปริมาตรที่ซื้อครบ" },
+                              {
+                                validator: (rule, value, callback) => {
+                                  if (value && isNaN(parseInt(value))) {
+                                    return Promise.reject(
+                                      "จำนวนน้ำหนัก/ปริมาตรที่ซื้อครบเป็นตัวเลขเท่านั้น",
+                                    );
+                                  }
+                                  return Promise.resolve();
+                                },
+                              },
+                            ]}
+                          >
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                        <Col span={4}>
+                          <Form.Item
+                            label={
+                              <Text color='white' fontSize={14}>
+                                หน่วย
+                              </Text>
+                            }
+                          >
+                            <Input disabled value={"kg / L"} />
+                          </Form.Item>
+                        </Col>
+                      </Row>
                     </div>
                   )}
                   <div style={{ backgroundColor: color.background1 }}>
@@ -1039,6 +1067,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
                               ? form
                               : undefined
                           }
+                          groupKey={groupKey}
                           promotionType={promotionType}
                           promotionGroupOption={promotionGroupOption}
                           key={j}
@@ -1081,14 +1110,20 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
                                   i={i}
                                   onRemove={onRemove}
                                   name={name}
+                                  hideDivider={fields.length - 1 === i}
                                 />
                               );
                             })}
-                            <Form.Item>
-                              <div style={{ padding: "0px 16px" }}>
-                                <CollapsePanelAddBtn onClick={onAdd} />
-                              </div>
-                            </Form.Item>
+                            {!(
+                              promotionType === PromotionType.FREEBIES_MIX &&
+                              promotionGroupOption === PromotionGroupOption.WEIGHT
+                            ) && (
+                              <Form.Item>
+                                <div style={{ padding: "0px 16px" }}>
+                                  <CollapsePanelAddBtn onClick={onAdd} />
+                                </div>
+                              </Form.Item>
+                            )}
                           </>
                         );
                       }}

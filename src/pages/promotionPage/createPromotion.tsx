@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { PromotionCreateStep1 } from "./createPromotionStep/PromotionCreateStep1";
 import { PromotionCreateStep2 } from "./createPromotionStep/PromotionCreateStep2";
 import { PromotionCreateStep3 } from "./createPromotionStep/PromotionCreateStep3";
-import { PromotionGroup, PromotionType } from "../../definitions/promotion";
+import { PromotionGroup, PromotionGroupOption, PromotionType } from "../../definitions/promotion";
 import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
 import {
@@ -376,25 +376,79 @@ export const PromotionCreatePage: React.FC = () => {
       });
     } else if (promotionType === PromotionType.FREEBIES_MIX) {
       console.log("FREEBIES_MIX");
-      submitData.conditionDetailDiscount = undefined;
-      submitData.conditionMixFreebies = Object.entries(promoList).map(
-        ([key, conditionFreebies]) => {
-          return {
-            products: promoStateValue.productGroup
-              .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
-              .map((item: ProductEntity) => ({
-                ...item,
-                typeMix: promoStateValue.promotionGroupOption,
-              })),
-            conditionFreebies,
-          };
-        },
-      );
+      if (promoStateValue.promotionGroupOption === PromotionGroupOption.UNIT) {
+        submitData.conditionDetailDiscount = undefined;
+        submitData.conditionMixFreebies = Object.entries(promoList).map(
+          ([key, conditionFreebies]) => {
+            return {
+              products: promoStateValue.productGroup
+                .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+                .map((item: ProductEntity) => ({
+                  ...item,
+                  typeMix: promoStateValue.promotionGroupOption,
+                })),
+              conditionFreebies,
+            };
+          },
+        );
+      } else {
+        const weightList: any = {};
+        submitData.conditionDetailDiscount = undefined;
+        submitData.conditionMixFreebies = Object.entries(promoList)
+          .filter(([fullKey, value]) => {
+            const [key, isWeight] = fullKey.split("-");
+            if (isWeight) weightList[key] = value;
+            return !isWeight;
+          })
+          .map(([key, conditionFreebies]) => {
+            return {
+              typeMix: promoStateValue.promotionGroupOption,
+              size: weightList[key],
+              products: promoStateValue.productGroup
+                .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+                .map((item: ProductEntity) => ({
+                  ...item,
+                  typeMix: promoStateValue.promotionGroupOption,
+                })),
+              conditionFreebies,
+            };
+          });
+      }
     } else if (promotionType === PromotionType.DISCOUNT_MIX) {
       console.log("DISCOUNT_MIX", promoStateValue.productGroup);
       submitData.conditionDetailDiscount = undefined;
-      submitData.conditionMixDiscount = Object.entries(promoList).map(
-        ([key, conditionDiscount]) => {
+      console.log("promoStateValue.promotionGroupOption", promoStateValue);
+      if (promoStateValue.promotionGroupOption !== PromotionGroupOption.WEIGHT) {
+        submitData.conditionMixDiscount = Object.entries(promoList).map(
+          ([key, conditionDiscount]) => {
+            return {
+              products: promoStateValue.productGroup
+                .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+                .map((item: ProductEntity) => ({
+                  ...item,
+                  typeMix: promoStateValue.promotionGroupOption,
+                })),
+              conditionDiscount,
+              typeMix: PromotionGroupOption.UNIT,
+            };
+          },
+        );
+      } else {
+        const groups: any = {};
+        Object.entries(promoList).forEach(([fullKey, val]) => {
+          const [groupKey, productId] = fullKey.split("-");
+          const groupVal = {
+            typeMix: "Size",
+            ...(groups[groupKey] || {}),
+          };
+          if (typeof val === "string" || val instanceof String) {
+            groupVal.size = val;
+          } else if (typeof val === "object") {
+            groupVal.products = [...(groupVal.products || []), { ...val, productId }];
+          }
+          groups[groupKey] = groupVal;
+        });
+        submitData.conditionMixDiscount = Object.entries(groups).map(([key, conditionDiscount]) => {
           return {
             products: promoStateValue.productGroup
               .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
@@ -404,8 +458,8 @@ export const PromotionCreatePage: React.FC = () => {
               })),
             conditionDiscount,
           };
-        },
-      );
+        });
+      }
     } else if (promotionType === PromotionType.OTHER) {
       console.log("OTHER");
       submitData.conditionDetailDiscount = undefined;
