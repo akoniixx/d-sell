@@ -385,7 +385,9 @@ export const PromotionCreatePage: React.FC = () => {
                 .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
                 .map((item: ProductEntity) => ({
                   ...item,
-                  typeMix: promoStateValue.promotionGroupOption,
+                  typeMix: promoStateValue.promotionGroupOption
+                    ? promoStateValue.promotionGroupOption
+                    : PromotionGroupOption.UNIT,
                 })),
               conditionFreebies,
             };
@@ -402,13 +404,17 @@ export const PromotionCreatePage: React.FC = () => {
           })
           .map(([key, conditionFreebies]) => {
             return {
-              typeMix: promoStateValue.promotionGroupOption,
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
               size: weightList[key],
               products: promoStateValue.productGroup
                 .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
                 .map((item: ProductEntity) => ({
                   ...item,
-                  typeMix: promoStateValue.promotionGroupOption,
+                  typeMix: promoStateValue.promotionGroupOption
+                    ? promoStateValue.promotionGroupOption
+                    : PromotionGroupOption.UNIT,
                 })),
               conditionFreebies,
             };
@@ -417,7 +423,6 @@ export const PromotionCreatePage: React.FC = () => {
     } else if (promotionType === PromotionType.DISCOUNT_MIX) {
       console.log("DISCOUNT_MIX", promoStateValue.productGroup);
       submitData.conditionDetailDiscount = undefined;
-      console.log("promoStateValue.promotionGroupOption", promoStateValue);
       if (promoStateValue.promotionGroupOption !== PromotionGroupOption.WEIGHT) {
         submitData.conditionMixDiscount = Object.entries(promoList).map(
           ([key, conditionDiscount]) => {
@@ -426,7 +431,9 @@ export const PromotionCreatePage: React.FC = () => {
                 .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
                 .map((item: ProductEntity) => ({
                   ...item,
-                  typeMix: promoStateValue.promotionGroupOption,
+                  typeMix: promoStateValue.promotionGroupOption
+                    ? promoStateValue.promotionGroupOption
+                    : PromotionGroupOption.UNIT,
                 })),
               conditionDiscount,
               typeMix: PromotionGroupOption.UNIT,
@@ -454,7 +461,9 @@ export const PromotionCreatePage: React.FC = () => {
               .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
               .map((item: ProductEntity) => ({
                 ...item,
-                typeMix: promoStateValue.promotionGroupOption,
+                typeMix: promoStateValue.promotionGroupOption
+                  ? promoStateValue.promotionGroupOption
+                  : PromotionGroupOption.UNIT,
               })),
             conditionDiscount,
           };
@@ -470,7 +479,9 @@ export const PromotionCreatePage: React.FC = () => {
             .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
             .map((item: ProductEntity) => ({
               ...item,
-              typeMix: promoStateValue.promotionGroupOption,
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
             })),
           detail,
         };
