@@ -244,7 +244,6 @@ export const PromotionCreatePage: React.FC = () => {
         });
     } else if (step === 1) {
       const stores = form2.getFieldValue("stores");
-      console.log(stores);
       if (!stores || stores.length <= 0) {
         setStep2Error(true);
       } else {
@@ -258,7 +257,6 @@ export const PromotionCreatePage: React.FC = () => {
       form3
         .validateFields()
         .then((values) => {
-          console.log(values);
           if (promotionData.promotionType === PromotionType.FREEBIES_NOT_MIX) {
             const promoList = form3.getFieldsValue();
             if (!Object.entries(promoList).length) {
@@ -375,7 +373,6 @@ export const PromotionCreatePage: React.FC = () => {
         };
       });
     } else if (promotionType === PromotionType.FREEBIES_MIX) {
-      console.log("FREEBIES_MIX");
       if (promoStateValue.promotionGroupOption === PromotionGroupOption.UNIT) {
         submitData.conditionDetailDiscount = undefined;
         submitData.conditionMixFreebies = Object.entries(promoList).map(
@@ -476,9 +473,6 @@ export const PromotionCreatePage: React.FC = () => {
         };
       });
     }
-
-    // console.log({ promoList, submitData, file1, file2, fileMemo });
-    // return;
     const callback = (res: any) => {
       const { success, responseData, developerMessage, userMessage } = res;
       const promotionId = responseData?.promotionId || id;

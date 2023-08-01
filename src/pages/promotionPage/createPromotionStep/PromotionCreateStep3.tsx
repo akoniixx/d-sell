@@ -42,8 +42,6 @@ import Button from "../../../components/Button/Button";
 import { GroupCardContainer } from "../../../components/Card/CardContainer";
 import TextArea from "../../../components/Input/TextArea";
 import Select from "../../../components/Select/Select";
-import { ObjectType } from "typescript";
-import { isInteger } from "lodash";
 
 const AddProductContainer = styled.div`
   display: flex;
@@ -475,12 +473,12 @@ const FreebieList = ({
   };
 
   const onAdd = (product: ProductEntity) => {
+    console.log("pro", product);
     const promo = form?.getFieldValue(key) || [];
     const list = getValue() || [];
     list.push({ ...product, product, quantity: 1 });
     promo[itemIndex] = { ...promo[itemIndex], freebies: list };
     form?.setFieldValue(key, promo);
-    console.log("onAdd", form?.getFieldsValue());
   };
 
   const onDelete = (i: number) => {
@@ -501,7 +499,6 @@ const FreebieList = ({
 
   const getOption = async (itemNo: string) => {
     await getProductUnit("ICPL", itemNo).then((res) => {
-      console.log("getOption", res);
       const newFreebieUnit = { ...freebieUnit };
       newFreebieUnit[itemNo] = res?.map((u: any) => ({
         key: u.unit_desc,
@@ -696,7 +693,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
   const [editingGroup, setEditingGroup] = useState<number>();
 
   useEffect(() => {
-    console.log("useEffect", form.getFieldsValue());
     if (isEditing && promoStateValue.promotion) {
       fetchProductData();
     }
@@ -709,7 +705,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
     const newItems = [...items];
     setLoadingProduct(true);
     if (PromotionGroup.MIX.includes(promotionType)) {
-      console.log("MIX");
       if (!promoStateValue.productGroup) {
         setPromoState({
           ...promoStateValue,
@@ -719,7 +714,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
     } else {
       const result = items.map(async (item, i) => {
         await getProductDetail(parseInt(item.productId)).then((res) => {
-          console.log(res);
           newItems[i] = { ...item, ...res };
           setItems(newItems);
         });
@@ -751,19 +745,23 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
 
   const setProd = (list: ProductEntity[]) => {
     if (PromotionGroup.MIX.includes(promotionType)) {
+      console.log(1);
       let newList: ProductEntity[];
       if (list.length <= 0) {
         newList = items;
       } else if (editingGroup) {
+        console.log(1.1);
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey: editingGroup }));
         newList = [...items, ...newList];
         setEditingGroup(undefined);
       } else {
+        console.log(1.2);
         const groupKey = groupKeys.length > 0 ? groupKeys[groupKeys.length - 1] + 1 : 1;
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey }));
         newList = [...items, ...newList];
         setGroupKeys([...groupKeys, groupKey]);
       }
+      console.log("new",newList);
       setItems(newList);
       form.setFieldValue("items", newList);
       setActiveKeys(newList.map((item) => item.productId));
@@ -772,6 +770,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
         productGroup: newList,
       });
     } else {
+      console.log(2);
       setItems(list);
       form.setFieldValue("items", list);
       setActiveKeys(list.map((item) => item.productId));
@@ -783,7 +782,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
   };
 
   const onChangeActiveKeys = (keys: string | string[]) => {
-    console.log(keys);
     setActiveKeys(keys);
   };
 
@@ -1256,7 +1254,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
           </>
         )}
       </AddProductContainer>
-      <Modal open={showModal} width={"80vw"} closable={false} footer={null}>
+      <Modal open={showModal} width={1350} closable={false} footer={null}>
         <AddProduct
           list={items}
           setList={
