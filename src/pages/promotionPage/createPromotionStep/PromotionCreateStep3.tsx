@@ -34,7 +34,11 @@ import {
 } from "../../../definitions/promotion";
 import AddProduct, { ProductName } from "../../Shared/AddProduct";
 import { priceFormatter } from "../../../utility/Formatter";
-import { getProductDetail, getProductUnit } from "../../../datasource/ProductDatasource";
+import {
+  getProductDetail,
+  getProductUnit,
+  getProductBrand,
+} from "../../../datasource/ProductDatasource";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import promotionState from "../../../store/promotion";
 import { PromotionCreateStep3Dupplicate } from "./PromotionCreateStep3Dupplicate";
@@ -42,6 +46,7 @@ import Button from "../../../components/Button/Button";
 import { GroupCardContainer } from "../../../components/Card/CardContainer";
 import TextArea from "../../../components/Input/TextArea";
 import Select from "../../../components/Select/Select";
+import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
 
 const AddProductContainer = styled.div`
   display: flex;
@@ -110,7 +115,7 @@ export const CollapsePanelHeader = ({
 }) => {
   return (
     <Row style={{ padding: "24px 32px" }}>
-      <Col span={9}>
+      <Col span={8}>
         <FlexRow>
           {!hideCheckbox && (
             <FlexCol justify='center' style={{ height: 80, marginRight: 12 }}>
@@ -129,20 +134,45 @@ export const CollapsePanelHeader = ({
           <ProductName product={item} size={84} />
         </FlexRow>
       </Col>
-      <Col span={withForm ? 4 : 5}>
+      <Col span={4}>
         <Text>{item.packSize}</Text>
+        <br />
+        <Text color='Text3' level={6}>
+          {item.productCodeNAV}
+        </Text>
+        <br />
+        {withForm && (
+          <>
+            <Text>{LOCATION_FULLNAME_MAPPING[item?.productLocation || ""]}</Text>
+            <br />
+            <Text color='Text3' level={6}>
+              ยี่ห้อ : {item?.productBrandName}
+            </Text>
+          </>
+        )}
+      </Col>
+      <Col span={4}>
+        <Text>
+          {!loadingProduct ? priceFormatter(item.marketPrice || "", 2, false, true) : "..."}
+        </Text>
+        <Text>&nbsp;บาท/{item.saleUOMTH}</Text>
         <br />
         <Text color='Text3'>
           {!loadingProduct ? priceFormatter(item.unitPrice || "", 2, false, true) : "..."}
         </Text>
-        <Text color='Text3'>&nbsp;บาท/หน่วย</Text>
-        <br />
-        <Text color='Text3'>
-          {!loadingProduct ? priceFormatter(item.marketPrice || "", 2, false, true) : "..."}
-        </Text>
-        <Text color='Text3'>&nbsp;บาท/{item.saleUOMTH}</Text>
+        <Text color='Text3'>&nbsp;บาท/{item.baseUOM}</Text>
       </Col>
-      <Col span={withForm ? 9 : 7}>
+      {!withForm && (
+        <Col span={4}>
+          <Text>{LOCATION_FULLNAME_MAPPING[item?.productLocation || ""]}</Text>
+          <br />
+          <Text color='Text3' level={6}>
+            ยี่ห้อ : {item?.productBrandName}
+          </Text>
+        </Col>
+      )}
+
+      <Col span={withForm ? 7 : 1}>
         {withForm && (
           <CollapsePanelItem
             fieldKey={item.productId}
@@ -169,14 +199,14 @@ export const CollapsePanelHeader = ({
           }}
         >
           {!uneditable ? (
-            <IconContainer>
-              <EditOutlined onClick={onEdit} />
+            <IconContainer onClick={onEdit}>
+              <EditOutlined />
             </IconContainer>
           ) : (
-            <IconContainer>
-              <DeleteOutlined
-                onClick={onDeleteProduct ? () => onDeleteProduct(item.productId) : undefined}
-              />
+            <IconContainer
+              onClick={onDeleteProduct ? () => onDeleteProduct(item.productId) : undefined}
+            >
+              <DeleteOutlined />
             </IconContainer>
           )}
         </FlexCol>
@@ -380,7 +410,7 @@ export const CollapsePanelItem = ({
                     },
                   ]}
                 >
-                  <Input placeholder='ระบุราคา' suffix='บาท' type='number' disabled={uneditable} />
+                  <Input placeholder='ระบุราคา' suffix='บาท' type='number'  />
                 </Form.Item>
               </Col>
               <Col span={span.saleUnitDiscount}>
@@ -442,6 +472,7 @@ interface Props {
   form: FormInstance;
   promotionType: PromotionType;
   isEditing?: boolean;
+  company: string;
 }
 
 const FreebieList = ({
@@ -473,7 +504,6 @@ const FreebieList = ({
   };
 
   const onAdd = (product: ProductEntity) => {
-    console.log("pro", product);
     const promo = form?.getFieldValue(key) || [];
     const list = getValue() || [];
     list.push({ ...product, product, quantity: 1 });
@@ -647,26 +677,28 @@ const FreebieList = ({
       >
         +&nbsp;เพิ่มของแถม
       </AddProductContainer>
-      <Modal open={showModal} width={"80vw"} closable={false} footer={null}>
-        <AddProduct
-          list={getValue()}
-          setList={onAdd}
-          onClose={toggleModal}
-          withFreebies
-          customTitle={
-            <FlexRow align='end'>
-              <Text level={5} fontWeight={600}>
-                เลือกของแถม
-              </Text>
-            </FlexRow>
-          }
-        />
-      </Modal>
+      {showModal && (
+        <Modal open={showModal} width={"80vw"} closable={false} footer={null}>
+          <AddProduct
+            list={getValue()}
+            setList={onAdd}
+            onClose={toggleModal}
+            withFreebies
+            customTitle={
+              <FlexRow align='end'>
+                <Text level={5} fontWeight={600}>
+                  เลือกของแถม
+                </Text>
+              </FlexRow>
+            }
+          />
+        </Modal>
+      )}
     </>
   );
 };
 
-export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) => {
+export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }: Props) => {
   const promoStateValue = useRecoilValue(promotionState);
   const setPromoState = useSetRecoilState(promotionState);
 
@@ -702,14 +734,24 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
   }, [promoStateValue]);
 
   const fetchProductData = async () => {
-    const newItems = [...items];
+    const data = [...items];
+    const getBrand = await getProductBrand(company).then((res) => {
+      return res;
+    });
+    const newItems = data.map((d: ProductEntity) => ({
+      ...d,
+      productBrandName: getBrand?.find((x: any) => d.productBrandId === x.productBrandId)
+        .productBrandName,
+    }));
     setLoadingProduct(true);
     if (PromotionGroup.MIX.includes(promotionType)) {
       if (!promoStateValue.productGroup) {
         setPromoState({
           ...promoStateValue,
-          productGroup: items,
+          productGroup: newItems,
         });
+      } else {
+        setItems(newItems);
       }
     } else {
       const result = items.map(async (item, i) => {
@@ -729,39 +771,49 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
   };
 
   const onAddProduct = () => {
-    if (items.length > 0 && PromotionGroup.NOT_MIX.includes(promotionType)) {
-      Modal.confirm({
-        title: "ต้องการเพิ่มหรือเปลี่ยนสินค้าใช่หรือไม่",
-        content:
-          "โปรดยืนยันการเพิ่มหรือเปลี่ยนสินค้า และโปรดตรวจสอบรายละเอียดโปรโมชันสินค้าอีกครั้ง",
-        okText: "ยืนยัน",
-        cancelText: "ยกเลิก",
-        onOk: () => toggleModal(),
-      });
-    } else {
-      toggleModal();
-    }
+    // if (items.length > 0 && PromotionGroup.NOT_MIX.includes(promotionType)) {
+    //   Modal.confirm({
+    //     title: "ต้องการเพิ่มหรือเปลี่ยนสินค้าใช่หรือไม่",
+    //     content:
+    //       "โปรดยืนยันการเพิ่มหรือเปลี่ยนสินค้า และโปรดตรวจสอบรายละเอียดโปรโมชันสินค้าอีกครั้ง",
+    //     okText: "ยืนยัน",
+    //     cancelText: "ยกเลิก",
+    //     onOk: () => toggleModal(),
+    //   });
+    // } else {
+    //   toggleModal();
+    // }
+    toggleModal();
+  };
+  const removeDuplicates = (arr: any, prop: string) => {
+    const uniqueKeys = new Set();
+    return arr.filter((obj: any) => {
+      const key = obj[prop];
+      if (!uniqueKeys.has(key)) {
+        uniqueKeys.add(key);
+        return true;
+      }
+      return false;
+    });
   };
 
-  const setProd = (list: ProductEntity[]) => {
+  const setProd = async (list: ProductEntity[]) => {
     if (PromotionGroup.MIX.includes(promotionType)) {
-      console.log(1);
       let newList: ProductEntity[];
       if (list.length <= 0) {
         newList = items;
       } else if (editingGroup) {
-        console.log(1.1);
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey: editingGroup }));
-        newList = [...items, ...newList];
+        const uniqueArrayOfObjects = removeDuplicates([...newList, ...items], "productId");
+        newList = uniqueArrayOfObjects;
         setEditingGroup(undefined);
       } else {
-        console.log(1.2);
         const groupKey = groupKeys.length > 0 ? groupKeys[groupKeys.length - 1] + 1 : 1;
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey }));
-        newList = [...items, ...newList];
+        const uniqueArrayOfObjects = removeDuplicates([...newList, ...items], "productId");
+        newList = uniqueArrayOfObjects;
         setGroupKeys([...groupKeys, groupKey]);
       }
-      console.log("new",newList);
       setItems(newList);
       form.setFieldValue("items", newList);
       setActiveKeys(newList.map((item) => item.productId));
@@ -770,7 +822,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
         productGroup: newList,
       });
     } else {
-      console.log(2);
       setItems(list);
       form.setFieldValue("items", list);
       setActiveKeys(list.map((item) => item.productId));
@@ -809,13 +860,36 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
     });
   };
 
-  const onSelectAll = () => {
-    if (PromotionGroup.MIX.includes(promotionType)) {
-      setSelectedGroup(groupKeys);
+  const onSelectAll = (e: any) => {
+    const text = e.target.textContent;
+    if (text === "ล้างทั้งหมด") {
+      if (PromotionGroup.MIX.includes(promotionType)) {
+        setSelectedGroup([]);
+      } else {
+        const newSelectedKeys = items.map((item) => item.productId);
+        setSelectedKeys([]);
+      }
     } else {
-      const newSelectedKeys = items.map((item) => item.productId);
-      setSelectedKeys(newSelectedKeys);
+      if (PromotionGroup.MIX.includes(promotionType)) {
+        setSelectedGroup(groupKeys);
+      } else {
+        const newSelectedKeys = items.map((item) => item.productId);
+        setSelectedKeys(newSelectedKeys);
+      }
     }
+  };
+
+  const checkSelectAll = () => {
+    if (PromotionGroup.MIX.includes(promotionType)) {
+      if (selectedGroup.length) {
+        return selectedGroup.length === groupKeys.length ? "ล้างทั้งหมด" : "เลือกทั้งหมด";
+      }
+    } else {
+      if (selectedKeys.length) {
+        return selectedKeys.length === items.length ? "ล้างทั้งหมด" : "เลือกทั้งหมด";
+      }
+    }
+    return "เลือกทั้งหมด";
   };
 
   const onDeleteSelectedProduct = () => {
@@ -881,16 +955,11 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
               </>
             )}
             <Button
-              title='เลือกทั้งหมด'
+              title={checkSelectAll()}
               typeButton='primary-light'
               style={{ width: 96, fontSize: 14 }}
               textStyle={{ fontSize: 14 }}
-              onClick={onSelectAll}
-              disabled={
-                PromotionGroup.MIX.includes(promotionType)
-                  ? groupKeys.length === selectedGroup.length
-                  : items.length === selectedKeys.length
-              }
+              onClick={(e) => onSelectAll(e)}
             />
             &nbsp;
             <Button
@@ -900,10 +969,11 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
                   : selectedKeys.length
               })`}
               icon={<DeleteOutlined />}
-              typeButton='danger'
+              typeButton={selectedGroup.length || selectedKeys.length ? "danger" : "disabled"}
               style={{ width: 140 }}
               textStyle={{ fontSize: 14 }}
               onClick={onDeleteSelectedProduct}
+              disabled={selectedGroup.length || selectedKeys.length ? false : true}
             />
           </FlexRow>
         </Col>
@@ -1254,43 +1324,47 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing }: Props) 
           </>
         )}
       </AddProductContainer>
-      <Modal open={showModal} width={1350} closable={false} footer={null}>
-        <AddProduct
-          list={items}
-          setList={
-            isReplacing
-              ? (p: ProductEntity) => {
-                  let oldItem: any;
-                  let oldKey = "";
-                  const newKey = `promotion-${p.productId}`;
-                  setProd(
-                    items.map((item: ProductEntity) => {
-                      if (item.productId === isReplacing) {
-                        oldItem = item;
-                        oldKey = `promotion-${item?.productId}`;
-                        return p;
-                      }
-                      return item;
-                    }),
-                  );
-                  form.setFieldValue(newKey, form.getFieldValue(oldKey));
-                  form.setFieldValue(oldKey, undefined);
-                  const newItemPromo = { ...itemPromo };
-                  newItemPromo[newKey] = newItemPromo[oldKey];
-                  newItemPromo[oldKey] = undefined;
-                  setItemPromo(newItemPromo);
-                }
-              : setProd
-          }
-          onClose={toggleModal}
-          isReplacing={isReplacing}
-          notFilteredProductList={
-            PromotionGroup.MIX.includes(promotionType) && editingGroup
-              ? items.filter((item) => item.groupKey === editingGroup).map((item) => item.productId)
-              : []
-          }
-        />
-      </Modal>
+      {showModal && (
+        <Modal open={showModal} width={1350} closable={false} footer={null}>
+          <AddProduct
+            list={items}
+            setList={
+              isReplacing
+                ? (p: ProductEntity) => {
+                    let oldItem: any;
+                    let oldKey = "";
+                    const newKey = `promotion-${p.productId}`;
+                    setProd(
+                      items.map((item: ProductEntity) => {
+                        if (item.productId === isReplacing) {
+                          oldItem = item;
+                          oldKey = `promotion-${item?.productId}`;
+                          return p;
+                        }
+                        return item;
+                      }),
+                    );
+                    form.setFieldValue(newKey, form.getFieldValue(oldKey));
+                    form.setFieldValue(oldKey, undefined);
+                    const newItemPromo = { ...itemPromo };
+                    newItemPromo[newKey] = newItemPromo[oldKey];
+                    newItemPromo[oldKey] = undefined;
+                    setItemPromo(newItemPromo);
+                  }
+                : setProd
+            }
+            onClose={toggleModal}
+            isReplacing={isReplacing}
+            notFilteredProductList={
+              PromotionGroup.MIX.includes(promotionType) && editingGroup
+                ? items
+                    .filter((item) => item.groupKey === editingGroup)
+                    .map((item) => item.productId)
+                : []
+            }
+          />
+        </Modal>
+      )}
       <PromotionCreateStep3Dupplicate
         open={openDupplicateModal}
         setOpen={setOpenDupplicateModal}

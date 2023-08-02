@@ -39,4 +39,5 @@ export interface ProductEntity {
   isChecked?: boolean;
   groupKey?: number;
   promotionOfProduct?: any[];
+  productBrandName?: string;
 }

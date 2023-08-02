@@ -6,7 +6,7 @@ import color from "../../resource/color";
 import image from "../../resource/image";
 import TableContainer from "../../components/Table/TableContainer";
 import { ProductEntity } from "../../entities/PoductEntity";
-import { CloseOutlined, SearchOutlined } from "@ant-design/icons";
+import { CheckCircleFilled, CloseOutlined, SearchOutlined } from "@ant-design/icons";
 import Select from "../../components/Select/Select";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
@@ -60,37 +60,19 @@ export const ProductName = ({ product, size, showLocation }: ProdNameProps) => {
       <FlexCol>
         {withFrame(<Text level={5}>{product.productName}</Text>)}
         {withFrame(
-          <Text level={5} color='Text3'>
+          <Text level={6} color='Text3'>
             {product.commonName}
           </Text>,
         )}
         {withFrame(
-          <Text level={5} color='Text3'>
-            {product.productGroup}&nbsp;
-            {company === "ICPI" && product.productLocation && (
-              <Text level={6} color='Text3'>
-                &nbsp;&nbsp;({LOCATION_FULLNAME_MAPPING[product.productLocation]})
-              </Text>
-            )}
-            {product.productCodeNAV}
+          <Text level={6} color='Text3'>
+            Product Group : {product.productGroup}
           </Text>,
         )}
-        {product.commonName &&
+        {product.productStrategy &&
           withFrame(
-            <Text level={5} color='Text3'>
-              {product.commonName}
-            </Text>,
-          )}
-        {product.productGroup &&
-          withFrame(
-            <Text level={5} color='Text3'>
-              {product.productGroup}
-            </Text>,
-          )}
-        {showLocation &&
-          withFrame(
-            <Text level={5} color='Text3'>
-              {LOCATION_FULLNAME_MAPPING[product?.productLocation || "-"]}
+            <Text level={6} color='Text3'>
+              Strategy Group : {product.productStrategy}
             </Text>,
           )}
       </FlexCol>
@@ -123,12 +105,11 @@ const AddProduct = ({
   const isSingleItem = withFreebies || isReplacing;
   const [form] = Form.useForm();
 
-  const productList = useRecoilValue(productState);
-  const setProductList = useSetRecoilState(productState);
-
   const [products, setProducts] = useState<ProductEntity[]>([]);
   const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
-  const [selectedProductId, setSelectedProdId] = useState<string[]>([]);
+  const [selectedProductId, setSelectedProdId] = useState<string[]>(
+    list.map((item) => item.productId),
+  );
   const [allSelectedList, setAllSelectedList] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
@@ -161,10 +142,6 @@ const AddProduct = ({
     fetchProduct();
   }, [filter, showFreebie]);
 
-  useEffect(() => {
-    setSelectedProdId(list.map((item) => item.productId));
-  }, [list]);
-
   const fetchProduct = async () => {
     try {
       setLoading(true);
@@ -180,7 +157,6 @@ const AddProduct = ({
           productStatus: "ACTIVE",
         });
         newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }));
-        setLoading(false);
       } else {
         const { data, count } = await getProductList({
           company,
@@ -203,10 +179,9 @@ const AddProduct = ({
           productBrandName: getBrand?.find((x: any) => d.productBrandId === x.productBrandId)
             .productBrandName,
         }));
-        setLoading(false);
       }
-      setProducts(newData);
 
+      setProducts(newData);
       if (!productGroups || !productGroups.length) {
         const { responseData } = await getProductGroup(company);
         setProductGroups(responseData);
@@ -216,11 +191,11 @@ const AddProduct = ({
         const categories = await getProductCategory(company);
         setProductCategories(categories);
       }
-
       if (!productFreebieGroups || !productFreebieGroups.length) {
         const { responseData } = await getProductFreebieGroup(company);
         setProductFreebieGroups(responseData);
       }
+      setLoading(false);
     } catch (e) {
       console.log(e);
     } finally {
@@ -355,6 +330,26 @@ const AddProduct = ({
           </FlexCol>
         </FlexRow>
       ),
+    },
+    {
+      dataIndex: "checkedFreebie",
+      width: "5%",
+      render: (text: string, value: any) => {
+        const checked = selectedProduct.length
+          ? showFreebie === "true"
+            ? selectedProduct[0].productFreebiesId === value.productFreebiesId
+            : selectedProduct[0].productId === value.productId
+          : false;
+        return (
+          <FlexRow>
+            <FlexCol>
+              {isSingleItem !== undefined && checked && (
+                <CheckCircleFilled style={{ color: color.success, fontSize: "25px" }} />
+              )}
+            </FlexCol>
+          </FlexRow>
+        );
+      },
     },
   ];
 
@@ -498,26 +493,28 @@ const AddProduct = ({
               />
             </Form.Item>
           </Col>
-          <Col span={4}>
-            <Form.Item label='ยี่ห้อ' name='brand'>
-              <Select
-                data={[
-                  {
-                    key: "",
-                    value: "",
-                    label: "ทั้งหมด",
-                  },
-                  ...brand.map((p: any) => ({
-                    key: p.productBrandId,
-                    value: p.productBrandId,
-                    label: p.productBrandName,
-                  })),
-                ]}
-                onChange={(v) => setFilter({ ...filter, productBrandId: v })}
-                value={filter.productBrandId}
-              />
-            </Form.Item>
-          </Col>
+          {showFreebie === "false" && (
+            <Col span={4}>
+              <Form.Item label='ยี่ห้อ' name='brand'>
+                <Select
+                  data={[
+                    {
+                      key: "",
+                      value: "",
+                      label: "ทั้งหมด",
+                    },
+                    ...brand.map((p: any) => ({
+                      key: p.productBrandId,
+                      value: p.productBrandId,
+                      label: p.productBrandName,
+                    })),
+                  ]}
+                  onChange={(v) => setFilter({ ...filter, productBrandId: v })}
+                  value={filter.productBrandId}
+                />
+              </Form.Item>
+            </Col>
+          )}
           {company === "ICPI" && (
             <Col span={4}>
               <Form.Item label='Location' name='productLocation'>
@@ -562,7 +559,13 @@ const AddProduct = ({
           rowSelection={isSingleItem ? undefined : { type: "checkbox", ...rowSelection }}
           rowClassName={rowClassName}
           onRow={onRow}
-          columns={showFreebie === "true" ? columns.slice(0, 2) : columns}
+          columns={
+            showFreebie === "true"
+              ? columns.filter(
+                  (x) => x.dataIndex !== "productLocation" && x.dataIndex !== "unitPrice",
+                )
+              : columns
+          }
           dataSource={products.filter(
             (item) =>
               notFilteredProductList?.find((id) => `${item.productId}` === `${id}`) ||

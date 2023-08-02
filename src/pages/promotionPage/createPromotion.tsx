@@ -5,7 +5,6 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
-import styled from "styled-components";
 import { PromotionCreateStep1 } from "./createPromotionStep/PromotionCreateStep1";
 import { PromotionCreateStep2 } from "./createPromotionStep/PromotionCreateStep2";
 import { PromotionCreateStep3 } from "./createPromotionStep/PromotionCreateStep3";
@@ -18,16 +17,16 @@ import {
   updatePromotion,
   updatePromotionFile,
 } from "../../datasource/PromotionDatasource";
-import { FlexCol, FlexRow } from "../../components/Container/Container";
+import { FlexCol } from "../../components/Container/Container";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import color from "../../resource/color";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import Steps from "../../components/StepAntd/steps";
 import dayjs, { Dayjs } from "dayjs";
 import promotionState from "../../store/promotion";
 import { PromotionConditionGroupEntity } from "../../entities/PromotionSettingEntity";
+import StepAntd from "../../components/StepAntd/StepAntd";
 
 export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -148,38 +147,32 @@ export const PromotionCreatePage: React.FC = () => {
         title={isEditing ? "แก้ไขโปรโมชั่น" : "เพิ่มโปรโมชั่น"}
         showBack
         extra={
-          <>
-            <Steps
-              // progressDot
-              current={step}
-              items={[
-                {
-                  title: <>ข้อมูลเบื้องต้น</>,
-                },
-                {
-                  title: (
-                    <>
-                      เลือกเขต
-                      <br />
-                      และร้านค้า
-                    </>
-                  ),
-                },
-                {
-                  title: (
-                    <>
-                      รายละเอียด
-                      <br />
-                      โปรโมชั่น
-                    </>
-                  ),
-                },
-                // {
-                //     title: <>เงื่อนไข&nbsp;/<br/>สิทธิประโยชน์</>,
-                // },
-              ]}
-            />
-          </>
+          <StepAntd
+            current={step}
+            items={[
+              {
+                title: "ข้อมูลเบื้องต้น",
+              },
+              {
+                title: (
+                  <>
+                    เลือกเขต
+                    <br />
+                    และร้านค้า
+                  </>
+                ),
+              },
+              {
+                title: (
+                  <>
+                    รายละเอียด
+                    <br />
+                    โปรโมชั่น
+                  </>
+                ),
+              },
+            ]}
+          />
         }
         customBreadCrumb={
           <BreadCrumb
@@ -224,6 +217,7 @@ export const PromotionCreatePage: React.FC = () => {
       promotionType={form1.getFieldValue("promotionType")}
       isEditing={isEditing}
       key={2}
+      company={company}
     />,
   ];
 
@@ -237,13 +231,13 @@ export const PromotionCreatePage: React.FC = () => {
             ...promotionData,
             ...values,
           });
-          console.log("values", values);
         })
         .catch((errInfo) => {
           console.log("errInfo", errInfo);
         });
     } else if (step === 1) {
       const stores = form2.getFieldValue("stores");
+      console.log("s", stores);
       if (!stores || stores.length <= 0) {
         setStep2Error(true);
       } else {
@@ -302,7 +296,6 @@ export const PromotionCreatePage: React.FC = () => {
       stores: form2.getFieldValue("stores"),
       items: form3.getFieldsValue(),
     };
-    console.log({ data });
     setPromotionData(data);
     onSubmit(false, data);
   };
@@ -311,7 +304,6 @@ export const PromotionCreatePage: React.FC = () => {
     setCreating(true);
     const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
-    console.log({ promotionData, startDate, endDate, startTime, endTime });
     const submitData = {
       ...promotionData,
       promotionId: id,
@@ -412,9 +404,7 @@ export const PromotionCreatePage: React.FC = () => {
           });
       }
     } else if (promotionType === PromotionType.DISCOUNT_MIX) {
-      console.log("DISCOUNT_MIX", promoStateValue.productGroup);
       submitData.conditionDetailDiscount = undefined;
-      console.log("promoStateValue.promotionGroupOption", promoStateValue);
       if (promoStateValue.promotionGroupOption !== PromotionGroupOption.WEIGHT) {
         submitData.conditionMixDiscount = Object.entries(promoList).map(
           ([key, conditionDiscount]) => {
@@ -458,7 +448,6 @@ export const PromotionCreatePage: React.FC = () => {
         });
       }
     } else if (promotionType === PromotionType.OTHER) {
-      console.log("OTHER");
       submitData.conditionDetailDiscount = undefined;
       submitData.conditionOther = Object.entries(promoList).map(([key, values]) => {
         const { detail } = (values as any[])[0];
