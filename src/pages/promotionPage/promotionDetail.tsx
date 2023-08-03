@@ -344,7 +344,7 @@ const DetailTab: React.FC = () => {
             promotion.conditionDetail &&
             Object.values(promotion.conditionDetail).map(
               ({ products, conditionDiscount, conditionFreebies, detail }, i) => {
-                const { typeMix, size } = conditionDiscount || conditionFreebies;
+                const { typeMix, size } = conditionDiscount || conditionFreebies || {};
                 return (
                   <GroupCardContainer key={i}>
                     <Card

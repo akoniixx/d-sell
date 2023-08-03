@@ -122,8 +122,12 @@ export const PromotionCreatePage: React.FC = () => {
           form3.setFieldValue("items", res.conditionDetail);
         }
         (res.conditionDetail as any[])?.forEach((p: any, i: number) => {
+          console.log("conditionDetail", p);
           if (PromotionGroup.MIX.includes(res?.promotionType)) {
-            form3.setFieldValue(`${i + 1}`, p.conditionFreebies || p.conditionDiscount || []);
+            form3.setFieldValue(
+              `${i + 1}`,
+              p.conditionFreebies || p.conditionDiscount || [{ detail: p.detail }] || [],
+            );
           } else {
             form3.setFieldValue(`promotion-${p.productId}`, p.condition || []);
           }
