@@ -75,7 +75,6 @@ export const PromotionCreatePage: React.FC = () => {
     const id = pathSplit[4];
     await getPromotionById(id)
       .then((res) => {
-        console.log("promo", res);
         setDefaultData(res);
         setPromoState({ ...promoStateValue, promotion: res });
         if (res.promotionImageFirst) {
@@ -117,9 +116,6 @@ export const PromotionCreatePage: React.FC = () => {
               newList = [...newList, ...nextList];
               newGroupKeys = [...newGroupKeys, groupKey];
             }
-          });
-          console.log({
-            newList,
           });
           form3.setFieldValue("items", newList);
         } else {
@@ -237,7 +233,6 @@ export const PromotionCreatePage: React.FC = () => {
         });
     } else if (step === 1) {
       const stores = form2.getFieldValue("stores");
-      console.log("s", stores);
       if (!stores || stores.length <= 0) {
         setStep2Error(true);
       } else {

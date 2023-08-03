@@ -124,6 +124,12 @@ const DetailTab: React.FC = () => {
 
   const columns = [
     {
+      title: "รหัสร้านค้า",
+      dataIndex: "customerNo",
+      align: "center" as AlignType,
+      render: (text: string) => <a>{text}</a>,
+    },
+    {
       title: "ชื่อร้านค้า",
       dataIndex: "customerName",
       align: "center" as AlignType,

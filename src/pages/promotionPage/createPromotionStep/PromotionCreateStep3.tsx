@@ -410,7 +410,7 @@ export const CollapsePanelItem = ({
                     },
                   ]}
                 >
-                  <Input placeholder='ระบุราคา' suffix='บาท' type='number'  />
+                  <Input placeholder='ระบุราคา' suffix='บาท' type='number' />
                 </Form.Item>
               </Col>
               <Col span={span.saleUnitDiscount}>
@@ -770,21 +770,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
     setReplace(undefined);
   };
 
-  const onAddProduct = () => {
-    // if (items.length > 0 && PromotionGroup.NOT_MIX.includes(promotionType)) {
-    //   Modal.confirm({
-    //     title: "ต้องการเพิ่มหรือเปลี่ยนสินค้าใช่หรือไม่",
-    //     content:
-    //       "โปรดยืนยันการเพิ่มหรือเปลี่ยนสินค้า และโปรดตรวจสอบรายละเอียดโปรโมชันสินค้าอีกครั้ง",
-    //     okText: "ยืนยัน",
-    //     cancelText: "ยกเลิก",
-    //     onOk: () => toggleModal(),
-    //   });
-    // } else {
-    //   toggleModal();
-    // }
-    toggleModal();
-  };
   const removeDuplicates = (arr: any, prop: string) => {
     const uniqueKeys = new Set();
     return arr.filter((obj: any) => {
@@ -863,12 +848,8 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
   const onSelectAll = (e: any) => {
     const text = e.target.textContent;
     if (text === "ล้างทั้งหมด") {
-      if (PromotionGroup.MIX.includes(promotionType)) {
-        setSelectedGroup([]);
-      } else {
-        const newSelectedKeys = items.map((item) => item.productId);
-        setSelectedKeys([]);
-      }
+      setSelectedGroup([]);
+      setSelectedKeys([]);
     } else {
       if (PromotionGroup.MIX.includes(promotionType)) {
         setSelectedGroup(groupKeys);
@@ -968,7 +949,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                   ? selectedGroup.length
                   : selectedKeys.length
               })`}
-              icon={<DeleteOutlined />}
+              icon={<DeleteOutlined style={{ color: "white" }} />}
               typeButton={selectedGroup.length || selectedKeys.length ? "danger" : "disabled"}
               style={{ width: 140 }}
               textStyle={{ fontSize: 14 }}
@@ -1183,16 +1164,17 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                                 />
                               );
                             })}
-                            {!(
-                              promotionType === PromotionType.FREEBIES_MIX &&
-                              promotionGroupOption === PromotionGroupOption.WEIGHT
-                            ) && (
-                              <Form.Item>
-                                <div style={{ padding: "0px 16px" }}>
-                                  <CollapsePanelAddBtn onClick={onAdd} />
-                                </div>
-                              </Form.Item>
-                            )}
+                            {promotionType === PromotionType.OTHER ||
+                              (!(
+                                promotionType === PromotionType.FREEBIES_MIX &&
+                                promotionGroupOption === PromotionGroupOption.WEIGHT
+                              ) && (
+                                <Form.Item>
+                                  <div style={{ padding: "0px 16px" }}>
+                                    <CollapsePanelAddBtn onClick={onAdd} />
+                                  </div>
+                                </Form.Item>
+                              ))}
                           </>
                         );
                       }}
@@ -1310,7 +1292,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
         )}
       </Form>
       <br />
-      <AddProductContainer onClick={onAddProduct}>
+      <AddProductContainer onClick={toggleModal}>
         {items.length <= 0 && <img style={{ width: 72, margin: 16 }} src={image.product_box} />}
         <Text level={items.length <= 0 ? 4 : 5} color='primary'>
           +&nbsp;เพิ่ม{PromotionGroup.MIX.includes(promotionType) ? "กลุ่ม" : ""}สินค้า

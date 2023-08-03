@@ -1,15 +1,13 @@
-import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Select, Avatar, Tag, Switch, Modal, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Table, Tabs, Row, Col, Avatar, Switch, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import {
   UnorderedListOutlined,
   SearchOutlined,
   EditOutlined,
   DeleteOutlined,
-  CopyOutlined,
 } from "@ant-design/icons";
-import { Option } from "antd/lib/mentions";
-import { dateFormatter, nameFormatter, priceFormatter } from "../../utility/Formatter";
+import { dateFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import color from "../../resource/color";
@@ -24,7 +22,6 @@ import {
   updatePromotionStatus,
 } from "../../datasource/PromotionDatasource";
 import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
-import { Dayjs } from "dayjs";
 import image from "../../resource/image";
 
 type FixedType = "left" | "right" | boolean;
@@ -76,7 +73,6 @@ export const PromotionListPage: React.FC = () => {
         count,
         count_status,
       });
-      console.log({ data, count, count_status, dateFilter });
     } catch (e) {
       console.log(e);
     } finally {
@@ -354,7 +350,7 @@ export const PromotionListPage: React.FC = () => {
                   }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <DeleteOutlined style={{ color: color["primary"] }} />
+                    <DeleteOutlined style={{ color: color.error }} />
                   </span>
                 </div>
               </div>
