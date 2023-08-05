@@ -59,11 +59,12 @@ export const ProductName = ({ product, size, showLocation }: ProdNameProps) => {
       </div>
       <FlexCol>
         {withFrame(<Text level={5}>{product.productName}</Text>)}
-        {withFrame(
-          <Text level={6} color='Text3'>
-            {product.commonName}
-          </Text>,
-        )}
+        {product.commonName &&
+          withFrame(
+            <Text level={6} color='Text3'>
+              {product.commonName}
+            </Text>,
+          )}
         {withFrame(
           <Text level={6} color='Text3'>
             Product Group : {product.productGroup}

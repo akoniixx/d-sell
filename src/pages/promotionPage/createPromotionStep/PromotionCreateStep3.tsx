@@ -171,9 +171,8 @@ export const CollapsePanelHeader = ({
           </Text>
         </Col>
       )}
-
-      <Col span={withForm ? 7 : 1}>
-        {withForm && (
+      {withForm && (
+        <Col span={withForm ? 7 : 1}>
           <CollapsePanelItem
             fieldKey={item.productId}
             form={withForm}
@@ -184,10 +183,11 @@ export const CollapsePanelHeader = ({
             name={groupKey + "-" + item.productId}
             uneditable={uneditable}
             i={0}
+            viewOnly={viewOnly}
           />
-        )}
-        {!hideCheckbox && !withForm && <Text>จำนวน&nbsp;{rowsCount}&nbsp;ขั้นบันได</Text>}
-      </Col>
+          {/* {!hideCheckbox && !withForm && <Text>จำนวน&nbsp;{rowsCount}&nbsp;ขั้นบันได</Text>} */}
+        </Col>
+      )}
       <Col span={viewOnly ? 0 : withForm ? 1 : 2}>
         <FlexCol
           align='center'
@@ -230,6 +230,7 @@ export const CollapsePanelItem = ({
   name,
   hideDivider,
   uneditable,
+  viewOnly,
 }: {
   fieldKey: React.Key;
   restField?: any;
@@ -245,6 +246,7 @@ export const CollapsePanelItem = ({
   name: React.Key;
   hideDivider?: boolean;
   uneditable?: boolean;
+  viewOnly?: boolean;
 }) => {
   const span = {
     qty: 8,
@@ -391,7 +393,7 @@ export const CollapsePanelItem = ({
                   {...restField}
                   label='ราคาที่ต้องการลด'
                   name={[name, "discountPrice"]}
-                  extra={extra}
+                  initialValue={item?.discountPrice}
                   rules={[
                     { required: true, message: "โปรดระบุราคาที่ต้องการลด" },
                     {
@@ -410,7 +412,7 @@ export const CollapsePanelItem = ({
                     },
                   ]}
                 >
-                  <Input placeholder='ระบุราคา' suffix='บาท' type='number' />
+                  <Input placeholder='ระบุราคา' suffix='บาท' type='number' disabled={viewOnly} />
                 </Form.Item>
               </Col>
               <Col span={span.saleUnitDiscount}>
@@ -715,7 +717,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
   const [promotionGroupOption, setPromotionGroupOption] = useState<PromotionGroupOption>(
     PromotionGroupOption.UNIT,
   );
-
   const [groupKeys, setGroupKeys] = useState<number[]>(
     (form.getFieldValue("items") || [])
       .map((item: any) => item.groupKey)
@@ -725,7 +726,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
   const [editingGroup, setEditingGroup] = useState<number>();
 
   useEffect(() => {
-    if (isEditing && promoStateValue.promotion) {
+    if (isEditing) {
       fetchProductData();
     }
     if (promoStateValue.promotionGroupOption) {
@@ -734,15 +735,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
   }, [promoStateValue]);
 
   const fetchProductData = async () => {
-    const data = [...items];
-    const getBrand = await getProductBrand(company).then((res) => {
-      return res;
-    });
-    const newItems = data.map((d: ProductEntity) => ({
-      ...d,
-      productBrandName: getBrand?.find((x: any) => d.productBrandId === x.productBrandId)
-        .productBrandName,
-    }));
+    const newItems = [...items];
     setLoadingProduct(true);
     if (PromotionGroup.MIX.includes(promotionType)) {
       if (!promoStateValue.productGroup) {
@@ -750,18 +743,25 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
           ...promoStateValue,
           productGroup: newItems,
         });
-      } else {
-        setItems(newItems);
+        return;
       }
     } else {
       const result = items.map(async (item, i) => {
         await getProductDetail(parseInt(item.productId)).then((res) => {
           newItems[i] = { ...item, ...res };
-          setItems(newItems);
         });
       });
       await Promise.all(result);
     }
+    const getBrand = await getProductBrand(company).then((res) => {
+      return res;
+    });
+    const mapBrand = newItems.map((d: ProductEntity) => ({
+      ...d,
+      productBrandName: getBrand?.find((x: any) => d.productBrandId === x.productBrandId)
+        .productBrandName,
+    }));
+    setItems(mapBrand);
     setLoadingProduct(false);
   };
 
@@ -983,8 +983,18 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                 });
               }}
             >
-              <Radio value={PromotionGroupOption.UNIT}>จำนวน</Radio>
-              <Radio value={PromotionGroupOption.WEIGHT}>น้ำหนัก/ปริมาตร</Radio>
+              <Radio
+                value={PromotionGroupOption.UNIT}
+                disabled={isEditing && promotionGroupOption === PromotionGroupOption.WEIGHT}
+              >
+                จำนวน
+              </Radio>
+              <Radio
+                value={PromotionGroupOption.WEIGHT}
+                disabled={isEditing && promotionGroupOption === PromotionGroupOption.UNIT}
+              >
+                น้ำหนัก/ปริมาตร
+              </Radio>
             </Radio.Group>
           </Row>
         </>
@@ -1064,6 +1074,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                                 จำนวนน้ำหนักที่ซื้อครบ
                               </Text>
                             }
+                            initialValue={items.filter((x) => x.groupKey === groupKey)[0].size}
                             rules={[
                               { required: true, message: "โปรดระบุจำนวนน้ำหนัก/ปริมาตรที่ซื้อครบ" },
                               {
@@ -1127,13 +1138,18 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                   </div>
                   {!(
                     promotionType === PromotionType.DISCOUNT_MIX &&
-                    promotionGroupOption === PromotionGroupOption.WEIGHT
+                    promoStateValue.promotionGroupOption === PromotionGroupOption.WEIGHT
                   ) && (
                     <Form.List name={`${groupKey}`}>
                       {(fields, { add, remove }) => {
                         const onAdd = () => add();
                         const onRemove = (name: number) => remove(name);
-                        if (fields.length <= 0) onAdd();
+                        const findIsEdit =
+                          groupKey &&
+                          fields.length <= 0 &&
+                          isEditing;
+                        if (findIsEdit) onAdd();
+                        if (fields.length <= 0 && !isEditing) onAdd();
                         return (
                           <>
                             {fields.map(({ key, name, ...restField }, i) => {
@@ -1170,6 +1186,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                                 promotionGroupOption === PromotionGroupOption.WEIGHT
                               ) && (
                                 <Form.Item>
+                                  <br />
                                   <div style={{ padding: "0px 16px" }}>
                                     <CollapsePanelAddBtn onClick={onAdd} />
                                   </div>
@@ -1279,7 +1296,9 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                             );
                           })}
                           <Form.Item>
-                            <CollapsePanelAddBtn onClick={onAdd} />
+                            <div style={{ padding: "0px 16px" }}>
+                              <CollapsePanelAddBtn onClick={onAdd} />
+                            </div>
                           </Form.Item>
                         </>
                       );

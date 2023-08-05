@@ -195,12 +195,6 @@ export const PromotionCreateStep1 = ({
               noStyle
               name='verticalImage'
               valuePropName='file'
-              // rules={[
-              //     {
-              //         required: true,
-              //         message: '*โปรดระบุรูปภาพ'
-              //     }
-              // ]}
             >
               <ImgCrop aspect={3 / 4} {...imgCropProps}>
                 <UploadVeritical
@@ -214,7 +208,6 @@ export const PromotionCreateStep1 = ({
                     }
                     setFile1(file);
                     getBase64(file as RcFile, (url) => {
-                      console.log({ url });
                       setImgUrl1(url);
                     });
                     return false;
@@ -223,7 +216,6 @@ export const PromotionCreateStep1 = ({
                     console.log("customRequest", file);
                   }}
                   onChange={({ file }: any) => {
-                    console.log(file);
                     return "success";
                   }}
                   onRemove={() => {
@@ -278,7 +270,6 @@ export const PromotionCreateStep1 = ({
                     }
                     setFile2(file);
                     getBase64(file as RcFile, (url) => {
-                      console.log({ url });
                       setImgUrl2(url);
                     });
                   }}
@@ -381,6 +372,7 @@ export const PromotionCreateStep1 = ({
                   value: key,
                   label: `${label}`,
                 }))}
+                disabled={isEditing}
               />
             </Form.Item>
           </Col>
@@ -521,11 +513,9 @@ export const PromotionCreateStep1 = ({
                       message.error(`อัปโหลดเฉพาะไฟล์ pdf เท่านั้น`);
                       return false;
                     }
-                    console.log("beforeUpload", file);
                     return isPDF || Upload.LIST_IGNORE;
                   }}
                   customRequest={({ file, onSuccess }) => {
-                    console.log("customRequest");
                     if (onSuccess) {
                       onSuccess(file);
                     }
@@ -538,7 +528,6 @@ export const PromotionCreateStep1 = ({
                     if (file.status === "done") {
                       setFileMemo(file);
                     }
-                    console.log("onChange", file);
                     return "success";
                   }}
                   onRemove={() => {

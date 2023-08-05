@@ -40,4 +40,6 @@ export interface ProductEntity {
   groupKey?: number;
   promotionOfProduct?: any[];
   productBrandName?: string;
+  discountPrice?: string;
+  size?: string;
 }

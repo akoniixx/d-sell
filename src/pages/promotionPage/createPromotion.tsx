@@ -22,7 +22,6 @@ import { CheckCircleTwoTone } from "@ant-design/icons";
 import color from "../../resource/color";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
 import dayjs, { Dayjs } from "dayjs";
 import promotionState from "../../store/promotion";
 import { PromotionConditionGroupEntity } from "../../entities/PromotionSettingEntity";
@@ -76,7 +75,15 @@ export const PromotionCreatePage: React.FC = () => {
     await getPromotionById(id)
       .then((res) => {
         setDefaultData(res);
-        setPromoState({ ...promoStateValue, promotion: res });
+        let promotionGroupOption;
+        if (res?.conditionDetail) {
+          if (res.promotionType === PromotionType.DISCOUNT_MIX) {
+            promotionGroupOption = res.conditionDetail[0]?.conditionDiscount?.typeMix;
+          } else if (res.promotionType === PromotionType.FREEBIES_MIX) {
+            promotionGroupOption = res.conditionDetail[0]?.typeMix;
+          }
+        }
+        setPromoState({ ...promoStateValue, promotion: res, promotionGroupOption });
         if (res.promotionImageFirst) {
           setImgUrl1(res.promotionImageFirst);
         }
@@ -110,9 +117,45 @@ export const PromotionCreatePage: React.FC = () => {
           let newGroupKeys: number[] = [];
           const conditionDetail: PromotionConditionGroupEntity[] = res?.conditionDetail;
           conditionDetail?.forEach(({ products, conditionDiscount, conditionFreebies }, i) => {
-            if (products) {
+            if (res.promotionType !== "OTHER") {
+              const getType =
+                res?.conditionDetail[i].typeMix ||
+                res?.conditionDetail[i].conditionDiscount.typeMix ||
+                "";
+              if (getType === PromotionGroupOption.UNIT) {
+                const groupKey = i + 1;
+                const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
+                newList = [...newList, ...nextList];
+                newGroupKeys = [...newGroupKeys, groupKey];
+              } else {
+                const groupKey = i + 1;
+                const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
+                newList = [...newList, ...nextList];
+                if (conditionDiscount) {
+                  newList = newList.map((x) => {
+                    const findDiscountPrice = conditionDiscount.products.find(
+                      (y: any) => y.productId === x.productId,
+                    );
+                    if (findDiscountPrice) {
+                      return {
+                        ...x,
+                        discountPrice: findDiscountPrice.discountPrice,
+                        size: res?.conditionDetail[i].conditionDiscount.size,
+                      };
+                    } else {
+                      return { ...x };
+                    }
+                  });
+                } else {
+                  newList = newList.map((x) => {
+                    return { ...x, size: res?.conditionDetail[i].size };
+                  });
+                }
+                newGroupKeys = [...newGroupKeys, groupKey];
+              }
+            } else {
               const groupKey = i + 1;
-              const nextList = products.map((p) => (p.groupKey ? p : { ...p, groupKey }));
+              const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
               newList = [...newList, ...nextList];
               newGroupKeys = [...newGroupKeys, groupKey];
             }
@@ -122,7 +165,6 @@ export const PromotionCreatePage: React.FC = () => {
           form3.setFieldValue("items", res.conditionDetail);
         }
         (res.conditionDetail as any[])?.forEach((p: any, i: number) => {
-          console.log("conditionDetail", p);
           if (PromotionGroup.MIX.includes(res?.promotionType)) {
             form3.setFieldValue(
               `${i + 1}`,
@@ -373,10 +415,10 @@ export const PromotionCreatePage: React.FC = () => {
                 .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
                 .map((item: ProductEntity) => ({
                   ...item,
-                  typeMix: promoStateValue.promotionGroupOption
-                    ? promoStateValue.promotionGroupOption
-                    : PromotionGroupOption.UNIT,
                 })),
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
               conditionFreebies,
             };
           },
@@ -423,7 +465,9 @@ export const PromotionCreatePage: React.FC = () => {
                     : PromotionGroupOption.UNIT,
                 })),
               conditionDiscount,
-              typeMix: PromotionGroupOption.UNIT,
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
             };
           },
         );
@@ -504,7 +548,6 @@ export const PromotionCreatePage: React.FC = () => {
           // TODO debug API
           updatePromotionFile(formData)
             .then((res) => {
-              console.log("updatePromotionFile", res);
               onDone();
             })
             .catch((err) => {
