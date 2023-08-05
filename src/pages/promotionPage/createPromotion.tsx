@@ -5,7 +5,6 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
-import styled from "styled-components";
 import { PromotionCreateStep1 } from "./createPromotionStep/PromotionCreateStep1";
 import { PromotionCreateStep2 } from "./createPromotionStep/PromotionCreateStep2";
 import { PromotionCreateStep3 } from "./createPromotionStep/PromotionCreateStep3";
@@ -18,16 +17,15 @@ import {
   updatePromotion,
   updatePromotionFile,
 } from "../../datasource/PromotionDatasource";
-import { FlexCol, FlexRow } from "../../components/Container/Container";
+import { FlexCol } from "../../components/Container/Container";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import color from "../../resource/color";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
-import Steps from "../../components/StepAntd/steps";
 import dayjs, { Dayjs } from "dayjs";
 import promotionState from "../../store/promotion";
 import { PromotionConditionGroupEntity } from "../../entities/PromotionSettingEntity";
+import StepAntd from "../../components/StepAntd/StepAntd";
 
 export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -76,9 +74,16 @@ export const PromotionCreatePage: React.FC = () => {
     const id = pathSplit[4];
     await getPromotionById(id)
       .then((res) => {
-        console.log("promo", res);
         setDefaultData(res);
-        setPromoState({ ...promoStateValue, promotion: res });
+        let promotionGroupOption;
+        if (res?.conditionDetail) {
+          if (res.promotionType === PromotionType.DISCOUNT_MIX) {
+            promotionGroupOption = res.conditionDetail[0]?.conditionDiscount?.typeMix;
+          } else if (res.promotionType === PromotionType.FREEBIES_MIX) {
+            promotionGroupOption = res.conditionDetail[0]?.typeMix;
+          }
+        }
+        setPromoState({ ...promoStateValue, promotion: res, promotionGroupOption });
         if (res.promotionImageFirst) {
           setImgUrl1(res.promotionImageFirst);
         }
@@ -112,15 +117,48 @@ export const PromotionCreatePage: React.FC = () => {
           let newGroupKeys: number[] = [];
           const conditionDetail: PromotionConditionGroupEntity[] = res?.conditionDetail;
           conditionDetail?.forEach(({ products, conditionDiscount, conditionFreebies }, i) => {
-            if (products) {
+            if (res.promotionType !== "OTHER") {
+              const getType =
+                res?.conditionDetail[i].typeMix ||
+                res?.conditionDetail[i].conditionDiscount.typeMix ||
+                "";
+              if (getType === PromotionGroupOption.UNIT) {
+                const groupKey = i + 1;
+                const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
+                newList = [...newList, ...nextList];
+                newGroupKeys = [...newGroupKeys, groupKey];
+              } else {
+                const groupKey = i + 1;
+                const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
+                newList = [...newList, ...nextList];
+                if (conditionDiscount) {
+                  newList = newList.map((x) => {
+                    const findDiscountPrice = conditionDiscount.products.find(
+                      (y: any) => y.productId === x.productId,
+                    );
+                    if (findDiscountPrice) {
+                      return {
+                        ...x,
+                        discountPrice: findDiscountPrice.discountPrice,
+                        size: res?.conditionDetail[i].conditionDiscount.size,
+                      };
+                    } else {
+                      return { ...x };
+                    }
+                  });
+                } else {
+                  newList = newList.map((x) => {
+                    return { ...x, size: res?.conditionDetail[i].size };
+                  });
+                }
+                newGroupKeys = [...newGroupKeys, groupKey];
+              }
+            } else {
               const groupKey = i + 1;
-              const nextList = products.map((p) => (p.groupKey ? p : { ...p, groupKey }));
+              const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
               newList = [...newList, ...nextList];
               newGroupKeys = [...newGroupKeys, groupKey];
             }
-          });
-          console.log({
-            newList,
           });
           form3.setFieldValue("items", newList);
         } else {
@@ -128,7 +166,10 @@ export const PromotionCreatePage: React.FC = () => {
         }
         (res.conditionDetail as any[])?.forEach((p: any, i: number) => {
           if (PromotionGroup.MIX.includes(res?.promotionType)) {
-            form3.setFieldValue(`${i + 1}`, p.conditionFreebies || p.conditionDiscount || []);
+            form3.setFieldValue(
+              `${i + 1}`,
+              p.conditionFreebies || p.conditionDiscount || [{ detail: p.detail }] || [],
+            );
           } else {
             form3.setFieldValue(`promotion-${p.productId}`, p.condition || []);
           }
@@ -148,38 +189,32 @@ export const PromotionCreatePage: React.FC = () => {
         title={isEditing ? "แก้ไขโปรโมชั่น" : "เพิ่มโปรโมชั่น"}
         showBack
         extra={
-          <>
-            <Steps
-              // progressDot
-              current={step}
-              items={[
-                {
-                  title: <>ข้อมูลเบื้องต้น</>,
-                },
-                {
-                  title: (
-                    <>
-                      เลือกเขต
-                      <br />
-                      และร้านค้า
-                    </>
-                  ),
-                },
-                {
-                  title: (
-                    <>
-                      รายละเอียด
-                      <br />
-                      โปรโมชั่น
-                    </>
-                  ),
-                },
-                // {
-                //     title: <>เงื่อนไข&nbsp;/<br/>สิทธิประโยชน์</>,
-                // },
-              ]}
-            />
-          </>
+          <StepAntd
+            current={step}
+            items={[
+              {
+                title: "ข้อมูลเบื้องต้น",
+              },
+              {
+                title: (
+                  <>
+                    เลือกเขต
+                    <br />
+                    และร้านค้า
+                  </>
+                ),
+              },
+              {
+                title: (
+                  <>
+                    รายละเอียด
+                    <br />
+                    โปรโมชั่น
+                  </>
+                ),
+              },
+            ]}
+          />
         }
         customBreadCrumb={
           <BreadCrumb
@@ -224,6 +259,7 @@ export const PromotionCreatePage: React.FC = () => {
       promotionType={form1.getFieldValue("promotionType")}
       isEditing={isEditing}
       key={2}
+      company={company}
     />,
   ];
 
@@ -237,14 +273,12 @@ export const PromotionCreatePage: React.FC = () => {
             ...promotionData,
             ...values,
           });
-          console.log("values", values);
         })
         .catch((errInfo) => {
           console.log("errInfo", errInfo);
         });
     } else if (step === 1) {
       const stores = form2.getFieldValue("stores");
-      console.log(stores);
       if (!stores || stores.length <= 0) {
         setStep2Error(true);
       } else {
@@ -258,7 +292,6 @@ export const PromotionCreatePage: React.FC = () => {
       form3
         .validateFields()
         .then((values) => {
-          console.log(values);
           if (promotionData.promotionType === PromotionType.FREEBIES_NOT_MIX) {
             const promoList = form3.getFieldsValue();
             if (!Object.entries(promoList).length) {
@@ -304,7 +337,6 @@ export const PromotionCreatePage: React.FC = () => {
       stores: form2.getFieldValue("stores"),
       items: form3.getFieldsValue(),
     };
-    console.log({ data });
     setPromotionData(data);
     onSubmit(false, data);
   };
@@ -313,7 +345,6 @@ export const PromotionCreatePage: React.FC = () => {
     setCreating(true);
     const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
-    console.log({ promotionData, startDate, endDate, startTime, endTime });
     const submitData = {
       ...promotionData,
       promotionId: id,
@@ -375,7 +406,6 @@ export const PromotionCreatePage: React.FC = () => {
         };
       });
     } else if (promotionType === PromotionType.FREEBIES_MIX) {
-      console.log("FREEBIES_MIX");
       if (promoStateValue.promotionGroupOption === PromotionGroupOption.UNIT) {
         submitData.conditionDetailDiscount = undefined;
         submitData.conditionMixFreebies = Object.entries(promoList).map(
@@ -385,10 +415,10 @@ export const PromotionCreatePage: React.FC = () => {
                 .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
                 .map((item: ProductEntity) => ({
                   ...item,
-                  typeMix: promoStateValue.promotionGroupOption
-                    ? promoStateValue.promotionGroupOption
-                    : PromotionGroupOption.UNIT,
                 })),
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
               conditionFreebies,
             };
           },
@@ -421,7 +451,6 @@ export const PromotionCreatePage: React.FC = () => {
           });
       }
     } else if (promotionType === PromotionType.DISCOUNT_MIX) {
-      console.log("DISCOUNT_MIX", promoStateValue.productGroup);
       submitData.conditionDetailDiscount = undefined;
       if (promoStateValue.promotionGroupOption !== PromotionGroupOption.WEIGHT) {
         submitData.conditionMixDiscount = Object.entries(promoList).map(
@@ -436,7 +465,9 @@ export const PromotionCreatePage: React.FC = () => {
                     : PromotionGroupOption.UNIT,
                 })),
               conditionDiscount,
-              typeMix: PromotionGroupOption.UNIT,
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
             };
           },
         );
@@ -470,7 +501,6 @@ export const PromotionCreatePage: React.FC = () => {
         });
       }
     } else if (promotionType === PromotionType.OTHER) {
-      console.log("OTHER");
       submitData.conditionDetailDiscount = undefined;
       submitData.conditionOther = Object.entries(promoList).map(([key, values]) => {
         const { detail } = (values as any[])[0];
@@ -487,9 +517,6 @@ export const PromotionCreatePage: React.FC = () => {
         };
       });
     }
-
-    // console.log({ promoList, submitData, file1, file2, fileMemo });
-    // return;
     const callback = (res: any) => {
       const { success, responseData, developerMessage, userMessage } = res;
       const promotionId = responseData?.promotionId || id;
@@ -521,7 +548,6 @@ export const PromotionCreatePage: React.FC = () => {
           // TODO debug API
           updatePromotionFile(formData)
             .then((res) => {
-              console.log("updatePromotionFile", res);
               onDone();
             })
             .catch((err) => {

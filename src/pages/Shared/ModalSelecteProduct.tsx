@@ -1,4 +1,4 @@
-import { Avatar, Checkbox, Col, Divider, Modal, Row, Table } from "antd";
+import { Avatar, Checkbox, Col, Divider, Modal, Row, Table, Form } from "antd";
 import { useEffect, useState } from "react";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import { ProductEntity } from "../../entities/PoductEntity";
@@ -343,101 +343,111 @@ export const ModalSelectedProduct = ({
       >
         <Row gutter={16}>
           <Col span={9}>
-            <Input
-              placeholder='ค้นหาชื่อสินค้าหรือรหัสสินค้า...'
-              suffix={<SearchOutlined />}
-              style={{ width: "100%" }}
-              onPressEnter={(e) => handleSearchKeyword(e)}
-              onChange={(e) => setKeyword(e.target.value)}
-              defaultValue={keyword}
-              value={keyword}
-            />
+            <Form.Item label='ค้นหาสินค้า' name='searchText'>
+              <Input
+                placeholder='ค้นหาชื่อสินค้าหรือรหัสสินค้า...'
+                suffix={<SearchOutlined />}
+                style={{ width: "100%" }}
+                onPressEnter={(e) => handleSearchKeyword(e)}
+                onChange={(e) => setKeyword(e.target.value)}
+                defaultValue={keyword}
+                value={keyword}
+              />
+            </Form.Item>
           </Col>
           <Col span={4}>
-            <Select
-              data={[
-                {
-                  key: "",
-                  value: "",
-                  label: "Product Group: ทั้งหมด",
-                },
-                ...productGroup.map((p: any) => ({
-                  key: p.product_group,
-                  value: p.product_group,
-                  label: p.product_group,
-                })),
-              ]}
-              onChange={(e) => handleSearchProdGroup(e)}
-              placeholder='Product Group: ทั้งหมด'
-              style={{ width: "100%" }}
-              value={prodGroup}
-            />
-          </Col>
-          {company === "ICPL" && (
-            <Col span={4}>
+            <Form.Item label='Product Group' name='productGroup'>
               <Select
                 data={[
                   {
                     key: "",
                     value: "",
-                    label: "Strategy Group: ทั้งหมด",
+                    label: "ทั้งหมด",
                   },
-                  ...strategyGroup.map((p: any) => ({
-                    key: p.productCategoryId,
-                    value: p.productCategoryId,
-                    label: p.productCategoryName,
+                  ...productGroup.map((p: any) => ({
+                    key: p.product_group,
+                    value: p.product_group,
+                    label: p.product_group,
                   })),
                 ]}
-                onChange={(e) => handleSearchStrategyGroup(e)}
-                placeholder='Strategy Group : ทั้งหมด'
+                onChange={(e) => handleSearchProdGroup(e)}
+                placeholder='ทั้งหมด'
                 style={{ width: "100%" }}
-                value={selectedStrategy}
+                value={prodGroup}
               />
+            </Form.Item>
+          </Col>
+
+          {company === "ICPL" && (
+            <Col span={4}>
+              <Form.Item label='Strategy Group' name='strategyGroup'>
+                <Select
+                  data={[
+                    {
+                      key: "",
+                      value: "",
+                      label: "ทั้งหมด",
+                    },
+                    ...strategyGroup.map((p: any) => ({
+                      key: p.productCategoryId,
+                      value: p.productCategoryId,
+                      label: p.productCategoryName,
+                    })),
+                  ]}
+                  onChange={(e) => handleSearchStrategyGroup(e)}
+                  placeholder='ทั้งหมด'
+                  style={{ width: "100%" }}
+                  value={selectedStrategy}
+                />
+              </Form.Item>
             </Col>
           )}
           {brand?.length && (
             <Col span={4}>
-              <Select
-                data={[
-                  {
-                    key: "",
-                    value: "",
-                    label: "ยี่ห้อ: ทั้งหมด",
-                  },
-                  ...brand.map((p: any) => ({
-                    key: p.productBrandId,
-                    value: p.productBrandId,
-                    label: p.productBrandName,
-                  })),
-                ]}
-                onChange={(e) => handleSearchBrand(e)}
-                placeholder='ยี่ห้อ : ทั้งหมด'
-                style={{ width: "100%" }}
-                value={selectedBrand}
-              />
+              <Form.Item label='ยี่ห้อ' name='brand'>
+                <Select
+                  data={[
+                    {
+                      key: "",
+                      value: "",
+                      label: "ทั้งหมด",
+                    },
+                    ...brand.map((p: any) => ({
+                      key: p.productBrandId,
+                      value: p.productBrandId,
+                      label: p.productBrandName,
+                    })),
+                  ]}
+                  onChange={(e) => handleSearchBrand(e)}
+                  placeholder='ทั้งหมด'
+                  style={{ width: "100%" }}
+                  value={selectedBrand}
+                />
+              </Form.Item>
             </Col>
           )}
-
           {company === "ICPI" && (
             <Col span={4}>
-              <Select
-                data={[
-                  {
-                    key: "",
-                    value: "",
-                    label: "Location : ทั้งหมด",
-                  },
-                  ...LOCATION_DATA.filter((c: any) => c.company === company).map((p: any) => ({
-                    key: p.LocationName,
-                    value: p.LocationName,
-                    label: p.LocationNameTH,
-                  })),
-                ]}
-                onChange={(e) => handleSearchLocation(e)}
-                placeholder='Location : ทั้งหมด'
-                style={{ width: "100%" }}
-                value={location}
-              />
+              <Form.Item label='Location' name='brand'>
+                <Select
+                  data={[
+                    {
+                      key: "",
+                      value: "",
+                      label: "ทั้งหมด",
+                    },
+                    ...LOCATION_DATA.filter((c: any) => c.company === company).map((p: any) => ({
+                      key: p.LocationName,
+                      value: p.LocationName,
+                      label: p.LocationNameTH,
+                    })),
+                  ]}
+                  onChange={(e) => handleSearchLocation(e)}
+                  placeholder='ทั้งหมด'
+                  style={{ width: "100%" }}
+                  value={location}
+                />
+              </Form.Item>
             </Col>
           )}
           <Col span={3}>

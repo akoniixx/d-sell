@@ -98,7 +98,6 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
   const rowSelection = {
     selectedRowKeys: selectedStoreKeys,
     onChange: (selectedRowKeys: React.Key[], selectedRows: StoreEntity[]) => {
-      // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
       setSelectedStoreList(selectedRows);
       setSelectedStoreKeys(selectedRowKeys);
     },

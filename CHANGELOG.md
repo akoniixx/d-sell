@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.5] - Release Date: 2023-08-06
+
+- fixed defect advance promotion
+
 ## Improve [v0.6.4] - Release Date: 2023-07-27
 
 - fixed advance promotion set default typeMix

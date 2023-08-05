@@ -22,6 +22,8 @@ export interface PromotionConditionGroupEntity {
   conditionDiscount?: any;
   conditionFreebies?: any;
   detail?: string;
+  typeMix?: string;
+  size?: string;
 }
 
 export interface PromotionShopEntity {
