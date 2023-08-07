@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.6] - Release Date: 2023-08-07
+
+- fixed defect promotion list
+
 ## Resolved [v0.6.5] - Release Date: 2023-08-06
 
 - fixed defect advance promotion

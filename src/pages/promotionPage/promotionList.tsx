@@ -207,7 +207,7 @@ export const PromotionListPage: React.FC = () => {
       dataIndex: "referencePromotion",
       key: "referencePromotion",
       render: (value: string[], row: any, index: number) => {
-        const val = value.join(",");
+        const val = value?.join(",");
         return {
           children: (
             <FlexCol>
