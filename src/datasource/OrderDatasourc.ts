@@ -2,7 +2,7 @@ import { AxiosResponse } from "axios";
 import { BASE_URL, httpClient } from "../config/develop-config";
 import { OrderPaymentStatusKey, OrderStatusKey } from "../definitions/orderStatus";
 
-const baseUrl = `${BASE_URL}/cart`;
+const baseUrl = `${BASE_URL}/order-cart`;
 
 const getOrders = async (params: object) => {
   return await httpClient
