@@ -16,8 +16,6 @@ import {
   getProductGroup,
   getProductList,
 } from "../../datasource/ProductDatasource";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import productState from "../../store/productList";
 import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
 import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { numberFormatter } from "../../utility/Formatter";
@@ -100,6 +98,7 @@ const AddProduct = ({
   customTitle,
   notFilteredProductList,
 }: SearchProps) => {
+  console.log("list", list);
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
   const pageSize = 1000;
@@ -148,6 +147,7 @@ const AddProduct = ({
       setLoading(true);
       let newData: any = [];
       if (showFreebie === "true") {
+        console.log(1);
         const { data, count } = await getProductFreebies({
           company,
           take: pageSize,
@@ -181,7 +181,7 @@ const AddProduct = ({
             .productBrandName,
         }));
       }
-
+      console.log("check", newData);
       setProducts(newData);
       if (!productGroups || !productGroups.length) {
         const { responseData } = await getProductGroup(company);
@@ -207,16 +207,34 @@ const AddProduct = ({
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: ProductEntity[]) => {
       // TODO
-      const newList = new Set(allSelectedList);
-      selectedRowKeys.forEach((item) => newList.add(item as string));
-      selectedProductId.forEach((oldId) => {
-        if (!selectedRowKeys.includes(oldId) && products.find((p) => p.productId === oldId)) {
-          newList.delete(oldId);
+      if (selectedRowKeys.length) {
+        if (selectedRowKeys.length < 2) {
+          const checkInclude = selectedProductId.includes(selectedRowKeys[0].toString());
+          selectedRowKeys = checkInclude
+            ? selectedProductId.filter((x) => x === selectedRowKeys[0])
+            : selectedRowKeys;
+          setSelectedProdId(selectedRowKeys as string[]);
+          setSelectedProd(selectedRows);
+        } else {
+          setSelectedProdId(selectedRowKeys as string[]);
+          setSelectedProd(selectedRows);
         }
-      });
-      setAllSelectedList(newList);
-      setSelectedProdId(selectedRowKeys as string[]);
-      setSelectedProd(selectedRows);
+      } else {
+        setSelectedProdId([] as string[]);
+        setSelectedProd([]);
+      }
+
+      // const newList = new Set(allSelectedList);
+      // selectedRowKeys.forEach((item) => newList.add(item as string));
+      // selectedProductId.forEach((oldId) => {
+      //   if (!selectedRowKeys.includes(oldId) && products.find((p) => p.productId === oldId)) {
+      //     newList.delete(oldId);
+      //     console.log("check", newList);
+      //   }
+      // });
+      // setAllSelectedList(newList);
+      // setSelectedProdId(selectedRowKeys as string[]);
+      // setSelectedProd(selectedRows);
     },
     getCheckboxProps: (record: ProductEntity) => ({
       name: record.productName,
@@ -229,48 +247,50 @@ const AddProduct = ({
       title: <span>ชื่อสินค้า</span>,
       dataIndex: "productName",
       width: "40%",
-      render: (text: string, value: any, index: any) => (
-        <FlexRow align='center'>
-          <div style={{ marginRight: 16 }}>
-            <Avatar
-              src={
-                value.productImage === "No" ||
-                value.productImage === "" ||
-                value.productImage === null
-                  ? image.product_no_image
-                  : value.productImage
-              }
-              size={50}
-              shape='square'
-              onError={() => false}
-            />
-          </div>
-          <FlexCol>
-            <div style={{ height: 25, textOverflow: "ellipsis" }}>
-              <Text level={5}>{value.productName}</Text>
+      render: (text: string, value: any, index: any) => {
+        return (
+          <FlexRow align='center'>
+            <div style={{ marginRight: 16 }}>
+              <Avatar
+                src={
+                  value.productImage === "No" ||
+                  value.productImage === "" ||
+                  value.productImage === null
+                    ? image.product_no_image
+                    : value.productImage
+                }
+                size={50}
+                shape='square'
+                onError={() => false}
+              />
             </div>
-            {value.commonName && (
+            <FlexCol>
               <div style={{ height: 25, textOverflow: "ellipsis" }}>
-                <Text level={6} style={{ color: color.Grey }}>
-                  {value.commonName}
-                </Text>
+                <Text level={5}>{value.productName}</Text>
               </div>
-            )}
-            <div style={{ height: 25 }}>
-              <Text level={6} style={{ color: color.Grey }}>
-                Product Group : {value.productGroup}
-              </Text>
-            </div>
-            {value.productStrategy && (
+              {value.commonName && (
+                <div style={{ height: 25, textOverflow: "ellipsis" }}>
+                  <Text level={6} style={{ color: color.Grey }}>
+                    {value.commonName}
+                  </Text>
+                </div>
+              )}
               <div style={{ height: 25 }}>
                 <Text level={6} style={{ color: color.Grey }}>
-                  Strategy Group : {value.productStrategy}
+                  Product Group : {value.productGroup}
                 </Text>
               </div>
-            )}
-          </FlexCol>
-        </FlexRow>
-      ),
+              {value.productStrategy && (
+                <div style={{ height: 25 }}>
+                  <Text level={6} style={{ color: color.Grey }}>
+                    Strategy Group : {value.productStrategy}
+                  </Text>
+                </div>
+              )}
+            </FlexCol>
+          </FlexRow>
+        );
+      },
     },
     {
       title: <span>Product Code</span>,
@@ -365,7 +385,7 @@ const AddProduct = ({
       setList(selectedProduct[0]);
     } else {
       const map = products.filter((x) => {
-        const find = allSelectedList.has(x.productId);
+        const find = selectedProductId.find((y) => y === x.productId);
         return find;
       });
       setList(map);
@@ -549,6 +569,7 @@ const AddProduct = ({
         <Tabs
           items={tabsItems}
           onChange={(key: any) => {
+            console.log("key", key);
             setShowFreebie(key);
             resetPage();
           }}

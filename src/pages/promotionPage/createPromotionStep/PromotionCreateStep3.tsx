@@ -789,7 +789,9 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
         newList = items;
       } else if (editingGroup) {
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey: editingGroup }));
-        const uniqueArrayOfObjects = removeDuplicates([...newList, ...items], "productId");
+        const mapItems = editingGroup && items.filter((x) => x.groupKey !== editingGroup);
+        const newItems = [...(mapItems || items), ...newList];
+        const uniqueArrayOfObjects = removeDuplicates([...newList, ...newItems], "productId");
         newList = uniqueArrayOfObjects;
         setEditingGroup(undefined);
       } else {
@@ -876,7 +878,9 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
   const onDeleteSelectedProduct = () => {
     Modal.confirm({
       title: "ต้องการลบรายการสินค้าที่เลือกหรือไม่",
-      content: `โปรดยืนยันการลบรายการสินค้า (${selectedKeys.length} รายการ)`,
+      content: `โปรดยืนยันการลบรายการสินค้า (${
+        PromotionGroup.MIX.includes(promotionType) ? selectedGroup.length : selectedKeys.length
+      } รายการ)`,
       okText: "ลบสินค้า",
       cancelText: "ยกเลิก",
       onOk: () => {
@@ -1144,10 +1148,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                       {(fields, { add, remove }) => {
                         const onAdd = () => add();
                         const onRemove = (name: number) => remove(name);
-                        const findIsEdit =
-                          groupKey &&
-                          fields.length <= 0 &&
-                          isEditing;
+                        const findIsEdit = groupKey && fields.length <= 0 && isEditing;
                         if (findIsEdit) onAdd();
                         if (fields.length <= 0 && !isEditing) onAdd();
                         return (
