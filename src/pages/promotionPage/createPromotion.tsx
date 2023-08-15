@@ -357,7 +357,7 @@ export const PromotionCreatePage: React.FC = () => {
       horizontalImage: undefined,
       verticalImage: undefined,
       promotionShop: stores,
-      conditionDetailDiscount: [{}],
+      conditionDetailDiscount: undefined,
       conditionDetailFreebies: undefined,
       startDate:
         startDate && startTime
@@ -560,24 +560,35 @@ export const PromotionCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
-    if (!isEditing) {
-      await createPromotion(submitData)
-        .then(callback)
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          setCreating(false);
-        });
+    console.log("final", submitData);
+    setCreating(false);
+    //const validateCondition = 
+    if (
+      (submitData.conditionDetailDiscount && submitData.conditionDetailDiscount.length) ||
+      submitData.conditionDetailFreebies
+    ) {
+      console.log(1);
+      // if (!isEditing) {
+      //   await createPromotion(submitData)
+      //     .then(callback)
+      //     .catch((err) => {
+      //       console.log(err);
+      //     })
+      //     .finally(() => {
+      //       setCreating(false);
+      //     });
+      // } else {
+      //   await updatePromotion(submitData)
+      //     .then(callback)
+      //     .catch((err) => {
+      //       console.log(err);
+      //     })
+      //     .finally(() => {
+      //       setCreating(false);
+      //     });
+      // }
     } else {
-      await updatePromotion(submitData)
-        .then(callback)
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          setCreating(false);
-        });
+      console.log(2);
     }
   };
 

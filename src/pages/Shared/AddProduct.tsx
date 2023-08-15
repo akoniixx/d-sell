@@ -98,7 +98,6 @@ const AddProduct = ({
   customTitle,
   notFilteredProductList,
 }: SearchProps) => {
-  console.log("list", list);
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
   const pageSize = 1000;
@@ -147,7 +146,6 @@ const AddProduct = ({
       setLoading(true);
       let newData: any = [];
       if (showFreebie === "true") {
-        console.log(1);
         const { data, count } = await getProductFreebies({
           company,
           take: pageSize,
@@ -181,7 +179,6 @@ const AddProduct = ({
             .productBrandName,
         }));
       }
-      console.log("check", newData);
       setProducts(newData);
       if (!productGroups || !productGroups.length) {
         const { responseData } = await getProductGroup(company);
@@ -223,18 +220,6 @@ const AddProduct = ({
         setSelectedProdId([] as string[]);
         setSelectedProd([]);
       }
-
-      // const newList = new Set(allSelectedList);
-      // selectedRowKeys.forEach((item) => newList.add(item as string));
-      // selectedProductId.forEach((oldId) => {
-      //   if (!selectedRowKeys.includes(oldId) && products.find((p) => p.productId === oldId)) {
-      //     newList.delete(oldId);
-      //     console.log("check", newList);
-      //   }
-      // });
-      // setAllSelectedList(newList);
-      // setSelectedProdId(selectedRowKeys as string[]);
-      // setSelectedProd(selectedRows);
     },
     getCheckboxProps: (record: ProductEntity) => ({
       name: record.productName,
@@ -569,7 +554,6 @@ const AddProduct = ({
         <Tabs
           items={tabsItems}
           onChange={(key: any) => {
-            console.log("key", key);
             setShowFreebie(key);
             resetPage();
           }}
@@ -591,7 +575,11 @@ const AddProduct = ({
           dataSource={products.filter(
             (item) =>
               notFilteredProductList?.find((id) => `${item.productId}` === `${id}`) ||
-              !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`),
+              !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`) ||
+              (showFreebie === "true" &&
+                !list.find(
+                  (l: ProductEntity) => `${item.productFreebiesId}` === `${l.productFreebiesId}`,
+                )),
           )}
           pagination={false}
           scroll={{ y: 360 }}
