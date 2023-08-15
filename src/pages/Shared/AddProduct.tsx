@@ -19,6 +19,8 @@ import {
 import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
 import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { numberFormatter } from "../../utility/Formatter";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import productState from "../../store/productList";
 
 interface ProdNameProps {
   product: ProductEntity;
@@ -104,12 +106,17 @@ const AddProduct = ({
   const isSingleItem = withFreebies || isReplacing;
   const [form] = Form.useForm();
 
+  const recoilProductList = useRecoilValue(productState);
+  const setRecoilProductList = useSetRecoilState(productState);
+
   const [products, setProducts] = useState<ProductEntity[]>([]);
   const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
   const [selectedProductId, setSelectedProdId] = useState<string[]>(
     list.map((item) => item.productId),
   );
-  const [allSelectedList, setAllSelectedList] = useState<Set<string>>(new Set());
+  const [allSelectedList, setAllSelectedList] = useState<Set<string>>(
+    new Set(list.map((item) => item.productId)),
+  );
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [brand, setBrand] = useState([]);
@@ -156,6 +163,12 @@ const AddProduct = ({
           productStatus: "ACTIVE",
         });
         newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }));
+        if (recoilProductList.freebies.length <= 0) {
+          setRecoilProductList({
+            ...recoilProductList,
+            freebies: newData,
+          });
+        }
       } else {
         const { data, count } = await getProductList({
           company,
@@ -178,6 +191,13 @@ const AddProduct = ({
           productBrandName: getBrand?.find((x: any) => d.productBrandId === x.productBrandId)
             .productBrandName,
         }));
+
+        if (recoilProductList.allData.length <= 0) {
+          setRecoilProductList({
+            ...recoilProductList,
+            allData: newData,
+          });
+        }
       }
       setProducts(newData);
 
@@ -220,6 +240,18 @@ const AddProduct = ({
         setSelectedProdId([] as string[]);
         setSelectedProd([]);
       }
+
+      const newAllSelectedList = new Set(allSelectedList);
+      // remove
+      allSelectedList.forEach((x) => {
+        if (!selectedRowKeys.includes(x) && products.find((p) => `${p.productId}` === `${x}`)) {
+          newAllSelectedList.delete(x);
+        }
+      });
+      // add
+      selectedRowKeys.forEach((x) => newAllSelectedList.add(`${x}`));
+      // save
+      setAllSelectedList(newAllSelectedList);
     },
     getCheckboxProps: (record: ProductEntity) => ({
       name: record.productName,
@@ -369,10 +401,10 @@ const AddProduct = ({
     if (isSingleItem) {
       setList(selectedProduct[0]);
     } else {
-      // TODO: map from "ALL product" (no filter)
-      console.log("allSelectedList", allSelectedList);
-      const map = products.filter((x) => {
-        const find = selectedProductId.find((y) => y === x.productId);
+      const map = (
+        showFreebie === "true" ? recoilProductList.freebies : recoilProductList.allData
+      ).filter((x) => {
+        const find = allSelectedList.has(x.productId);
         return find;
       });
       setList(map);
