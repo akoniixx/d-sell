@@ -357,7 +357,7 @@ export const PromotionCreatePage: React.FC = () => {
       horizontalImage: undefined,
       verticalImage: undefined,
       promotionShop: stores,
-      conditionDetailDiscount: [{}],
+      conditionDetailDiscount: undefined,
       conditionDetailFreebies: undefined,
       startDate:
         startDate && startTime

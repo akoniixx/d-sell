@@ -1,4 +1,4 @@
-import { CheckCircleTwoTone } from "@ant-design/icons";
+import { CheckCircleTwoTone, SyncOutlined } from "@ant-design/icons";
 import { Form, Row, Modal } from "antd";
 import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
@@ -38,6 +38,7 @@ function ShopListPage(): JSX.Element {
   const [visible, setVisible] = React.useState<boolean>(false);
   const [debouncedValueSearch, loadingDebouncing] = useDebounce(keyword, 500);
   const [isCreating, setIsCreating] = React.useState(false);
+  const [loadingSyncCus, setLoadingSyncCus] = React.useState(false);
 
   const getZoneByCompany = async () => {
     const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
@@ -379,6 +380,27 @@ function ShopListPage(): JSX.Element {
     return columns;
   }, [onClickDetail]);
 
+  const onSyncCustomer = async () => {
+    Modal.confirm({
+      title: "ยืนยันการเชื่อมต่อ Navision",
+      onOk: async () => {
+        setLoadingSyncCus(true);
+        //   await syncProduct({ company })
+        //     .then((res) => {
+        //       const { success } = res;
+        //       if (success) {
+        //         navigate(0);
+        //       } else {
+        //         message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
+        //       }
+        //     })
+        //     .catch((err) => console.log("err", err))
+        //     .finally(() => console.log("sync product done"));
+        setLoadingSyncCus(false);
+      },
+    });
+  };
+
   return (
     <CardContainer>
       <PageTitle
@@ -420,6 +442,14 @@ function ShopListPage(): JSX.Element {
                   setVisible(true);
                 }}
                 title=' + เพิ่มร้านค้า'
+              />
+            </div>
+            <div>
+              <Button
+                title='เชื่อมต่อ Navision'
+                icon={<SyncOutlined style={{ color: "white" }} />}
+                onClick={onSyncCustomer}
+                loading={loadingSyncCus}
               />
             </div>
           </div>

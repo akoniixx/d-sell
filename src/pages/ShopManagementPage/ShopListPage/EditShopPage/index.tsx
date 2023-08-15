@@ -21,18 +21,20 @@ import StepTwo from "../AddNewShopPage/StepTwo";
 
 export default function EditShopPage() {
   const [current, setCurrent] = React.useState(0);
-  const [brandData, setBrandData] = React.useState<
-    {
-      productBrandName: string;
-      productBrandId: string;
-      company: string;
-    }[]
-  >([]);
+
   const profile = useRecoilValue(profileAtom);
   const navigate = useNavigate();
   const [dataDetail, setDataDetail] = React.useState<CustomerDetailEntity | null>(null);
   const [searchValue] = useSearchParams();
   const taxId = searchValue.get("taxId");
+  const [brandData, setBrandData] = React.useState<
+    {
+      company: string;
+      product_brand_id: string;
+      product_brand_logo: string;
+      product_brand_name: string;
+    }[]
+  >([]);
 
   const [zoneList, setZoneList] = React.useState<
     {
@@ -50,13 +52,21 @@ export default function EditShopPage() {
           taxNo: taxId || "",
           company: profile?.company || "",
         });
-        const brandData = await shopDatasource.getBrandList(profile?.company || "");
-        setBrandData(brandData);
         setDataDetail(res);
+        await shopDatasource.getBrandList(profile?.company || "").then((res) => {
+          const map = res.map((x: any) => {
+            return {
+              company: x.company,
+              product_brand_id: x.productBrandId,
+              product_brand_logo: x.productBrandLogo,
+              product_brand_name: x.productBrandName,
+            };
+          });
 
+          setBrandData(map);
+        });
         if (res && res?.data) {
           const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
-
           const {
             userShop: {
               nametitle,
@@ -98,7 +108,7 @@ export default function EditShopPage() {
           const customerCompany =
             res.data.customerCompany.length > 0 ? res.data.customerCompany[0] : null;
 
-          const findBrandCompany = (findDataByCompany?.productBrand || []).find(
+          const findBrandCompany = (res.data.customerCompany || []).find(
             (el: { company: string }) => el.company === profile?.company,
           );
           form.setFieldsValue({
@@ -131,7 +141,7 @@ export default function EditShopPage() {
             customerName: findDataByCompany?.customerName || customerCompany?.customerName || "",
             customerCompanyId: findDataByCompany?.customerCompanyId || 0,
             taxId,
-            productBrand: findBrandCompany ? `${findBrandCompany.productBrandId}` : "",
+            productBrand: `${findBrandCompany.productBrand[0].product_brand_id}`,
             isHaveDealer,
           });
         }
@@ -201,13 +211,14 @@ export default function EditShopPage() {
         customerNo,
         productBrand,
       }: FormStepCustomerEntity = form.getFieldsValue(true);
-      const newProductBrand =
-        profile?.company === "ICPL" || profile?.company === "ICPI"
-          ? brandData[0]
-          : brandData.find((el) => {
-              return el.productBrandId === productBrand;
-            });
+      const newProductBrand = dataDetail?.data.customerCompany.find((el: any) => {
+        return el.company === profile?.company;
+      })?.productBrand[0];
+
       const stringifyProductBrand = JSON.stringify([newProductBrand]);
+      const findCusCom = dataDetail?.data.customerCompany.find(
+        (x: any) => x.company === profile?.company,
+      );
       const payload: PayloadCustomerEntity = {
         customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
         address,
@@ -228,11 +239,11 @@ export default function EditShopPage() {
             company: profile?.company || "",
             customerType: typeShop,
             zone,
-            isNav: false,
-            termPayment: "",
-            creditLimit: 0,
+            isNav: findCusCom ? findCusCom?.isNav : false,
+            termPayment: findCusCom ? findCusCom?.termPayment : "",
+            creditLimit: findCusCom ? findCusCom?.creditLimit : 0,
             isActive: isActiveCustomer,
-            salePersonCode: "",
+            salePersonCode: findCusCom ? findCusCom.salePersonCode : "",
             updateBy: `${profile?.firstname} ${profile?.lastname}`,
             productBrand: stringifyProductBrand,
           },
@@ -266,7 +277,6 @@ export default function EditShopPage() {
               title: "custom-title",
             },
             timer: 2000,
-
             showConfirmButton: false,
           }).then(() => {
             navigate("/ShopManagementPage/ShopListPage/DetailPage/" + res.responseData.customerId);
@@ -281,7 +291,6 @@ export default function EditShopPage() {
               title: "custom-title",
             },
             timer: 2000,
-
             showConfirmButton: false,
           });
         }
@@ -299,8 +308,8 @@ export default function EditShopPage() {
             form={form}
             company={profile?.company}
             dataDetail={dataDetail}
-            brandData={brandData}
             zoneList={zoneList}
+            brandData={brandData}
           />
         );
       }
