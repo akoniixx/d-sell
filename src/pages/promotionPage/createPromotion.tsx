@@ -375,18 +375,24 @@ export const PromotionCreatePage: React.FC = () => {
     const promoList = form3.getFieldsValue();
     if (promotionType === PromotionType.FREEBIES_NOT_MIX) {
       submitData.conditionDetailDiscount = undefined;
-      submitData.conditionDetailFreebies = Object.entries(promoList).map(([key, value]) => {
+      submitData.conditionDetailFreebies = Object.entries(promoList).map(([key, value]: any[]) => {
         const [pKey, productId] = key.split("-");
         const { productName, productCategory, productImage, packSize } =
           productList?.allData?.find((p: ProductEntity) => p.productId === productId) ||
           ({} as ProductEntity);
+        const condition = value.map((v: any) => {
+          return {
+            ...v,
+            freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+          };
+        });
         return {
           productId,
           productName,
           productCategory,
           productImage,
           packsize: packSize,
-          condition: value,
+          condition,
         };
       });
     } else if (promotionType === PromotionType.DISCOUNT_NOT_MIX) {
@@ -409,7 +415,13 @@ export const PromotionCreatePage: React.FC = () => {
       if (promoStateValue.promotionGroupOption === PromotionGroupOption.UNIT) {
         submitData.conditionDetailDiscount = undefined;
         submitData.conditionMixFreebies = Object.entries(promoList).map(
-          ([key, conditionFreebies]) => {
+          ([key, condition]: any[]) => {
+            const conditionFreebies = condition.map((v: any) => {
+              return {
+                ...v,
+                freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+              };
+            });
             return {
               products: promoStateValue.productGroup
                 .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
@@ -432,7 +444,13 @@ export const PromotionCreatePage: React.FC = () => {
             if (isWeight) weightList[key] = value;
             return !isWeight;
           })
-          .map(([key, conditionFreebies]) => {
+          .map(([key, condition]: any[]) => {
+            const conditionFreebies = condition.map((v: any) => {
+              return {
+                ...v,
+                freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+              };
+            });
             return {
               typeMix: promoStateValue.promotionGroupOption
                 ? promoStateValue.promotionGroupOption
@@ -560,6 +578,10 @@ export const PromotionCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
+
+    // console.log({ submitData });
+    // return;
+
     if (!isEditing) {
       await createPromotion(submitData)
         .then(callback)

@@ -183,11 +183,11 @@ const AddProduct = ({
       }
 
       setProducts(newData);
+
       if (!productGroups || !productGroups.length) {
         const { responseData } = await getProductGroup(company);
         setProductGroups(responseData);
       }
-
       if (!productCategories || !productCategories.length) {
         const categories = await getProductCategory(company);
         setProductCategories(categories);
@@ -364,6 +364,8 @@ const AddProduct = ({
     if (isSingleItem) {
       setList(selectedProduct[0]);
     } else {
+      // TODO: map from "ALL product" (no filter)
+      console.log("allSelectedList", allSelectedList);
       const map = products.filter((x) => {
         const find = allSelectedList.has(x.productId);
         return find;
