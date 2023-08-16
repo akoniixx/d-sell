@@ -150,10 +150,6 @@ const AddProduct = ({
 
   useEffect(() => {
     fetchProduct();
-    console.log({
-      list,
-      notFilteredProductList,
-    });
   }, [filter, showFreebie]);
 
   const fetchProduct = async () => {
