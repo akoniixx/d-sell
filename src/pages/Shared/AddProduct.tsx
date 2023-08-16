@@ -115,7 +115,11 @@ const AddProduct = ({
     list.map((item) => item.productId),
   );
   const [allSelectedList, setAllSelectedList] = useState<Set<string>>(
-    new Set(list.map((item) => item.productId)),
+    new Set(
+      list
+        .filter((item) => notFilteredProductList?.includes(item.productId))
+        .map((item) => item.productId),
+    ),
   );
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
@@ -146,6 +150,10 @@ const AddProduct = ({
 
   useEffect(() => {
     fetchProduct();
+    console.log({
+      list,
+      notFilteredProductList,
+    });
   }, [filter, showFreebie]);
 
   const fetchProduct = async () => {
