@@ -438,8 +438,6 @@ const AddProduct = ({
       productLocation: "",
       productBrandId: "",
     });
-    setSelectedProd([]);
-    setSelectedProdId([]);
   };
 
   const rowClassName = (r: ProductEntity) => {

@@ -1,8 +1,14 @@
 ## [Version - 0]
 
-## Resolved [v0.6.8] - Release Date: 2023-08-08
+<<<<<<< CHANGELOG.md
+## Resolved [v0.6.9] - Release Date: 2023-08-08
 
 - fixed add product in "Promotion Setting"
+
+## Resolved [v0.6.8] - Release Date: 2023-08-16
+
+- fixed defect advance promotion
+>>>>>>> CHANGELOG.md
 
 ## Resolved [v0.6.7] - Release Date: 2023-08-08
 

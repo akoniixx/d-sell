@@ -25,7 +25,6 @@ import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
 import image from "../../resource/image";
 
 type FixedType = "left" | "right" | boolean;
-const SLASH_DMY = "DD/MM/YYYY";
 const REQUEST_DMY = "YYYY-MM-DD";
 
 export const PromotionListPage: React.FC = () => {
@@ -202,29 +201,29 @@ export const PromotionListPage: React.FC = () => {
         };
       },
     },
-    {
-      title: "เลขที่อ้างอิง",
-      dataIndex: "referencePromotion",
-      key: "referencePromotion",
-      render: (value: string[], row: any, index: number) => {
-        const val = value?.join(",");
-        return {
-          children: (
-            <FlexCol>
-              <Tooltip title={val}>
-                {val ? (
-                  <Text level={5} key={val}>
-                    {val.length >= 10 ? val.slice(0, 15) + "..." : val}
-                  </Text>
-                ) : (
-                  "-"
-                )}
-              </Tooltip>
-            </FlexCol>
-          ),
-        };
-      },
-    },
+    // {
+    //   title: "เลขที่อ้างอิง",
+    //   dataIndex: "referencePromotion",
+    //   key: "referencePromotion",
+    //   render: (value: string[], row: any, index: number) => {
+    //     const val = value?.join(",");
+    //     return {
+    //       children: (
+    //         <FlexCol>
+    //           <Tooltip title={val}>
+    //             {val ? (
+    //               <Text level={5} key={val}>
+    //                 {val.length >= 10 ? val.slice(0, 15) + "..." : val}
+    //               </Text>
+    //             ) : (
+    //               "-"
+    //             )}
+    //           </Tooltip>
+    //         </FlexCol>
+    //       ),
+    //     };
+    //   },
+    // },
     {
       title: "ระยะเวลา",
       dataIndex: "startDate",
@@ -265,23 +264,29 @@ export const PromotionListPage: React.FC = () => {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <Switch
-              checked={value}
-              onChange={async (checked: boolean) => {
-                await updatePromotionStatus({
-                  promotionId: row.promotionId,
-                  isDraft: row.isDraft,
-                  promotionStatus: checked,
-                  updateBy: firstname + " " + lastname,
-                })
-                  .then((res) => {
-                    fetchProduct();
-                    message.success("แก้ไขสถานะโปรโมชั่นสำเร็จ");
-                  })
-                  .catch(() => message.error("แก้ไขสถานะโปรโมชั่นไม่สำเร็จ"));
-              }}
-              disabled={moment(row.endDate).isBefore(moment())}
-            />
+            <>
+              {!moment(row.endDate).isBefore(moment()) ? (
+                <Switch
+                  checked={value}
+                  onChange={async (checked: boolean) => {
+                    await updatePromotionStatus({
+                      promotionId: row.promotionId,
+                      isDraft: row.isDraft,
+                      promotionStatus: checked,
+                      updateBy: firstname + " " + lastname,
+                    })
+                      .then((res) => {
+                        fetchProduct();
+                        message.success("แก้ไขสถานะโปรโมชั่นสำเร็จ");
+                      })
+                      .catch(() => message.error("แก้ไขสถานะโปรโมชั่นไม่สำเร็จ"));
+                  }}
+                  disabled={moment(row.endDate).isBefore(moment()) || row.promotionStatus}
+                />
+              ) : (
+               <Text level={6} color="Text3">หมดอายุ</Text>
+              )}
+            </>
           ),
         };
       },
@@ -305,38 +310,42 @@ export const PromotionListPage: React.FC = () => {
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <EditOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
-                    Modal.confirm({
-                      title: "ยืนยันการลบโปรโมชั่น",
-                      okText: "",
-                      cancelText: "",
-                      onOk: async () => {
-                        await deletePromotion({
-                          promotionId: row.promotionId,
-                          updateBy: firstname + " " + lastname,
+                {!moment(row.endDate).isBefore(moment()) && (
+                  <>
+                    <div
+                      className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                      onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
+                    >
+                      <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                        <EditOutlined style={{ color: color["primary"] }} />
+                      </span>
+                    </div>
+                    <div
+                      className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                      onClick={() =>
+                        Modal.confirm({
+                          title: "ยืนยันการลบโปรโมชั่น",
+                          okText: "",
+                          cancelText: "",
+                          onOk: async () => {
+                            await deletePromotion({
+                              promotionId: row.promotionId,
+                              updateBy: firstname + " " + lastname,
+                            })
+                              .then((res) => {
+                                navigate(0);
+                              })
+                              .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                          },
                         })
-                          .then((res) => {
-                            navigate(0);
-                          })
-                          .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
-                      },
-                    })
-                  }
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <DeleteOutlined style={{ color: color.error }} />
-                  </span>
-                </div>
+                      }
+                    >
+                      <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                        <DeleteOutlined style={{ color: color.error }} />
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </>
           ),

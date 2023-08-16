@@ -31,6 +31,7 @@ import {
   PromotionGroup,
   PromotionGroupOption,
   PromotionType,
+  PROMOTION_TYPE_NAME,
 } from "../../../definitions/promotion";
 import AddProduct, { ProductName } from "../../Shared/AddProduct";
 import { priceFormatter } from "../../../utility/Formatter";
@@ -206,6 +207,7 @@ export const CollapsePanelHeader = ({
           ) : (
             <IconContainer
               onClick={onDeleteProduct ? () => onDeleteProduct(item.productId) : undefined}
+              style={{ backgroundColor: color.error }}
             >
               <DeleteOutlined />
             </IconContainer>
@@ -274,9 +276,6 @@ export const CollapsePanelItem = ({
     i?: any,
     name?: any,
   ) => {
-    console.log("f", form?.getFieldsValue(true));
-    console.log(group, i, name);
-
     const { value: inputValue } = e.target;
     const convertedNumber = validateOnlyNumber(inputValue);
     const getCurrentValue = form?.getFieldValue(group || i);
@@ -284,7 +283,7 @@ export const CollapsePanelItem = ({
       ...getCurrentValue[i],
       [name]: convertedNumber,
     };
-    form?.setFieldValue(group, getCurrentValue);
+    form?.setFieldValue(group || i, getCurrentValue);
   };
   return (
     <>
@@ -403,7 +402,7 @@ export const CollapsePanelItem = ({
                       }}
                       onClick={onRemove ? () => onRemove(name) : undefined}
                     >
-                      <DeleteOutlined style={{ fontSize: 18, color: color.secondary }} />
+                      <DeleteOutlined style={{ fontSize: 18, color: color.error }} />
                     </FlexCol>
                   </FlexRow>
                 )}
@@ -439,7 +438,7 @@ export const CollapsePanelItem = ({
                     placeholder='ระบุราคา'
                     suffix='บาท'
                     disabled={viewOnly}
-                    onChange={(e) => checkNumber(e, undefined, name, "discountPrice")}
+                    onChange={(e) => checkNumber(e, currentKey, name, "discountPrice")}
                     autoComplete='off'
                   />
                 </Form.Item>
@@ -555,7 +554,6 @@ const FreebieList = ({
     const list = getValue() || [];
     list[i] = { ...list[i], quantity: parseInt(quantity) };
     promo[itemIndex] = { ...promo[itemIndex], freebies: list };
-    console.log("promo", promo);
     form?.setFieldValue(key, promo);
   };
 
@@ -652,12 +650,10 @@ const FreebieList = ({
                     },
                     {
                       validator(rule, value, callback) {
-                        console.log("v1", checkNumber(value, i));
                         if (!Number.isInteger(parseFloat(value))) {
                           return Promise.reject("โปรดระบุเป็นจำนวนเต็มเท่านั้น");
                         }
                         if (parseFloat(value) <= 0) {
-                          console.log("v2", value);
                           return Promise.reject("จำนวนของแถมต้องมากกว่า 0");
                         }
                         return Promise.resolve();
@@ -674,12 +670,12 @@ const FreebieList = ({
                     }}
                     onBlur={(v) => {
                       if (v.target.value === "0") {
-                        console.log(v.target.value);
                         onSetQuantity(i, "1");
                       }
                     }}
                     value={getValue()[i]?.quantity || quantity}
                     min={1}
+                    autoComplete='off'
                   />
                 </Form.Item>
               </Col>
@@ -976,7 +972,6 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
     if (name) {
       form?.setFieldValue(name, convertedNumber);
     }
-    console.log(form.getFieldsValue(true));
   };
 
   return (
@@ -1132,57 +1127,59 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                     </Row>
                   }
                 >
-                  {promotionGroupOption === PromotionGroupOption.WEIGHT && (
-                    <div
-                      style={{
-                        backgroundColor: "#3362AA",
-                        width: "100%",
-                        padding: "16px 16px 0 16px",
-                      }}
-                    >
-                      <Row gutter={16}>
-                        <Col span={5}>
-                          <Form.Item
-                            name={groupKey + "-weight"}
-                            label={
-                              <Text color='white' fontSize={14}>
-                                จำนวนน้ำหนักที่ซื้อครบ
-                              </Text>
-                            }
-                            initialValue={items.filter((x) => x.groupKey === groupKey)[0].size}
-                            rules={[
-                              { required: true, message: "โปรดระบุจำนวนน้ำหนัก/ปริมาตรที่ซื้อครบ" },
-                              {
-                                validator: (rule, value, callback) => {
-                                  if (value && isNaN(parseInt(value))) {
-                                    return Promise.reject(
-                                      "จำนวนน้ำหนัก/ปริมาตรที่ซื้อครบเป็นตัวเลขเท่านั้น",
-                                    );
-                                  }
-                                  return Promise.resolve();
+                  {promotionType !== "OTHER" &&
+                    promotionGroupOption === PromotionGroupOption.WEIGHT && (
+                      <div
+                        style={{
+                          backgroundColor: "#3362AA",
+                          width: "100%",
+                          padding: "16px 16px 0 16px",
+                        }}
+                      >
+                        <Row gutter={16}>
+                          <Col span={5}>
+                            <Form.Item
+                              name={groupKey + "-weight"}
+                              label={
+                                <Text color='white' fontSize={14}>
+                                  จำนวนน้ำหนักที่ซื้อครบ
+                                </Text>
+                              }
+                              initialValue={items.filter((x) => x.groupKey === groupKey)[0].size}
+                              rules={[
+                                { required: true, message: "โปรดระบุจำนวน/นน./ปริมาตรที่ซื้อครบ" },
+                                {
+                                  validator: (rule, value, callback) => {
+                                    if (value && isNaN(parseInt(value))) {
+                                      return Promise.reject(
+                                        "จำนวนน้ำหนัก/ปริมาตรที่ซื้อครบเป็นตัวเลขเท่านั้น",
+                                      );
+                                    }
+                                    return Promise.resolve();
+                                  },
                                 },
-                              },
-                            ]}
-                          >
-                            <Input
-                              onChange={(e) => checkNumber(e, groupKey, `${groupKey}-weight`)}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col span={4}>
-                          <Form.Item
-                            label={
-                              <Text color='white' fontSize={14}>
-                                หน่วย
-                              </Text>
-                            }
-                          >
-                            <Input disabled value={"kg / L"} autoComplete='off' />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </div>
-                  )}
+                              ]}
+                            >
+                              <Input
+                                onChange={(e) => checkNumber(e, groupKey, `${groupKey}-weight`)}
+                                autoComplete='off'
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={4}>
+                            <Form.Item
+                              label={
+                                <Text color='white' fontSize={14}>
+                                  หน่วย
+                                </Text>
+                              }
+                            >
+                              <Input disabled value={"kg / L"} autoComplete='off' />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                      </div>
+                    )}
                   <div style={{ backgroundColor: color.background1 }}>
                     {groupItems.map((item, j) => {
                       return (
