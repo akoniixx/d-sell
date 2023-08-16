@@ -321,7 +321,7 @@ export const PromotionCreatePage: React.FC = () => {
             ...promotionData,
             items: form3.getFieldsValue(),
           };
-          onSubmit(true, data);
+          onSubmit(false, data);
           setPromotionData(data);
         })
         .catch((errInfo) => {
@@ -542,12 +542,8 @@ export const PromotionCreatePage: React.FC = () => {
       const onDone = () => {
         setDone(true);
         setTimeout(() => {
-          if (promotionStatus) {
-            navigate("/PromotionPage/promotion");
-            navigate(1);
-          } else {
-            navigate(`/PromotionPage/promotion/edit/${promotionId}`);
-          }
+          navigate("/PromotionPage/promotion");
+          navigate(1);
         }, 2000);
         setTimeout(() => {
           setDone(false);
@@ -578,9 +574,6 @@ export const PromotionCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
-
-    // console.log({ submitData });
-    // return;
 
     if (!isEditing) {
       await createPromotion(submitData)
@@ -623,7 +616,7 @@ export const PromotionCreatePage: React.FC = () => {
                 )}
               </Col>
               <Col xl={15} sm={6}></Col>
-              <Col xl={3} sm={6}>
+              {/* <Col xl={3} sm={6}>
                 {(!isEditing || defaultData?.isDraft) && (
                   <Button
                     typeButton='primary-light'
@@ -632,7 +625,7 @@ export const PromotionCreatePage: React.FC = () => {
                     onClick={onSaveDraft}
                   />
                 )}
-              </Col>
+              </Col> */}
               <Col xl={3} sm={6}>
                 <Button
                   typeButton='primary'
