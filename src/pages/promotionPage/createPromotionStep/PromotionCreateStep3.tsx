@@ -834,6 +834,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
       if (list.length <= 0) {
         newList = items;
       } else if (editingGroup) {
+        console.log(list);
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey: editingGroup }));
         const mapItems = editingGroup && items.filter((x) => x.groupKey !== editingGroup);
         const newItems = [...(mapItems || items), ...newList];
