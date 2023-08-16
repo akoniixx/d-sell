@@ -391,7 +391,7 @@ export const PromotionCreateStep1 = ({
                 },
               ]}
             >
-              <Input placeholder='ระบุชื่อโปรโมชัน' />
+              <Input placeholder='ระบุชื่อโปรโมชัน' autoComplete="off"/>
             </Form.Item>
           </Col>
         </Row>

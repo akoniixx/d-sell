@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.8] - Release Date: 2023-08-16
+
+- fixed defect advance promotion
+
 ## Resolved [v0.6.7] - Release Date: 2023-08-08
 
 - fixed url api cart

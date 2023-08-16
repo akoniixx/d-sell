@@ -50,6 +50,7 @@ export interface CustomerCompanyName {
   updateDate: string;
   updateBy: string;
   createDate: string;
+  termPayment?: string;
 }
 export interface CustomerEntityShopList {
   address?: string;
@@ -171,7 +172,7 @@ export interface PayloadCustomerEntity {
     customerType: string;
     creditLimit: number;
     zone: string;
-    termPayment: string;
+    termPayment?: string;
     isActive: boolean;
     salePersonCode: string;
     updateBy?: string;

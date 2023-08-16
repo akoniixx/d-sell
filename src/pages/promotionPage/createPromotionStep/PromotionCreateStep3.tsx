@@ -31,6 +31,7 @@ import {
   PromotionGroup,
   PromotionGroupOption,
   PromotionType,
+  PROMOTION_TYPE_NAME,
 } from "../../../definitions/promotion";
 import AddProduct, { ProductName } from "../../Shared/AddProduct";
 import { priceFormatter } from "../../../utility/Formatter";
@@ -47,6 +48,7 @@ import { GroupCardContainer } from "../../../components/Card/CardContainer";
 import TextArea from "../../../components/Input/TextArea";
 import Select from "../../../components/Select/Select";
 import { LOCATION_FULLNAME_MAPPING } from "../../../definitions/location";
+import { validateOnlyNumber } from "../../../utility/validator";
 
 const AddProductContainer = styled.div`
   display: flex;
@@ -205,6 +207,7 @@ export const CollapsePanelHeader = ({
           ) : (
             <IconContainer
               onClick={onDeleteProduct ? () => onDeleteProduct(item.productId) : undefined}
+              style={{ backgroundColor: color.error }}
             >
               <DeleteOutlined />
             </IconContainer>
@@ -267,6 +270,21 @@ export const CollapsePanelItem = ({
     span.saleUnitDiscount = 10;
     span.option = 0;
   }
+  const checkNumber = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    group?: any,
+    i?: any,
+    name?: any,
+  ) => {
+    const { value: inputValue } = e.target;
+    const convertedNumber = validateOnlyNumber(inputValue);
+    const getCurrentValue = form?.getFieldValue(group || i);
+    getCurrentValue[i] = {
+      ...getCurrentValue[i],
+      [name]: convertedNumber,
+    };
+    form?.setFieldValue(group || i, getCurrentValue);
+  };
   return (
     <>
       {promotionType === PromotionType.OTHER ? (
@@ -316,7 +334,11 @@ export const CollapsePanelItem = ({
                 ]
               }
             >
-              <Input type='number' placeholder='ระบุจำนวนที่ซื้อครบ' min={0} />
+              <Input
+                placeholder='ระบุจำนวนที่ซื้อครบ'
+                onChange={(e) => checkNumber(e, currentKey, name, "quantity")}
+                autoComplete='off'
+              />
             </Form.Item>
           </Col>
           <Col span={span.qtyUnit}>
@@ -380,7 +402,7 @@ export const CollapsePanelItem = ({
                       }}
                       onClick={onRemove ? () => onRemove(name) : undefined}
                     >
-                      <DeleteOutlined style={{ fontSize: 18, color: color.secondary }} />
+                      <DeleteOutlined style={{ fontSize: 18, color: color.error }} />
                     </FlexCol>
                   </FlexRow>
                 )}
@@ -412,7 +434,13 @@ export const CollapsePanelItem = ({
                     },
                   ]}
                 >
-                  <Input placeholder='ระบุราคา' suffix='บาท' type='number' disabled={viewOnly} />
+                  <Input
+                    placeholder='ระบุราคา'
+                    suffix='บาท'
+                    disabled={viewOnly}
+                    onChange={(e) => checkNumber(e, currentKey, name, "discountPrice")}
+                    autoComplete='off'
+                  />
                 </Form.Item>
               </Col>
               <Col span={span.saleUnitDiscount}>
@@ -548,6 +576,12 @@ const FreebieList = ({
     promo[itemIndex] = { ...promo[itemIndex], freebies: list };
     form?.setFieldValue(key, promo);
   };
+  const checkNumber = (e: React.ChangeEvent<HTMLInputElement>, i: number) => {
+    const { value: inputValue } = e.target;
+    const convertedNumber = validateOnlyNumber(inputValue) || "0";
+    onSetQuantity(i, convertedNumber);
+    //form?.setFieldsValue({ [name]: convertedNumber });
+  };
 
   const inputSpan = showFullProduct ? 8 : 9;
   return (
@@ -629,11 +663,19 @@ const FreebieList = ({
                   initialValue={quantity || 1}
                 >
                   <Input
-                    type='number'
                     placeholder='ระบุจำนวนของแถม'
-                    onChange={(e) => onSetQuantity(i, e?.target?.value)}
+                    onChange={(e) => {
+                      checkNumber(e, i);
+                      //onSetQuantity(i, e?.target?.value);
+                    }}
+                    onBlur={(v) => {
+                      if (v.target.value === "0") {
+                        onSetQuantity(i, "1");
+                      }
+                    }}
                     value={getValue()[i]?.quantity || quantity}
                     min={1}
+                    autoComplete='off'
                   />
                 </Form.Item>
               </Col>
@@ -789,7 +831,9 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
         newList = items;
       } else if (editingGroup) {
         newList = list.map((p) => (p.groupKey ? p : { ...p, groupKey: editingGroup }));
-        const uniqueArrayOfObjects = removeDuplicates([...newList, ...items], "productId");
+        const mapItems = editingGroup && items.filter((x) => x.groupKey !== editingGroup);
+        const newItems = [...(mapItems || items), ...newList];
+        const uniqueArrayOfObjects = removeDuplicates([...newList, ...newItems], "productId");
         newList = uniqueArrayOfObjects;
         setEditingGroup(undefined);
       } else {
@@ -807,9 +851,22 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
         productGroup: newList,
       });
     } else {
-      setItems(list);
-      form.setFieldValue("items", list);
-      setActiveKeys(list.map((item) => item.productId));
+      const newMap: any = [];
+      if (isReplacing) {
+        list.forEach((y) => {
+          newMap.push(y);
+        });
+      } else {
+        items.forEach((x) => {
+          newMap.push(x);
+        });
+        list.forEach((y) => {
+          newMap.push(y);
+        });
+      }
+      setItems(newMap);
+      form.setFieldValue("items", newMap);
+      setActiveKeys(newMap.map((item: any) => item.productId));
     }
   };
 
@@ -876,7 +933,9 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
   const onDeleteSelectedProduct = () => {
     Modal.confirm({
       title: "ต้องการลบรายการสินค้าที่เลือกหรือไม่",
-      content: `โปรดยืนยันการลบรายการสินค้า (${selectedKeys.length} รายการ)`,
+      content: `โปรดยืนยันการลบรายการสินค้า (${
+        PromotionGroup.MIX.includes(promotionType) ? selectedGroup.length : selectedKeys.length
+      } รายการ)`,
       okText: "ลบสินค้า",
       cancelText: "ยกเลิก",
       onOk: () => {
@@ -886,6 +945,9 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
           );
           const newGroupKeys = groupKeys.filter((key) => !selectedGroup.includes(key));
           setItems(newList);
+          selectedGroup.forEach((x) => {
+            form.setFieldValue(x, "");
+          });
           form.setFieldValue("items", newList);
           setSelectedKeys([]);
           setGroupKeys(newGroupKeys);
@@ -902,6 +964,13 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
         }
       },
     });
+  };
+  const checkNumber = (e: React.ChangeEvent<HTMLInputElement>, i: number, name?: string) => {
+    const { value: inputValue } = e.target;
+    const convertedNumber = validateOnlyNumber(inputValue) || "0";
+    if (name) {
+      form?.setFieldValue(name, convertedNumber);
+    }
   };
 
   return (
@@ -1057,55 +1126,59 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                     </Row>
                   }
                 >
-                  {promotionGroupOption === PromotionGroupOption.WEIGHT && (
-                    <div
-                      style={{
-                        backgroundColor: "#3362AA",
-                        width: "100%",
-                        padding: "16px 16px 0 16px",
-                      }}
-                    >
-                      <Row gutter={16}>
-                        <Col span={5}>
-                          <Form.Item
-                            name={groupKey + "-weight"}
-                            label={
-                              <Text color='white' fontSize={14}>
-                                จำนวนน้ำหนักที่ซื้อครบ
-                              </Text>
-                            }
-                            initialValue={items.filter((x) => x.groupKey === groupKey)[0].size}
-                            rules={[
-                              { required: true, message: "โปรดระบุจำนวนน้ำหนัก/ปริมาตรที่ซื้อครบ" },
-                              {
-                                validator: (rule, value, callback) => {
-                                  if (value && isNaN(parseInt(value))) {
-                                    return Promise.reject(
-                                      "จำนวนน้ำหนัก/ปริมาตรที่ซื้อครบเป็นตัวเลขเท่านั้น",
-                                    );
-                                  }
-                                  return Promise.resolve();
+                  {promotionType !== "OTHER" &&
+                    promotionGroupOption === PromotionGroupOption.WEIGHT && (
+                      <div
+                        style={{
+                          backgroundColor: "#3362AA",
+                          width: "100%",
+                          padding: "16px 16px 0 16px",
+                        }}
+                      >
+                        <Row gutter={16}>
+                          <Col span={5}>
+                            <Form.Item
+                              name={groupKey + "-weight"}
+                              label={
+                                <Text color='white' fontSize={14}>
+                                  จำนวนน้ำหนักที่ซื้อครบ
+                                </Text>
+                              }
+                              initialValue={items.filter((x) => x.groupKey === groupKey)[0].size}
+                              rules={[
+                                { required: true, message: "โปรดระบุจำนวน/นน./ปริมาตรที่ซื้อครบ" },
+                                {
+                                  validator: (rule, value, callback) => {
+                                    if (value && isNaN(parseInt(value))) {
+                                      return Promise.reject(
+                                        "จำนวนน้ำหนัก/ปริมาตรที่ซื้อครบเป็นตัวเลขเท่านั้น",
+                                      );
+                                    }
+                                    return Promise.resolve();
+                                  },
                                 },
-                              },
-                            ]}
-                          >
-                            <Input />
-                          </Form.Item>
-                        </Col>
-                        <Col span={4}>
-                          <Form.Item
-                            label={
-                              <Text color='white' fontSize={14}>
-                                หน่วย
-                              </Text>
-                            }
-                          >
-                            <Input disabled value={"kg / L"} />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </div>
-                  )}
+                              ]}
+                            >
+                              <Input
+                                onChange={(e) => checkNumber(e, groupKey, `${groupKey}-weight`)}
+                                autoComplete='off'
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={4}>
+                            <Form.Item
+                              label={
+                                <Text color='white' fontSize={14}>
+                                  หน่วย
+                                </Text>
+                              }
+                            >
+                              <Input disabled value={"kg / L"} autoComplete='off' />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                      </div>
+                    )}
                   <div style={{ backgroundColor: color.background1 }}>
                     {groupItems.map((item, j) => {
                       return (
@@ -1144,10 +1217,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                       {(fields, { add, remove }) => {
                         const onAdd = () => add();
                         const onRemove = (name: number) => remove(name);
-                        const findIsEdit =
-                          groupKey &&
-                          fields.length <= 0 &&
-                          isEditing;
+                        const findIsEdit = groupKey && fields.length <= 0 && isEditing;
                         if (findIsEdit) onAdd();
                         if (fields.length <= 0 && !isEditing) onAdd();
                         return (

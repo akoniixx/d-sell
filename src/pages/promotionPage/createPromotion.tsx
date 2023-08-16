@@ -321,7 +321,7 @@ export const PromotionCreatePage: React.FC = () => {
             ...promotionData,
             items: form3.getFieldsValue(),
           };
-          onSubmit(true, data);
+          onSubmit(false, data);
           setPromotionData(data);
         })
         .catch((errInfo) => {
@@ -357,7 +357,7 @@ export const PromotionCreatePage: React.FC = () => {
       horizontalImage: undefined,
       verticalImage: undefined,
       promotionShop: stores,
-      conditionDetailDiscount: [{}],
+      conditionDetailDiscount: undefined,
       conditionDetailFreebies: undefined,
       startDate:
         startDate && startTime
@@ -375,18 +375,24 @@ export const PromotionCreatePage: React.FC = () => {
     const promoList = form3.getFieldsValue();
     if (promotionType === PromotionType.FREEBIES_NOT_MIX) {
       submitData.conditionDetailDiscount = undefined;
-      submitData.conditionDetailFreebies = Object.entries(promoList).map(([key, value]) => {
+      submitData.conditionDetailFreebies = Object.entries(promoList).map(([key, value]: any[]) => {
         const [pKey, productId] = key.split("-");
         const { productName, productCategory, productImage, packSize } =
           productList?.allData?.find((p: ProductEntity) => p.productId === productId) ||
           ({} as ProductEntity);
+        const condition = value.map((v: any) => {
+          return {
+            ...v,
+            freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+          };
+        });
         return {
           productId,
           productName,
           productCategory,
           productImage,
           packsize: packSize,
-          condition: value,
+          condition,
         };
       });
     } else if (promotionType === PromotionType.DISCOUNT_NOT_MIX) {
@@ -409,7 +415,13 @@ export const PromotionCreatePage: React.FC = () => {
       if (promoStateValue.promotionGroupOption === PromotionGroupOption.UNIT) {
         submitData.conditionDetailDiscount = undefined;
         submitData.conditionMixFreebies = Object.entries(promoList).map(
-          ([key, conditionFreebies]) => {
+          ([key, condition]: any[]) => {
+            const conditionFreebies = condition.map((v: any) => {
+              return {
+                ...v,
+                freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+              };
+            });
             return {
               products: promoStateValue.productGroup
                 .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
@@ -432,7 +444,13 @@ export const PromotionCreatePage: React.FC = () => {
             if (isWeight) weightList[key] = value;
             return !isWeight;
           })
-          .map(([key, conditionFreebies]) => {
+          .map(([key, condition]: any[]) => {
+            const conditionFreebies = condition.map((v: any) => {
+              return {
+                ...v,
+                freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+              };
+            });
             return {
               typeMix: promoStateValue.promotionGroupOption
                 ? promoStateValue.promotionGroupOption
@@ -524,12 +542,8 @@ export const PromotionCreatePage: React.FC = () => {
       const onDone = () => {
         setDone(true);
         setTimeout(() => {
-          if (promotionStatus) {
-            navigate("/PromotionPage/promotion");
-            navigate(1);
-          } else {
-            navigate(`/PromotionPage/promotion/edit/${promotionId}`);
-          }
+          navigate("/PromotionPage/promotion");
+          navigate(1);
         }, 2000);
         setTimeout(() => {
           setDone(false);
@@ -560,6 +574,7 @@ export const PromotionCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
+
     if (!isEditing) {
       await createPromotion(submitData)
         .then(callback)
@@ -601,7 +616,7 @@ export const PromotionCreatePage: React.FC = () => {
                 )}
               </Col>
               <Col xl={15} sm={6}></Col>
-              <Col xl={3} sm={6}>
+              {/* <Col xl={3} sm={6}>
                 {(!isEditing || defaultData?.isDraft) && (
                   <Button
                     typeButton='primary-light'
@@ -610,7 +625,7 @@ export const PromotionCreatePage: React.FC = () => {
                     onClick={onSaveDraft}
                   />
                 )}
-              </Col>
+              </Col> */}
               <Col xl={3} sm={6}>
                 <Button
                   typeButton='primary'

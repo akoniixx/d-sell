@@ -6,18 +6,7 @@ import Tabs from "../../components/AntdTabs/AntdTabs";
 import { CardContainer, GroupCardContainer } from "../../components/Card/CardContainer";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import Text from "../../components/Text/Text";
-import {
-  Avatar,
-  Card,
-  Col,
-  Collapse,
-  Divider,
-  Form,
-  Image,
-  Row,
-  Table,
-  Tooltip,
-} from "antd";
+import { Avatar, Card, Col, Collapse, Divider, Form, Image, Row, Table, Tooltip } from "antd";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import TextArea from "../../components/Input/TextArea";
 import styled from "styled-components";
@@ -973,26 +962,62 @@ const HistoryTab: React.FC = () => {
       render: (createdAt: string) => moment(createdAt).format("DD/MM/YYYY HH:mm น."),
     },
     {
+      title: "กิจกรรม",
+      dataIndex: "action",
+      align: "center" as AlignType,
+      render: (action: string) => {
+        const mapValue: any = {
+          CreatePromotion: "สร้างโปรโมชัน",
+          Changedata: "แก้ไขโปรโมชัน",
+          Changestatus: "เปลี่ยนสถานะ",
+        };
+        const value = action?.replaceAll(" ", "");
+        return <Text level={6}>{mapValue[value]}</Text>;
+      },
+    },
+    {
+      title: "ก่อนแก้ไข",
+      dataIndex: "beforeValue",
+      align: "center" as AlignType,
+      render: (value: string, row: any) => {
+        const action = row.action?.replaceAll(" ", "");
+        return (
+          <>
+            {action === "Changestatus" ? (
+              <Tag color={value === "true" ? color.success : color.warning}>
+                {value === "true" ? "ACTIVE" : "INACTIVE"}
+              </Tag>
+            ) : (
+              <Text level={6}>{value || "-"}</Text>
+            )}
+          </>
+        );
+      },
+    },
+    {
+      title: "หลังแก้ไข",
+      dataIndex: "afterValue",
+      align: "center" as AlignType,
+      render: (value: string, row: any) => {
+        const action = row.action?.replaceAll(" ", "");
+        return (
+          <>
+            {action === "Changestatus" ? (
+              <Tag color={value === "true" ? color.success : color.warning}>
+                {value === "true" ? "ACTIVE" : "INACTIVE"}
+              </Tag>
+            ) : (
+              <Text level={6}>{value || "-"}</Text>
+            )}
+          </>
+        );
+      },
+    },
+    {
       title: "ผู้ใช้งาน",
       dataIndex: "createBy",
       align: "center" as AlignType,
       render: (createBy: string) => createBy || "-",
-    },
-    {
-      title: "กิจกรรม",
-      dataIndex: "action",
-      align: "center" as AlignType,
-    },
-    {
-      title: "สถานะ",
-      dataIndex: "promotionStatus",
-      align: "center" as AlignType,
-      render: (status: string) =>
-        status ? (
-          <Tag color={color.success}>ACTIVE</Tag>
-        ) : (
-          <Tag color={color.warning}>INACTIVE</Tag>
-        ),
     },
   ];
 

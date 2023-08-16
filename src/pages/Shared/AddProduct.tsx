@@ -16,11 +16,11 @@ import {
   getProductGroup,
   getProductList,
 } from "../../datasource/ProductDatasource";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import productState from "../../store/productList";
 import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
 import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { numberFormatter } from "../../utility/Formatter";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import productState from "../../store/productList";
 
 interface ProdNameProps {
   product: ProductEntity;
@@ -106,12 +106,17 @@ const AddProduct = ({
   const isSingleItem = withFreebies || isReplacing;
   const [form] = Form.useForm();
 
+  const recoilProductList = useRecoilValue(productState);
+  const setRecoilProductList = useSetRecoilState(productState);
+
   const [products, setProducts] = useState<ProductEntity[]>([]);
   const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
   const [selectedProductId, setSelectedProdId] = useState<string[]>(
     list.map((item) => item.productId),
   );
-  const [allSelectedList, setAllSelectedList] = useState<Set<string>>(new Set());
+  const [allSelectedList, setAllSelectedList] = useState<Set<string>>(
+    new Set(list.map((item) => item.productId)),
+  );
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [brand, setBrand] = useState([]);
@@ -158,6 +163,12 @@ const AddProduct = ({
           productStatus: "ACTIVE",
         });
         newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }));
+        if (recoilProductList.freebies.length <= 0) {
+          setRecoilProductList({
+            ...recoilProductList,
+            freebies: newData,
+          });
+        }
       } else {
         const { data, count } = await getProductList({
           company,
@@ -180,14 +191,20 @@ const AddProduct = ({
           productBrandName: getBrand?.find((x: any) => d.productBrandId === x.productBrandId)
             .productBrandName,
         }));
-      }
 
+        if (recoilProductList.allData.length <= 0) {
+          setRecoilProductList({
+            ...recoilProductList,
+            allData: newData,
+          });
+        }
+      }
       setProducts(newData);
+
       if (!productGroups || !productGroups.length) {
         const { responseData } = await getProductGroup(company);
         setProductGroups(responseData);
       }
-
       if (!productCategories || !productCategories.length) {
         const categories = await getProductCategory(company);
         setProductCategories(categories);
@@ -207,16 +224,34 @@ const AddProduct = ({
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: ProductEntity[]) => {
       // TODO
-      const newList = new Set(allSelectedList);
-      selectedRowKeys.forEach((item) => newList.add(item as string));
-      selectedProductId.forEach((oldId) => {
-        if (!selectedRowKeys.includes(oldId) && products.find((p) => p.productId === oldId)) {
-          newList.delete(oldId);
+      if (selectedRowKeys.length) {
+        if (selectedRowKeys.length < 2) {
+          const checkInclude = selectedProductId.includes(selectedRowKeys[0].toString());
+          selectedRowKeys = checkInclude
+            ? selectedProductId.filter((x) => x === selectedRowKeys[0])
+            : selectedRowKeys;
+          setSelectedProdId(selectedRowKeys as string[]);
+          setSelectedProd(selectedRows);
+        } else {
+          setSelectedProdId(selectedRowKeys as string[]);
+          setSelectedProd(selectedRows);
+        }
+      } else {
+        setSelectedProdId([] as string[]);
+        setSelectedProd([]);
+      }
+
+      const newAllSelectedList = new Set(allSelectedList);
+      // remove
+      allSelectedList.forEach((x) => {
+        if (!selectedRowKeys.includes(x) && products.find((p) => `${p.productId}` === `${x}`)) {
+          newAllSelectedList.delete(x);
         }
       });
-      setAllSelectedList(newList);
-      setSelectedProdId(selectedRowKeys as string[]);
-      setSelectedProd(selectedRows);
+      // add
+      selectedRowKeys.forEach((x) => newAllSelectedList.add(`${x}`));
+      // save
+      setAllSelectedList(newAllSelectedList);
     },
     getCheckboxProps: (record: ProductEntity) => ({
       name: record.productName,
@@ -229,48 +264,50 @@ const AddProduct = ({
       title: <span>ชื่อสินค้า</span>,
       dataIndex: "productName",
       width: "40%",
-      render: (text: string, value: any, index: any) => (
-        <FlexRow align='center'>
-          <div style={{ marginRight: 16 }}>
-            <Avatar
-              src={
-                value.productImage === "No" ||
-                value.productImage === "" ||
-                value.productImage === null
-                  ? image.product_no_image
-                  : value.productImage
-              }
-              size={50}
-              shape='square'
-              onError={() => false}
-            />
-          </div>
-          <FlexCol>
-            <div style={{ height: 25, textOverflow: "ellipsis" }}>
-              <Text level={5}>{value.productName}</Text>
+      render: (text: string, value: any, index: any) => {
+        return (
+          <FlexRow align='center'>
+            <div style={{ marginRight: 16 }}>
+              <Avatar
+                src={
+                  value.productImage === "No" ||
+                  value.productImage === "" ||
+                  value.productImage === null
+                    ? image.product_no_image
+                    : value.productImage
+                }
+                size={50}
+                shape='square'
+                onError={() => false}
+              />
             </div>
-            {value.commonName && (
+            <FlexCol>
               <div style={{ height: 25, textOverflow: "ellipsis" }}>
-                <Text level={6} style={{ color: color.Grey }}>
-                  {value.commonName}
-                </Text>
+                <Text level={5}>{value.productName}</Text>
               </div>
-            )}
-            <div style={{ height: 25 }}>
-              <Text level={6} style={{ color: color.Grey }}>
-                Product Group : {value.productGroup}
-              </Text>
-            </div>
-            {value.productStrategy && (
+              {value.commonName && (
+                <div style={{ height: 25, textOverflow: "ellipsis" }}>
+                  <Text level={6} style={{ color: color.Grey }}>
+                    {value.commonName}
+                  </Text>
+                </div>
+              )}
               <div style={{ height: 25 }}>
                 <Text level={6} style={{ color: color.Grey }}>
-                  Strategy Group : {value.productStrategy}
+                  Product Group : {value.productGroup}
                 </Text>
               </div>
-            )}
-          </FlexCol>
-        </FlexRow>
-      ),
+              {value.productStrategy && (
+                <div style={{ height: 25 }}>
+                  <Text level={6} style={{ color: color.Grey }}>
+                    Strategy Group : {value.productStrategy}
+                  </Text>
+                </div>
+              )}
+            </FlexCol>
+          </FlexRow>
+        );
+      },
     },
     {
       title: <span>Product Code</span>,
@@ -364,7 +401,9 @@ const AddProduct = ({
     if (isSingleItem) {
       setList(selectedProduct[0]);
     } else {
-      const map = products.filter((x) => {
+      const map = (
+        showFreebie === "true" ? recoilProductList.freebies : recoilProductList.allData
+      ).filter((x) => {
         const find = allSelectedList.has(x.productId);
         return find;
       });
@@ -388,8 +427,6 @@ const AddProduct = ({
       productLocation: "",
       productBrandId: "",
     });
-    setSelectedProd([]);
-    setSelectedProdId([]);
   };
 
   const rowClassName = (r: ProductEntity) => {
@@ -570,7 +607,11 @@ const AddProduct = ({
           dataSource={products.filter(
             (item) =>
               notFilteredProductList?.find((id) => `${item.productId}` === `${id}`) ||
-              !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`),
+              !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`) ||
+              (showFreebie === "true" &&
+                !list.find(
+                  (l: ProductEntity) => `${item.productFreebiesId}` === `${l.productFreebiesId}`,
+                )),
           )}
           pagination={false}
           scroll={{ y: 360 }}
