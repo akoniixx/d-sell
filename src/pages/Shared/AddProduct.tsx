@@ -115,7 +115,11 @@ const AddProduct = ({
     list.map((item) => item.productId),
   );
   const [allSelectedList, setAllSelectedList] = useState<Set<string>>(
-    new Set(list.map((item) => item.productId)),
+    new Set(
+      list
+        .filter((item) => notFilteredProductList?.includes(item.productId))
+        .map((item) => item.productId),
+    ),
   );
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
@@ -201,6 +205,10 @@ const AddProduct = ({
       }
       setProducts(newData);
 
+      const selectedList = newData.filter((x: ProductEntity) => allSelectedList.has(x.productId));
+      setSelectedProd(selectedList);
+      setSelectedProdId(selectedList.map((x: ProductEntity) => x.productId));
+
       if (!productGroups || !productGroups.length) {
         const { responseData } = await getProductGroup(company);
         setProductGroups(responseData);
@@ -223,7 +231,6 @@ const AddProduct = ({
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: ProductEntity[]) => {
-      // TODO
       if (selectedRowKeys.length) {
         if (selectedRowKeys.length < 2) {
           const checkInclude = selectedProductId.includes(selectedRowKeys[0].toString());
@@ -401,12 +408,12 @@ const AddProduct = ({
     if (isSingleItem) {
       setList(selectedProduct[0]);
     } else {
-      const map = (
-        showFreebie === "true" ? recoilProductList.freebies : recoilProductList.allData
-      ).filter((x) => {
-        const find = allSelectedList.has(x.productId);
-        return find;
-      });
+      const map = (showFreebie === "true" ? recoilProductList.freebies : recoilProductList.allData)
+        .filter((x) => allSelectedList.has(x.productId))
+        .map((x) => {
+          const find = list.find((y) => x.productId === y.productId);
+          return find ? { ...x, groupKey: find.groupKey } : x;
+        });
       setList(map);
     }
     onClear();

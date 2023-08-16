@@ -810,6 +810,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
   const toggleModal = () => {
     setModal(!showModal);
     setReplace(undefined);
+    if (showModal) setEditingGroup(undefined);
   };
 
   const removeDuplicates = (arr: any, prop: string) => {
