@@ -586,135 +586,127 @@ const FreebieList = ({
   const inputSpan = showFullProduct ? 8 : 9;
   return (
     <>
-      {getValue().map(
-        (
-          {
-            product,
-            quantity,
-            baseUnitOfMeaTh,
-          }: { product: any; quantity?: string | number; baseUnitOfMeaTh?: string },
-          i: number,
-        ) => {
-          if (
-            company === "ICPL" &&
-            product?.productCodeNAV &&
-            !freebieUnit[product?.productCodeNAV]
-          ) {
-            getOption(product?.productCodeNAV);
-          }
-          return (
-            <Row key={i} gutter={12} align='middle'>
-              <Col span={showFullProduct ? 6 : undefined}>
-                {showFullProduct ? (
-                  <ProductName product={product} />
-                ) : (
-                  <FlexCol align='center' style={{ width: 64, overflow: "hidden" }}>
-                    <Avatar
-                      src={
-                        product?.productImage === "No"
-                          ? image?.product_no_image
-                          : product?.productImage ||
-                            product?.productFreebiesImage ||
-                            image?.product_no_image
-                      }
-                      size={64}
-                      shape='square'
-                    />
-                    <Tooltip title={product?.productName}>
-                      <Text
-                        level={6}
-                        style={{
-                          display: "block",
-                          width: 64,
-                          height: 22,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          wordWrap: "break-word",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {product?.productName}
-                      </Text>
-                    </Tooltip>
-                  </FlexCol>
-                )}
-              </Col>
-              <Col span={inputSpan}>
-                <Form.Item
-                  // name={`${productId}-${product?.productId || product?.productFreebiesId}-quantity`}
-                  label='จำนวนของแถม'
-                  rules={[
-                    {
-                      required: true,
-                      message: "*โปรดระบุจำนวนของแถม",
-                    },
-                    {
-                      validator(rule, value, callback) {
-                        if (!Number.isInteger(parseFloat(value))) {
-                          return Promise.reject("โปรดระบุเป็นจำนวนเต็มเท่านั้น");
-                        }
-                        if (parseFloat(value) <= 0) {
-                          return Promise.reject("จำนวนของแถมต้องมากกว่า 0");
-                        }
-                        return Promise.resolve();
-                      },
-                    },
-                  ]}
-                  initialValue={quantity || 1}
-                >
-                  <Input
-                    placeholder='ระบุจำนวนของแถม'
-                    onChange={(e) => {
-                      checkNumber(e, i);
-                      //onSetQuantity(i, e?.target?.value);
-                    }}
-                    onBlur={(v) => {
-                      if (v.target.value === "0") {
-                        onSetQuantity(i, "1");
-                      }
-                    }}
-                    value={getValue()[i]?.quantity || quantity}
-                    min={1}
-                    autoComplete='off'
+      {getValue().map((product: ProductEntity, i: number) => {
+        const { quantity, baseUnitOfMeaTh } = product;
+        if (
+          company === "ICPL" &&
+          product?.productCodeNAV &&
+          !freebieUnit[product?.productCodeNAV]
+        ) {
+          getOption(product?.productCodeNAV);
+        }
+        return (
+          <Row key={i} gutter={12} align='middle'>
+            <Col span={showFullProduct ? 6 : undefined}>
+              {showFullProduct ? (
+                <ProductName product={product} />
+              ) : (
+                <FlexCol align='center' style={{ width: 64, overflow: "hidden" }}>
+                  <Avatar
+                    src={
+                      product?.productImage === "No"
+                        ? image?.product_no_image
+                        : product?.productImage ||
+                          product?.productFreebiesImage ||
+                          image?.product_no_image
+                    }
+                    size={64}
+                    shape='square'
                   />
-                </Form.Item>
-              </Col>
-              <Col span={inputSpan}>
-                <Form.Item
-                  label='หน่วย'
-                  initialValue={product?.saleUOMTH || product?.baseUnitOfMeaEn}
-                >
-                  {company === "ICPL" ? (
-                    <Select
-                      value={
-                        getValue()[i]?.baseUnitOfMeaTh ||
-                        baseUnitOfMeaTh ||
-                        product?.saleUOMTH ||
-                        product?.baseUnitOfMeaEn
-                      }
-                      data={freebieUnit[product?.productCodeNAV]}
-                      onChange={(val) => onSetOption(i, val)}
-                    />
-                  ) : (
-                    <Input disabled value={product?.saleUOMTH || product?.baseUnitOfMeaEn} />
-                  )}
-                </Form.Item>
-              </Col>
-              <Col>
-                <FlexCol
-                  align='center'
-                  justify='center'
-                  style={{ height: "100%", paddingBottom: 12 }}
-                >
-                  <CloseIconContainer>
-                    <CloseOutlined style={{ color: "white" }} onClick={() => onDelete(i)} />
-                  </CloseIconContainer>
+                  <Tooltip title={product?.productName}>
+                    <Text
+                      level={6}
+                      style={{
+                        display: "block",
+                        width: 64,
+                        height: 22,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        wordWrap: "break-word",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {product?.productName}
+                    </Text>
+                  </Tooltip>
                 </FlexCol>
-              </Col>
-            </Row>
-          );
-        },
-      )}
+              )}
+            </Col>
+            <Col span={inputSpan}>
+              <Form.Item
+                // name={`${productId}-${product?.productId || product?.productFreebiesId}-quantity`}
+                label='จำนวนของแถม'
+                rules={[
+                  {
+                    required: true,
+                    message: "*โปรดระบุจำนวนของแถม",
+                  },
+                  {
+                    validator(rule, value, callback) {
+                      if (!Number.isInteger(parseFloat(value))) {
+                        return Promise.reject("โปรดระบุเป็นจำนวนเต็มเท่านั้น");
+                      }
+                      if (parseFloat(value) <= 0) {
+                        return Promise.reject("จำนวนของแถมต้องมากกว่า 0");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                initialValue={quantity || 1}
+              >
+                <Input
+                  placeholder='ระบุจำนวนของแถม'
+                  onChange={(e) => {
+                    checkNumber(e, i);
+                    //onSetQuantity(i, e?.target?.value);
+                  }}
+                  onBlur={(v) => {
+                    if (v.target.value === "0") {
+                      onSetQuantity(i, "1");
+                    }
+                  }}
+                  value={getValue()[i]?.quantity || quantity}
+                  min={1}
+                  autoComplete='off'
+                />
+              </Form.Item>
+            </Col>
+            <Col span={inputSpan}>
+              <Form.Item
+                label='หน่วย'
+                initialValue={product?.saleUOMTH || product?.baseUnitOfMeaEn}
+              >
+                {company === "ICPL" ? (
+                  <Select
+                    value={
+                      getValue()[i]?.baseUnitOfMeaTh ||
+                      baseUnitOfMeaTh ||
+                      product?.saleUOMTH ||
+                      product?.baseUnitOfMeaEn
+                    }
+                    data={freebieUnit[product?.productCodeNAV || ""]}
+                    onChange={(val) => onSetOption(i, val)}
+                  />
+                ) : (
+                  <Input disabled value={product?.saleUOMTH || product?.baseUnitOfMeaEn} />
+                )}
+              </Form.Item>
+            </Col>
+            <Col>
+              <FlexCol
+                align='center'
+                justify='center'
+                style={{ height: "100%", paddingBottom: 12 }}
+              >
+                <CloseIconContainer>
+                  <CloseOutlined style={{ color: "white" }} onClick={() => onDelete(i)} />
+                </CloseIconContainer>
+              </FlexCol>
+            </Col>
+          </Row>
+        );
+      })}
       <AddProductContainer
         style={{ background: "white", color: color.primary, padding: "8px 24px" }}
         onClick={toggleModal}

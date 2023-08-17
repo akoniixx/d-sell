@@ -1,6 +1,10 @@
 ## [Version - 0]
 
-## Resolved [v0.6.9] - Release Date: 2023-08-08
+## Resolved [v0.6.10] - Release Date: 2023-08-17
+
+- fixed Promotion Setting
+
+## Resolved [v0.6.9] - Release Date: 2023-08-16
 
 - fixed add product in "Promotion Setting"
 
