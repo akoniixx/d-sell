@@ -27,7 +27,7 @@ import {
 import { AlignType } from "rc-table/lib/interface";
 import moment from "moment";
 import "moment/locale/th";
-import { priceFormatter } from "../../utility/Formatter";
+import { numberFormatter, priceFormatter } from "../../utility/Formatter";
 import { ProductName } from "../Shared/AddProduct";
 import { ProductEntity } from "../../entities/PoductEntity";
 import { getProductDetail } from "../../datasource/ProductDatasource";
@@ -890,11 +890,11 @@ const DetailTab: React.FC = () => {
                                   <Form.Item
                                     label='ราคาที่ต้องการลด'
                                     name={[`${i}-${j}`, "discountPrice"]}
-                                    extra={`ราคาขายหลังหักส่วนลด ${
+                                    extra={`ราคาขายหลังหักส่วนลด ${numberFormatter(
                                       parseFloat(item.marketPrice || "") -
-                                      parseFloat(`${discountPrice || 0}`)
-                                    } บาท / ${item.saleUOMTH}`}
-                                    initialValue={discountPrice}
+                                        parseFloat(`${discountPrice || 0}`),
+                                    )} บาท / ${item.saleUOMTH}`}
+                                    initialValue={numberFormatter(discountPrice || 0)}
                                   >
                                     <Input placeholder='-' suffix='บาท' type='number' disabled />
                                   </Form.Item>
