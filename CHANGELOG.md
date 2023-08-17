@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Improve [v0.6.11] - Release Date: 2023-08-17
+
+- connected sync new customer in shop management
+
 ## Resolved [v0.6.10] - Release Date: 2023-08-17
 
 - fixed Promotion Setting
