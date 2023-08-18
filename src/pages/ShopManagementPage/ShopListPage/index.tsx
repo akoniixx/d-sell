@@ -1,5 +1,5 @@
 import { CheckCircleTwoTone, SyncOutlined } from "@ant-design/icons";
-import { Form, Row, Modal } from "antd";
+import { Form, Row, Modal, message } from "antd";
 import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import { createSearchParams, useNavigate } from "react-router-dom";
@@ -38,7 +38,6 @@ function ShopListPage(): JSX.Element {
   const [visible, setVisible] = React.useState<boolean>(false);
   const [debouncedValueSearch, loadingDebouncing] = useDebounce(keyword, 500);
   const [isCreating, setIsCreating] = React.useState(false);
-  const [loadingSyncCus, setLoadingSyncCus] = React.useState(false);
 
   const getZoneByCompany = async () => {
     const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
@@ -156,7 +155,7 @@ function ShopListPage(): JSX.Element {
         setTimeout(() => {
           setIsCreating(false);
           refetch();
-        }, 1000);
+        }, 2000);
       } else {
         setIsCreating(false);
       }
@@ -384,19 +383,22 @@ function ShopListPage(): JSX.Element {
     Modal.confirm({
       title: "ยืนยันการเชื่อมต่อ Navision",
       onOk: async () => {
-        setLoadingSyncCus(true);
-        //   await syncProduct({ company })
-        //     .then((res) => {
-        //       const { success } = res;
-        //       if (success) {
-        //         navigate(0);
-        //       } else {
-        //         message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
-        //       }
-        //     })
-        //     .catch((err) => console.log("err", err))
-        //     .finally(() => console.log("sync product done"));
-        setLoadingSyncCus(false);
+        await shopDatasource
+          .syncAllCustomer(profile?.company, `${profile?.firstname} ${profile?.lastname}`)
+          .then((res) => {
+            setIsCreating(true);
+            const { success } = res;
+            if (success) {
+              setTimeout(() => {
+                setIsCreating(false);
+                refetch();
+              }, 1000);
+            } else {
+              message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
+            }
+          })
+          .catch((err) => console.log("err", err))
+          .finally(() => console.log("sync customer done"));
       },
     });
   };
@@ -449,7 +451,6 @@ function ShopListPage(): JSX.Element {
                 title='เชื่อมต่อ Navision'
                 icon={<SyncOutlined style={{ color: "white" }} />}
                 onClick={onSyncCustomer}
-                loading={loadingSyncCus}
               />
             </div>
           </div>

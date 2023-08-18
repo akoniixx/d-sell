@@ -130,6 +130,14 @@ const syncCustomerTel = async (cusCode: string, company?: string) => {
     })
     .then((res: AxiosResponse) => res.data);
 };
+const syncAllCustomer = async (company?: string, syncBy?: string) => {
+  return await httpClient
+    .post(`${BASE_URL}/nav/customer/sync-new-customer`, {
+      company: company,
+      syncBy: syncBy,
+    })
+    .then((res: AxiosResponse) => res.data);
+};
 export const shopDatasource = {
   getAllDealerZoneBySaleId,
   getCustomerById,
@@ -142,4 +150,5 @@ export const shopDatasource = {
   updateApproveTel,
   getBrandList,
   syncCustomerTel,
+  syncAllCustomer,
 };
