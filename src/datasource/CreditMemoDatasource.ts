@@ -90,7 +90,7 @@ const getOrderHistory = async (params: {
   customerCompanyId: string;
 }) => {
   return await httpClient
-    .get(`${BASE_URL}/cart/order-credit-memo`, {
+    .get(`${BASE_URL}/order-cart/order-credit-memo`, {
       params,
     })
     .then((res: AxiosResponse) => res.data)

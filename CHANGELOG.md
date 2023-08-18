@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.11] - Release Date: 2023-08-18
+
+- fixed api setting (order credit memo)
+
 ## Resolved [v0.6.10] - Release Date: 2023-08-17
 
 - fixed Promotion Setting
