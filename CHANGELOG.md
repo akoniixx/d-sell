@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.12] - Release Date: 2023-08-19
+
+- fixed api setting (order credit memo)
+
 ## Improve [v0.6.11] - Release Date: 2023-08-17
 
 - connected sync new customer in shop management
