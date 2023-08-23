@@ -136,6 +136,7 @@ export const OrderDetail: React.FC = () => {
     const id = pathSplit[2];
     await getOrderDetail(id)
       .then((res: OrderEntity) => {
+        console.log("detail", res);
         setOrderData(res);
       })
       .catch((e: any) => {
@@ -319,7 +320,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{packSize}</Text>
               <Text level={6} color='Text3'>
-                {product?.productCodeNAV}
+                {product?.productCodeNAV || product?.productFreebiesCodeNAV}
               </Text>
             </FlexCol>
           ),
@@ -336,7 +337,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{quantity}</Text>
               <Text level={6} color='Text3'>
-                {product?.saleUOMTH || product?.saleUOM}
+                {product?.saleUOMTH || product?.saleUOM || product?.baseUnitOfMeaTh}
               </Text>
             </FlexCol>
           ),
@@ -781,7 +782,9 @@ export const OrderDetail: React.FC = () => {
             columns={columns}
             dataSource={
               orderData?.orderProducts?.sort((a, b) =>
-                ("" + a.productCodeNAV).localeCompare(b.productCodeNAV || ""),
+                ("" + (a.productCodeNAV || a.productFreebiesCodeNAV)).localeCompare(
+                  (b.productCodeNAV || b.productFreebiesCodeNAV || ""),
+                ),
               ) || []
             }
             pagination={false}

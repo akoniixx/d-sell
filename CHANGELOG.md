@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.13] - Release Date: 2023-08-23
+
+- fixed show freebie code in order management menu
+
 ## Resolved [v0.6.12] - Release Date: 2023-08-19
 
 - fixed api setting (order credit memo)
