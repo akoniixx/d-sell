@@ -136,7 +136,6 @@ export const OrderDetail: React.FC = () => {
     const id = pathSplit[2];
     await getOrderDetail(id)
       .then((res: OrderEntity) => {
-        console.log("detail", res);
         setOrderData(res);
       })
       .catch((e: any) => {
