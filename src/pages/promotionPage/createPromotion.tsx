@@ -45,13 +45,6 @@ export const PromotionCreatePage: React.FC = () => {
   const [form2] = Form.useForm();
   const [form3] = Form.useForm();
 
-  const [file1, setFile1] = useState<any>();
-  const [file2, setFile2] = useState<any>();
-  const [fileMemo, setFileMemo] = useState<any>();
-  const [imageUrl1, setImgUrl1] = useState<string>();
-  const [imageUrl2, setImgUrl2] = useState<string>();
-  const [fileMemoUrl, setFileMemoUrl] = useState<any>();
-
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [promotionData, setPromotionData] = useState<any>({
@@ -64,6 +57,50 @@ export const PromotionCreatePage: React.FC = () => {
 
   const [isCreating, setCreating] = useState(false);
   const [isDone, setDone] = useState(false);
+
+  const [file1, _setFile1] = useState<any>();
+  const [file2, _setFile2] = useState<any>();
+  const [fileMemo, _setFileMemo] = useState<any>();
+  const [imageUrl1, _setImgUrl1] = useState<string>();
+  const [imageUrl2, _setImgUrl2] = useState<string>();
+  const [fileMemoUrl, _setFileMemoUrl] = useState<any>();
+  const [fileEditHistory, setFileEditHistoy] = useState(new Set());
+
+  const fileKeys = {
+    IMAGE1: "img1",
+    IMAGE2: "img2",
+    MEMO: "memo",
+  };
+  const addFileEditHistory = (s: string) => {
+    console.log("setHistory", s);
+    const set = new Set(fileEditHistory);
+    set.add(s);
+    setFileEditHistoy(set);
+  };
+  const setFile1 = (file: any) => {
+    _setFile1(file);
+    addFileEditHistory(fileKeys.IMAGE1);
+  };
+  const setImgUrl1 = (file: any) => {
+    _setImgUrl1(file);
+    addFileEditHistory(fileKeys.IMAGE1);
+  };
+  const setFile2 = (file: any) => {
+    _setFile2(file);
+    addFileEditHistory(fileKeys.IMAGE2);
+  };
+  const setImgUrl2 = (file: any) => {
+    _setImgUrl2(file);
+    addFileEditHistory(fileKeys.IMAGE2);
+  };
+  const setFileMemo = (file: any) => {
+    _setFileMemo(file);
+    addFileEditHistory(fileKeys.MEMO);
+  };
+  const setFileMemoUrl = (file: any) => {
+    _setFileMemoUrl(file);
+    addFileEditHistory(fileKeys.MEMO);
+  };
 
   useEffect(() => {
     if (isEditing && !loading) fetchPromotion();
@@ -85,13 +122,13 @@ export const PromotionCreatePage: React.FC = () => {
         }
         setPromoState({ ...promoStateValue, promotion: res, promotionGroupOption });
         if (res.promotionImageFirst) {
-          setImgUrl1(res.promotionImageFirst);
+          _setImgUrl1(res.promotionImageFirst);
         }
         if (res.promotionImageSecond) {
-          setImgUrl2(res.promotionImageSecond);
+          _setImgUrl2(res.promotionImageSecond);
         }
         if (res.fileMemoPath) {
-          setFileMemoUrl(res.fileMemoPath);
+          _setFileMemoUrl(res.fileMemoPath);
         }
         form1.setFieldsValue({
           ...res,
@@ -243,6 +280,7 @@ export const PromotionCreatePage: React.FC = () => {
       imageUrl1={imageUrl1}
       imageUrl2={imageUrl2}
       fileMemoUrl={fileMemoUrl}
+      setFileMemoUrl={setFileMemoUrl}
       setImgUrl1={setImgUrl1}
       setImgUrl2={setImgUrl2}
       isEditing={isEditing}
@@ -342,7 +380,7 @@ export const PromotionCreatePage: React.FC = () => {
   };
 
   const onSubmit = async (promotionStatus: boolean, promotionData: any) => {
-    setCreating(true);
+    // setCreating(true);
     const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
     const submitData = {
@@ -551,15 +589,31 @@ export const PromotionCreatePage: React.FC = () => {
       };
 
       if (success) {
-        if (!hasFile) {
+        if (!hasFile && fileEditHistory.size <= 0) {
           onDone();
         } else {
+          console.log("02", fileEditHistory, file1, file2, fileMemo);
           const formData = new FormData();
           formData.append("promotionId", promotionId);
-          if (file1) formData.append("promotionImageFirst", file1);
-          if (file2) formData.append("promotionImageSecond", file2);
-          if (fileMemo) formData.append("fileMemo", fileMemo?.originFileObj);
-          // TODO debug API
+          if (fileEditHistory.has(fileKeys.IMAGE1)) {
+            formData.append("promotionImageFirstCheck", "true");
+            formData.append("promotionImageFirst", file1);
+          }
+          if (fileEditHistory.has(fileKeys.IMAGE2)) {
+            formData.append("promotionImageSecondCheck", "true");
+            formData.append("promotionImageSecond", file2);
+          }
+          if (fileEditHistory.has(fileKeys.MEMO)) {
+            formData.append("fileMemoCheck", "true");
+            formData.append("fileMemo", fileMemo?.originFileObj);
+          }
+          // if (file1) formData.append("promotionImageFirst", file1);
+          // if (file2) formData.append("promotionImageSecond", file2);
+          // if (fileMemo) formData.append("fileMemo", fileMemo?.originFileObj);
+
+          for (const pair of formData.entries()) {
+            console.log(pair[0] + ", " + pair[1]);
+          }
           updatePromotionFile(formData)
             .then((res) => {
               onDone();

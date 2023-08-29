@@ -628,7 +628,13 @@ const AddProduct = ({
       </TableContainer>
       <Divider style={{ margin: "12px 0px" }} />
       <Row justify='end'>
-        <Button title='บันทึก' style={{ width: 136 }} onClick={onSave} />
+        <Button
+          title='บันทึก'
+          style={{ width: 136 }}
+          onClick={onSave}
+          typeButton={selectedProduct.length <= 0 ? "disabled" : "primary"}
+          disabled={selectedProduct.length <= 0}
+        />
       </Row>
     </>
   );

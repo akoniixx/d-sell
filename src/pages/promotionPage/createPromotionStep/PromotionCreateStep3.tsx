@@ -251,6 +251,8 @@ export const CollapsePanelItem = ({
   uneditable?: boolean;
   viewOnly?: boolean;
 }) => {
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company } = userProfile;
   const span = {
     qty: 8,
     qtyUnit: 4,
@@ -350,6 +352,8 @@ export const CollapsePanelItem = ({
                 PromotionGroup.MIX.includes(promotionType) &&
                 promotionGroupOption === PromotionGroupOption.WEIGHT
                   ? "kg / L"
+                  : company === "ICPL"
+                  ? "ลัง/กระสอบ"
                   : item?.saleUOMTH || "หน่วย"
               }
             >
@@ -379,6 +383,7 @@ export const CollapsePanelItem = ({
                       promotionGroupOption === PromotionGroupOption.WEIGHT
                     }
                     listKey={promotionType === PromotionType.FREEBIES_MIX ? currentKey : undefined}
+                    autoFilled={promotionType === PromotionType.FREEBIES_NOT_MIX ? item : undefined}
                   />
                 </Form.Item>
               </Col>
@@ -448,7 +453,7 @@ export const CollapsePanelItem = ({
                   {...restField}
                   label='ต่อหน่วย SKU'
                   name={[name, "saleUnitDiscount"]}
-                  initialValue={item?.saleUOMTH || "หน่วย"}
+                  initialValue={company === "ICPL" ? "ลัง/กระสอบ" : item?.saleUOMTH || "หน่วย"}
                 >
                   <Input disabled />
                 </Form.Item>
@@ -496,6 +501,7 @@ interface FreebieListProps {
   itemIndex: number;
   showFullProduct?: boolean;
   listKey?: React.Key;
+  autoFilled?: ProductEntity;
 }
 
 interface Props {
@@ -511,6 +517,7 @@ const FreebieList = ({
   itemIndex,
   showFullProduct,
   listKey,
+  autoFilled,
 }: FreebieListProps) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -518,11 +525,17 @@ const FreebieList = ({
 
   const [freebieUnit, setFreebieUnit] = useState<Record<string, any>>({});
 
+  const key = listKey !== undefined ? listKey : productId ? `promotion-${productId}` : "key";
+
+  useEffect(() => {
+    if (getValue().length <= 0 && autoFilled) {
+      onAdd(autoFilled);
+    }
+  }, []);
+
   const toggleModal = () => {
     setModal(!showModal);
   };
-
-  const key = listKey !== undefined ? listKey : productId ? `promotion-${productId}` : "key";
 
   const getValue = () => {
     // Format: {unit: 'ลัง', quantity: '10'}, { unit: 'ลัง'}

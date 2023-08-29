@@ -16,7 +16,7 @@ import { FlexCol, FlexRow, ScrollContainer } from "../../../components/Container
 import Text from "../../../components/Text/Text";
 import styled from "styled-components";
 import color from "../../../resource/color";
-import { UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import Input from "../../../components/Input/Input";
 import Select from "../../../components/Select/Select";
 import DatePicker, { TimePicker } from "../../../components/DatePicker/DatePicker";
@@ -33,6 +33,7 @@ import promotionState from "../../../store/promotion";
 import { Document, Page, pdfjs } from "react-pdf";
 import PageSpin from "../../../components/Spin/pageSpin";
 import axios from "axios";
+import { ImageWithDeleteButton } from "../../../components/Image/Image";
 
 const StyledDoc = styled(Document)`
   .react-pdf__Page__textContent.textLayer,
@@ -85,6 +86,12 @@ const MemoArea = styled.div`
   padding: 16px;
 `;
 
+const MemoAreaItem = styled.div`
+  padding: 0px 8px;
+  display: flex;
+  align-items: center;
+`;
+
 const UploadIcon = (
   <>
     <svg width='65' height='65' viewBox='0 0 65 65' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -126,8 +133,9 @@ interface Props {
   imageUrl1: string | undefined;
   imageUrl2: string | undefined;
   fileMemoUrl?: string;
-  setImgUrl1: (setImgUrl1: string) => void;
-  setImgUrl2: (setImgUrl2: string) => void;
+  setFileMemoUrl?: (url: string | undefined) => void;
+  setImgUrl1: (setImgUrl1?: string) => void;
+  setImgUrl2: (setImgUrl2?: string) => void;
   isEditing?: boolean;
 }
 
@@ -142,6 +150,7 @@ export const PromotionCreateStep1 = ({
   imageUrl1,
   imageUrl2,
   fileMemoUrl,
+  setFileMemoUrl,
   setImgUrl1,
   setImgUrl2,
   isEditing,
@@ -191,11 +200,7 @@ export const PromotionCreateStep1 = ({
       <Form form={form} layout='vertical'>
         <FlexRow justify='start' style={{ padding: "20px 0" }}>
           <FlexCol style={{ marginRight: 16 }}>
-            <Form.Item
-              noStyle
-              name='verticalImage'
-              valuePropName='file'
-            >
+            <Form.Item noStyle name='verticalImage' valuePropName='file'>
               <ImgCrop aspect={3 / 4} {...imgCropProps}>
                 <UploadVeritical
                   listType='picture-card'
@@ -222,6 +227,7 @@ export const PromotionCreateStep1 = ({
                     setFile1(undefined);
                   }}
                   showUploadList={false}
+                  // disabled={!!file1 || !!imageUrl1}
                 >
                   {!file1 && !imageUrl1 ? (
                     <UploadArea
@@ -233,13 +239,14 @@ export const PromotionCreateStep1 = ({
                       {UploadIcon}
                     </UploadArea>
                   ) : (
-                    <img
-                      style={{
-                        width: "120px",
-                        height: "160px",
-                        borderRadius: 4,
-                      }}
+                    <ImageWithDeleteButton
+                      width='120px'
+                      height='160px'
                       src={imageUrl1}
+                      handleDelete={() => {
+                        setFile1(undefined);
+                        setImgUrl1(undefined);
+                      }}
                     />
                   )}
                 </UploadVeritical>
@@ -283,6 +290,7 @@ export const PromotionCreateStep1 = ({
                     setFile2(undefined);
                   }}
                   showUploadList={false}
+                  // disabled={!!file2 || !!imageUrl2}
                 >
                   {!file2 && !imageUrl2 ? (
                     <UploadArea
@@ -294,13 +302,14 @@ export const PromotionCreateStep1 = ({
                       {UploadIcon}
                     </UploadArea>
                   ) : (
-                    <img
-                      style={{
-                        width: "160px",
-                        height: "120px",
-                        borderRadius: 4,
-                      }}
+                    <ImageWithDeleteButton
+                      width='160px'
+                      height='120px'
                       src={imageUrl2}
+                      handleDelete={() => {
+                        setFile2(undefined);
+                        setImgUrl2(undefined);
+                      }}
                     />
                   )}
                 </UploadHorizontal>
@@ -391,7 +400,7 @@ export const PromotionCreateStep1 = ({
                 },
               ]}
             >
-              <Input placeholder='ระบุชื่อโปรโมชัน' autoComplete="off"/>
+              <Input placeholder='ระบุชื่อโปรโมชัน' autoComplete='off' />
             </Form.Item>
           </Col>
         </Row>
@@ -500,102 +509,125 @@ export const PromotionCreateStep1 = ({
         <Row>
           <Col span={12}>
             <MemoArea>
-              <Form.Item
-                noStyle
-                name='memoFile'
-                valuePropName='fileList'
-                getValueFromEvent={normFile}
-              >
-                <Upload
-                  beforeUpload={(file) => {
-                    const isPDF = file.type === "application/pdf";
-                    if (!isPDF) {
-                      message.error(`อัปโหลดเฉพาะไฟล์ pdf เท่านั้น`);
-                      return false;
-                    }
-                    return isPDF || Upload.LIST_IGNORE;
-                  }}
-                  customRequest={({ file, onSuccess }) => {
-                    if (onSuccess) {
-                      onSuccess(file);
-                    }
-                  }}
-                  onChange={({ file }: any) => {
-                    if (file.status === "uploading") {
-                      setFileMemo(file);
-                      file.status = "done";
-                    }
-                    if (file.status === "done") {
-                      setFileMemo(file);
-                    }
-                    return "success";
-                  }}
-                  onRemove={() => {
-                    setFileMemo(undefined);
-                  }}
-                  maxCount={1}
-                  showUploadList={false}
+              <MemoAreaItem style={{ width: 124 }}>
+                <Form.Item
+                  noStyle
+                  name='memoFile'
+                  valuePropName='fileList'
+                  getValueFromEvent={normFile}
                 >
-                  <Button type='primary' icon={<UploadOutlined />}>
-                    เลือกไฟล์
-                  </Button>
-                </Upload>
-              </Form.Item>
-              &nbsp;&nbsp;&nbsp;{" "}
-              <svg
-                width='24'
-                height='31'
-                viewBox='0 0 24 31'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  fillRule='evenodd'
-                  clipRule='evenodd'
-                  d='M20.0596 0.0175781L24 3.84855V5.85091V27.5176C24 28.8983 22.8487 30.0176 21.4286 30.0176H2.57143C1.15127 30.0176 0 28.8983 0 27.5176V2.51758C0 1.13687 1.15127 0.0175781 2.57143 0.0175781H18H20.0596ZM18 1.18424H2.57143C1.85609 1.18424 1.26867 1.71671 1.2056 2.39622L1.2 2.51758V27.5176C1.2 28.213 1.74768 28.7842 2.4466 28.8455L2.57143 28.8509H21.4286C22.1439 28.8509 22.7313 28.3184 22.7944 27.6389L22.8 27.5176V5.85091H18V1.18424ZM22.8 4.68424L22.8 4.33174L19.5626 1.18424H19.2V4.68424H22.8Z'
-                  fill='#464E5F'
-                />
-                <path d='M4 15.6846H5.83333V17.5179H4V15.6846Z' fill='#464E5F' />
-                <path
-                  d='M6.75 12.0176H8.98014C9.41286 12.0176 9.74294 12.0895 9.97039 12.2334C10.2034 12.372 10.3587 12.5718 10.4364 12.833C10.5196 13.0888 10.5612 13.4246 10.5612 13.8403C10.5612 14.24 10.5224 14.5704 10.4447 14.8315C10.367 15.0873 10.2117 15.2925 9.97871 15.4471C9.74571 15.5963 9.40731 15.6709 8.9635 15.6709H7.80682V17.5176H6.75V12.0176ZM8.614 14.7916C8.89138 14.7916 9.08832 14.7676 9.20482 14.7196C9.32687 14.6663 9.40454 14.5784 9.43782 14.4558C9.47665 14.3279 9.49607 14.1227 9.49607 13.8403C9.49607 13.5578 9.47665 13.3553 9.43782 13.2327C9.40454 13.1048 9.32964 13.0169 9.21314 12.9689C9.09664 12.9209 8.90248 12.8969 8.63064 12.8969H7.80682V14.7916H8.614Z'
-                  fill='#464E5F'
-                />
-                <path
-                  d='M11.4471 12.0176H13.1696C13.8741 12.0176 14.3734 12.0949 14.6674 12.2494C14.967 12.3986 15.1529 12.6491 15.225 13.0009C15.3027 13.3473 15.3415 13.9362 15.3415 14.7676C15.3415 15.599 15.3027 16.1905 15.225 16.5423C15.1529 16.8887 14.967 17.1392 14.6674 17.2937C14.3734 17.443 13.8741 17.5176 13.1696 17.5176H11.4471V12.0176ZM13.1197 16.6382C13.5246 16.6382 13.7965 16.6089 13.9352 16.5503C14.0794 16.4917 14.1709 16.3451 14.2098 16.1106C14.2542 15.8761 14.2763 15.4284 14.2763 14.7676C14.2763 14.1067 14.2542 13.6591 14.2098 13.4246C14.1709 13.1901 14.0794 13.0435 13.9352 12.9849C13.7965 12.9263 13.5246 12.8969 13.1197 12.8969H12.5039V16.6382H13.1197Z'
-                  fill='#464E5F'
-                />
-                <path
-                  d='M16.3879 17.5176V12.0176H19.5833V12.8969H17.4447V14.4318H19.3337V15.3192H17.4447V17.5176H16.3879Z'
-                  fill='#464E5F'
-                />
-              </svg>
-              &nbsp;
-              <Text
-                level={6}
-                color='Text3'
-                onClick={async () => {
-                  try {
-                    if (fileMemo && (fileMemo as any)?.originFileObj) {
-                      const file = new Blob([(fileMemo as any)?.originFileObj], {
-                        type: "application/pdf",
-                      });
-                      const fileURL = URL.createObjectURL(file);
-                      const pdfWindow = window.open();
-                      if (pdfWindow) pdfWindow.location.href = fileURL || "";
-                    } else if (fileMemoUrl) {
-                      const pdfWindow = window.open();
-                      if (pdfWindow) pdfWindow.location.href = fileMemoUrl || "";
+                  <Upload
+                    beforeUpload={(file) => {
+                      const isPDF = file.type === "application/pdf";
+                      if (!isPDF) {
+                        message.error(`อัปโหลดเฉพาะไฟล์ pdf เท่านั้น`);
+                        return false;
+                      }
+                      return isPDF || Upload.LIST_IGNORE;
+                    }}
+                    customRequest={({ file, onSuccess }) => {
+                      if (onSuccess) {
+                        onSuccess(file);
+                      }
+                    }}
+                    onChange={({ file }: any) => {
+                      if (file.status === "uploading") {
+                        setFileMemo(file);
+                        file.status = "done";
+                      }
+                      if (file.status === "done") {
+                        setFileMemo(file);
+                      }
+                      return "success";
+                    }}
+                    onRemove={() => {
+                      setFileMemo(undefined);
+                    }}
+                    maxCount={1}
+                    showUploadList={false}
+                  >
+                    <Button type='primary' icon={<UploadOutlined />}>
+                      เลือกไฟล์
+                    </Button>
+                  </Upload>
+                </Form.Item>
+              </MemoAreaItem>
+              <MemoAreaItem style={{ width: "calc(100% - 156px)" }}>
+                <svg
+                  width='24'
+                  height='31'
+                  viewBox='0 0 24 31'
+                  fill='none'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    clipRule='evenodd'
+                    d='M20.0596 0.0175781L24 3.84855V5.85091V27.5176C24 28.8983 22.8487 30.0176 21.4286 30.0176H2.57143C1.15127 30.0176 0 28.8983 0 27.5176V2.51758C0 1.13687 1.15127 0.0175781 2.57143 0.0175781H18H20.0596ZM18 1.18424H2.57143C1.85609 1.18424 1.26867 1.71671 1.2056 2.39622L1.2 2.51758V27.5176C1.2 28.213 1.74768 28.7842 2.4466 28.8455L2.57143 28.8509H21.4286C22.1439 28.8509 22.7313 28.3184 22.7944 27.6389L22.8 27.5176V5.85091H18V1.18424ZM22.8 4.68424L22.8 4.33174L19.5626 1.18424H19.2V4.68424H22.8Z'
+                    fill='#464E5F'
+                  />
+                  <path d='M4 15.6846H5.83333V17.5179H4V15.6846Z' fill='#464E5F' />
+                  <path
+                    d='M6.75 12.0176H8.98014C9.41286 12.0176 9.74294 12.0895 9.97039 12.2334C10.2034 12.372 10.3587 12.5718 10.4364 12.833C10.5196 13.0888 10.5612 13.4246 10.5612 13.8403C10.5612 14.24 10.5224 14.5704 10.4447 14.8315C10.367 15.0873 10.2117 15.2925 9.97871 15.4471C9.74571 15.5963 9.40731 15.6709 8.9635 15.6709H7.80682V17.5176H6.75V12.0176ZM8.614 14.7916C8.89138 14.7916 9.08832 14.7676 9.20482 14.7196C9.32687 14.6663 9.40454 14.5784 9.43782 14.4558C9.47665 14.3279 9.49607 14.1227 9.49607 13.8403C9.49607 13.5578 9.47665 13.3553 9.43782 13.2327C9.40454 13.1048 9.32964 13.0169 9.21314 12.9689C9.09664 12.9209 8.90248 12.8969 8.63064 12.8969H7.80682V14.7916H8.614Z'
+                    fill='#464E5F'
+                  />
+                  <path
+                    d='M11.4471 12.0176H13.1696C13.8741 12.0176 14.3734 12.0949 14.6674 12.2494C14.967 12.3986 15.1529 12.6491 15.225 13.0009C15.3027 13.3473 15.3415 13.9362 15.3415 14.7676C15.3415 15.599 15.3027 16.1905 15.225 16.5423C15.1529 16.8887 14.967 17.1392 14.6674 17.2937C14.3734 17.443 13.8741 17.5176 13.1696 17.5176H11.4471V12.0176ZM13.1197 16.6382C13.5246 16.6382 13.7965 16.6089 13.9352 16.5503C14.0794 16.4917 14.1709 16.3451 14.2098 16.1106C14.2542 15.8761 14.2763 15.4284 14.2763 14.7676C14.2763 14.1067 14.2542 13.6591 14.2098 13.4246C14.1709 13.1901 14.0794 13.0435 13.9352 12.9849C13.7965 12.9263 13.5246 12.8969 13.1197 12.8969H12.5039V16.6382H13.1197Z'
+                    fill='#464E5F'
+                  />
+                  <path
+                    d='M16.3879 17.5176V12.0176H19.5833V12.8969H17.4447V14.4318H19.3337V15.3192H17.4447V17.5176H16.3879Z'
+                    fill='#464E5F'
+                  />
+                </svg>
+                &nbsp;
+                <Text
+                  level={6}
+                  color='Text3'
+                  onClick={async () => {
+                    try {
+                      if (fileMemo && (fileMemo as any)?.originFileObj) {
+                        const file = new Blob([(fileMemo as any)?.originFileObj], {
+                          type: "application/pdf",
+                        });
+                        const fileURL = URL.createObjectURL(file);
+                        const pdfWindow = window.open();
+                        if (pdfWindow) pdfWindow.location.href = fileURL || "";
+                      } else if (fileMemoUrl) {
+                        const pdfWindow = window.open();
+                        if (pdfWindow) pdfWindow.location.href = fileMemoUrl || "";
+                      }
+                    } catch (error) {
+                      return { error };
                     }
-                  } catch (error) {
-                    return { error };
-                  }
+                  }}
+                  style={{ cursor: fileMemo || fileMemoUrl ? "pointer" : "default" }}
+                >
+                  {(fileMemo as any)?.originFileObj?.name ||
+                    (fileMemoUrl && `${fileMemoUrl?.substring(0, 20)}...`) ||
+                    "โปรดเลือกไฟล์ .PDF"}
+                </Text>
+              </MemoAreaItem>
+              <MemoAreaItem
+                style={{
+                  width: 32,
+                  visibility:
+                    (fileMemo as any)?.originFileObj || fileMemoUrl ? "visible" : "hidden",
                 }}
-                style={{ cursor: fileMemo || fileMemoUrl ? "pointer" : "default" }}
               >
-                {(fileMemo as any)?.originFileObj?.name ||
-                  (fileMemoUrl && `${fileMemoUrl?.substring(0, 20)}...`) ||
-                  "โปรดเลือกไฟล์ .PDF"}
-              </Text>
+                <DeleteOutlined
+                  style={{ color: color.error, cursor: "pointer" }}
+                  onClick={() => {
+                    Modal.confirm({
+                      title: "ลบไฟล์ Memo Promotion",
+                      onOk: () => {
+                        setFileMemo(undefined);
+                        if (setFileMemoUrl) setFileMemoUrl(undefined);
+                      },
+                    });
+                  }}
+                />
+              </MemoAreaItem>
             </MemoArea>
           </Col>
         </Row>
