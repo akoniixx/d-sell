@@ -107,17 +107,6 @@ export const SpecialPriceDetail: React.FC = () => {
   const setProd = (list: ProductEntity[]) => {
     const loginName = firstname + " " + lastname;
     const { customerId, customerCompanyId, customerName, zone } = data;
-    const filteredItems = [...items].filter((item) =>
-      list.find((p) => p.productId === item.productId),
-    );
-    const newDeletedItems = [
-      ...deletedItems,
-      ...[...items].filter(
-        (item) =>
-          priceList.all.find((p) => p.productId === item.productId) &&
-          !list.find((p) => p.productId === item.productId),
-      ),
-    ];
     let newItems = list
       .filter((item) => !items.find((p) => p.productId === item.productId))
       .map((p) => ({
@@ -133,14 +122,17 @@ export const SpecialPriceDetail: React.FC = () => {
         product: p,
       }));
 
-    newItems = [...filteredItems, ...newItems];
+    newItems = [...items, ...newItems];
     setItems(newItems);
     setPriceList({
       all: newItems,
       up: newItems.filter((d) => d.value >= 0),
       down: newItems.filter((d) => d.value < 0),
     });
-    setDeletedItems(newDeletedItems);
+
+    // setDeletedItems(
+    //   deletedItems.filter((item) => !list.find((p) => p.productId === item.productId)),
+    // );
   };
 
   useEffect(() => {
@@ -696,7 +688,7 @@ export const SpecialPriceDetail: React.FC = () => {
 
         <br />
         <Modal open={showModal} width={"80vw"} closable={false} footer={null}>
-          <AddProduct list={items} setList={setProd} onClose={toggleModal} />
+          {showModal && <AddProduct list={priceList.all} setList={setProd} onClose={toggleModal} />}
         </Modal>
       </div>
       <Modal open={isCreating || isDone} footer={null} width={220} closable={false}>

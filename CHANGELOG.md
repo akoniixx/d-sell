@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.6.13] - Release Date: 2023-08-29
+
+- fixed promotion setting: memo file, freebie list, add product
+- fixed Price List Detail: edit product
+
 ## Resolved [v0.6.12] - Release Date: 2023-08-19
 
 - fixed api setting (order credit memo)
