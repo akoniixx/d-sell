@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.15] - Release Date: 2023-08-29
+
+- fixed promotion setting: fix sale unit for ICPL
+
 ## Resolved [v0.6.14] - Release Date: 2023-08-29
 
 - fixed promotion setting: memo file, freebie list, add product

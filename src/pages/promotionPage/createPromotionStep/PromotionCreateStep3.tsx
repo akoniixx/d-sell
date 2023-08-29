@@ -352,7 +352,7 @@ export const CollapsePanelItem = ({
                 PromotionGroup.MIX.includes(promotionType) &&
                 promotionGroupOption === PromotionGroupOption.WEIGHT
                   ? "kg / L"
-                  : company === "ICPL"
+                  : company === "ICPL" && PromotionGroup.MIX.includes(promotionType)
                   ? "ลัง/กระสอบ"
                   : item?.saleUOMTH || "หน่วย"
               }
@@ -453,7 +453,11 @@ export const CollapsePanelItem = ({
                   {...restField}
                   label='ต่อหน่วย SKU'
                   name={[name, "saleUnitDiscount"]}
-                  initialValue={company === "ICPL" ? "ลัง/กระสอบ" : item?.saleUOMTH || "หน่วย"}
+                  initialValue={
+                    company === "ICPL" && PromotionGroup.MIX.includes(promotionType)
+                      ? "ลัง/กระสอบ"
+                      : item?.saleUOMTH || "หน่วย"
+                  }
                 >
                   <Input disabled />
                 </Form.Item>
