@@ -1,4 +1,10 @@
-import { DownOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  DownOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  EyeOutlined,
+  FileExcelOutlined,
+} from "@ant-design/icons";
 import React, { ReactNode, useEffect, useState } from "react";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import Button from "../../components/Button/Button";
@@ -82,7 +88,6 @@ const DetailTab: React.FC = () => {
     const id = pathSplit[4];
     await getPromotionById(id)
       .then((res) => {
-        console.log(res);
         setPromoState({ ...promoStateValue, promotion: res });
         fetchProductData(res.conditionDetail);
       })
@@ -250,13 +255,20 @@ const DetailTab: React.FC = () => {
       {promotion?.fileMemoPath && (
         <>
           <br />
-          <Row align='middle'>
-            <Text level={5} fontWeight={700}>
-              ไฟล์ Memo Promotion
-            </Text>
+          <Row align='middle' gutter={16}>
+            <Col span={12}>
+              <Text level={5} fontWeight={700}>
+                ไฟล์ Memo Promotion
+              </Text>
+            </Col>
+            {/* <Col span={12}>
+              <Text level={5} fontWeight={700}>
+                ไฟล์ Excel
+              </Text>
+            </Col> */}
           </Row>
           <br />
-          <Row>
+          <Row align='middle' gutter={16}>
             <Col span={12}>
               <MemoArea>
                 <Row align='middle' justify='space-between' style={{ width: "100%" }}>
@@ -310,6 +322,32 @@ const DetailTab: React.FC = () => {
                 </Row>
               </MemoArea>
             </Col>
+            {/* <Col span={12}>
+              <MemoArea>
+                <Row align='middle' justify='space-between' style={{ width: "100%" }}>
+                  <Col span={16}>
+                    <FlexRow align='center' style={{ height: "100%" }}>
+                      &nbsp;&nbsp;&nbsp;
+                      <FileExcelOutlined style={{ fontSize: 28 }} />
+                      &nbsp;&nbsp;&nbsp;
+                      <Text level={6} color='Text3'>{`${promotion.fileMemoPath.substring(
+                        0,
+                        40,
+                      )}...`}</Text>
+                    </FlexRow>
+                  </Col>
+                  <Col span={8}>
+                    <Button
+                      title='ดาวน์โหลด'
+                      icon={<DownloadOutlined style={{ color: "white" }} />}
+                      onClick={() => {
+                        console.log("onDownload");
+                      }}
+                    />
+                  </Col>
+                </Row>
+              </MemoArea>
+            </Col> */}
           </Row>
           <br />
           <br />
@@ -1069,6 +1107,11 @@ export const PromotionDetail: React.FC = () => {
   const pathSplit = pathname.split("/") as Array<string>;
   const navigate = useNavigate();
 
+  const promoStateValue = useRecoilValue(promotionState);
+
+  const isInvalid =
+    !promoStateValue.promotion || moment(promoStateValue.promotion?.endDate).isBefore(moment());
+
   const PageTitle = () => {
     return (
       <PageTitleNested
@@ -1090,6 +1133,8 @@ export const PromotionDetail: React.FC = () => {
             title='แก้ไขโปรโมชัน'
             icon={<EditOutlined />}
             onClick={() => navigate(`/PromotionPage/promotion/edit/${pathSplit[4]}`)}
+            disabled={isInvalid}
+            typeButton={isInvalid ? "disabled" : "primary"}
           />
         }
       />

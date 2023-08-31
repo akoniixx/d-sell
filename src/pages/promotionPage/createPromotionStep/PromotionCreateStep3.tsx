@@ -469,11 +469,8 @@ export const CollapsePanelItem = ({
                     justify='center'
                     style={{ height: "100%", paddingBottom: 9 }}
                   >
-                    <CloseIconContainer>
-                      <CloseOutlined
-                        style={{ color: "white" }}
-                        onClick={onRemove ? () => onRemove(name) : undefined}
-                      />
+                    <CloseIconContainer onClick={onRemove ? () => onRemove(name) : undefined}>
+                      <CloseOutlined style={{ color: "white" }} />
                     </CloseIconContainer>
                   </FlexRow>
                 )}

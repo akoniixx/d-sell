@@ -174,8 +174,12 @@ export const PromotionCreateStep3Dupplicate = ({
         const newValue = {
           ...form.getFieldsValue(),
         };
-        selectedItemKeys?.forEach((key) => {
-          newValue[`promotion-${key}`] = values?.key;
+        selectedItems?.forEach((item: ProductEntity) => {
+          newValue[`promotion-${item.productId}`] = values?.key?.map((value: any) => ({
+            ...value,
+            saleUnit: item?.saleUOMTH,
+            saleUnitDiscount: item?.saleUOMTH,
+          }));
         });
         form.setFieldsValue(newValue);
         setOpen(false);
@@ -184,11 +188,16 @@ export const PromotionCreateStep3Dupplicate = ({
       .catch((errInfo) => {
         console.log("errInfo", errInfo, innerForm.getFieldsValue());
       });
-    console.log("onSubmit", {
-      form: form?.getFieldsValue(),
-      innerForm: innerForm.getFieldsValue(),
-      selectedItems,
-    });
+    // console.log("onSubmit", {
+    //   form: form?.getFieldsValue(),
+    //   innerForm: innerForm.getFieldsValue(),
+    //   selectedItems,
+    // });
+  };
+
+  const onClose = () => {
+    onReset();
+    setOpen(false);
   };
 
   return (
@@ -205,7 +214,7 @@ export const PromotionCreateStep3Dupplicate = ({
           </Col>
           <Col span={8}>
             <Row align='middle' justify='end'>
-              <CloseOutlined style={{ cursor: "pointer" }} onClick={() => setOpen(false)} />
+              <CloseOutlined style={{ cursor: "pointer" }} onClick={onClose} />
             </Row>
           </Col>
         </Row>
