@@ -227,7 +227,7 @@ export const PromotionCreateStep1 = ({
                     setFile1(undefined);
                   }}
                   showUploadList={false}
-                  // disabled={!!file1 || !!imageUrl1}
+                  disabled={!!file1 || !!imageUrl1}
                 >
                   {!file1 && !imageUrl1 ? (
                     <UploadArea
@@ -290,7 +290,7 @@ export const PromotionCreateStep1 = ({
                     setFile2(undefined);
                   }}
                   showUploadList={false}
-                  // disabled={!!file2 || !!imageUrl2}
+                  disabled={!!file2 || !!imageUrl2}
                 >
                   {!file2 && !imageUrl2 ? (
                     <UploadArea

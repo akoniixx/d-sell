@@ -50,18 +50,18 @@ export const ImageWithDeleteButton = ({
     });
   };
   return (
-    // <Container>
-    <Image
-      style={{
-        width,
-        height,
-        borderRadius: 4,
-      }}
-      src={src}
-    />
-    //   <div className='delete' onClick={onClick}>
-    //     <DeleteOutlined />
-    //   </div>
-    // </Container>
+    <Container>
+      <Image
+        style={{
+          width,
+          height,
+          borderRadius: 4,
+        }}
+        src={src}
+      />
+      <div className='delete' onClick={onClick}>
+        <DeleteOutlined />
+      </div>
+    </Container>
   );
 };

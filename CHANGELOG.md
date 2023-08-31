@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.16] - Release Date: 2023-08-31
+
+- fixed promotion setting: dupplicate condition, view detail, delete image
+
 ## Resolved [v0.6.15] - Release Date: 2023-08-29
 
 - fixed promotion setting: fix sale unit for ICPL
