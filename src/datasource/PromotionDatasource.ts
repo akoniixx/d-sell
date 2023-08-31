@@ -108,6 +108,13 @@ const getPromotionLog = async (promotionId: string) => {
     .catch((err) => console.log(err));
 };
 
+const getReportExcel = async (id: string, company: string) => {
+  return await httpClient
+    .post(`${baseUrl}/report/report-excel/${id}/${company}`, { id, company })
+    .then((res: AxiosResponse) => res)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductFreebies,
   syncProductFreebie,
@@ -124,4 +131,5 @@ export {
   deletePromotion,
   getPromotionLog,
   getProductFreebiePromotionDetail,
+  getReportExcel,
 };

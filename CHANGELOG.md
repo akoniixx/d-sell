@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Improve [v0.6.17] - Release Date: 2023-08-31
+
+- promotion excel file
+
 ## Resolved [v0.6.16] - Release Date: 2023-08-31
 
 - fixed promotion setting: dupplicate condition, view detail, delete image
