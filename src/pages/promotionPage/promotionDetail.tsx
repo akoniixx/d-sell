@@ -369,16 +369,11 @@ const DetailTab: React.FC = () => {
                   </FlexRow>
                 </Col>
                 <Col span={8}>
-                  {/* <a
-                      href={`${BASE_URL}/master/report/report-excel/${promotion.promotionId}/${company}`}
-                      download
-                    > */}
                   <Button
                     title='ดาวน์โหลด'
                     icon={<DownloadOutlined style={{ color: "white" }} />}
                     onClick={onDownloadExcel}
                   />
-                  {/* </a> */}
                 </Col>
               </Row>
             </MemoArea>
@@ -1164,13 +1159,13 @@ export const PromotionDetail: React.FC = () => {
           />
         }
         extra={
-          <Button
-            title='แก้ไขโปรโมชัน'
-            icon={<EditOutlined />}
-            onClick={() => navigate(`/PromotionPage/promotion/edit/${pathSplit[4]}`)}
-            disabled={isInvalid}
-            typeButton={isInvalid ? "disabled" : "primary"}
-          />
+          !isInvalid && (
+            <Button
+              title='แก้ไขโปรโมชัน'
+              icon={<EditOutlined />}
+              onClick={() => navigate(`/PromotionPage/promotion/edit/${pathSplit[4]}`)}
+            />
+          )
         }
       />
     );

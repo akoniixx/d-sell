@@ -330,7 +330,10 @@ export const PromotionCreatePage: React.FC = () => {
       form3
         .validateFields()
         .then((values) => {
-          if (promotionData.promotionType === PromotionType.FREEBIES_NOT_MIX) {
+          if (
+            promotionData.promotionType === PromotionType.FREEBIES_NOT_MIX ||
+            promotionData.promotionType === PromotionType.FREEBIES_MIX
+          ) {
             const promoList = form3.getFieldsValue();
             if (!Object.entries(promoList).length) {
               Modal.error({
@@ -440,6 +443,7 @@ export const PromotionCreatePage: React.FC = () => {
           productList?.allData?.find((p: ProductEntity) => p.productId === productId) ||
           defaultData?.conditionDetail?.find((p: any) => p.productId === productId) ||
           ({} as ProductEntity);
+
         return {
           productId,
           productName,
@@ -592,7 +596,6 @@ export const PromotionCreatePage: React.FC = () => {
         if (!hasFile && fileEditHistory.size <= 0) {
           onDone();
         } else {
-          console.log("02", fileEditHistory, file1, file2, fileMemo);
           const formData = new FormData();
           formData.append("promotionId", promotionId);
           if (fileEditHistory.has(fileKeys.IMAGE1)) {
@@ -629,6 +632,8 @@ export const PromotionCreatePage: React.FC = () => {
       }
     };
 
+    // console.log("submitData", submitData);
+    // return;
     if (!isEditing) {
       await createPromotion(submitData)
         .then(callback)
