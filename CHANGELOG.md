@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.6.19] - Release Date: 2023-08-31
+
+- fixed special price (add product)
+- fixed promotion setting (freebie empty, freebie unit)
+
 ## Resolved [v0.6.18] - Release Date: 2023-09-04
 
 - fixed fetch brand Fer in shop management

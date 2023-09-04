@@ -46,9 +46,10 @@ export const CreatePriceListStep2 = ({ form, isEditing }: Props) => {
   };
 
   const setProd = (list: ProductEntity[]) => {
-    console.log(list);
-    setItems(list);
-    form.setFieldValue("items", list);
+    const newList = [...items, ...list];
+    console.log("newList", newList);
+    setItems(newList);
+    form.setFieldValue("items", newList);
   };
 
   useEffect(() => {

@@ -174,6 +174,7 @@ export const PromotionCreateStep3Dupplicate = ({
         const newValue = {
           ...form.getFieldsValue(),
         };
+        console.log("01", newValue);
         selectedItems?.forEach((item: ProductEntity) => {
           newValue[`promotion-${item.productId}`] = values?.key?.map((value: any) => ({
             ...value,

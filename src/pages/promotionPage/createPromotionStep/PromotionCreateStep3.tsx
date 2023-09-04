@@ -701,6 +701,10 @@ const FreebieList = ({
                     }
                     data={freebieUnit[product?.productCodeNAV || ""]}
                     onChange={(val) => onSetOption(i, val)}
+                    disabled={
+                      !freebieUnit[product?.productCodeNAV || ""] ||
+                      freebieUnit[product?.productCodeNAV || ""].length <= 1
+                    }
                   />
                 ) : (
                   <Input disabled value={product?.saleUOMTH || product?.baseUnitOfMeaEn} />
