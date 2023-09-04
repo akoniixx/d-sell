@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.18] - Release Date: 2023-09-04
+
+- fixed fetch brand Fer in shop management
+
 ## Improve [v0.6.17] - Release Date: 2023-08-31
 
 - promotion excel file

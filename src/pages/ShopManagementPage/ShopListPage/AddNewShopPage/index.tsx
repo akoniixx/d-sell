@@ -51,7 +51,17 @@ function AddNewShopPage(): JSX.Element {
           taxNo: taxId || "",
           company: profile?.company || "",
         });
-        const brandData = await shopDatasource.getBrandList(profile?.company || "");
+        const brandData = await shopDatasource.getBrandList(profile?.company || "").then(res => {
+          const map = res.map((x: any) => {
+            return {
+              company: x.company,
+              product_brand_id: x.productBrandId,
+              product_brand_logo: x.productBrandLogo,
+              product_brand_name: x.productBrandName,
+            };
+          });
+          return map;
+        });
         setDataDetail(res);
         setBrandData(brandData);
 
@@ -171,7 +181,6 @@ function AddNewShopPage(): JSX.Element {
             company={profile?.company}
             zoneList={zoneList}
             dataDetail={dataDetail}
-            brandData={brandData}
           />
         );
       }
