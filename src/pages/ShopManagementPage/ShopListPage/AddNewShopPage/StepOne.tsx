@@ -36,16 +36,15 @@ function StepOne({
   company,
   dataDetail,
   zoneList = [],
-  brandData = [],
 }: {
   dataDetail: CustomerDetailEntity | null;
   zoneList?: { label: string; value: string; key: string }[];
   form: FormInstance<any>;
   company?: "ICPL" | "ICPI" | "ICPF" | "ICK";
-  brandData: any;
 }) {
   const [selectBrand, setSelectBrand] = React.useState<any>();
   const typeCustomer = form.getFieldValue("typeShop");
+
   const listSD =
     (dataDetail?.data?.customerCompany || []).filter((el) => el.company !== company) || [];
 
@@ -64,8 +63,19 @@ function StepOne({
     },
   ];
 
-  const selectDataBrand = () => {
-    const mapValue = brandData.map((el: any, index: number) => {
+  const selectDataBrand = async () => {
+   const mapBrand =  await shopDatasource.getBrandList(company || "").then((res) => {
+      const map = res.map((x: any) => {
+        return {
+          company: x.company,
+          product_brand_id: x.productBrandId,
+          product_brand_logo: x.productBrandLogo,
+          product_brand_name: x.productBrandName,
+        };
+      });
+      return map;
+    });
+    const mapValue = mapBrand.map((el: any, index: number) => {
       return {
         label: el.product_brand_name,
         value: el.product_brand_id,
@@ -131,7 +141,7 @@ function StepOne({
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name='customerNo' label='รหัสร้านค้า'>
-                <Input disabled={typeCustomer === "DL"}/>
+                <Input disabled={typeCustomer === "DL"} />
               </Form.Item>
             </Col>
             <Col span={12}>

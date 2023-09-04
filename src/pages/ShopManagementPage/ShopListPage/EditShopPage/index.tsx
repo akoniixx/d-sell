@@ -53,18 +53,6 @@ export default function EditShopPage() {
           company: profile?.company || "",
         });
         setDataDetail(res);
-        await shopDatasource.getBrandList(profile?.company || "").then((res) => {
-          const map = res.map((x: any) => {
-            return {
-              company: x.company,
-              product_brand_id: x.productBrandId,
-              product_brand_logo: x.productBrandLogo,
-              product_brand_name: x.productBrandName,
-            };
-          });
-
-          setBrandData(map);
-        });
         if (res && res?.data) {
           const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
           const {
@@ -211,10 +199,26 @@ export default function EditShopPage() {
         customerNo,
         productBrand,
       }: FormStepCustomerEntity = form.getFieldsValue(true);
-      const newProductBrand = dataDetail?.data.customerCompany.find((el: any) => {
-        return el.company === profile?.company;
-      })?.productBrand[0];
-
+      
+      let newProductBrand: any = "";
+      if (profile?.company === "ICPF") {
+        const mapBrand = await shopDatasource.getBrandList("ICPF" || "").then((res) => {
+          const map = res.map((x: any) => {
+            return {
+              company: x.company,
+              product_brand_id: x.productBrandId,
+              product_brand_logo: x.productBrandLogo,
+              product_brand_name: x.productBrandName,
+            };
+          });
+          return map;
+        });
+        newProductBrand = mapBrand.find((x: any) => x.product_brand_id === `${productBrand}`);
+      } else {
+        newProductBrand = dataDetail?.data.customerCompany.find((el: any) => {
+          return el.company === profile?.company;
+        })?.productBrand[0];
+      }
       const stringifyProductBrand = JSON.stringify([newProductBrand]);
       const findCusCom = dataDetail?.data.customerCompany.find(
         (x: any) => x.company === profile?.company,
@@ -304,13 +308,14 @@ export default function EditShopPage() {
     switch (current) {
       case 0: {
         return (
-          <StepOne
-            form={form}
-            company={profile?.company}
-            dataDetail={dataDetail}
-            zoneList={zoneList}
-            brandData={brandData}
-          />
+          <>
+            <StepOne
+              form={form}
+              company={profile?.company}
+              dataDetail={dataDetail}
+              zoneList={zoneList}
+            />
+          </>
         );
       }
       case 1: {
