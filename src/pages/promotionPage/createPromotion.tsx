@@ -342,6 +342,9 @@ export const PromotionCreatePage: React.FC = () => {
               return;
             }
             const pass = Object.entries(promoList).every(([key, value]) => {
+              if(promotionData.promotionType === PromotionType.FREEBIES_MIX && key.split('-')[1] === 'weight' ){
+                return true
+              }
               return (value as any[]).every(
                 (val: any) =>
                   val?.freebies &&
