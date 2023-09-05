@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.21] - Release Date: 2023-09-05
+
+- fixed promotion list pagesize
+
 ## Resolved [v0.6.20] - Release Date: 2023-09-05
 
 - fixed upload profile img user staff
