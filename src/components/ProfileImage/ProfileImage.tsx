@@ -1,4 +1,5 @@
 import { Row, Upload, UploadProps } from "antd";
+import { RcFile } from "antd/lib/upload";
 import React from "react";
 import styled from "styled-components";
 import color from "../../resource/color";
@@ -8,7 +9,10 @@ import Text from "../Text/Text";
 
 interface Props {
   onChange?: (value: any) => void;
-  value?: any;
+  value?: {
+    base64: string;
+    file: any;
+  };
 }
 const ImageStyled = styled.img``;
 export default function ProfileImage({ onChange, value }: Props): JSX.Element {
@@ -38,9 +42,9 @@ export default function ProfileImage({ onChange, value }: Props): JSX.Element {
         alignItems: "center",
       }}
     >
-      {value ? (
+      {value?.base64 ? (
         <ImageStyled
-          src={value}
+          src={value.base64}
           style={{
             width: 100,
             height: 100,
@@ -96,8 +100,12 @@ export default function ProfileImage({ onChange, value }: Props): JSX.Element {
                   reader.onerror = (error) => reject(error);
                 });
               };
+
               const newFile = await convertToImage(file);
-              onChange?.(newFile);
+              onChange?.({
+                base64: newFile,
+                file,
+              });
 
               //   const reader = new FileReader();
               //   reader.readAsDataURL(file);

@@ -47,6 +47,7 @@ export function EditUserSale() {
     });
     setZone(data);
   }, [profile?.company]);
+
   const getRoleList = async () => {
     const { data } = await roleDatasource.getAllRoles({
       page: 1,
@@ -69,11 +70,13 @@ export function EditUserSale() {
       const result = await SaleListDatasource.getSaleStaffById(userStaffId);
       form.setFieldsValue({
         ...result,
+        profileImage: { base64: result.profileImage, file: null },
       });
     } catch (error) {
       console.log(error);
     }
   }, [form, userStaffId]);
+
   useEffect(() => {
     getZoneByCompany();
     getRoleList();
@@ -91,7 +94,19 @@ export function EditUserSale() {
       if (userStaffId) {
         values.userStaffId = userStaffId;
       }
-      console.log("v", values);
+      if (values.profileImage) {
+        if (values.profileImage.file) {
+          const data = new FormData();
+          data.append("userStaffId", userStaffId || "");
+          data.append("profileImage", values.profileImage.file);
+          await SaleListDatasource.uploadProfile(data);
+        }
+      } else {
+        const data = new FormData();
+        data.append("userStaffId", userStaffId || "");
+        data.append("profileImage", values.profileImage);
+        await SaleListDatasource.uploadProfile(data);
+      }
       const res = await SaleListDatasource.updateUserStaff(userStaffId || "", {
         ...values,
         updateBy: `${profile?.firstname} ${profile?.lastname}`,
