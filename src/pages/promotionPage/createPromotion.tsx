@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Divider, Form, message, Modal, Spin } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { useRecoilValue, useSetRecoilState } from "recoil";
@@ -21,7 +21,7 @@ import { FlexCol } from "../../components/Container/Container";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import color from "../../resource/color";
 import Text from "../../components/Text/Text";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import dayjs, { Dayjs } from "dayjs";
 import promotionState from "../../store/promotion";
 import { PromotionConditionGroupEntity } from "../../entities/PromotionSettingEntity";
@@ -35,6 +35,10 @@ export const PromotionCreatePage: React.FC = () => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
   const isEditing = pathSplit[3] === "edit";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { copyId } = useMemo(() => {
+    return { copyId: searchParams.get("copy_id") };
+  }, [searchParams]);
 
   const productList = useRecoilValue(productState);
   const setProductList = useSetRecoilState(productState);
@@ -103,14 +107,20 @@ export const PromotionCreatePage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isEditing && !loading) fetchPromotion();
+    if ((isEditing || copyId) && !loading) fetchPromotion();
   }, []);
 
   const fetchPromotion = async () => {
     setLoading(true);
-    const id = pathSplit[4];
+    const id = isEditing || !copyId ? pathSplit[4] : copyId;
     await getPromotionById(id)
       .then((res) => {
+        if (copyId) {
+          res.promotionCode = res.promotionCode + "_copy";
+          res.promotionName = res.promotionName + " (copy)";
+          res.startDate = null;
+          res.endDate = null;
+        }
         setDefaultData(res);
         let promotionGroupOption;
         if (res?.conditionDetail) {
@@ -132,8 +142,8 @@ export const PromotionCreatePage: React.FC = () => {
         }
         form1.setFieldsValue({
           ...res,
-          startDate: dayjs(res.startDate),
-          endDate: dayjs(res.endDate),
+          startDate: copyId ? undefined : dayjs(res.startDate),
+          endDate: copyId ? undefined : dayjs(res.endDate),
           referencePromotion: res.referencePromotion ? res.referencePromotion : [],
           memoFile: res.fileMemoPath
             ? [
@@ -284,6 +294,7 @@ export const PromotionCreatePage: React.FC = () => {
       setImgUrl1={setImgUrl1}
       setImgUrl2={setImgUrl2}
       isEditing={isEditing}
+      isCopying={!!copyId}
       key={0}
     />,
     <PromotionCreateStep2
@@ -296,6 +307,7 @@ export const PromotionCreatePage: React.FC = () => {
       form={form3}
       promotionType={form1.getFieldValue("promotionType")}
       isEditing={isEditing}
+      isCopying={!!copyId}
       key={2}
       company={company}
     />,
@@ -383,7 +395,7 @@ export const PromotionCreatePage: React.FC = () => {
   };
 
   const onSubmit = async (promotionStatus: boolean, promotionData: any) => {
-    // setCreating(true);
+    setCreating(true);
     const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
     const submitData = {

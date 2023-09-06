@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { PropsWithoutRef, useEffect, useMemo, useState } from "react";
 import { Table, Tabs, Row, Col, Avatar, Switch, Modal, message, Tooltip } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import {
@@ -6,6 +6,7 @@ import {
   SearchOutlined,
   EditOutlined,
   DeleteOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import { dateFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
@@ -23,6 +24,7 @@ import {
 } from "../../datasource/PromotionDatasource";
 import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
 import image from "../../resource/image";
+import promotionState from "../../store/promotion";
 
 type FixedType = "left" | "right" | boolean;
 const REQUEST_DMY = "YYYY-MM-DD";
@@ -157,6 +159,21 @@ export const PromotionListPage: React.FC = () => {
     },
   ];
 
+  const ActionBtn = ({ onClick, icon }: any) => {
+    return (
+      <Col span={6}>
+        <div className='btn btn-icon btn-light btn-hover-primary btn-sm' onClick={onClick}>
+          <span
+            className='svg-icon svg-icon-primary svg-icon-2x'
+            style={{ color: color["primary"] }}
+          >
+            {icon}
+          </span>
+        </div>
+      </Col>
+    );
+  };
+
   const columns = [
     {
       title: "ชื่อโปรโมชัน",
@@ -284,7 +301,9 @@ export const PromotionListPage: React.FC = () => {
                   disabled={moment(row.endDate).isBefore(moment()) || row.promotionStatus}
                 />
               ) : (
-               <Text level={6} color="Text3">หมดอายุ</Text>
+                <Text level={6} color='Text3'>
+                  หมดอายุ
+                </Text>
               )}
             </>
           ),
@@ -295,58 +314,58 @@ export const PromotionListPage: React.FC = () => {
       title: "จัดการ",
       dataIndex: "action",
       key: "action",
-      width: "12%",
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
+        const isExpired = moment(row.endDate).isBefore(moment());
         return {
           children: (
             <>
-              <div className='d-flex flex-row justify-content-between'>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
+              <Row>
+                <ActionBtn
                   onClick={() => navigate("/PromotionPage/promotion/detail/" + row.promotionId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-                {!moment(row.endDate).isBefore(moment()) && (
-                  <>
-                    <div
-                      className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                      onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
-                    >
-                      <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                        <EditOutlined style={{ color: color["primary"] }} />
-                      </span>
-                    </div>
-                    <div
-                      className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                      onClick={() =>
-                        Modal.confirm({
-                          title: "ยืนยันการลบโปรโมชั่น",
-                          okText: "",
-                          cancelText: "",
-                          onOk: async () => {
-                            await deletePromotion({
-                              promotionId: row.promotionId,
-                              updateBy: firstname + " " + lastname,
-                            })
-                              .then((res) => {
-                                navigate(0);
-                              })
-                              .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
-                          },
-                        })
-                      }
-                    >
-                      <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                        <DeleteOutlined style={{ color: color.error }} />
-                      </span>
-                    </div>
-                  </>
+                  icon={<UnorderedListOutlined />}
+                />
+                {!isExpired && (
+                  <ActionBtn
+                    onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
+                    icon={<EditOutlined />}
+                  />
                 )}
-              </div>
+                <ActionBtn
+                  onClick={() => {
+                    const query = new URLSearchParams({ copy_id: row.promotionId }).toString();
+                    Modal.confirm({
+                      title: "ต้องการคัดลอกโปรโมชันนี้ใช่หรือไม่",
+                      content: `โปรดตรวจสอบรายละเอียดโปรโมชัน “${row.promotionName}” (${row.promotionCode}) ที่ต้องการคัดลอก ก่อนกดยืนยัน`,
+                      okText: "ยืนยัน",
+                      onOk: () => navigate("/PromotionPage/promotion/create/?" + query),
+                    });
+                  }}
+                  icon={<CopyOutlined />}
+                />
+                {!isExpired && (
+                  <ActionBtn
+                    onClick={() =>
+                      Modal.confirm({
+                        title: "ยืนยันการลบโปรโมชั่น",
+                        okText: "",
+                        cancelText: "",
+                        onOk: async () => {
+                          await deletePromotion({
+                            promotionId: row.promotionId,
+                            updateBy: firstname + " " + lastname,
+                          })
+                            .then((res) => {
+                              navigate(0);
+                            })
+                            .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                        },
+                      })
+                    }
+                    icon={<DeleteOutlined style={{ color: color.error }} />}
+                  />
+                )}
+              </Row>
             </>
           ),
         };

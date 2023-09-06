@@ -509,6 +509,7 @@ interface Props {
   form: FormInstance;
   promotionType: PromotionType;
   isEditing?: boolean;
+  isCopying?: boolean;
   company: string;
 }
 
@@ -752,7 +753,13 @@ const FreebieList = ({
   );
 };
 
-export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }: Props) => {
+export const PromotionCreateStep3 = ({
+  form,
+  promotionType,
+  isEditing,
+  isCopying,
+  company,
+}: Props) => {
   const promoStateValue = useRecoilValue(promotionState);
   const setPromoState = useSetRecoilState(promotionState);
 
@@ -778,7 +785,7 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
   const [editingGroup, setEditingGroup] = useState<number>();
 
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing || isCopying) {
       fetchProductData();
     }
     if (promoStateValue.promotionGroupOption) {
@@ -1065,13 +1072,18 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
             >
               <Radio
                 value={PromotionGroupOption.UNIT}
-                disabled={isEditing && promotionGroupOption === PromotionGroupOption.WEIGHT}
+                disabled={
+                  (isEditing || isCopying) && promotionGroupOption === PromotionGroupOption.WEIGHT
+                }
               >
                 จำนวน
               </Radio>
               <Radio
                 value={PromotionGroupOption.WEIGHT}
-                disabled={isEditing && promotionGroupOption === PromotionGroupOption.UNIT}
+                disabled={
+                  company !== "ICPL" ||
+                  ((isEditing || isCopying) && promotionGroupOption === PromotionGroupOption.UNIT)
+                }
               >
                 น้ำหนัก/ปริมาตร
               </Radio>
@@ -1228,9 +1240,10 @@ export const PromotionCreateStep3 = ({ form, promotionType, isEditing, company }
                       {(fields, { add, remove }) => {
                         const onAdd = () => add();
                         const onRemove = (name: number) => remove(name);
-                        const findIsEdit = groupKey && fields.length <= 0 && isEditing;
+                        const findIsEdit =
+                          groupKey && fields.length <= 0 && (isEditing || isCopying);
                         if (findIsEdit) onAdd();
-                        if (fields.length <= 0 && !isEditing) onAdd();
+                        if (fields.length <= 0 && !(isEditing || isCopying)) onAdd();
                         return (
                           <>
                             {fields.map(({ key, name, ...restField }, i) => {
