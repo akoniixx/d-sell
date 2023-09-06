@@ -64,7 +64,7 @@ function StepOne({
   ];
 
   const selectDataBrand = async () => {
-   const mapBrand =  await shopDatasource.getBrandList(company || "").then((res) => {
+    const mapBrand = await shopDatasource.getBrandList(company || "").then((res) => {
       const map = res.map((x: any) => {
         return {
           company: x.company,
@@ -105,7 +105,7 @@ function StepOne({
                   },
                 ]}
               >
-                <Select data={selectBrand} />
+                <Select data={selectBrand} mode='multiple'/>
               </Form.Item>
             </Col>
             <Col span={10}>

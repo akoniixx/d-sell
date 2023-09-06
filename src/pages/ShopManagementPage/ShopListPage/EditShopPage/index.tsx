@@ -129,7 +129,12 @@ export default function EditShopPage() {
             customerName: findDataByCompany?.customerName || customerCompany?.customerName || "",
             customerCompanyId: findDataByCompany?.customerCompanyId || 0,
             taxId,
-            productBrand: `${findBrandCompany.productBrand[0].product_brand_id}`,
+            productBrand:
+              profile?.company === "ICPF"
+                ? findBrandCompany.productBrand.map((x: any) => {
+                    return x.product_brand_id;
+                  })
+                : `${findBrandCompany.productBrand[0].product_brand_id}`,
             isHaveDealer,
           });
         }
@@ -199,8 +204,9 @@ export default function EditShopPage() {
         customerNo,
         productBrand,
       }: FormStepCustomerEntity = form.getFieldsValue(true);
-      
+
       let newProductBrand: any = "";
+      let stringifyProductBrand: any = "";
       if (profile?.company === "ICPF") {
         const mapBrand = await shopDatasource.getBrandList("ICPF" || "").then((res) => {
           const map = res.map((x: any) => {
@@ -213,13 +219,20 @@ export default function EditShopPage() {
           });
           return map;
         });
-        newProductBrand = mapBrand.find((x: any) => x.product_brand_id === `${productBrand}`);
+        newProductBrand = mapBrand.map((x: any) => {
+          const find = productBrand.find((y: any) => `${y}` === `${x.product_brand_id}`);
+          if (find) {
+            return x;
+          }
+        });
+        stringifyProductBrand = JSON.stringify(newProductBrand.filter((z: any) => z !== undefined));
       } else {
         newProductBrand = dataDetail?.data.customerCompany.find((el: any) => {
           return el.company === profile?.company;
         })?.productBrand[0];
+        stringifyProductBrand = JSON.stringify([newProductBrand]);
       }
-      const stringifyProductBrand = JSON.stringify([newProductBrand]);
+
       const findCusCom = dataDetail?.data.customerCompany.find(
         (x: any) => x.company === profile?.company,
       );
@@ -268,7 +281,6 @@ export default function EditShopPage() {
           userShopId: userShopId ? userShopId : null,
         },
       };
-
       try {
         const res = await shopDatasource.updateCustomer(payload);
         if (res && res.success) {
