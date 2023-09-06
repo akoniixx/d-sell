@@ -1,6 +1,23 @@
 ## [Version - 0]
 
-## Resolved [v0.6.19] - Release Date: 2023-08-31
+## Resolved [v0.6.23] - Release Date: 2023-09-06
+
+- added dupplicate promotion
+- disable mix volum type for ICPI & ICPF
+
+## Resolved [v0.6.22] - Release Date: 2023-09-05
+
+- fixed create promotion
+
+## Resolved [v0.6.21] - Release Date: 2023-09-05
+
+- fixed promotion list pagesize
+
+## Resolved [v0.6.20] - Release Date: 2023-09-05
+
+- fixed upload profile img user staff
+
+## Resolved [v0.6.19] - Release Date: 2023-09-04
 
 - fixed special price (add product)
 - fixed promotion setting (freebie empty, freebie unit)
