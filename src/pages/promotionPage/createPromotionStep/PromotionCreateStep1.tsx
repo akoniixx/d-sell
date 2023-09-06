@@ -137,6 +137,7 @@ interface Props {
   setImgUrl1: (setImgUrl1?: string) => void;
   setImgUrl2: (setImgUrl2?: string) => void;
   isEditing?: boolean;
+  isCopying?: boolean;
 }
 
 export const PromotionCreateStep1 = ({
@@ -154,6 +155,7 @@ export const PromotionCreateStep1 = ({
   setImgUrl1,
   setImgUrl2,
   isEditing,
+  isCopying,
 }: Props) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -381,7 +383,7 @@ export const PromotionCreateStep1 = ({
                   value: key,
                   label: `${label}`,
                 }))}
-                disabled={isEditing}
+                disabled={isEditing || isCopying}
               />
             </Form.Item>
           </Col>
