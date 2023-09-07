@@ -194,7 +194,7 @@ function DetailRole() {
                 <Form.Item noStyle name='discountCo'>
                   <CheckboxGroup
                     data={websiteBackOffice.discountCo}
-                    name='Discount (CO) / (ส่วนลดดูแลราคา)'
+                    name='Discount (CO) / ( ส่วนลดดูแลราคา)'
                     disabled
                   />
                 </Form.Item>

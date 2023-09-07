@@ -1,32 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Divider, Form, message, Modal, Spin, Tabs, Tag, Table } from "antd";
+import { Row, Col, Form, message, Modal, Tabs, Table, Button as AntdButton } from "antd";
 import { CardContainer } from "../../../components/Card/CardContainer";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../../components/Button/Button";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
-import styled from "styled-components";
-import { PromotionType } from "../../../definitions/promotion";
-import productState from "../../../store/productList";
-import { ProductEntity } from "../../../entities/PoductEntity";
 import {
-  createCreditMemo,
-  getCreditHistory,
-  getCreditMemoById,
   getCustomerCreditMemo,
   getCustomerCreditMemoHistory,
   getOrderHistory,
   updateCoManual,
 } from "../../../datasource/CreditMemoDatasource";
-import { DetailBox, FlexCol, FlexRow } from "../../../components/Container/Container";
-import { CheckCircleTwoTone, EditOutlined } from "@ant-design/icons";
+import { DetailBox, FlexCol } from "../../../components/Container/Container";
+import { EyeOutlined } from "@ant-design/icons";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
-import { useNavigate } from "react-router-dom";
-import moment from "moment";
-import Steps from "../../../components/StepAntd/steps";
-import { StoreEntity } from "../../../entities/StoreEntity";
-import { CreditMemoEntity } from "../../../entities/CreditMemoEntity";
+import { Link } from "react-router-dom";
 import TableContainer from "../../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../../components/Spin/pageSpin";
@@ -35,7 +23,7 @@ import { useForm } from "antd/lib/form/Form";
 import Input from "../../../components/Input/Input";
 import DatePicker from "../../../components/DatePicker/DatePicker";
 import TextArea from "../../../components/Input/TextArea";
-import { isNumeric } from "../../../utility/validator";
+import "moment/locale/th";
 
 type factorType = -1 | 0 | 1;
 
@@ -43,7 +31,6 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
 
-  const navigate = useNavigate();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
 
@@ -61,6 +48,8 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const [submiting, setSubmit] = useState(false);
   const [form] = useForm();
 
+  const [showManualCoDetail, setShowManualCoDetail] = useState<any>(null);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -70,7 +59,6 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     const id = pathSplit[3];
     await getCustomerCreditMemo(id)
       .then(async (res: any) => {
-        console.log("profile", res);
         setProfile(res);
       })
       .catch((e: any) => {
@@ -83,7 +71,6 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     setLoading(true);
     await getOrderHistory({ customerCompanyId: id })
       .then((res: any) => {
-        console.log("getOrderHistory", res.data);
         setData(res?.data);
       })
       .catch((e: any) => {
@@ -98,15 +85,11 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     setHistoryLoading(true);
     const id = pathSplit[3];
     // แก้ API
-    console.log("getCreditHistory", id);
     await getCustomerCreditMemoHistory(id)
       .then((res: any) => {
-        console.log("getCreditHistory", res);
-        setHistory(
-          res
-            ?.filter((h: any) => h?.action === "สร้าง Credit Memo")
-            .map((h: any, i: number) => ({ ...h, key: i })),
-        );
+        res?.map((h: any, i: number) => ({ ...h, key: i }));
+        const sorting = res.sort((a: any, b: any) => (a.createdAt < b.createdAt ? 1 : -1));
+        setHistory(sorting);
       })
       .catch((e: any) => {
         console.log(e);
@@ -124,7 +107,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "Discount CO รายร้าน", path: "/discount/customerList" },
+              { text: "ส่วนลดดูแลรายร้าน", path: "/discount/customerList" },
               { text: "รายละเอียดร้านค้า", path: window.location.pathname },
             ]}
           />
@@ -138,9 +121,10 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       title: "วันที่ใช้งาน",
       dataIndex: "updateAt",
       key: "updateAt",
+      width: "10%",
       align: "center" as AlignType,
       render: (value: string) => {
-        return dateFormatter(value);
+        return dateFormatter(value, true);
       },
     },
     {
@@ -148,15 +132,47 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       dataIndex: "orderId",
       key: "orderId",
       align: "center" as AlignType,
-      render: (value: string) => {
-        return <Button title='ดูรายละเอียด' onClick={() => navigate(`/view-order/${value}`)} />;
+      render: (value: string, row: any) => {
+        return value ? (
+          <Link to={`/view-order/${value}`} rel='noopener noreferrer' target='_blank'>
+            <Button title='ดูรายละเอียด' />
+          </Link>
+        ) : (
+          <FlexCol align='center'>
+            <AntdButton
+              icon={<EyeOutlined />}
+              style={{
+                backgroundColor: "#2A76A0",
+                borderColor: "#2A76A0",
+                color: "white",
+                height: 40,
+                width: "100%",
+              }}
+              onClick={() => setShowManualCoDetail(row)}
+            >
+              ดูรายละเอียด
+            </AntdButton>
+            <Text level={6} color='secondary'>
+              CO แบบ Manual
+            </Text>
+          </FlexCol>
+        );
+      },
+    },
+    {
+      title: "SO No.",
+      dataIndex: "soNo",
+      key: "soNo",
+      align: "center" as AlignType,
+      render: (value: string, row: any) => {
+        return (row.orderId ? row.order?.soNo : value) || "-";
       },
     },
     {
       title: "จำนวนยอดสั่งซื้อ",
       dataIndex: "orderTotalPrice",
       key: "orderTotalPrice",
-      align: "center" as AlignType,
+      align: "right" as AlignType,
       render: (value: string) => {
         return priceFormatter(value, 2, true);
       },
@@ -165,7 +181,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       title: "ยอดก่อนใช้ส่วนลดดูแลราคา",
       dataIndex: "balanceBefore",
       key: "balanceBefore",
-      align: "center" as AlignType,
+      align: "right" as AlignType,
       render: (value: string) => {
         return priceFormatter(value, 2, true);
       },
@@ -174,16 +190,21 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       title: "รวมส่วนลดดูแลราคาที่ใช้",
       dataIndex: "usedAmount",
       key: "usedAmount",
-      align: "center" as AlignType,
-      render: (value: string) => {
-        return <Text color='error'>{priceFormatter(value, 2, true)}</Text>;
+      align: "right" as AlignType,
+      render: (value: string, row: any) => {
+        return (
+          <Text color={row.action === "increase" ? "success" : "error"}>
+            {row.action === "increase" ? "+ " : "- "}
+            {priceFormatter(value, 2, true)}
+          </Text>
+        );
       },
     },
     {
       title: "คงเหลือส่วนลดดูแลราคา",
       dataIndex: "balanceAfter",
       key: "balanceAfter",
-      align: "center" as AlignType,
+      align: "right" as AlignType,
       render: (value: string) => {
         return priceFormatter(value, 2, true);
       },
@@ -198,7 +219,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       align: "center" as AlignType,
       width: "20%",
       render: (value: string) => {
-        return dateFormatter(value);
+        return dateFormatter(value, true);
       },
     },
     {
@@ -212,14 +233,14 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       },
     },
     {
-      title: "ชื่อรายการ Credit Memo",
+      title: "ชื่อรายการ ส่วนลดดูแลราคา",
       dataIndex: "action",
       key: "action",
       align: "center" as AlignType,
       width: "40%",
     },
     {
-      title: "จำนวนส่วนลดดูแลราคา",
+      title: "จำนวน ส่วนลดดูแลราคา",
       dataIndex: "afterValue",
       key: "afterValue",
       align: "center" as AlignType,
@@ -232,7 +253,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
 
   const tabsItems = [
     {
-      label: `ประวัติการใช้งาน Credit Memo`,
+      label: `ประวัติการใช้งาน ส่วนลดดูแลราคา`,
       key: "1",
       children: (
         <>
@@ -240,17 +261,69 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Table
               columns={creditMemoColumn}
               dataSource={data?.map((s: any, i: any) => ({ ...s, key: i }))}
-              pagination={{
-                pageSize: 8,
-                position: ["bottomCenter"],
-              }}
+              pagination={false}
+              scroll={{ y: 500 }}
             />
           </TableContainer>
+          <Modal
+            title={<Text fontWeight={700}>ดูรายละเอียด</Text>}
+            open={showManualCoDetail}
+            onCancel={() => setShowManualCoDetail(null)}
+            footer={null}
+          >
+            {showManualCoDetail &&
+              [
+                {
+                  label: "วันที่ใช้งาน",
+                  key: "updateAt",
+                  val:
+                    showManualCoDetail.updateAt && dateFormatter(showManualCoDetail.updateAt, true),
+                },
+                {
+                  label: "จำนวนยอดสั่งซื้อ",
+                  key: "orderTotalPrice",
+                  val:
+                    showManualCoDetail.orderTotalPrice &&
+                    priceFormatter(showManualCoDetail.orderTotalPrice, 2, true),
+                },
+                {
+                  label: "ส่วนลดดูแลราคาที่ใช้",
+                  key: "usedAmount",
+                  val:
+                    showManualCoDetail.usedAmount &&
+                    priceFormatter(showManualCoDetail.usedAmount, 2, true),
+                  action: showManualCoDetail.action,
+                },
+                { label: "Sale Order Number", key: "soNo" },
+                { label: "Credit Note Number", key: "cnNo" },
+                { label: "หมายเหตุ", key: "remark" },
+              ].map(({ label, key, val, action }) => (
+                <Row key={key} style={{ padding: "8px 0px" }}>
+                  <Col span={10}>
+                    <Text>{label}</Text>
+                  </Col>
+                  <Col span={14}>
+                    <Text
+                      color={
+                        action === "increase"
+                          ? "success"
+                          : action === "decrease"
+                          ? "error"
+                          : undefined
+                      }
+                    >
+                      {action === "increase" ? "+ " : action === "decrease" ? "- " : ""}
+                      {val ? val : (showManualCoDetail && showManualCoDetail[key]) || "-"}
+                    </Text>
+                  </Col>
+                </Row>
+              ))}
+          </Modal>
         </>
       ),
     },
     {
-      label: `ประวัติได้รับ Credit memo`,
+      label: `ประวัติ ส่วนลดดูแลราคา`,
       key: "2",
       children: (
         <>
@@ -258,10 +331,8 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Table
               dataSource={history}
               columns={historyColumns}
-              pagination={{
-                pageSize: 8,
-                position: ["bottomCenter"],
-              }}
+              pagination={false}
+              scroll={{ y: 500 }}
             />
           </TableContainer>
         </>
@@ -296,13 +367,13 @@ export const CustomerCreditMemoDetail: React.FC = () => {
     setFormModal(!showFormModal);
     setConfirmModal(false);
     setFactor(f);
+    form.resetFields();
   };
 
   const saveManualCo = async (val: any) => {
     setSubmit(true);
     await updateCoManual(val)
       .then(async (res: any) => {
-        console.log("updateCoManual", res);
         if (res?.success) {
           form.resetFields();
           setConfirmModal(false);
@@ -339,11 +410,10 @@ export const CustomerCreditMemoDetail: React.FC = () => {
               <span style={{ fontWeight: 700, color: factor > 0 ? color.success : color.error }}>
                 การ{factor > 0 ? "เพิ่ม" : "ลด"}ยอด
               </span>{" "}
-              CO ส่วนลดดูแลราคา ก่อนกดยืนยัน เพราะอาจส่งผลต่อยอดส่วนลดดูแลราคาคงเหลือในระบบ
+              CO ส่วนลดดูแลราคา ก่อนกดยืนยัน เพราะอาจส่งผลต่อยอด ส่วนลดดูแลราคาคงเหลือในระบบ
             </Text>
           ),
           onOk: () => {
-            console.log("form values", values);
             const { cnNo, coAmount, date, remark, soNo, total } = values;
             //TODO: call api
             const id = pathSplit[3];
@@ -387,7 +457,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                     </Text>
                     &nbsp;&nbsp;&nbsp;
                     <Text fontWeight={700} fontSize={32} color='primary'>
-                      {priceFormatter(profile?.balance, 0, true)}
+                      {priceFormatter(profile?.balance, 2, true)}
                     </Text>
                   </DetailBox>
                 </Row>
@@ -415,11 +485,11 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Row style={{ margin: "16px 0px" }}>
               <Col span={18}>
                 <Text fontWeight={700} level={4}>
-                  รายการประวัติ Credit memo
+                  รายการประวัติ ส่วนลดดูแลราคา
                 </Text>
               </Col>
               <Col span={6}>
-                <Button title='+ เพิ่ม CO ดูแลราคาแบบ Manual' onClick={toggleConfirmModal} />
+                <Button title='+ เพิ่มส่วนลดดูแลราคาแบบ Manual' onClick={toggleConfirmModal} />
                 <Modal
                   open={showConfirmModal}
                   onCancel={toggleConfirmModal}
@@ -438,7 +508,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                       <Text align='center'>
                         การเพิ่มยอด หรือ ลดยอด
                         <br />
-                        ส่งผลต่อส่วนลดดูแลราคาคงเหลือในระบบ
+                        ส่งผลต่อ ส่วนลดดูแลราคาคงเหลือในระบบ
                         <br />
                         โปรดตรวจสอบความถูกต้องก่อนการเลือก
                       </Text>
@@ -447,14 +517,14 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                     <Row gutter={16}>
                       <Col span={12}>
                         <Button
-                          title='เพิ่ม'
+                          title='+ เพิ่มยอด'
                           typeButton='success'
                           onClick={() => toggleFormModal(1)}
                         />
                       </Col>
                       <Col span={12}>
                         <Button
-                          title='ลด'
+                          title='- ลดยอด'
                           typeButton='danger'
                           onClick={() => toggleFormModal(-1)}
                         />
@@ -496,8 +566,11 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                         { required: true, message: "*โปรดระบุจำนวนยอดสั่งซื้อ" },
                         {
                           validator: (rule, value, callback) => {
-                            if (value && (!isNumeric(value) || parseFloat(value) <= 0)) {
+                            if (value && (isNaN(value) || parseFloat(value) <= 0)) {
                               return Promise.reject("จำนวนยอดสั่งซื้อต้องเป็นตัวเลขมากกว่า 0");
+                            }
+                            if (value && value.split(".")[1] && value.split(".")[1].length > 2) {
+                              return Promise.reject("ทศนิยมต้องไม่เกิน 2 ตำแหน่ง");
                             }
                             return Promise.resolve();
                           },
@@ -508,20 +581,22 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                     </Form.Item>
                     <Form.Item
                       name='coAmount'
-                      label='ส่วนลดดูแลราคาที่ใช้'
+                      label=' ส่วนลดดูแลราคาที่ใช้'
                       rules={[
                         {
                           required: true,
-                          message: "*โปรดระบุส่วนลดดูแลราคาที่ใช้",
+                          message: "*โปรดระบุ ส่วนลดดูแลราคาที่ใช้",
                         },
                         {
                           validator: (rule, value, callback) => {
-                            // console.log("validator", factor);
                             if (factor < 0 && parseFloat(value) > parseFloat(profile?.balance)) {
                               return Promise.reject("*ยอดลดที่ใช้ เกินส่วนลดดูแลราคาคงเหลือในระบบ");
                             }
-                            if (value && (!isNumeric(value) || parseFloat(value) <= 0)) {
-                              return Promise.reject("ส่วนลดดูแลราคาที่ใช้ต้องเป็นตัวเลขมากกว่า 0");
+                            if (value && (isNaN(value) || parseFloat(value) <= 0)) {
+                              return Promise.reject(" ส่วนลดดูแลราคาที่ใช้ต้องเป็นตัวเลขมากกว่า 0");
+                            }
+                            if (value && value.split(".")[1] && value.split(".")[1].length > 2) {
+                              return Promise.reject("ทศนิยมต้องไม่เกิน 2 ตำแหน่ง");
                             }
                             return Promise.resolve();
                           },
@@ -533,7 +608,7 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                     <Form.Item
                       name='soNo'
                       label='Sale Order Number'
-                      rules={[{ required: true, message: "*โปรดระบุเลข SO No." }]}
+                      // rules={[{ required: true, message: "*โปรดระบุเลข SO No." }]}
                     >
                       <Input />
                     </Form.Item>
@@ -550,7 +625,6 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Tabs
               items={tabsItems}
               onChange={(key: string) => {
-                console.log("onChance tab", key, data, history);
                 if (!history) {
                   fetchHistory();
                 }

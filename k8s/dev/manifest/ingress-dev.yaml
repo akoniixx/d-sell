@@ -1,0 +1,32 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bo-sellcoda
+  namespace: development-bo-sellcoda
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-dev"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: 20m
+    nginx.org/proxy-connect-timeout: "900s"
+    nginx.org/proxy-read-timeout: "900s"
+    nginx.org/proxy-send-timeout: "900s"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+      - bo-sellcoda-dev.iconkaset.com
+      secretName: bo-sellcoda-dev-cert
+  rules:
+    - host: bo-sellcoda-dev.iconkaset.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bo-sellcoda
+                port:
+                  name: bosellcoda

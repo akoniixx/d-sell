@@ -1,6 +1,6 @@
 # Dockerfile
 # 1st Stage
-FROM node:alpine AS builder
+FROM node:18.16.0-alpine AS builder
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY package.json .
@@ -11,6 +11,8 @@ RUN yarn build
 
 # 2nd Stage
 FROM nginx:alpine
+ENV TZ=Asia/Bangkok
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN rm -rf /etc/nginx/conf.d
 COPY nginx.conf /etc/nginx
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html

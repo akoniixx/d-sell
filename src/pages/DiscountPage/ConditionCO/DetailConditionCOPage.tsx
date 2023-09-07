@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, SearchOutlined } from "@ant-design/icons";
-import { Avatar, Checkbox, Col, Divider, Form, Row, Table, Tabs } from "antd";
+import { Avatar, Checkbox, Col, Divider, Form, Image, Row, Table, Tabs } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import _ from "lodash";
 import { useEffect, useState } from "react";
@@ -98,7 +98,7 @@ export const DetailConditionCOPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title='รายละเอียดเงื่อนไข CO'
+        title='รายละเอียดเงื่อนไขดูแลราคา'
         showBack
         onBack={() => navigate(`/discount/conditionCo`)}
         extra={
@@ -115,8 +115,8 @@ export const DetailConditionCOPage: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการเงื่อนไข CO", path: "/discount/conditionCo" },
-              { text: "รายละเอียดเงื่อนไข CO", path: window.location.pathname },
+              { text: "รายการเงื่อนไขดูแลราคา", path: "/discount/conditionCo" },
+              { text: "รายละเอียดเงื่อนไขดูแลราคา", path: window.location.pathname },
             ]}
           />
         }
@@ -178,13 +178,6 @@ export const DetailConditionCOPage: React.FC = () => {
     setSelectedProd(item);
     setSearchProd(item);
   };
-  const handleCheckBoxDelete = (e: any, prodId: string) => {
-    const checkBoxed = selectedProd.map((item) =>
-      _.set(item, "isChecked", item.productId === prodId ? e.target.checked : item.isChecked),
-    );
-    setSelectedProd(checkBoxed);
-    setSearchProd(checkBoxed);
-  };
   const handleDelete = () => {
     const deleted = selectedProd.filter((x) => !x.isChecked);
     setSelectedProd(deleted);
@@ -193,24 +186,13 @@ export const DetailConditionCOPage: React.FC = () => {
 
   const dataTableProd = [
     {
-      title: isEdit && <Checkbox />,
-      width: "5%",
-      render: (text: string, value: any) =>
-        isEdit && (
-          <Checkbox
-            checked={value.isChecked}
-            onChange={(e) => handleCheckBoxDelete(e, value.productId)}
-          />
-        ),
-    },
-    {
       title: <span>ชื่อสินค้า</span>,
       dataIndex: "productName",
       width: "30%",
       render: (text: string, value: any, index: any) => (
-        <FlexRow align='center'>
+        <FlexRow align='start'>
           <div style={{ marginRight: 16 }}>
-            <Avatar
+            <Image
               src={
                 value.productImage === "No" ||
                 value.productImage === "" ||
@@ -218,9 +200,11 @@ export const DetailConditionCOPage: React.FC = () => {
                   ? image.product_no_image
                   : value.productImage
               }
-              size={50}
-              shape='square'
-              onError={() => false}
+              style={{
+                width: "60px",
+                height: "60px",
+                objectFit: "contain",
+              }}
             />
           </div>
           <FlexCol>
@@ -314,11 +298,6 @@ export const DetailConditionCOPage: React.FC = () => {
 
   const dataTableShop = [
     {
-      title: isEdit && <Checkbox />,
-      width: "5%",
-      render: (text: string) => isEdit && <Checkbox />,
-    },
-    {
       title: <span>Customer No.</span>,
       dataIndex: "customerNo",
       render: (text: string) => <span>{text}</span>,
@@ -341,6 +320,7 @@ export const DetailConditionCOPage: React.FC = () => {
         <PageTitle />
         <br />
         <DetailBox>
+          <DetailItem label='รหัสรายการ' value={data?.creditMemoConditionCode || ""} />
           <DetailItem label='ชื่อรายการ' value={data?.creditMemoConditionName || ""} />
           <DetailItem
             label='ระยะเวลา'

@@ -24,6 +24,13 @@ const getProductFreebieDetail = async (productId: number) => {
     .catch((err) => console.log(err));
 };
 
+const getProductFreebiePromotionDetail = async (productId: number) => {
+  return await httpClient
+    .get(`${baseUrl}/product-freebies/freebies-promotion/${productId}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const getProductFreebieGroup = async (company: string) => {
   return await httpClient
     .get(`${baseUrl}/product-freebies/product-group/${company}`)
@@ -101,6 +108,13 @@ const getPromotionLog = async (promotionId: string) => {
     .catch((err) => console.log(err));
 };
 
+const getReportExcel = async (id: string, company: string) => {
+  return await httpClient
+    .post(`${baseUrl}/report/report-excel/${id}/${company}`, { id, company })
+    .then((res: AxiosResponse) => res)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductFreebies,
   syncProductFreebie,
@@ -116,4 +130,6 @@ export {
   updatePromotionStatus,
   deletePromotion,
   getPromotionLog,
+  getProductFreebiePromotionDetail,
+  getReportExcel,
 };

@@ -15,18 +15,14 @@ import {
   Space,
 } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import styled from "styled-components";
-import { PromotionType } from "../../definitions/promotion";
-import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import {
   CheckCircleTwoTone,
-  CloseOutlined,
   DeleteOutlined,
   EditOutlined,
   SearchOutlined,
@@ -35,8 +31,6 @@ import color from "../../resource/color";
 import image from "../../resource/image";
 import Text from "../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
-import Steps from "../../components/StepAntd/steps";
 import TableContainer from "../../components/Table/TableContainer";
 import { AlignType } from "rc-table/lib/interface";
 import PageSpin from "../../components/Spin/pageSpin";
@@ -51,6 +45,7 @@ import { priceFormatter } from "../../utility/Formatter";
 import { getProductGroup } from "../../datasource/ProductDatasource";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import AddProduct from "../Shared/AddProduct";
+import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 
 const DetailBox = styled.div`
   padding: 32px;
@@ -110,20 +105,8 @@ export const SpecialPriceDetail: React.FC = () => {
   };
 
   const setProd = (list: ProductEntity[]) => {
-    console.log(list);
     const loginName = firstname + " " + lastname;
     const { customerId, customerCompanyId, customerName, zone } = data;
-    const filteredItems = [...items].filter((item) =>
-      list.find((p) => p.productId === item.productId),
-    );
-    const newDeletedItems = [
-      ...deletedItems,
-      ...[...items].filter(
-        (item) =>
-          priceList.all.find((p) => p.productId === item.productId) &&
-          !list.find((p) => p.productId === item.productId),
-      ),
-    ];
     let newItems = list
       .filter((item) => !items.find((p) => p.productId === item.productId))
       .map((p) => ({
@@ -139,14 +122,17 @@ export const SpecialPriceDetail: React.FC = () => {
         product: p,
       }));
 
-    newItems = [...filteredItems, ...newItems];
+    newItems = [...items, ...newItems];
     setItems(newItems);
     setPriceList({
       all: newItems,
       up: newItems.filter((d) => d.value >= 0),
       down: newItems.filter((d) => d.value < 0),
     });
-    setDeletedItems(newDeletedItems);
+
+    // setDeletedItems(
+    //   deletedItems.filter((item) => !list.find((p) => p.productId === item.productId)),
+    // );
   };
 
   useEffect(() => {
@@ -176,7 +162,6 @@ export const SpecialPriceDetail: React.FC = () => {
     const id = pathSplit[3];
     await getCustomersById(id)
       .then((res: any) => {
-        console.log("getCustomersById", res);
         setData(res);
       })
       .catch((e: any) => {
@@ -187,7 +172,6 @@ export const SpecialPriceDetail: React.FC = () => {
       });
     await getSpecialPriceByCustomerId(id)
       .then((res: { responseData: any[] }) => {
-        console.log("getSpecialPriceByCustomerId", res);
         setPriceList({
           all: res?.responseData,
           up: res?.responseData?.filter((d) => d.value >= 0),
@@ -273,7 +257,7 @@ export const SpecialPriceDetail: React.FC = () => {
   const detailColumns = isEditing
     ? [
         {
-          title: "TYPE",
+          title: "ประเภท",
           dataIndex: "product",
           key: "type",
           width: 126,
@@ -305,7 +289,7 @@ export const SpecialPriceDetail: React.FC = () => {
           },
         },
         {
-          title: "SPECIAL PRICE",
+          title: "ราคาพิเศษ / หน่วยขาย",
           dataIndex: "product",
           key: "specialPrice",
           render: (product: ProductEntity, row: any, index: number) => {
@@ -391,7 +375,7 @@ export const SpecialPriceDetail: React.FC = () => {
       ]
     : [
         {
-          title: "SPECIAL PRICE",
+          title: "ราคาพิเศษ / หน่วยขาย",
           dataIndex: "product",
           key: "specialPrice",
           render: (product: ProductEntity, row: any, index: number) => {
@@ -433,6 +417,9 @@ export const SpecialPriceDetail: React.FC = () => {
                 <Text level={6} color='Text3'>
                   {product?.commonName}
                 </Text>
+                <Text level={6} color='Text3'>
+                  {LOCATION_FULLNAME_MAPPING[product?.productLocation || "-"]}
+                </Text>
               </FlexCol>
             </FlexRow>
           ),
@@ -457,18 +444,27 @@ export const SpecialPriceDetail: React.FC = () => {
       },
     },
     {
-      title: "UNIT PRICE",
+      title: "ราคา / หน่วย",
       dataIndex: "product",
       key: "unitPrice",
       render: (product: ProductEntity, row: any, index: number) => {
+        const unitPerPack =
+          parseInt(product?.marketPrice || "1") / parseInt(product?.unitPrice || "1");
+        const newMarketPrice = parseFloat(product?.marketPrice || "") + row.value;
+        const newUnitPrice = newMarketPrice / unitPerPack;
         return {
           children: (
             <FlexCol>
-              <Text level={5}>
+              <Text level={5} color='Text3' style={{ textDecoration: "line-through" }}>
                 {priceFormatter(product?.unitPrice || "", undefined, false, true)}
               </Text>
+              <Text level={5}>
+                {newUnitPrice
+                  ? priceFormatter(newUnitPrice, undefined, false, true)
+                  : priceFormatter(product?.marketPrice || "", undefined, false, true)}
+              </Text>
               <Text level={6} color='Text3'>
-                {" บาท / " + product?.saleUOMTH || product?.saleUOM}
+                {" บาท / "} {product?.baseUOM || "Unit"}
               </Text>
             </FlexCol>
           ),
@@ -476,15 +472,25 @@ export const SpecialPriceDetail: React.FC = () => {
       },
     },
     {
-      title: "PACK PRICE",
+      title: "ราคา / หน่วยขาย",
       dataIndex: "product",
       key: "packPrice",
       render: (product: ProductEntity, row: any, index: number) => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>
+              <Text level={5} color='Text3' style={{ textDecoration: "line-through" }}>
                 {priceFormatter(product?.marketPrice || "", undefined, false, true)}
+              </Text>
+              <Text level={5}>
+                {row.value && product.marketPrice
+                  ? priceFormatter(
+                      parseFloat(product.marketPrice) + row.value,
+                      undefined,
+                      false,
+                      true,
+                    )
+                  : priceFormatter(product?.marketPrice || "", undefined, false, true)}
               </Text>
               <Text level={6} color='Text3'>
                 {" บาท / " + product?.saleUOMTH || product?.saleUOM}
@@ -498,7 +504,6 @@ export const SpecialPriceDetail: React.FC = () => {
   ];
 
   const onSubmit = async () => {
-    console.log(items);
     // set deleted
     const data = [...items].map((item) => {
       const type = form.getFieldValue(`${item.productId}-type`);
@@ -539,8 +544,6 @@ export const SpecialPriceDetail: React.FC = () => {
         console.log(developerMessage);
       }
     };
-    // console.log({ submitData });
-    // return;
     form
       .validateFields()
       .then(async (values) => {
@@ -572,6 +575,7 @@ export const SpecialPriceDetail: React.FC = () => {
               </Text>
               <DetailBox>
                 <DetailItem label='ชื่อร้านค้า' value={data?.customerName} />
+                <DetailItem label='Customer No.' value={data?.customerNo} />
                 <DetailItem label='เขต' value={data?.zone} />
               </DetailBox>
             </CardContainer>
@@ -684,7 +688,7 @@ export const SpecialPriceDetail: React.FC = () => {
 
         <br />
         <Modal open={showModal} width={"80vw"} closable={false} footer={null}>
-          <AddProduct list={items} setList={setProd} onClose={toggleModal} />
+          {showModal && <AddProduct list={priceList.all} setList={setProd} onClose={toggleModal} />}
         </Modal>
       </div>
       <Modal open={isCreating || isDone} footer={null} width={220} closable={false}>

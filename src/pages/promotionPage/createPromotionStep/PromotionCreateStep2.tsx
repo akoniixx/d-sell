@@ -3,7 +3,13 @@ import React, { useEffect, useState } from "react";
 import { FlexCol, FlexRow } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import color from "../../../resource/color";
-import { CloseOutlined, DeleteOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  DeleteFilled,
+  DeleteOutlined,
+  SearchOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
@@ -73,10 +79,14 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
 
   const columns = [
     {
+      title: "รหัสร้านค้า",
+      dataIndex: "customerNo",
+      align: "center" as AlignType,
+    },
+    {
       title: "ชื่อร้านค้า",
       dataIndex: "customerName",
       align: "center" as AlignType,
-      render: (text: string) => <a>{text}</a>,
     },
     {
       title: "เขตการขาย",
@@ -88,7 +98,6 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
   const rowSelection = {
     selectedRowKeys: selectedStoreKeys,
     onChange: (selectedRowKeys: React.Key[], selectedRows: StoreEntity[]) => {
-      // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
       setSelectedStoreList(selectedRows);
       setSelectedStoreKeys(selectedRowKeys);
     },
@@ -102,13 +111,14 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
     setStoreListFiltered(
       storeList.filter((store) => {
         const isInZone = !zone || store.zone === zone;
-        const hasKeyword = !keyword || store.customerName.includes(keyword);
+        const hasKeyword =
+          !keyword ||
+          store?.customerName?.includes(keyword) ||
+          store?.customerNo?.includes(keyword);
         return isInZone && hasKeyword;
       }),
     );
   };
-
-  console.log("storeList", storeList);
 
   return (
     <>
@@ -126,47 +136,49 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
       <br />
       <Row>
         <Col span={14}>
-          <Row gutter={8}>
-            <Col span={10}>
-              <Select
-                style={{ width: "100%" }}
-                data={[
-                  { label: "ทั้งหมด", key: "" },
-                  ...zones.map((z) => ({ label: z.zoneName, key: z.zoneName })),
-                ]}
-                onChange={(val) => onFilter({ ...filter, zone: val })}
-                value={filter.zone}
-              />
-            </Col>
-            <Col span={10}>
-              <Input
-                suffix={<SearchOutlined />}
-                placeholder={"ระบุชื่อร้านค้า"}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                  onFilter({
-                    ...filter,
-                    keyword: e.target.value,
-                  });
-                }}
-                value={filter.keyword}
-              />
-            </Col>
-            <Col span={4}>
-              <Button
-                title='ล้างการค้นหา'
-                typeButton='primary-light'
-                onClick={() => onFilter(defaultFilter)}
-              />
-            </Col>
-          </Row>
+          {storeList?.length > 0 && (
+            <Row gutter={8}>
+              <Col span={10}>
+                <Select
+                  style={{ width: "100%" }}
+                  data={[
+                    { label: "ทั้งหมด", key: "" },
+                    ...zones.map((z) => ({ label: z.zoneName, key: z.zoneName })),
+                  ]}
+                  onChange={(val) => onFilter({ ...filter, zone: val })}
+                  value={filter.zone}
+                />
+              </Col>
+              <Col span={10}>
+                <Input
+                  suffix={<SearchOutlined />}
+                  placeholder={"ระบุชื่อร้านค้าหรือรหัสร้านค้า"}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                    onFilter({
+                      ...filter,
+                      keyword: e.target.value,
+                    });
+                  }}
+                  value={filter.keyword}
+                />
+              </Col>
+              <Col span={4}>
+                <Button
+                  title='ล้างการค้นหา'
+                  typeButton='primary-light'
+                  onClick={() => onFilter(defaultFilter)}
+                />
+              </Col>
+            </Row>
+          )}
         </Col>
         <Col span={10}>
           <Row align='middle' justify='end' gutter={22}>
             <Col span={4}>
               {selectedStoreList.length > 0 && (
                 <FlexRow align='center' justify='end' style={{ height: "100%" }}>
-                  <DeleteOutlined
-                    style={{ fontSize: 20 }}
+                  <DeleteFilled
+                    style={{ fontSize: 20, color: color.error }}
                     onClick={() => {
                       Modal.confirm({
                         title: (
@@ -178,24 +190,21 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
                         content: <Text color='Text3'>โปรดยืนยันการลบร้านค้า</Text>,
                         okText: "ยืนยัน",
                         onOk: () => {
-                          //   console.log({
-                          //     storeList,
-                          //     selectedStoreList,
-                          //     result: storeList.filter(
-                          //       (s) =>
-                          //         !selectedStoreList.find(
-                          //           (s2) => s.customerCompanyId === s2.customerCompanyId,
-                          //         ),
-                          //     ),
-                          //   });
-                          onSetStore(
-                            storeList.filter(
-                              (s) =>
-                                !selectedStoreList.find(
-                                  (s2) => s.customerCompanyId === s2.customerCompanyId,
-                                ),
-                            ),
+                          const newStores = storeList.filter(
+                            (s) =>
+                              !selectedStoreList.find(
+                                (s2) => s.customerCompanyId === s2.customerCompanyId,
+                              ),
                           );
+                          setStoreList(newStores);
+                          setStoreListFiltered(newStores);
+                          setFilter(defaultFilter);
+                          form.setFieldsValue({
+                            ...form.getFieldsValue(),
+                            stores: newStores,
+                          });
+                          setError(false);
+                          setSearch(false);
                           setSelectedStoreList([]);
                           setSelectedStoreKeys([]);
                         },
@@ -218,12 +227,17 @@ export const PromotionCreateStep2 = ({ form, showError, setError }: Step2Props) 
         </Col>
       </Row>
       <br />
+      <Row justify='end'>
+        <Text>จำนวนที่เลือก {storeList?.length || 0} ร้าน</Text>
+      </Row>
+      <br />
       <TableContainer>
         <Table
           rowSelection={{
             type: "checkbox",
             ...rowSelection,
           }}
+          scroll={{ y: 480 }}
           columns={columns}
           dataSource={storeListFiltered?.map((s, i) => ({ ...s, key: i }))}
           pagination={false}

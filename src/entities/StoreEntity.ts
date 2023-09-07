@@ -5,6 +5,8 @@ export interface StoreEntity {
   customerNo?: string;
   zone: string;
   isChecked?: boolean;
+  usedAmount: string;
+  balance: string;
 }
 
 export interface ZoneEntity {

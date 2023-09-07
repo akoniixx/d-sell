@@ -1,8 +1,7 @@
-import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Avatar, Tag, Modal, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Table, Tabs, Row, Col, Tag, Modal, message, Image } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { UnorderedListOutlined, SearchOutlined, SyncOutlined } from "@ant-design/icons";
-import { Option } from "antd/lib/mentions";
 import {
   getProductBrand,
   getProductCategory,
@@ -16,8 +15,6 @@ import Text from "../../components/Text/Text";
 import { BrandEntity } from "../../entities/BrandEntity";
 import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { STATUS_COLOR_MAPPING } from "../../definitions/product";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "../../store/ProfileAtom";
 import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import color from "../../resource/color";
 import image from "../../resource/image";
@@ -25,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import Button from "../../components/Button/Button";
+import { getBrandByCompany } from "../../datasource/BrandDatasource";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -54,10 +52,15 @@ export const DistributionPage: React.FC = () => {
     categories: [],
     brands: [],
   });
+  const [brand, setBrand] = useState<string>();
+  const [dataBrand, setDataBrand] = useState<BrandEntity[]>([]);
+  const [status, setStatus] = useState<string>();
+  const [categoryGroup, setCategoryGroup] = useState<string>();
 
   useEffect(() => {
     if (!loading) fetchProduct();
-  }, [keyword, prodGroup, location, page]);
+    fetchBrand();
+  }, [keyword, prodGroup, location, page, brand, status, categoryGroup]);
 
   const resetPage = () => setPage(1);
 
@@ -71,8 +74,10 @@ export const DistributionPage: React.FC = () => {
         searchText: keyword,
         productLocation: location,
         page,
+        productBrandId: brand,
+        productStatus: status,
+        productCategoryId: categoryGroup,
       });
-
       const { responseData } = await getProductGroup(company);
       const brands = await getProductBrand(company);
       const categories = await getProductCategory(company);
@@ -89,6 +94,11 @@ export const DistributionPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+  const fetchBrand = () => {
+    getBrandByCompany(company).then((res) => {
+      setDataBrand(res);
+    });
   };
 
   const onSyncProduct = async () => {
@@ -113,36 +123,31 @@ export const DistributionPage: React.FC = () => {
 
   const PageTitle = () => {
     return (
-      <Row>
-        <Col className='gutter-row' span={12}>
-          <div>
-            <span
-              className='card-label font-weight-bolder text-dark'
-              style={{ fontSize: 20, fontWeight: "bold" }}
-            >
-              รายการสินค้า
-            </span>
-          </div>
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <Select
-            defaultValue={prodGroup}
-            style={style}
-            allowClear
-            onChange={(value: string) => {
-              setProdGroup(value);
-              resetPage();
-            }}
-            placeholder='เลือกกลุ่มสินค้า'
-            data={dataState.groups.map((group: ProductGroupEntity) => ({
-              key: group.product_group,
-              label: group.product_group,
-              value: group.product_group,
-            }))}
-          />
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <div style={style}>
+      <>
+        <Row>
+          <Col className='gutter-row' span={20}>
+            <div>
+              <span
+                className='card-label font-weight-bolder text-dark'
+                style={{ fontSize: 20, fontWeight: "bold" }}
+              >
+                รายการสินค้า
+              </span>
+            </div>
+          </Col>
+
+          <Col className='gutter-row' span={4}>
+            <Button
+              title='เชื่อมต่อ Navision'
+              icon={<SyncOutlined />}
+              onClick={onSyncProduct}
+              loading={loadingSyncProduct}
+            />
+          </Col>
+        </Row>
+        <br />
+        <Row justify={"space-between"} gutter={8}>
+          <Col span={company === "ICPL" ? 8 : 12}>
             <Input
               placeholder='ค้นหาชื่อสินค้า'
               prefix={<SearchOutlined style={{ color: "grey" }} />}
@@ -160,25 +165,90 @@ export const DistributionPage: React.FC = () => {
                 }
               }}
             />
-          </div>
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <Button
-            title='เชื่อมต่อ Navision'
-            icon={<SyncOutlined />}
-            onClick={onSyncProduct}
-            loading={loadingSyncProduct}
-          />
-        </Col>
-      </Row>
+          </Col>
+          {dataBrand.length && (
+            <Col span={4}>
+              <Select
+                defaultValue={brand}
+                allowClear
+                onChange={(value: string) => {
+                  setBrand(value);
+                  resetPage();
+                }}
+                placeholder='เลือกยี่ห้อสินค้า'
+                data={dataBrand?.map((item: any) => ({
+                  key: item.productBrandId,
+                  label: item.productBrandName,
+                  value: item.productBrandId,
+                }))}
+                style={{ width: "100%" }}
+              />
+            </Col>
+          )}
+          <Col span={4}>
+            <Select
+              defaultValue={prodGroup}
+              allowClear
+              onChange={(value: string) => {
+                setProdGroup(value);
+                resetPage();
+              }}
+              placeholder='เลือกกลุ่มสินค้า'
+              data={dataState.groups.map((group: ProductGroupEntity) => ({
+                key: group.product_group,
+                label: group.product_group,
+                value: group.product_group,
+              }))}
+              style={{ width: "100%" }}
+            />
+          </Col>
+          {company === "ICPL" && (
+            <Col span={4}>
+              <Select
+                defaultValue={categoryGroup}
+                allowClear
+                onChange={(value: string) => {
+                  setCategoryGroup(value);
+                  resetPage();
+                }}
+                placeholder='เลือก Strategy Group'
+                data={dataState.categories.map((group: any) => ({
+                  key: group.productCategoryId,
+                  label: group.productCategoryName,
+                  value: group.productCategoryId,
+                }))}
+                style={{ width: "100%" }}
+              />
+            </Col>
+          )}
+
+          <Col span={4}>
+            <Select
+              defaultValue={status}
+              allowClear
+              onChange={(value: string) => {
+                setStatus(value);
+                resetPage();
+              }}
+              placeholder='เลือกสถานะ'
+              data={[
+                { key: "ACTIVE", label: "Active", value: "ACTIVE" },
+                { key: "HOLD", label: "Hold", value: "HOLD" },
+                { key: "INACTIVE", label: "Inactive", value: "INACTIVE" },
+              ]}
+              style={{ width: "100%" }}
+            />
+          </Col>
+        </Row>
+      </>
     );
   };
 
   const tabsItems = [
     { label: "ทั้งหมด", key: "ALL" },
     ...(dataState?.count_location?.map(({ product_location, count }) => ({
-      label: (LOCATION_FULLNAME_MAPPING[product_location] || "- ") + `(${count})`,
-      key: product_location,
+      key: `${product_location}`,
+      label: (LOCATION_FULLNAME_MAPPING[`${product_location}`] || "- ") + ` (${count})`,
     })) || []),
   ];
 
@@ -193,7 +263,14 @@ export const DistributionPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar src={row.productImage || image.product_no_image} size={50} shape='square' />
+                <Image
+                  src={row.productImage || image.product_no_image}
+                  style={{
+                    width: "55px",
+                    height: "55px",
+                    objectFit: "contain",
+                  }}
+                />
               </div>
               <FlexCol>
                 <Text level={5}>{row.productName}</Text>
@@ -264,6 +341,7 @@ export const DistributionPage: React.FC = () => {
       title: "Product Brands",
       dataIndex: "productBrandId",
       key: "productBrandId",
+      width: "180px",
       // width: "15%",
       render: (value: any, row: any, index: number) => {
         const brand: BrandEntity =
@@ -370,22 +448,23 @@ export const DistributionPage: React.FC = () => {
     },
   ];
 
+  const changeTeb = (key: string) => {
+    setLocation(key === "ALL" ? undefined : `${key}`);
+    resetPage();
+  };
+
   return (
     <>
       <div className='container '>
         <CardContainer>
           <PageTitle />
           <br />
-          <Tabs
-            items={tabsItems}
-            onChange={(key: string) => {
-              setLocation(key === "ALL" ? undefined : key);
-              resetPage();
-            }}
-          />
+          <Tabs items={tabsItems} onChange={changeTeb} />
           <Table
             className='rounded-lg'
-            columns={columns}
+            columns={
+              company === "ICPL" ? columns : columns.filter((x) => x.dataIndex !== "unitPrice")
+            }
             scroll={{ x: "max-content" }}
             dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i }))}
             pagination={{

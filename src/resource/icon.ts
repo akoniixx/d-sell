@@ -9,6 +9,7 @@ export default {
   iconDoubleRightDisable: require("./media/icons/iconDoubleRightDisable.png"),
   iconDoubleLeftDisable: require("./media/icons/iconDoubleLeftDisable.png"),
   listIcon: require("./media/icons/listIcon.png"),
+  syncIcon: require("./media/icons/iconsync.png"),
   writeIcon: require("./media/icons/writeIcon.png"),
   trashIcon: require("./media/icons/trashIcon.png"),
   backLeft: require("./media/icons/backLeft.png"),
@@ -22,4 +23,7 @@ export default {
   resultFailed: require("./media/icons/resultFailed.png"),
   infoIcon: require("./media/icons/infoIcon.png"),
   pdfIcon: require("./media/icons/pdfIcon.svg"),
+  downloadFileIcon: require("./media/icons/downloadFile.png"),
+  ribbonBadgeBlue: require("./media/icons/Ribbon_badge_blue.png"),
+  ribbonBadgeRed: require("./media/icons/Ribbon_badge_red.png"),
 };

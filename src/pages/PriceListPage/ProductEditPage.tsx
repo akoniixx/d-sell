@@ -1,44 +1,35 @@
-import React, { useEffect, useState, memo, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button, Row, Col, Tag, Card, Form, Upload, Radio, Divider, message } from "antd";
+import React, { useState, ReactNode } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Row, Col, Image, Card, Form, Upload, Radio, Divider } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { CameraOutlined, PlusOutlined } from "@ant-design/icons";
-import { Option } from "antd/lib/mentions";
+import { CameraOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import {
-  getProductBrand,
   getProductCategory,
   getProductDetail,
-  getProductGroup,
-  getProductList,
   updateProduct,
 } from "../../datasource/ProductDatasource";
-import { nameFormatter, priceFormatter } from "../../utility/Formatter";
-import { FlexCol, FlexRow } from "../../components/Container/Container";
+import { priceFormatter } from "../../utility/Formatter";
 import Text from "../../components/Text/Text";
 import { BrandEntity } from "../../entities/BrandEntity";
 import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
-import { STATUS_COLOR_MAPPING } from "../../definitions/product";
-import { useRecoilValue } from "recoil";
-import { profileAtom } from "../../store/ProfileAtom";
-import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
 import { useEffectOnce } from "react-use";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
-import icon from "../../resource/icon";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import { ProductEntity } from "../../entities/PoductEntity";
 import styled from "styled-components";
 import Input from "../../components/Input/Input";
 import color from "../../resource/color";
 import TextArea from "../../components/Input/TextArea";
-import { RcFile } from "antd/lib/upload";
 import { ProductCategoryEntity } from "../../entities/ProductCategoryEntity";
 import {
   getProductFreebieDetail,
+  getProductFreebiePromotionDetail,
   updateProductFreebie,
 } from "../../datasource/PromotionDatasource";
 import Select from "../../components/Select/Select";
 import type { UploadFile } from "antd/es/upload/interface";
-import ImgCrop from "../../components/ImgCrop/ImgCrop";
+import image from "../../resource/image";
+import CardSection from "../../components/Card/CardSection";
 
 const Container = styled.div`
   margin: 32px 0px 10px 0px;
@@ -103,7 +94,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  const [dataState, setDataState] = useState<ProductEntity>();
+  const [dataState, setDataState] = useState<any>();
   const [categories, setCategories] = useState<Array<ProductCategoryEntity>>();
   const [file, setFile] = useState<any>();
   const [uploading, setUploading] = useState(false);
@@ -117,19 +108,16 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-
-      let data;
+      let data: any = {};
       const id = parseInt(pathSplit[4]);
       if (isFreebie) {
-        data = await getProductFreebieDetail(id);
+        data = await getProductFreebiePromotionDetail(id);
       } else {
         data = await getProductDetail(parseInt(pathSplit[4]));
       }
-
       const userProfile = JSON.parse(localStorage.getItem("profile")!);
       const { company } = userProfile;
       const categories = await getProductCategory(company);
-
       setDataState(data);
       setCategories(categories);
 
@@ -145,7 +133,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
           (data.saleUOMTH || data.saleUOM),
       });
 
-      const url = isFreebie ? data.productFreebiesImage : data.productImage;
+      const url = isFreebie ? data.productFreebies?.productFreebiesImage : data.productImage;
       if (url) {
         setFileList([
           {
@@ -156,8 +144,6 @@ export const DistributionPageEdit: React.FC = (props: any) => {
           },
         ]);
       }
-
-      console.log({ data, file });
     } catch (e) {
       console.log(e);
     } finally {
@@ -196,7 +182,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         const res = await updateProduct(data);
         navigate(`/PriceListPage/DistributionPage/${productId}`);
       }
-      // message.success('บันทึกข้อมูลสำเร็จ');
+      //message.success('บันทึกข้อมูลสำเร็จ');
     } catch (e) {
       console.log(e);
     } finally {
@@ -205,20 +191,12 @@ export const DistributionPageEdit: React.FC = (props: any) => {
   };
 
   const {
-    baseUOM,
     baseUnitOfMeaEn,
     baseUnitOfMeaTh,
     commonName,
     company,
-    createDate,
     description,
-    inventoryGroup,
-    marketPrice,
-    packSize,
-    packingUOM,
     productBrand,
-    productBrandId,
-    productCategory,
     productCategoryId,
     productCodeNAV,
     productGroup,
@@ -227,17 +205,12 @@ export const DistributionPageEdit: React.FC = (props: any) => {
     productLocation,
     productName,
     productStatus,
-    productStrategy,
-    qtySaleUnit,
-    saleUOM,
-    saleUOMTH,
-    unitPrice,
-    updateBy,
-    updateDate,
     productFreebiesId,
     productFreebiesCodeNAV,
     productFreebiesImage,
     productFreebiesStatus,
+    promotionOfProduct,
+    productFreebies,
   } = dataState || {};
 
   const dataGroup1 = isFreebie
@@ -245,25 +218,19 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         {
           name: "productName",
           label: "ชื่อสินค้า",
-          value: productName,
+          value: productFreebies?.productName,
+          freebieHide: false,
+        },
+        {
+          name: "productCodeNAV",
+          label: "รหัสสินค้า",
+          value: isFreebie ? productFreebies?.productFreebiesCodeNAV : productCodeNAV,
           freebieHide: false,
         },
         {
           name: "productGroup",
           label: "ชื่อหมวด",
-          value: productGroup,
-          freebieHide: false,
-        },
-        {
-          name: "size",
-          label: "ขนาด",
-          value: "-",
-          freebieHide: false,
-        },
-        {
-          name: "baseUnitOfMeaTh",
-          label: "หน่วย",
-          value: baseUnitOfMeaTh ? baseUnitOfMeaTh : baseUnitOfMeaEn,
+          value: productFreebies?.productGroup,
           freebieHide: false,
         },
       ]
@@ -271,7 +238,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
         {
           name: "productCodeNAV",
           label: "รหัสสินค้า",
-          value: isFreebie ? productFreebiesCodeNAV : productCodeNAV,
+          value: isFreebie ? productFreebies?.productFreebiesCodeNAV : productCodeNAV,
           freebieHide: true,
         },
         {
@@ -381,18 +348,18 @@ export const DistributionPageEdit: React.FC = (props: any) => {
       <Card loading />
     </div>
   ) : (
-    <>
-      <div className='container '>
+    <Row justify={"space-between"} gutter={8}>
+      <Col span={isFreebie ? 16 : 24}>
         <CardContainer>
           <PageTitle />
-          <Container>
-            <Row>
-              <Text level={5} fontWeight={700}>
-                {isFreebie ? "รายละเอียดของแถม" : "รายละเอียดข้อมูลสินค้า"}
-              </Text>
-            </Row>
-            <Form form={form} layout='vertical' onFinish={updateData}>
-              <Row style={{ padding: "16px 0px" }}>
+          <Row>
+            <Text level={5} fontWeight={700}>
+              {isFreebie ? "รายละเอียดของแถม" : "รายละเอียดข้อมูลสินค้า"}
+            </Text>
+          </Row>
+          <Form form={form} layout='vertical' onFinish={updateData}>
+            <Row style={{ padding: "16px 0px" }}>
+              {company !== "ICPL" ? (
                 <Form.Item valuePropName='file' name={"productImage"}>
                   {/* <ImgCrop aspect={1}> */}
                   <Upload
@@ -400,16 +367,13 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                     maxCount={1}
                     beforeUpload={() => false}
                     fileList={fileList}
-                    customRequest={() => {
-                      console.log("customRequest");
-                    }}
+                    //customRequest={() => {}}
                     onChange={({ file, fileList: newFileList }: any) => {
                       setFile(file);
                       setFileList(newFileList);
                       return "success";
                     }}
                     onRemove={() => {
-                      console.log("onremove");
                       setFile(undefined);
                       setFileList([]);
                       setRemoved(true);
@@ -421,85 +385,185 @@ export const DistributionPageEdit: React.FC = (props: any) => {
                       </ProdImage>
                     )}
                   </Upload>
+                  <span style={{ color: color.error }}>
+                    รูปภาพประกอบสินค้า JPG, PNG. Size of 800*800px 1:1
+                  </span>
                   {/* </ImgCrop> */}
                 </Form.Item>
-              </Row>
-              <Row gutter={24}>
-                {dataGroup1
-                  ?.filter((e: any) => !isFreebie || !e.freebieHide)
-                  .map((d, i) => (
-                    <ProdFormItem
-                      {...d}
-                      withSpace={isFreebie && d.name !== "size"}
-                      customSpan={
-                        d.name === "baseUnitOfMeaTh" ? 4 : d.name === "size" ? 8 : undefined
-                      }
-                      key={i}
-                    />
-                  ))}
-              </Row>
-              {!isFreebie && (
+              ) : (
                 <>
-                  <PriceContainer>
-                    <Text color='primary' fontWeight={700}>
-                      UNIT SIZE
-                    </Text>
-                    <Row gutter={24}>
-                      {dataGroup2.map((d, i) => (
-                        <ProdFormItem {...d} key={i} />
-                      ))}
-                    </Row>
-                    <Text color='primary' fontWeight={700}>
-                      PACKAGE SIZE
-                    </Text>
-                    <Row gutter={24}>
-                      {dataGroup3.map((d, i) => (
-                        <ProdFormItem {...d} key={i} />
-                      ))}
-                    </Row>
-                  </PriceContainer>
-                  <br />
+                  {productImage ? (
+                    <Container>
+                      <Image
+                        src={productImage}
+                        style={{
+                          width: "136px",
+                          height: "136px",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </Container>
+                  ) : (
+                    <Container>
+                      <Image
+                        src={image.product_no_image}
+                        style={{
+                          width: "136px",
+                          height: "136px",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </Container>
+                  )}
                 </>
               )}
-              <Row>
-                <Col span={isFreebie ? 12 : 24}>
-                  <Form.Item
-                    label={isFreebie ? "คุณสมบัติ" : "คุณสมบัติและ ประโยชน์"}
-                    name='description'
-                    initialValue={description}
-                  >
-                    <TextArea disabled={isFreebie} />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <br />
-              <Form.Item
-                label={"สถานะสินค้า"}
-                name='productStatus'
-                initialValue={isFreebie ? productFreebiesStatus : productStatus}
-              >
-                <Radio.Group disabled={!isFreebie}>
-                  <Radio value={"ACTIVE"}>ใช้งาน</Radio>
-                  <Radio value={"INACTIVE"}>ปิดการใช้งาน</Radio>
-                  {!isFreebie && <Radio value={"HOLD"}>ปิดการใช้งานชั่วคราว</Radio>}
-                </Radio.Group>
-              </Form.Item>
-              <Divider />
-              <Row align='middle' justify='end'>
-                <Button
-                  type='primary'
-                  htmlType='submit'
-                  size='large'
-                  style={{ width: 136 }}
-                  loading={uploading}
+            </Row>
+            <Row gutter={24}>
+              {dataGroup1
+                ?.filter((e: any) => !isFreebie || !e.freebieHide)
+                .map((d, i) => (
+                  <ProdFormItem {...d} customSpan={isFreebie ? 24 : 12} key={i} />
+                ))}
+              {isFreebie && (
+                <>
+                  <Col xl={12} sm={12}>
+                    <Form.Item label='ขนาด'>
+                      <Input value='-' disabled />
+                    </Form.Item>
+                  </Col>
+                  <Col xl={12} sm={12}>
+                    <Form.Item label='หน่วย'>
+                      <Input
+                        value={
+                          productFreebies?.baseUnitOfMeaTh
+                            ? productFreebies?.baseUnitOfMeaTh
+                            : productFreebies?.baseUnitOfMeaEn
+                        }
+                        disabled
+                      />
+                    </Form.Item>
+                  </Col>
+                </>
+              )}
+            </Row>
+            {!isFreebie && (
+              <>
+                <PriceContainer>
+                  <Text color='primary' fontWeight={700}>
+                    UNIT SIZE
+                  </Text>
+                  <Row gutter={24}>
+                    {dataGroup2.map((d, i) => (
+                      <ProdFormItem {...d} key={i} />
+                    ))}
+                  </Row>
+                  <Text color='primary' fontWeight={700}>
+                    PACKAGE SIZE
+                  </Text>
+                  <Row gutter={24}>
+                    {dataGroup3.map((d, i) => (
+                      <ProdFormItem {...d} key={i} />
+                    ))}
+                  </Row>
+                </PriceContainer>
+                <br />
+              </>
+            )}
+            <Row>
+              <Col span={24}>
+                <Form.Item
+                  label={isFreebie ? "คุณสมบัติ" : "คุณสมบัติและประโยชน์"}
+                  name='description'
+                  initialValue={isFreebie ? productFreebies?.description : description}
                 >
-                  บันทึก
-                </Button>
-              </Row>
-            </Form>
-          </Container>
+                  <TextArea disabled={isFreebie} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <br />
+            <Form.Item
+              label={"สถานะสินค้า"}
+              name='productStatus'
+              initialValue={isFreebie ? productFreebies?.productFreebiesStatus : productStatus}
+            >
+              <Radio.Group disabled={!isFreebie}>
+                <Radio value={"ACTIVE"}>ใช้งาน</Radio>
+                <Radio value={"INACTIVE"}>ปิดการใช้งาน</Radio>
+                {!isFreebie && <Radio value={"HOLD"}>ปิดการใช้งานชั่วคราว</Radio>}
+              </Radio.Group>
+            </Form.Item>
+            <Divider />
+            <Row align='middle' justify='end'>
+              <Button
+                type='primary'
+                htmlType='submit'
+                size='large'
+                style={{ width: 136 }}
+                loading={uploading}
+              >
+                บันทึก
+              </Button>
+            </Row>
+          </Form>
         </CardContainer>
-      </div>
-    </>
+      </Col>
+      {isFreebie && (
+        <Col span={8}>
+          <CardSection title='โปรโมชันที่ของแถมเข้าร่วม' bgColor='#1B4586' textColor='white'>
+            <CardContainer style={{ borderRadius: "5px", height: "500px" }}>
+              {promotionOfProduct?.length || 0 > 0 ? (
+                <>
+                  <Text>รายการทั้งหมด {promotionOfProduct?.length} รายการ</Text>
+                  <Divider />
+                  {promotionOfProduct?.map((x: any) => (
+                    <>
+                      <Row justify={"space-between"} key={x.promotionId}>
+                        <Col span={3}>
+                          <Image src={x.promotionImageSecond || image.emptyPromotion} width={70} />
+                        </Col>
+                        <Col span={13}>
+                          <Text level={6}>{x.promotionName}</Text>
+                          <br />
+                          <Text color='Text3' level={6}>
+                            {x.promotionCode}
+                          </Text>
+                        </Col>
+                        <Col span={2}>
+                          <Link
+                            to={`/PromotionPage/promotion/detail/${x.promotionId}`}
+                            rel='noopener noreferrer'
+                            target='_blank'
+                          >
+                            <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
+                              <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                                <UnorderedListOutlined style={{ color: color["primary"] }} />
+                              </span>
+                            </div>
+                          </Link>
+                        </Col>
+                      </Row>
+                      <br />
+                    </>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <Text>รายการทั้งหมด {promotionOfProduct?.length} รายการ</Text>
+                  <Divider />
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <Image src={image.emptyProFreebie} preview={false} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <Text align='center' color='Text3'>
+                      ไม่มีโปรโมชันที่ของแถมเข้าร่วม
+                    </Text>
+                  </div>
+                </>
+              )}
+            </CardContainer>
+          </CardSection>
+        </Col>
+      )}
+    </Row>
   );
 };

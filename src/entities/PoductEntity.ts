@@ -28,6 +28,7 @@ export interface ProductEntity {
   saleUOM?: string;
   saleUom?: string;
   saleUOMTH?: string;
+  shipmentOrder?: number;
   unitPrice?: string;
   updateBy?: string;
   updateDate?: string;
@@ -36,4 +37,9 @@ export interface ProductEntity {
   productFreebiesImage?: string;
   productFreebiesStatus?: string;
   isChecked?: boolean;
+  groupKey?: number;
+  promotionOfProduct?: any[];
+  productBrandName?: string;
+  discountPrice?: string;
+  size?: string;
 }

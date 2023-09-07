@@ -141,7 +141,7 @@ export const IndexConditionCOPage: React.FC = () => {
               className='card-label font-weight-bolder text-dark'
               style={{ fontSize: 20, fontWeight: "bold" }}
             >
-              รายการเงื่อนไข CO
+              รายการเงื่อนไขส่วนลดดูแลราคา
             </span>
           </div>
         </Col>
@@ -186,7 +186,15 @@ export const IndexConditionCOPage: React.FC = () => {
       width: "25%",
       render: (value: any, row: any) => {
         return {
-          children: <Text>{value}</Text>,
+          children: (
+            <>
+              <Text>{value}</Text>
+              <br />
+              <Text fontSize={14} style={{ color: color.Grey }}>
+                {row.creditMemoConditionCode}
+              </Text>
+            </>
+          ),
         };
       },
     },
@@ -274,8 +282,8 @@ export const IndexConditionCOPage: React.FC = () => {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <>
-              <div className='d-flex flex-row justify-content-between'>
+            <Row justify={'space-between'} gutter={8}>
+              <Col span={8}>
                 <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined
@@ -286,6 +294,8 @@ export const IndexConditionCOPage: React.FC = () => {
                     />
                   </span>
                 </div>
+              </Col>
+              <Col span={8}>
                 <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <EditOutlined
@@ -296,16 +306,18 @@ export const IndexConditionCOPage: React.FC = () => {
                     />
                   </span>
                 </div>
+              </Col>
+              <Col span={8}>
                 <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <DeleteOutlined
-                      style={{ color: color["primary"] }}
+                      style={{ color: color["error"] }}
                       onClick={() => handleDelete(row.creditMemoConditionId)}
                     />
                   </span>
                 </div>
-              </div>
-            </>
+              </Col>
+            </Row>
           ),
         };
       },
@@ -330,7 +342,7 @@ export const IndexConditionCOPage: React.FC = () => {
     },
     {
       label:
-        "InActive " +
+        "Inactive " +
         `(${dataState.count_status.find((x) => !x.credit_memo_condition_status)?.count || 0})`,
       key: "false",
     },

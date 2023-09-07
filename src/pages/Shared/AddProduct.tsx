@@ -1,53 +1,31 @@
-import {
-  Avatar,
-  Col,
-  Divider,
-  Form,
-  FormInstance,
-  Modal,
-  Row,
-  Table,
-  Tabs,
-  Tooltip,
-  Upload,
-} from "antd";
-import React, { useEffect, useState, memo, useMemo, ReactNode } from "react";
+import { Avatar, Col, Divider, Form, Row, Table, Tabs } from "antd";
+import React, { useEffect, useState, ReactNode } from "react";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
-import styled from "styled-components";
 import color from "../../resource/color";
 import image from "../../resource/image";
 import TableContainer from "../../components/Table/TableContainer";
 import { ProductEntity } from "../../entities/PoductEntity";
-import { AlignType } from "rc-table/lib/interface";
-import {
-  CloseOutlined,
-  DeleteOutlined,
-  DownOutlined,
-  EditOutlined,
-  MinusCircleOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { CheckCircleFilled, CloseOutlined, SearchOutlined } from "@ant-design/icons";
 import Select from "../../components/Select/Select";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
-import Collapse from "../../components/Collapse/collapse";
-import { PromotionEntity } from "../../entities/PromotionEntity";
-import { PromotionType } from "../../definitions/promotion";
 import {
+  getProductBrand,
   getProductCategory,
   getProductGroup,
   getProductList,
 } from "../../datasource/ProductDatasource";
+import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
+import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
+import { numberFormatter } from "../../utility/Formatter";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import productState from "../../store/productList";
-import { getProductFreebieGroup, getProductFreebies } from "../../datasource/PromotionDatasource";
-import { arrayToSet } from "../../utility/converter";
-import { LOCATION_DATA, LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 
 interface ProdNameProps {
   product: ProductEntity;
   size?: number;
+  showLocation?: boolean;
 }
 
 interface SearchProps {
@@ -59,7 +37,9 @@ interface SearchProps {
   customTitle?: ReactNode;
 }
 
-export const ProductName = ({ product, size }: ProdNameProps) => {
+export const ProductName = ({ product, size, showLocation }: ProdNameProps) => {
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company } = userProfile;
   const withFrame = (e: ReactNode) => (
     <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>{e}</div>
   );
@@ -79,20 +59,37 @@ export const ProductName = ({ product, size }: ProdNameProps) => {
       </div>
       <FlexCol>
         {withFrame(<Text level={5}>{product.productName}</Text>)}
+        {product.commonName &&
+          withFrame(
+            <Text level={6} color='Text3'>
+              {product.commonName}
+            </Text>,
+          )}
         {withFrame(
-          <Text level={5} color='Text3'>
-            {product.commonName}
+          <Text level={6} color='Text3'>
+            Product Group : {product.productGroup}
           </Text>,
         )}
-        {withFrame(
-          <Text level={5} color='Text3'>
-            {product.productGroup}
-          </Text>,
-        )}
+        {product.productStrategy &&
+          withFrame(
+            <Text level={6} color='Text3'>
+              Strategy Group : {product.productStrategy}
+            </Text>,
+          )}
       </FlexCol>
     </FlexRow>
   );
 };
+
+interface SearchProps {
+  list: ProductEntity[];
+  setList: any;
+  onClose: any;
+  withFreebies?: boolean;
+  isReplacing?: string;
+  customTitle?: ReactNode;
+  notFilteredProductList?: string[];
+}
 
 const AddProduct = ({
   list,
@@ -101,6 +98,7 @@ const AddProduct = ({
   withFreebies,
   isReplacing,
   customTitle,
+  notFilteredProductList,
 }: SearchProps) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -108,27 +106,34 @@ const AddProduct = ({
   const isSingleItem = withFreebies || isReplacing;
   const [form] = Form.useForm();
 
-  const productList = useRecoilValue(productState);
-  const setProductList = useSetRecoilState(productState);
+  const recoilProductList = useRecoilValue(productState);
+  const setRecoilProductList = useSetRecoilState(productState);
 
   const [products, setProducts] = useState<ProductEntity[]>([]);
-  const [freebies, setFreebies] = useState<ProductEntity[]>([]);
-  const [productCount, setProductCount] = useState(0);
-  const [freebieCount, setFreebieCount] = useState(0);
   const [selectedProduct, setSelectedProd] = useState<ProductEntity[]>([]);
-  const [selectedProductId, setSelectedProdId] = useState<string[]>([]);
-  const [allSelectedList, setAllSelectedList] = useState<Set<string>>(new Set());
+  const [selectedProductId, setSelectedProdId] = useState<string[]>(
+    list.map((item) => item.productId),
+  );
+  const [allSelectedList, setAllSelectedList] = useState<Set<string>>(
+    new Set(
+      list
+        .filter((item) => notFilteredProductList?.includes(item.productId))
+        .map((item) => item.productId),
+    ),
+  );
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
+  const [brand, setBrand] = useState([]);
   const [productGroups, setProductGroups] = useState([]);
   const [productCategories, setProductCategories] = useState([]);
   const [productFreebieGroups, setProductFreebieGroups] = useState([]);
-  const [showFreebie, setShowFreeie] = useState("false");
+  const [showFreebie, setShowFreebie] = useState("false");
   const [filter, setFilter] = useState({
     productGroup: "",
     productCategory: "",
     searchText: "",
     productLocation: "",
+    productBrandId: "",
   });
 
   const resetPage = () => {
@@ -138,6 +143,7 @@ const AddProduct = ({
       productCategory: "",
       searchText: "",
       productLocation: "",
+      productBrandId: "",
     });
     form.resetFields();
   };
@@ -146,71 +152,76 @@ const AddProduct = ({
     fetchProduct();
   }, [filter, showFreebie]);
 
-  useEffect(() => {
-    setSelectedProdId(list.map((item) => item.productId));
-    console.log("useEffect", list);
-  }, [list]);
-
-  const fetchFreebieList = async () => {
-    const { data, count } = await getProductFreebies({
-      company,
-      take: pageSize,
-      productGroup: filter.productGroup,
-      searchText: filter.searchText,
-      productLocation: filter.productLocation,
-      page,
-    });
-    const newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }));
-    setFreebies(newData);
-    setFreebieCount(count);
-  };
-  const fetchProductList = async () => {
-    const { data, count } = await getProductList({
-      company,
-      take: pageSize,
-      productGroup: filter.productGroup,
-      searchText: filter.searchText,
-      productCategoryId: filter.productCategory,
-      productLocation: filter.productLocation,
-      page,
-    });
-    const newData = data
-      .filter((d: ProductEntity) => d.productStatus === "ACTIVE")
-      .map((d: ProductEntity) => ({ ...d, key: d.productId }));
-    setProducts(newData);
-    setProductCount(newData.length);
-    console.log({ data, count, countNew: newData.length });
-
-    if (productList.allData.length <= 0) {
-      setProductList((oldList: any) => ({
-        page,
-        pageSize,
-        count: newData.length,
-        data,
-        allData: oldList?.data?.length > 0 ? oldList.data.concat(data) : data,
-      }));
-    }
-  };
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      await fetchProductList();
-      await fetchFreebieList();
+      let newData: any = [];
+      if (showFreebie === "true") {
+        const { data, count } = await getProductFreebies({
+          company,
+          take: pageSize,
+          productGroup: filter.productGroup,
+          searchText: filter.searchText,
+          productLocation: filter.productLocation,
+          page,
+          productStatus: "ACTIVE",
+        });
+        newData = data.map((d: ProductEntity) => ({ ...d, key: d.productFreebiesId }));
+        if (recoilProductList.freebies.length <= 0) {
+          setRecoilProductList({
+            ...recoilProductList,
+            freebies: newData,
+          });
+        }
+      } else {
+        const { data, count } = await getProductList({
+          company,
+          take: pageSize,
+          productGroup: filter.productGroup,
+          searchText: filter.searchText,
+          productCategoryId: filter.productCategory,
+          productLocation: filter.productLocation,
+          page,
+          productStatus: "ACTIVE",
+          productBrandId: filter.productBrandId,
+        });
+        const getBrand = await getProductBrand(company).then((res) => {
+          return res;
+        });
+        setBrand(getBrand);
+        newData = data.map((d: ProductEntity) => ({
+          ...d,
+          key: d.productId,
+          productBrandName: getBrand?.find((x: any) => d.productBrandId === x.productBrandId)
+            .productBrandName,
+        }));
+
+        if (recoilProductList.allData.length <= 0) {
+          setRecoilProductList({
+            ...recoilProductList,
+            allData: newData,
+          });
+        }
+      }
+      setProducts(newData);
+
+      const selectedList = newData.filter((x: ProductEntity) => allSelectedList.has(x.productId));
+      setSelectedProd(selectedList);
+      setSelectedProdId(selectedList.map((x: ProductEntity) => x.productId));
 
       if (!productGroups || !productGroups.length) {
         const { responseData } = await getProductGroup(company);
         setProductGroups(responseData);
       }
-
       if (!productCategories || !productCategories.length) {
         const categories = await getProductCategory(company);
         setProductCategories(categories);
       }
-
       if (!productFreebieGroups || !productFreebieGroups.length) {
         const { responseData } = await getProductFreebieGroup(company);
         setProductFreebieGroups(responseData);
       }
+      setLoading(false);
     } catch (e) {
       console.log(e);
     } finally {
@@ -220,18 +231,34 @@ const AddProduct = ({
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: ProductEntity[]) => {
-      // TODO
-      const newList = new Set(allSelectedList);
-      selectedRowKeys.forEach((item) => newList.add(item as string));
-      selectedProductId.forEach((oldId) => {
-        if (!selectedRowKeys.includes(oldId) && products.find((p) => p.productId === oldId)) {
-          newList.delete(oldId);
+      if (selectedRowKeys.length) {
+        if (selectedRowKeys.length < 2) {
+          const checkInclude = selectedProductId.includes(selectedRowKeys[0].toString());
+          selectedRowKeys = checkInclude
+            ? selectedProductId.filter((x) => x === selectedRowKeys[0])
+            : selectedRowKeys;
+          setSelectedProdId(selectedRowKeys as string[]);
+          setSelectedProd(selectedRows);
+        } else {
+          setSelectedProdId(selectedRowKeys as string[]);
+          setSelectedProd(selectedRows);
+        }
+      } else {
+        setSelectedProdId([] as string[]);
+        setSelectedProd([]);
+      }
+
+      const newAllSelectedList = new Set(allSelectedList);
+      // remove
+      allSelectedList.forEach((x) => {
+        if (!selectedRowKeys.includes(x) && products.find((p) => `${p.productId}` === `${x}`)) {
+          newAllSelectedList.delete(x);
         }
       });
-      setAllSelectedList(newList);
-      console.log({ newList, selectedRowKeys });
-      setSelectedProdId(selectedRowKeys as string[]);
-      setSelectedProd(selectedRows);
+      // add
+      selectedRowKeys.forEach((x) => newAllSelectedList.add(`${x}`));
+      // save
+      setAllSelectedList(newAllSelectedList);
     },
     getCheckboxProps: (record: ProductEntity) => ({
       name: record.productName,
@@ -241,25 +268,133 @@ const AddProduct = ({
 
   const columns = [
     {
-      title: "สินค้าทั้งหมด",
+      title: <span>ชื่อสินค้า</span>,
       dataIndex: "productName",
-      render: (value: string, row: ProductEntity) => <ProductName product={row} />,
+      width: "40%",
+      render: (text: string, value: any, index: any) => {
+        return (
+          <FlexRow align='center'>
+            <div style={{ marginRight: 16 }}>
+              <Avatar
+                src={
+                  value.productImage === "No" ||
+                  value.productImage === "" ||
+                  value.productImage === null
+                    ? image.product_no_image
+                    : value.productImage
+                }
+                size={50}
+                shape='square'
+                onError={() => false}
+              />
+            </div>
+            <FlexCol>
+              <div style={{ height: 25, textOverflow: "ellipsis" }}>
+                <Text level={5}>{value.productName}</Text>
+              </div>
+              {value.commonName && (
+                <div style={{ height: 25, textOverflow: "ellipsis" }}>
+                  <Text level={6} style={{ color: color.Grey }}>
+                    {value.commonName}
+                  </Text>
+                </div>
+              )}
+              <div style={{ height: 25 }}>
+                <Text level={6} style={{ color: color.Grey }}>
+                  Product Group : {value.productGroup}
+                </Text>
+              </div>
+              {value.productStrategy && (
+                <div style={{ height: 25 }}>
+                  <Text level={6} style={{ color: color.Grey }}>
+                    Strategy Group : {value.productStrategy}
+                  </Text>
+                </div>
+              )}
+            </FlexCol>
+          </FlexRow>
+        );
+      },
     },
     {
-      title: `${showFreebie === "true" ? freebieCount : productCount} สินค้า`,
-      dataIndex: "packSize",
-      align: "right" as AlignType,
-      render: (value: string, row: ProductEntity) => (
-        <FlexCol align='end' justify='space-around'>
-          <Text>{value}</Text>
-          <br />
-          {row.productLocation && (
-            <Text level={6} color='Text3'>
-              {LOCATION_FULLNAME_MAPPING[row.productLocation]}
-            </Text>
-          )}
-        </FlexCol>
+      title: <span>Product Code</span>,
+      dataIndex: "productCodeNAV",
+      width: "20%",
+      render: (text: string, value: any) => (
+        <FlexRow>
+          <FlexCol>
+            <div style={{ height: 25 }}>
+              <Text level={5}>
+                {showFreebie === "false" ? value.productCodeNAV : value.productFreebiesCodeNAV}
+              </Text>
+            </div>
+            <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>
+              <Text level={6} style={{ color: color.Grey }}>
+                Pack Size : {showFreebie === "false" ? value.packSize : value.baseUnitOfMeaTh}
+              </Text>
+            </div>
+          </FlexCol>
+        </FlexRow>
       ),
+    },
+    {
+      title: <span>ราคาขาย</span>,
+      dataIndex: "unitPrice",
+      render: (text: string, value: any) => (
+        <FlexRow>
+          <FlexCol>
+            <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>
+              <Text level={5}>
+                {numberFormatter(value.marketPrice)} บาท/{value.saleUOMTH}
+              </Text>
+            </div>
+            <div style={{ height: 25 }}>
+              <Text level={6} style={{ color: color.Grey }}>
+                ราคา/หน่วย : <br />
+                {numberFormatter(text)} บาท/{value.baseUOM}
+              </Text>
+            </div>
+          </FlexCol>
+        </FlexRow>
+      ),
+    },
+    {
+      title: <span>สถานที่</span>,
+      dataIndex: "productLocation",
+      render: (text: string, value: any) => (
+        <FlexRow>
+          <FlexCol>
+            <div style={{ height: 25 }}>
+              <Text level={5}>{LOCATION_FULLNAME_MAPPING[text]}</Text>
+            </div>
+            <div style={{ height: 25, overflow: "hidden", textOverflow: "ellipsis" }}>
+              <Text level={6} style={{ color: color.Grey }}>
+                ยี่ห้อ : {value.productBrandName}
+              </Text>
+            </div>
+          </FlexCol>
+        </FlexRow>
+      ),
+    },
+    {
+      dataIndex: "checkedFreebie",
+      width: "5%",
+      render: (text: string, value: any) => {
+        const checked = selectedProduct.length
+          ? showFreebie === "true"
+            ? selectedProduct[0].productFreebiesId === value.productFreebiesId
+            : selectedProduct[0].productId === value.productId
+          : false;
+        return (
+          <FlexRow>
+            <FlexCol>
+              {isSingleItem !== undefined && checked && (
+                <CheckCircleFilled style={{ color: color.success, fontSize: "25px" }} />
+              )}
+            </FlexCol>
+          </FlexRow>
+        );
+      },
     },
   ];
 
@@ -273,15 +408,13 @@ const AddProduct = ({
     if (isSingleItem) {
       setList(selectedProduct[0]);
     } else {
-      let newList = [
-        ...list,
-        // ...productList.allData.filter((item: any) => selectedProductId.includes(item.productId)),
-        ...productList.allData.filter((item: any) => allSelectedList.has(item.productId)),
-      ];
-      newList = newList.filter(
-        (item, pos) => newList.findIndex((item2) => item.productId === item2.productId) === pos,
-      );
-      setList(newList);
+      const map = (showFreebie === "true" ? recoilProductList.freebies : recoilProductList.allData)
+        .filter((x) => allSelectedList.has(x.productId))
+        .map((x) => {
+          const find = list.find((y) => x.productId === y.productId);
+          return find ? { ...x, groupKey: find.groupKey } : x;
+        });
+      setList(map);
     }
     onClear();
     onClose();
@@ -292,15 +425,15 @@ const AddProduct = ({
       productGroup: "",
       productCategory: "",
       searchText: "",
+      productBrandId: "",
     });
     setFilter({
       productGroup: "",
       productCategory: "",
       searchText: "",
       productLocation: "",
+      productBrandId: "",
     });
-    setSelectedProd([]);
-    setSelectedProdId([]);
   };
 
   const rowClassName = (r: ProductEntity) => {
@@ -309,7 +442,6 @@ const AddProduct = ({
     const isSelectedFreebie =
       selectedProduct[0]?.productFreebiesId &&
       r.productFreebiesId === selectedProduct[0]?.productFreebiesId;
-
     return isSingleItem && (isSelectedProduct || isSelectedFreebie)
       ? "table-row-highlight table-row-clickable"
       : "table-row-clickable";
@@ -351,7 +483,20 @@ const AddProduct = ({
       <br />
       <Form layout='vertical' form={form}>
         <Row gutter={8} align='bottom'>
-          <Col span={5}>
+          <Col span={showFreebie === "true" ? 10 : company === "ICPL" ? 9 : 10}>
+            <Form.Item label='ค้นหาสินค้า' name='searchText'>
+              <Input
+                suffix={<SearchOutlined />}
+                placeholder={"ระบุชื่อสินค้า"}
+                onPressEnter={(e) => {
+                  const searchText = (e.target as HTMLTextAreaElement).value;
+                  setFilter({ ...filter, searchText });
+                }}
+                value={filter.searchText}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
             <Form.Item label='Product Group' name='productGroup'>
               <Select
                 data={[
@@ -373,7 +518,7 @@ const AddProduct = ({
               />
             </Form.Item>
           </Col>
-          <Col span={showFreebie === "true" ? 0 : company === "ICPL" ? 5 : 0}>
+          <Col span={showFreebie === "true" ? 0 : company === "ICPL" ? 4 : 0}>
             <Form.Item label='Startegy Group' name='productCategory'>
               <Select
                 data={[
@@ -393,39 +538,50 @@ const AddProduct = ({
               />
             </Form.Item>
           </Col>
-          <Col span={5}>
-            <Form.Item label='Location' name='productLocation'>
-              <Select
-                data={[
-                  {
-                    key: "",
-                    value: "",
-                    label: "ทั้งหมด",
-                  },
-                  ...LOCATION_DATA.filter((l) => l.company === company).map((l: any) => ({
-                    key: l.LocationName,
-                    value: l.LocationName,
-                    label: l.LocationNameTH,
-                  })),
-                ]}
-                onChange={(v) => setFilter({ ...filter, productLocation: v })}
-                value={filter.productLocation}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={showFreebie === "true" ? 14 : company === "ICPL" ? 5 : 10}>
-            <Form.Item label='ค้นหาสินค้า' name='searchText'>
-              <Input
-                suffix={<SearchOutlined />}
-                placeholder={"ระบุชื่อสินค้า"}
-                onPressEnter={(e) => {
-                  const searchText = (e.target as HTMLTextAreaElement).value;
-                  setFilter({ ...filter, searchText });
-                }}
-                value={filter.searchText}
-              />
-            </Form.Item>
-          </Col>
+          {showFreebie === "false" && (
+            <Col span={4}>
+              <Form.Item label='ยี่ห้อ' name='brand'>
+                <Select
+                  data={[
+                    {
+                      key: "",
+                      value: "",
+                      label: "ทั้งหมด",
+                    },
+                    ...brand.map((p: any) => ({
+                      key: p.productBrandId,
+                      value: p.productBrandId,
+                      label: p.productBrandName,
+                    })),
+                  ]}
+                  onChange={(v) => setFilter({ ...filter, productBrandId: v })}
+                  value={filter.productBrandId}
+                />
+              </Form.Item>
+            </Col>
+          )}
+          {company === "ICPI" && (
+            <Col span={4}>
+              <Form.Item label='Location' name='productLocation'>
+                <Select
+                  data={[
+                    {
+                      key: "",
+                      value: "",
+                      label: "ทั้งหมด",
+                    },
+                    ...LOCATION_DATA.filter((l) => l.company === company).map((l: any) => ({
+                      key: l.LocationName,
+                      value: l.LocationName,
+                      label: l.LocationNameTH,
+                    })),
+                  ]}
+                  onChange={(v) => setFilter({ ...filter, productLocation: v })}
+                  value={filter.productLocation}
+                />
+              </Form.Item>
+            </Col>
+          )}
           <Col span={3}>
             <Form.Item label='' name='clear'>
               <Button title='ล้างการค้นหา' typeButton='primary-light' onClick={onClear} />
@@ -436,11 +592,11 @@ const AddProduct = ({
       {withFreebies && (
         <Tabs
           items={tabsItems}
-          onChange={(key: string) => {
-            setShowFreeie(key);
+          onChange={(key: any) => {
+            setShowFreebie(key);
             resetPage();
           }}
-          defaultValue={showFreebie}
+          defaultValue={String(showFreebie)}
         />
       )}
       <TableContainer>
@@ -448,23 +604,37 @@ const AddProduct = ({
           rowSelection={isSingleItem ? undefined : { type: "checkbox", ...rowSelection }}
           rowClassName={rowClassName}
           onRow={onRow}
-          columns={columns}
-          dataSource={
+          columns={
             showFreebie === "true"
-              ? freebies
-              : products.filter(
-                  (item) =>
-                    !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`),
+              ? columns.filter(
+                  (x) => x.dataIndex !== "productLocation" && x.dataIndex !== "unitPrice",
                 )
+              : columns
           }
+          dataSource={products.filter(
+            (item) =>
+              notFilteredProductList?.find((id) => `${item.productId}` === `${id}`) ||
+              !list.find((l: ProductEntity) => `${item.productId}` === `${l.productId}`) ||
+              (showFreebie === "true" &&
+                !list.find(
+                  (l: ProductEntity) => `${item.productFreebiesId}` === `${l.productFreebiesId}`,
+                )),
+          )}
           pagination={false}
           scroll={{ y: 360 }}
           loading={loading}
+          style={{ height: 420 }}
         />
       </TableContainer>
       <Divider style={{ margin: "12px 0px" }} />
       <Row justify='end'>
-        <Button title='บันทึก' style={{ width: 136 }} onClick={onSave} />
+        <Button
+          title='บันทึก'
+          style={{ width: 136 }}
+          onClick={onSave}
+          typeButton={selectedProduct.length <= 0 ? "disabled" : "primary"}
+          disabled={selectedProduct.length <= 0}
+        />
       </Row>
     </>
   );

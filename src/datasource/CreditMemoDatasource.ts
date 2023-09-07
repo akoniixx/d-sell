@@ -16,7 +16,9 @@ const getCreditMemoList = async (params: object) => {
 const getCustomerCreditMemoList = async (params: object) => {
   return await httpClient
     .get(`${baseUrl}/credit-memo-shop`, { params })
-    .then((res: AxiosResponse) => res.data)
+    .then((res: AxiosResponse) => {
+      return res.data;
+    })
     .catch((err) => console.log(err));
 };
 
@@ -88,7 +90,7 @@ const getOrderHistory = async (params: {
   customerCompanyId: string;
 }) => {
   return await httpClient
-    .get(`${BASE_URL}/cart/order-credit-memo`, {
+    .get(`${BASE_URL}/order-cart/order-credit-memo`, {
       params,
     })
     .then((res: AxiosResponse) => res.data)

@@ -1,14 +1,8 @@
-import React, { useEffect, useState, memo, ReactNode } from "react";
-import { Table, Tabs, Modal, Switch, Row, Col, Pagination, Tag } from "antd";
+import React, { useEffect, useState } from "react";
+import { Table, Col, Image, Row } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  SearchOutlined,
-  UnorderedListOutlined,
-} from "@ant-design/icons";
+import { SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
-import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
@@ -16,10 +10,9 @@ import Text from "../../components/Text/Text";
 import color from "../../resource/color";
 import icons from "../../resource/icon";
 import Select from "../../components/Select/Select";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AlignType } from "rc-table/lib/interface";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
-import { getOrders } from "../../datasource/OrderDatasourc";
+import { getOrders, getPdfPo } from "../../datasource/OrderDatasourc";
 import {
   OrderDeliveryDestKey,
   OrderPaymentMethodName,
@@ -34,7 +27,7 @@ import { OrderEntity } from "../../entities/OrderEntity";
 import { zoneDatasource } from "../../datasource/ZoneDatasource";
 import { getOrderStatus } from "../../utility/OrderStatus";
 
-const SLASH_DMY = "DD/MM/YYYY";
+const SLASH_DMY = "DD/MM/YYYY HH:mm";
 const SummaryBox = ({
   title,
   value,
@@ -102,7 +95,6 @@ export const OrderList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log("change filter");
     fetchData();
   }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
 
@@ -133,7 +125,6 @@ export const OrderList: React.FC = () => {
         startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
         endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
       });
-      console.log({ data, statusCount, count });
       setDataState({ data, statusCount, count });
       if (zone.length <= 0) {
         getZoneByCompany();
@@ -143,6 +134,15 @@ export const OrderList: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+  const getPdf = async (id: string, orderCode: string) => {
+    await getPdfPo(id).then((res: any) => {
+      const blob = new Blob([res], { type: "application/pdf" });
+      const a = document.createElement("a");
+      a.href = window.URL.createObjectURL(blob);
+      a.setAttribute("download", `${orderCode}.pdf`);
+      a.click();
+    });
   };
 
   const PageTitle = () => {
@@ -273,8 +273,8 @@ export const OrderList: React.FC = () => {
     },
     {
       title: "จำนวน",
-      dataIndex: "price",
-      key: "price",
+      dataIndex: "totalPrice",
+      key: "totalPrice",
       width: "15%",
       render: (value: any, row: any, index: number) => {
         return (
@@ -325,12 +325,12 @@ export const OrderList: React.FC = () => {
       title: "จัดการ",
       dataIndex: "action",
       key: "action",
-      width: 72,
+      width: 100,
       render: (value: any, row: any, index: number) => {
         return {
           children: row.status ? (
-            <>
-              <div className='d-flex flex-row justify-content-between'>
+            <Row justify={"space-between"} gutter={8}>
+              <Col span={12}>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
                   onClick={() => navigate("/order/" + row.orderId)}
@@ -339,8 +339,22 @@ export const OrderList: React.FC = () => {
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
                   </span>
                 </div>
-              </div>
-            </>
+              </Col>
+              {company === "ICPI" && (
+                <Col span={12}>
+                  <div
+                    className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                    onClick={() => getPdf(row.orderId, row.orderNo)}
+                  >
+                    <Image
+                      src={icons.downloadFileIcon}
+                      preview={false}
+                      style={{ width: 18, height: 22, color: color.BK, paddingBottom: 4 }}
+                    />
+                  </div>
+                </Col>
+              )}
+            </Row>
           ) : (
             <>
               <div style={{ height: 32 }} />

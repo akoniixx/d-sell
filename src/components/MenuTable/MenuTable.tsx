@@ -9,12 +9,15 @@ interface Props {
   onClickEdit?: () => void;
   onClickList?: () => void;
   onClickDelete?: () => void;
+  onClickSync?: () => void;
+  hindSync?: boolean;
   hideEdit?: boolean;
   hideDelete?: boolean;
   hideList?: boolean;
   disableEdit?: boolean;
   disableDelete?: boolean;
   disableList?: boolean;
+  disableSync?: boolean;
   titleModalWarning?: string;
   descriptionModalWarning?: string;
 }
@@ -24,11 +27,14 @@ export default function MenuTable({
   hideDelete,
   hideEdit,
   hideList,
+  hindSync,
   onClickDelete,
   onClickList,
+  onClickSync,
   disableEdit,
   disableDelete,
   disableList,
+  disableSync,
   descriptionModalWarning,
   titleModalWarning,
 }: Props) {
@@ -51,6 +57,15 @@ export default function MenuTable({
       name: "edit",
       width: 20,
       height: 20,
+    },
+    {
+      onClick: onClickSync,
+      icon: icon.syncIcon,
+      isHide: hindSync,
+      disable: disableSync,
+      name: "list",
+      width: 22,
+      height: 22,
     },
     {
       onClick: () => setVisible(true),

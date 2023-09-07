@@ -1,5 +1,5 @@
-import React, { useEffect, useState, memo, useMemo } from "react";
-import { Table, Tabs, Row, Col, Select, Avatar, Tag, Switch, Modal, message } from "antd";
+import React, { PropsWithoutRef, useEffect, useMemo, useState } from "react";
+import { Table, Tabs, Row, Col, Avatar, Switch, Modal, message, Tooltip } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import {
   UnorderedListOutlined,
@@ -8,8 +8,7 @@ import {
   DeleteOutlined,
   CopyOutlined,
 } from "@ant-design/icons";
-import { Option } from "antd/lib/mentions";
-import { dateFormatter, nameFormatter, priceFormatter } from "../../utility/Formatter";
+import { dateFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import color from "../../resource/color";
@@ -24,11 +23,10 @@ import {
   updatePromotionStatus,
 } from "../../datasource/PromotionDatasource";
 import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
-import { Dayjs } from "dayjs";
 import image from "../../resource/image";
+import promotionState from "../../store/promotion";
 
 type FixedType = "left" | "right" | boolean;
-const SLASH_DMY = "DD/MM/YYYY";
 const REQUEST_DMY = "YYYY-MM-DD";
 
 export const PromotionListPage: React.FC = () => {
@@ -76,7 +74,6 @@ export const PromotionListPage: React.FC = () => {
         count,
         count_status,
       });
-      console.log({ data, count, count_status, dateFilter });
     } catch (e) {
       console.log(e);
     } finally {
@@ -162,20 +159,34 @@ export const PromotionListPage: React.FC = () => {
     },
   ];
 
+  const ActionBtn = ({ onClick, icon }: any) => {
+    return (
+      <Col span={6}>
+        <div className='btn btn-icon btn-light btn-hover-primary btn-sm' onClick={onClick}>
+          <span
+            className='svg-icon svg-icon-primary svg-icon-2x'
+            style={{ color: color["primary"] }}
+          >
+            {icon}
+          </span>
+        </div>
+      </Col>
+    );
+  };
+
   const columns = [
     {
       title: "ชื่อโปรโมชัน",
       dataIndex: "promotionName",
       key: "promotionName",
-      // width: "12%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
                 <Avatar
-                  src={row.promotionImageSecond || image.product_no_image}
-                  size={50}
+                  src={row.promotionImageSecond || image.emptyPromotion}
+                  size={60}
                   shape='square'
                 />
               </div>
@@ -194,7 +205,6 @@ export const PromotionListPage: React.FC = () => {
       title: "ประเภทส่วนลด",
       dataIndex: "promotionType",
       key: "promotionType",
-      // width: "18%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -208,31 +218,33 @@ export const PromotionListPage: React.FC = () => {
         };
       },
     },
-    {
-      title: "เลขที่อ้างอิง",
-      dataIndex: "referencePromotion",
-      key: "referencePromotion",
-      render: (value: string[], row: any, index: number) => {
-        return {
-          children: (
-            <FlexCol>
-              {value && value.length >= 0
-                ? value.map((v) => (
-                    <Text level={5} key={v}>
-                      {v.length >= 10 ? v.slice(0, 9) + "..." : v}
-                    </Text>
-                  ))
-                : "-"}
-            </FlexCol>
-          ),
-        };
-      },
-    },
+    // {
+    //   title: "เลขที่อ้างอิง",
+    //   dataIndex: "referencePromotion",
+    //   key: "referencePromotion",
+    //   render: (value: string[], row: any, index: number) => {
+    //     const val = value?.join(",");
+    //     return {
+    //       children: (
+    //         <FlexCol>
+    //           <Tooltip title={val}>
+    //             {val ? (
+    //               <Text level={5} key={val}>
+    //                 {val.length >= 10 ? val.slice(0, 15) + "..." : val}
+    //               </Text>
+    //             ) : (
+    //               "-"
+    //             )}
+    //           </Tooltip>
+    //         </FlexCol>
+    //       ),
+    //     };
+    //   },
+    // },
     {
       title: "ระยะเวลา",
       dataIndex: "startDate",
       key: "startDate",
-      // width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -249,7 +261,6 @@ export const PromotionListPage: React.FC = () => {
       title: "อัปเดทโดย",
       dataIndex: "updateBy",
       key: "updateBy",
-      // width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -267,40 +278,34 @@ export const PromotionListPage: React.FC = () => {
       title: "สถานะ",
       dataIndex: "promotionStatus",
       key: "promotionStatus",
-      // width: "15%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <Switch
-              checked={value}
-              onChange={async (checked: boolean) => {
-                console.log("onToggleSwitch", checked);
-                await updatePromotionStatus({
-                  promotionId: row.promotionId,
-                  isDraft: row.isDraft,
-                  promotionStatus: checked,
-                  updateBy: firstname + " " + lastname,
-                })
-                  .then((res) => {
-                    // console.log(res)
-                    fetchProduct();
-                    // setDataState({
-                    //   ...dataState,
-                    //   data: dataState?.data.map((d: object, i) =>
-                    //     i !== index
-                    //       ? d
-                    //       : {
-                    //           ...d,
-                    //           promotionStatus: checked,
-                    //         },
-                    //   ),
-                    // });
-                    message.success("แก้ไขสถานะโปรโมชั่นสำเร็จ");
-                  })
-                  .catch(() => message.error("แก้ไขสถานะโปรโมชั่นไม่สำเร็จ"));
-              }}
-              disabled={moment(row.endDate).isBefore(moment())}
-            />
+            <>
+              {!moment(row.endDate).isBefore(moment()) ? (
+                <Switch
+                  checked={value}
+                  onChange={async (checked: boolean) => {
+                    await updatePromotionStatus({
+                      promotionId: row.promotionId,
+                      isDraft: row.isDraft,
+                      promotionStatus: checked,
+                      updateBy: firstname + " " + lastname,
+                    })
+                      .then((res) => {
+                        fetchProduct();
+                        message.success("แก้ไขสถานะโปรโมชั่นสำเร็จ");
+                      })
+                      .catch(() => message.error("แก้ไขสถานะโปรโมชั่นไม่สำเร็จ"));
+                  }}
+                  disabled={moment(row.endDate).isBefore(moment()) || row.promotionStatus}
+                />
+              ) : (
+                <Text level={6} color='Text3'>
+                  หมดอายุ
+                </Text>
+              )}
+            </>
           ),
         };
       },
@@ -309,55 +314,58 @@ export const PromotionListPage: React.FC = () => {
       title: "จัดการ",
       dataIndex: "action",
       key: "action",
-      width: "12%",
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
+        const isExpired = moment(row.endDate).isBefore(moment());
         return {
           children: (
             <>
-              <div className='d-flex flex-row justify-content-between'>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
+              <Row>
+                <ActionBtn
                   onClick={() => navigate("/PromotionPage/promotion/detail/" + row.promotionId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <EditOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
+                  icon={<UnorderedListOutlined />}
+                />
+                {!isExpired && (
+                  <ActionBtn
+                    onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
+                    icon={<EditOutlined />}
+                  />
+                )}
+                <ActionBtn
+                  onClick={() => {
+                    const query = new URLSearchParams({ copy_id: row.promotionId }).toString();
                     Modal.confirm({
-                      title: "ยืนยันการลบโปรโมชั่น",
-                      okText: "",
-                      cancelText: "",
-                      onOk: async () => {
-                        await deletePromotion({
-                          promotionId: row.promotionId,
-                          updateBy: firstname + " " + lastname,
-                        })
-                          .then((res) => {
-                            // console.log(res)
-                            navigate(0);
+                      title: "ต้องการคัดลอกโปรโมชันนี้ใช่หรือไม่",
+                      content: `โปรดตรวจสอบรายละเอียดโปรโมชัน “${row.promotionName}” (${row.promotionCode}) ที่ต้องการคัดลอก ก่อนกดยืนยัน`,
+                      okText: "ยืนยัน",
+                      onOk: () => navigate("/PromotionPage/promotion/create/?" + query),
+                    });
+                  }}
+                  icon={<CopyOutlined />}
+                />
+                {!isExpired && (
+                  <ActionBtn
+                    onClick={() =>
+                      Modal.confirm({
+                        title: "ยืนยันการลบโปรโมชั่น",
+                        okText: "",
+                        cancelText: "",
+                        onOk: async () => {
+                          await deletePromotion({
+                            promotionId: row.promotionId,
+                            updateBy: firstname + " " + lastname,
                           })
-                          .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
-                      },
-                    })
-                  }
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <DeleteOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-              </div>
+                            .then((res) => {
+                              navigate(0);
+                            })
+                            .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                        },
+                      })
+                    }
+                    icon={<DeleteOutlined style={{ color: color.error }} />}
+                  />
+                )}
+              </Row>
             </>
           ),
         };
@@ -389,6 +397,7 @@ export const PromotionListPage: React.FC = () => {
               current: page,
               total: dataState?.count,
               onChange: (p) => setPage(p),
+              showSizeChanger:false
             }}
             loading={loading}
             size='large'

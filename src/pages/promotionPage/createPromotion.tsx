@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Divider, Form, message, Modal, Spin } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
-import styled from "styled-components";
 import { PromotionCreateStep1 } from "./createPromotionStep/PromotionCreateStep1";
 import { PromotionCreateStep2 } from "./createPromotionStep/PromotionCreateStep2";
 import { PromotionCreateStep3 } from "./createPromotionStep/PromotionCreateStep3";
-import { PromotionType } from "../../definitions/promotion";
+import { PromotionGroup, PromotionGroupOption, PromotionType } from "../../definitions/promotion";
 import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
 import {
@@ -18,24 +17,28 @@ import {
   updatePromotion,
   updatePromotionFile,
 } from "../../datasource/PromotionDatasource";
-import { FlexCol, FlexRow } from "../../components/Container/Container";
+import { FlexCol } from "../../components/Container/Container";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import color from "../../resource/color";
 import Text from "../../components/Text/Text";
-import { useNavigate } from "react-router-dom";
-import moment from "moment";
-import Steps from "../../components/StepAntd/steps";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import dayjs, { Dayjs } from "dayjs";
 import promotionState from "../../store/promotion";
+import { PromotionConditionGroupEntity } from "../../entities/PromotionSettingEntity";
+import StepAntd from "../../components/StepAntd/StepAntd";
 
 export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
+  const { company, firstname, lastname } = userProfile;
 
   const navigate = useNavigate();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
   const isEditing = pathSplit[3] === "edit";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { copyId } = useMemo(() => {
+    return { copyId: searchParams.get("copy_id") };
+  }, [searchParams]);
 
   const productList = useRecoilValue(productState);
   const setProductList = useSetRecoilState(productState);
@@ -45,13 +48,6 @@ export const PromotionCreatePage: React.FC = () => {
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
   const [form3] = Form.useForm();
-
-  const [file1, setFile1] = useState<any>();
-  const [file2, setFile2] = useState<any>();
-  const [fileMemo, setFileMemo] = useState<any>();
-  const [imageUrl1, setImgUrl1] = useState<string>();
-  const [imageUrl2, setImgUrl2] = useState<string>();
-  const [fileMemoUrl, setFileMemoUrl] = useState<any>();
 
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState(false);
@@ -66,31 +62,88 @@ export const PromotionCreatePage: React.FC = () => {
   const [isCreating, setCreating] = useState(false);
   const [isDone, setDone] = useState(false);
 
+  const [file1, _setFile1] = useState<any>();
+  const [file2, _setFile2] = useState<any>();
+  const [fileMemo, _setFileMemo] = useState<any>();
+  const [imageUrl1, _setImgUrl1] = useState<string>();
+  const [imageUrl2, _setImgUrl2] = useState<string>();
+  const [fileMemoUrl, _setFileMemoUrl] = useState<any>();
+  const [fileEditHistory, setFileEditHistoy] = useState(new Set());
+
+  const fileKeys = {
+    IMAGE1: "img1",
+    IMAGE2: "img2",
+    MEMO: "memo",
+  };
+  const addFileEditHistory = (s: string) => {
+    console.log("setHistory", s);
+    const set = new Set(fileEditHistory);
+    set.add(s);
+    setFileEditHistoy(set);
+  };
+  const setFile1 = (file: any) => {
+    _setFile1(file);
+    addFileEditHistory(fileKeys.IMAGE1);
+  };
+  const setImgUrl1 = (file: any) => {
+    _setImgUrl1(file);
+    addFileEditHistory(fileKeys.IMAGE1);
+  };
+  const setFile2 = (file: any) => {
+    _setFile2(file);
+    addFileEditHistory(fileKeys.IMAGE2);
+  };
+  const setImgUrl2 = (file: any) => {
+    _setImgUrl2(file);
+    addFileEditHistory(fileKeys.IMAGE2);
+  };
+  const setFileMemo = (file: any) => {
+    _setFileMemo(file);
+    addFileEditHistory(fileKeys.MEMO);
+  };
+  const setFileMemoUrl = (file: any) => {
+    _setFileMemoUrl(file);
+    addFileEditHistory(fileKeys.MEMO);
+  };
+
   useEffect(() => {
-    if (isEditing && !loading) fetchPromotion();
+    if ((isEditing || copyId) && !loading) fetchPromotion();
   }, []);
 
   const fetchPromotion = async () => {
     setLoading(true);
-    const id = pathSplit[4];
+    const id = isEditing || !copyId ? pathSplit[4] : copyId;
     await getPromotionById(id)
       .then((res) => {
-        console.log("promo", res);
+        if (copyId) {
+          res.promotionCode = res.promotionCode + "_copy";
+          res.promotionName = res.promotionName + " (copy)";
+          res.startDate = null;
+          res.endDate = null;
+        }
         setDefaultData(res);
-        setPromoState({ ...promoStateValue, promotion: res });
+        let promotionGroupOption;
+        if (res?.conditionDetail) {
+          if (res.promotionType === PromotionType.DISCOUNT_MIX) {
+            promotionGroupOption = res.conditionDetail[0]?.conditionDiscount?.typeMix;
+          } else if (res.promotionType === PromotionType.FREEBIES_MIX) {
+            promotionGroupOption = res.conditionDetail[0]?.typeMix;
+          }
+        }
+        setPromoState({ ...promoStateValue, promotion: res, promotionGroupOption });
         if (res.promotionImageFirst) {
-          setImgUrl1(res.promotionImageFirst);
+          _setImgUrl1(res.promotionImageFirst);
         }
         if (res.promotionImageSecond) {
-          setImgUrl2(res.promotionImageSecond);
+          _setImgUrl2(res.promotionImageSecond);
         }
         if (res.fileMemoPath) {
-          setFileMemoUrl(res.fileMemoPath);
+          _setFileMemoUrl(res.fileMemoPath);
         }
         form1.setFieldsValue({
           ...res,
-          startDate: dayjs(res.startDate),
-          endDate: dayjs(res.endDate),
+          startDate: copyId ? undefined : dayjs(res.startDate),
+          endDate: copyId ? undefined : dayjs(res.endDate),
           referencePromotion: res.referencePromotion ? res.referencePromotion : [],
           memoFile: res.fileMemoPath
             ? [
@@ -106,9 +159,67 @@ export const PromotionCreatePage: React.FC = () => {
         form2.setFieldsValue({
           stores: res.promotionShop,
         });
-        form3.setFieldValue("items", res.conditionDetail);
-        (res.conditionDetail as any[])?.forEach((p: any) => {
-          form3.setFieldValue(`promotion-${p.productId}`, p.condition || []);
+        if (PromotionGroup.MIX.includes(res.promotionType)) {
+          let newList: ProductEntity[] = [];
+          let newGroupKeys: number[] = [];
+          const conditionDetail: PromotionConditionGroupEntity[] = res?.conditionDetail;
+          conditionDetail?.forEach(({ products, conditionDiscount, conditionFreebies }, i) => {
+            if (res.promotionType !== "OTHER") {
+              const getType =
+                res?.conditionDetail[i].typeMix ||
+                res?.conditionDetail[i].conditionDiscount.typeMix ||
+                "";
+              if (getType === PromotionGroupOption.UNIT) {
+                const groupKey = i + 1;
+                const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
+                newList = [...newList, ...nextList];
+                newGroupKeys = [...newGroupKeys, groupKey];
+              } else {
+                const groupKey = i + 1;
+                const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
+                newList = [...newList, ...nextList];
+                if (conditionDiscount) {
+                  newList = newList.map((x) => {
+                    const findDiscountPrice = conditionDiscount.products.find(
+                      (y: any) => y.productId === x.productId,
+                    );
+                    if (findDiscountPrice) {
+                      return {
+                        ...x,
+                        discountPrice: findDiscountPrice.discountPrice,
+                        size: res?.conditionDetail[i].conditionDiscount.size,
+                      };
+                    } else {
+                      return { ...x };
+                    }
+                  });
+                } else {
+                  newList = newList.map((x) => {
+                    return { ...x, size: res?.conditionDetail[i].size };
+                  });
+                }
+                newGroupKeys = [...newGroupKeys, groupKey];
+              }
+            } else {
+              const groupKey = i + 1;
+              const nextList = products?.map((p) => (p.groupKey ? p : { ...p, groupKey })) || [];
+              newList = [...newList, ...nextList];
+              newGroupKeys = [...newGroupKeys, groupKey];
+            }
+          });
+          form3.setFieldValue("items", newList);
+        } else {
+          form3.setFieldValue("items", res.conditionDetail);
+        }
+        (res.conditionDetail as any[])?.forEach((p: any, i: number) => {
+          if (PromotionGroup.MIX.includes(res?.promotionType)) {
+            form3.setFieldValue(
+              `${i + 1}`,
+              p.conditionFreebies || p.conditionDiscount || [{ detail: p.detail }] || [],
+            );
+          } else {
+            form3.setFieldValue(`promotion-${p.productId}`, p.condition || []);
+          }
         });
       })
       .catch((e) => {
@@ -125,38 +236,32 @@ export const PromotionCreatePage: React.FC = () => {
         title={isEditing ? "แก้ไขโปรโมชั่น" : "เพิ่มโปรโมชั่น"}
         showBack
         extra={
-          <>
-            <Steps
-              // progressDot
-              current={step}
-              items={[
-                {
-                  title: <>ข้อมูลเบื้องต้น</>,
-                },
-                {
-                  title: (
-                    <>
-                      เลือกเขต
-                      <br />
-                      และร้านค้า
-                    </>
-                  ),
-                },
-                {
-                  title: (
-                    <>
-                      รายละเอียด
-                      <br />
-                      โปรโมชั่น
-                    </>
-                  ),
-                },
-                // {
-                //     title: <>เงื่อนไข&nbsp;/<br/>สิทธิประโยชน์</>,
-                // },
-              ]}
-            />
-          </>
+          <StepAntd
+            current={step}
+            items={[
+              {
+                title: "ข้อมูลเบื้องต้น",
+              },
+              {
+                title: (
+                  <>
+                    เลือกเขต
+                    <br />
+                    และร้านค้า
+                  </>
+                ),
+              },
+              {
+                title: (
+                  <>
+                    รายละเอียด
+                    <br />
+                    โปรโมชั่น
+                  </>
+                ),
+              },
+            ]}
+          />
         }
         customBreadCrumb={
           <BreadCrumb
@@ -185,9 +290,11 @@ export const PromotionCreatePage: React.FC = () => {
       imageUrl1={imageUrl1}
       imageUrl2={imageUrl2}
       fileMemoUrl={fileMemoUrl}
+      setFileMemoUrl={setFileMemoUrl}
       setImgUrl1={setImgUrl1}
       setImgUrl2={setImgUrl2}
       isEditing={isEditing}
+      isCopying={!!copyId}
       key={0}
     />,
     <PromotionCreateStep2
@@ -200,7 +307,9 @@ export const PromotionCreatePage: React.FC = () => {
       form={form3}
       promotionType={form1.getFieldValue("promotionType")}
       isEditing={isEditing}
+      isCopying={!!copyId}
       key={2}
+      company={company}
     />,
   ];
 
@@ -214,14 +323,12 @@ export const PromotionCreatePage: React.FC = () => {
             ...promotionData,
             ...values,
           });
-          console.log("values", values);
         })
         .catch((errInfo) => {
           console.log("errInfo", errInfo);
         });
     } else if (step === 1) {
       const stores = form2.getFieldValue("stores");
-      console.log(stores);
       if (!stores || stores.length <= 0) {
         setStep2Error(true);
       } else {
@@ -235,8 +342,10 @@ export const PromotionCreatePage: React.FC = () => {
       form3
         .validateFields()
         .then((values) => {
-          console.log(values);
-          if (promotionData.promotionType === PromotionType.FREEBIES_NOT_MIX) {
+          if (
+            promotionData.promotionType === PromotionType.FREEBIES_NOT_MIX ||
+            promotionData.promotionType === PromotionType.FREEBIES_MIX
+          ) {
             const promoList = form3.getFieldsValue();
             if (!Object.entries(promoList).length) {
               Modal.error({
@@ -245,6 +354,9 @@ export const PromotionCreatePage: React.FC = () => {
               return;
             }
             const pass = Object.entries(promoList).every(([key, value]) => {
+              if(promotionData.promotionType === PromotionType.FREEBIES_MIX && key.split('-')[1] === 'weight' ){
+                return true
+              }
               return (value as any[]).every(
                 (val: any) =>
                   val?.freebies &&
@@ -265,7 +377,7 @@ export const PromotionCreatePage: React.FC = () => {
             ...promotionData,
             items: form3.getFieldsValue(),
           };
-          onSubmit(true, data);
+          onSubmit(false, data);
           setPromotionData(data);
         })
         .catch((errInfo) => {
@@ -281,7 +393,6 @@ export const PromotionCreatePage: React.FC = () => {
       stores: form2.getFieldValue("stores"),
       items: form3.getFieldsValue(),
     };
-    console.log({ data });
     setPromotionData(data);
     onSubmit(false, data);
   };
@@ -290,7 +401,6 @@ export const PromotionCreatePage: React.FC = () => {
     setCreating(true);
     const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
-    console.log({ promotionData, startDate, endDate, startTime, endTime });
     const submitData = {
       ...promotionData,
       promotionId: id,
@@ -303,7 +413,7 @@ export const PromotionCreatePage: React.FC = () => {
       horizontalImage: undefined,
       verticalImage: undefined,
       promotionShop: stores,
-      conditionDetailDiscount: [{}],
+      conditionDetailDiscount: undefined,
       conditionDetailFreebies: undefined,
       startDate:
         startDate && startTime
@@ -315,31 +425,40 @@ export const PromotionCreatePage: React.FC = () => {
           : undefined,
       startTime: undefined,
       endTime: undefined,
+      createBy: isEditing ? undefined : `${firstname} ${lastname}`,
+      updateBy: isEditing ? `${firstname} ${lastname}` : undefined,
     };
     const promoList = form3.getFieldsValue();
     if (promotionType === PromotionType.FREEBIES_NOT_MIX) {
       submitData.conditionDetailDiscount = undefined;
-      submitData.conditionDetailFreebies = Object.entries(promoList).map(([key, value]) => {
+      submitData.conditionDetailFreebies = Object.entries(promoList).map(([key, value]: any[]) => {
         const [pKey, productId] = key.split("-");
         const { productName, productCategory, productImage, packSize } =
           productList?.allData?.find((p: ProductEntity) => p.productId === productId) ||
           ({} as ProductEntity);
+        const condition = value.map((v: any) => {
+          return {
+            ...v,
+            freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+          };
+        });
         return {
           productId,
           productName,
           productCategory,
           productImage,
           packsize: packSize,
-          condition: value,
+          condition,
         };
       });
-    } else {
+    } else if (promotionType === PromotionType.DISCOUNT_NOT_MIX) {
       submitData.conditionDetailDiscount = Object.entries(promoList).map(([key, value]) => {
         const [pKey, productId] = key.split("-");
         const { productName, productCategory, productImage, packSize } =
           productList?.allData?.find((p: ProductEntity) => p.productId === productId) ||
           defaultData?.conditionDetail?.find((p: any) => p.productId === productId) ||
           ({} as ProductEntity);
+
         return {
           productId,
           productName,
@@ -349,10 +468,130 @@ export const PromotionCreatePage: React.FC = () => {
           condition: value,
         };
       });
+    } else if (promotionType === PromotionType.FREEBIES_MIX) {
+      if (promoStateValue.promotionGroupOption === PromotionGroupOption.UNIT) {
+        submitData.conditionDetailDiscount = undefined;
+        submitData.conditionMixFreebies = Object.entries(promoList).map(
+          ([key, condition]: any[]) => {
+            const conditionFreebies = condition.map((v: any) => {
+              return {
+                ...v,
+                freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+              };
+            });
+            return {
+              products: promoStateValue.productGroup
+                .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+                .map((item: ProductEntity) => ({
+                  ...item,
+                })),
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
+              conditionFreebies,
+            };
+          },
+        );
+      } else {
+        const weightList: any = {};
+        submitData.conditionDetailDiscount = undefined;
+        submitData.conditionMixFreebies = Object.entries(promoList)
+          .filter(([fullKey, value]) => {
+            const [key, isWeight] = fullKey.split("-");
+            if (isWeight) weightList[key] = value;
+            return !isWeight;
+          })
+          .map(([key, condition]: any[]) => {
+            const conditionFreebies = condition.map((v: any) => {
+              return {
+                ...v,
+                freebies: v.freebies?.map((fb: any) => ({ ...fb, product: undefined })),
+              };
+            });
+            return {
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
+              size: weightList[key],
+              products: promoStateValue.productGroup
+                .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+                .map((item: ProductEntity) => ({
+                  ...item,
+                  typeMix: promoStateValue.promotionGroupOption
+                    ? promoStateValue.promotionGroupOption
+                    : PromotionGroupOption.UNIT,
+                })),
+              conditionFreebies,
+            };
+          });
+      }
+    } else if (promotionType === PromotionType.DISCOUNT_MIX) {
+      submitData.conditionDetailDiscount = undefined;
+      if (promoStateValue.promotionGroupOption !== PromotionGroupOption.WEIGHT) {
+        submitData.conditionMixDiscount = Object.entries(promoList).map(
+          ([key, conditionDiscount]) => {
+            return {
+              products: promoStateValue.productGroup
+                .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+                .map((item: ProductEntity) => ({
+                  ...item,
+                  typeMix: promoStateValue.promotionGroupOption
+                    ? promoStateValue.promotionGroupOption
+                    : PromotionGroupOption.UNIT,
+                })),
+              conditionDiscount,
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
+            };
+          },
+        );
+      } else {
+        const groups: any = {};
+        Object.entries(promoList).forEach(([fullKey, val]) => {
+          const [groupKey, productId] = fullKey.split("-");
+          const groupVal = {
+            typeMix: "Size",
+            ...(groups[groupKey] || {}),
+          };
+          if (typeof val === "string" || val instanceof String) {
+            groupVal.size = val;
+          } else if (typeof val === "object") {
+            groupVal.products = [...(groupVal.products || []), { ...val, productId }];
+          }
+          groups[groupKey] = groupVal;
+        });
+        submitData.conditionMixDiscount = Object.entries(groups).map(([key, conditionDiscount]) => {
+          return {
+            products: promoStateValue.productGroup
+              .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+              .map((item: ProductEntity) => ({
+                ...item,
+                typeMix: promoStateValue.promotionGroupOption
+                  ? promoStateValue.promotionGroupOption
+                  : PromotionGroupOption.UNIT,
+              })),
+            conditionDiscount,
+          };
+        });
+      }
+    } else if (promotionType === PromotionType.OTHER) {
+      submitData.conditionDetailDiscount = undefined;
+      submitData.conditionOther = Object.entries(promoList).map(([key, values]) => {
+        const { detail } = (values as any[])[0];
+        return {
+          products: promoStateValue.productGroup
+            .filter((item: ProductEntity) => item.groupKey && `${item.groupKey}` === `${key}`)
+            .map((item: ProductEntity) => ({
+              ...item,
+              typeMix: promoStateValue.promotionGroupOption
+                ? promoStateValue.promotionGroupOption
+                : PromotionGroupOption.UNIT,
+            })),
+          detail,
+        };
+      });
     }
-
-    // console.log({ promoList, submitData, file1, file2, fileMemo });
-    // return;
     const callback = (res: any) => {
       const { success, responseData, developerMessage, userMessage } = res;
       const promotionId = responseData?.promotionId || id;
@@ -360,12 +599,8 @@ export const PromotionCreatePage: React.FC = () => {
       const onDone = () => {
         setDone(true);
         setTimeout(() => {
-          if (promotionStatus) {
-            navigate("/PromotionPage/promotion");
-            navigate(1);
-          } else {
-            navigate(`/PromotionPage/promotion/edit/${promotionId}`);
-          }
+          navigate("/PromotionPage/promotion");
+          navigate(1);
         }, 2000);
         setTimeout(() => {
           setDone(false);
@@ -373,18 +608,32 @@ export const PromotionCreatePage: React.FC = () => {
       };
 
       if (success) {
-        if (!hasFile) {
+        if (!hasFile && fileEditHistory.size <= 0) {
           onDone();
         } else {
           const formData = new FormData();
           formData.append("promotionId", promotionId);
-          if (file1) formData.append("promotionImageFirst", file1);
-          if (file2) formData.append("promotionImageSecond", file2);
-          if (fileMemo) formData.append("fileMemo", fileMemo?.originFileObj);
-          // TODO debug API
+          if (fileEditHistory.has(fileKeys.IMAGE1)) {
+            formData.append("promotionImageFirstCheck", "true");
+            formData.append("promotionImageFirst", file1);
+          }
+          if (fileEditHistory.has(fileKeys.IMAGE2)) {
+            formData.append("promotionImageSecondCheck", "true");
+            formData.append("promotionImageSecond", file2);
+          }
+          if (fileEditHistory.has(fileKeys.MEMO)) {
+            formData.append("fileMemoCheck", "true");
+            formData.append("fileMemo", fileMemo?.originFileObj);
+          }
+          // if (file1) formData.append("promotionImageFirst", file1);
+          // if (file2) formData.append("promotionImageSecond", file2);
+          // if (fileMemo) formData.append("fileMemo", fileMemo?.originFileObj);
+
+          for (const pair of formData.entries()) {
+            console.log(pair[0] + ", " + pair[1]);
+          }
           updatePromotionFile(formData)
             .then((res) => {
-              console.log("updatePromotionFile", res);
               onDone();
             })
             .catch((err) => {
@@ -397,6 +646,9 @@ export const PromotionCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
+
+    // console.log("submitData", submitData);
+    // return;
     if (!isEditing) {
       await createPromotion(submitData)
         .then(callback)
@@ -438,7 +690,7 @@ export const PromotionCreatePage: React.FC = () => {
                 )}
               </Col>
               <Col xl={15} sm={6}></Col>
-              <Col xl={3} sm={6}>
+              {/* <Col xl={3} sm={6}>
                 {(!isEditing || defaultData?.isDraft) && (
                   <Button
                     typeButton='primary-light'
@@ -447,7 +699,7 @@ export const PromotionCreatePage: React.FC = () => {
                     onClick={onSaveDraft}
                   />
                 )}
-              </Col>
+              </Col> */}
               <Col xl={3} sm={6}>
                 <Button
                   typeButton='primary'

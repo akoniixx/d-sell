@@ -1,26 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { Row, Col, Divider, Form, message, Modal, Spin } from "antd";
 import { CardContainer } from "../../../components/Card/CardContainer";
-import { constSelector, useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../../components/Button/Button";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
-import styled from "styled-components";
 import { CreateCOStep1 } from "./CreateCOStep/CreateCOStep1";
-import { PromotionType } from "../../../definitions/promotion";
-import productState from "../../../store/productList";
-import { ProductEntity } from "../../../entities/PoductEntity";
 import {
   createCreditMemo,
   getCreditMemoById,
   updateCreditMemo,
 } from "../../../datasource/CreditMemoDatasource";
-import { FlexCol, FlexRow } from "../../../components/Container/Container";
+import { FlexCol } from "../../../components/Container/Container";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import color from "../../../resource/color";
 import Text from "../../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
 import Steps from "../../../components/StepAntd/steps";
 import { StoreEntity } from "../../../entities/StoreEntity";
 import { CreateCOStep2 } from "./CreateCOStep/CreateCOStep2";
@@ -45,6 +39,8 @@ export const DiscountCreatePage: React.FC = () => {
     stores: undefined,
     items: undefined,
   });
+  const [fileMemo, setFileMemo] = useState<any>();
+  const [fileMemoUrl, setFileMemoUrl] = useState<any>();
   const [defaultData, setDefaultData] = useState<any>();
   const [showStep2Error, setStep2Error] = useState(false);
 
@@ -59,8 +55,8 @@ export const DiscountCreatePage: React.FC = () => {
     setLoading(true);
     await getCreditMemoById(id)
       .then((res: any) => {
-        console.log("creditMemo", res);
         setDefaultData(res);
+        setFileMemoUrl(res.filePath);
         form1.setFieldsValue({
           ...res,
         });
@@ -82,7 +78,7 @@ export const DiscountCreatePage: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title={isEditing ? "แก้ไข Credit Memo" : "สร้าง Credit Memo"}
+        title={isEditing ? "แก้ไข ส่วนลดดูแลราคา" : "สร้าง ส่วนลดดูแลราคา"}
         showBack
         extra={
           <>
@@ -114,9 +110,9 @@ export const DiscountCreatePage: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการ เพิ่ม/ลด Credit Memo", path: "/discount/list" },
+              { text: "รายการ เพิ่ม/ลด ส่วนลดดูแลราคา", path: "/discount/list" },
               {
-                text: isEditing ? "แก้ไข Credit Memo" : "สร้าง Credit Memo",
+                text: isEditing ? "แก้ไข ส่วนลดดูแลราคา" : "สร้าง ส่วนลดดูแลราคา",
                 path: window.location.pathname,
               },
             ]}
@@ -127,12 +123,18 @@ export const DiscountCreatePage: React.FC = () => {
   };
 
   const stepsComponents = [
-    <CreateCOStep1 form={form1} isEditing={isEditing} key={0} />,
+    <CreateCOStep1
+      form={form1}
+      isEditing={isEditing}
+      fileMemo={fileMemo}
+      setFileMemo={setFileMemo}
+      fileUrl={fileMemoUrl}
+      key={0}
+    />,
     <CreateCOStep2 form={form2} showError={showStep2Error} setError={setStep2Error} key={1} />,
   ];
 
   const onNext = () => {
-    console.log("onNext", step);
     if (step === 0) {
       form1
         .validateFields()
@@ -142,19 +144,15 @@ export const DiscountCreatePage: React.FC = () => {
             ...creditMemoData,
             ...values,
           });
-          console.log("values", values);
         })
         .catch((errInfo) => {
           console.log("errInfo", errInfo);
         });
     } else if (step === 1) {
-      console.log("onNext s1", form2.getFieldsValue());
       form2
         .validateFields()
         .then((values) => {
-          console.log("values", values);
           const stores = form2.getFieldValue("stores");
-          console.log({ stores });
           if (!stores || stores.length <= 0) {
             setStep2Error(true);
           } else {
@@ -166,10 +164,11 @@ export const DiscountCreatePage: React.FC = () => {
                 receiveAmount: parseFloat(values[s.customerCompanyId]),
                 usedAmount: 0,
                 creditMemoShopStatus: true,
+                customerNo: s.customerNo,
               })),
             };
             setCreditMemoData(data);
-            onSubmit(true, data);
+            onSubmit(defaultData ? defaultData.creditMemoStatus : true, data);
           }
         })
         .catch((errInfo) => {
@@ -183,18 +182,29 @@ export const DiscountCreatePage: React.FC = () => {
     const { startDate, startTime } = creditMemoData;
     const id = isEditing ? pathSplit[3] : undefined;
     const username = `${firstname} ${lastname}`;
-    const submitData = {
+    const submitDataObj = {
       ...data,
       creditMemoId: id,
       company,
-      creditMemoStatus,
+      creditMemoStatus: creditMemoStatus,
       createBy: isEditing ? undefined : username,
       updateBy: isEditing ? username : undefined,
     };
-
+    const submitData = new FormData();
+    Object.entries(submitDataObj).forEach(([key, value]) => {
+      if (key === "creditMemoStatus") {
+        submitData.append("creditMemoStatus", String(creditMemoStatus));
+      } else {
+        if (!["file", "creditMemoShop"].includes(key) && value) submitData.append(key, `${value}`);
+      }
+    });
+    submitDataObj?.creditMemoShop?.forEach((shop: CreditMemoShopEntity) => {
+      const str = JSON.stringify(shop);
+      submitData.append("creditMemoShop", str);
+    });
+    submitData.append("file", fileMemo?.originFileObj);
     const callback = (res: any) => {
-      const { success, responseData, developerMessage, userMessage } = res;
-      // const promotionId = responseData?.promotionId || id;
+      const { success, userMessage } = res;
       const onDone = () => {
         setDone(true);
         setTimeout(() => {
@@ -204,17 +214,12 @@ export const DiscountCreatePage: React.FC = () => {
           setDone(false);
         }, 2000);
       };
-
       if (success) {
         onDone();
       } else {
         message.error(userMessage || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
-        console.log(developerMessage);
       }
     };
-    // console.log({ submitData });
-    // return;
-
     if (!isEditing) {
       await createCreditMemo(submitData)
         .then(callback)
@@ -277,7 +282,7 @@ export const DiscountCreatePage: React.FC = () => {
           <Text level={4} align='center'>
             {isDone ? (
               <>
-                {isEditing ? "แก้ไข" : "สร้าง"} Credit Memo
+                {isEditing ? "แก้ไข" : "สร้าง"} ส่วนลดดูแลราคา
                 <br />
                 สำเร็จ
               </>
@@ -285,7 +290,7 @@ export const DiscountCreatePage: React.FC = () => {
               <>
                 กำลัง{isEditing ? "แก้ไข" : "สร้าง"}
                 <br />
-                Credit Memo
+                ส่วนลดดูแลราคา
               </>
             )}
           </Text>

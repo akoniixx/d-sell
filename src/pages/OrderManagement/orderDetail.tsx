@@ -1,27 +1,10 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import {
-  Row,
-  Col,
-  Divider,
-  Form,
-  message,
-  Modal,
-  Spin,
-  Tabs,
-  Tag,
-  Table,
-  Avatar,
-  Radio,
-  Space,
-} from "antd";
+import { Row, Col, Divider, Form, Modal, Table, Image, Badge } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import Button from "../../components/Button/Button";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import styled from "styled-components";
-import { PromotionType } from "../../definitions/promotion";
-import productState from "../../store/productList";
 import { ProductEntity } from "../../entities/PoductEntity";
 import {
   DetailBox as DetailBoxStyled,
@@ -153,7 +136,6 @@ export const OrderDetail: React.FC = () => {
     const id = pathSplit[2];
     await getOrderDetail(id)
       .then((res: OrderEntity) => {
-        console.log("getOrderDetail", res);
         setOrderData(res);
       })
       .catch((e: any) => {
@@ -184,7 +166,6 @@ export const OrderDetail: React.FC = () => {
     })
       .then((res: any) => {
         navigate(0);
-        console.log("res", res);
       })
       .catch((e: any) => {
         console.log(e);
@@ -225,6 +206,7 @@ export const OrderDetail: React.FC = () => {
       await submitToNav({
         orderId,
         remark,
+        updateBy: `${firstname} ${lastname}`,
       })
         .then((res: any) => {
           const { success, userMessage } = res;
@@ -307,10 +289,13 @@ export const OrderDetail: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar
+                <Image
                   src={row?.productImage || image.product_no_image}
-                  size={50}
-                  shape='square'
+                  style={{
+                    width: "55px",
+                    height: "55px",
+                    objectFit: "contain",
+                  }}
                 />
               </div>
               <FlexCol>
@@ -334,7 +319,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{packSize}</Text>
               <Text level={6} color='Text3'>
-                {product?.productCodeNAV}
+                {product?.productCodeNAV || product?.productFreebiesCodeNAV}
               </Text>
             </FlexCol>
           ),
@@ -351,7 +336,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{quantity}</Text>
               <Text level={6} color='Text3'>
-                {product?.saleUOMTH || product?.saleUOM}
+                {product?.saleUOMTH || product?.saleUOM || product?.baseUnitOfMeaTh}
               </Text>
             </FlexCol>
           ),
@@ -380,18 +365,27 @@ export const OrderDetail: React.FC = () => {
       title: "โปรโมชัน",
       dataIndex: "orderProductPromotions",
       key: "orderProductPromotions",
-      render: (orderProductPromotions: any[], product: ProductEntity, index: number) => {
-        const promotions = orderProductPromotions || product?.productPromotionCode;
+      width: "8%",
+      render: (orderProductPromotions: any[], product: any, index: number) => {
+        const findPromotion = () => {
+          let promotion = "";
+          if (product?.orderProductPromotions.length) {
+            const p: any = [];
+            for (let i = 0; product?.orderProductPromotions.length > i; i++) {
+              p.push(product?.orderProductPromotions[i].promotionCode);
+            }
+            promotion = p.map((a: any) => a).join(", ");
+          } else {
+            promotion = product.productPromotionCode;
+          }
+          return promotion || "-";
+        };
         return {
           children: (
             <FlexCol>
-              {promotions.length > 0
-                ? promotions.map((promotion, i) => (
-                    <Text level={5} key={i}>
-                      {promotion?.promotionCode}
-                    </Text>
-                  ))
-                : "-"}
+              <Text key={index} level={5}>
+                {findPromotion()}
+              </Text>
             </FlexCol>
           ),
         };
@@ -473,14 +467,21 @@ export const OrderDetail: React.FC = () => {
       render: (price: number, product: ProductEntity, index: number) => {
         return {
           children: (
-            <FlexCol>
-              <Text level={5} color='primary' fontWeight={700}>
-                {priceFormatter(price || "0", undefined, false, true)}
-              </Text>
-              <Text level={6} color='Text3'>
-                {"บาท"}
-              </Text>
-            </FlexCol>
+            <>
+              {!price && (
+                <div style={{ position: "relative", bottom: 26, right: -10 }}>
+                  <Badge.Ribbon text='ของแถม' placement='end'></Badge.Ribbon>
+                </div>
+              )}
+              <FlexCol>
+                <Text level={5} color='primary' fontWeight={700}>
+                  {priceFormatter(price || "0", undefined, false, true)}
+                </Text>
+                <Text level={6} color='Text3'>
+                  {"บาท"}
+                </Text>
+              </FlexCol>
+            </>
           ),
         };
       },
@@ -717,8 +718,10 @@ export const OrderDetail: React.FC = () => {
               <Text level={4} fontWeight={700}>
                 รายละเอียดคำสั่งซื้อ
               </Text>
-              <DetailBox style={{ height: 220 }}>
+              <DetailBox style={{ height: 260 }}>
                 <DetailItem label='ชื่อร้านค้า' value={orderData?.customerName} />
+                <DetailItem label='Customer Code' value={orderData?.customerNo} />
+                <DetailItem label='เขต' value={orderData?.customerZone} />
                 <DetailItem label='SO NO.' value={orderData?.soNo} />
                 <DetailItem label='Order No.' value={orderData?.orderNo} />
                 <DetailItem
@@ -739,7 +742,7 @@ export const OrderDetail: React.FC = () => {
               <Text level={4} fontWeight={700}>
                 รายละเอียดการจัดส่ง
               </Text>
-              <DetailBox style={{ height: 220 }}>
+              <DetailBox style={{ height: 260 }}>
                 {/* TODO */}
                 <DetailItem
                   label='การจัดส่ง'
@@ -750,16 +753,39 @@ export const OrderDetail: React.FC = () => {
                   }
                 />
                 <DetailItem label='ที่อยู่' value={orderData?.deliveryAddress} />
-                <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} />
+                {/* <DetailItem label='หมายเหตุการจัดส่ง' value={orderData?.deliveryRemark} /> */}
+                <DetailItem label='ข้อมูลทะเบียนรถ' value={orderData?.numberPlate} />
               </DetailBox>
             </CardContainer>
           </Col>
         </Row>
         <br />
         <CardContainer>
+          <Row>
+            <Col span={12}>
+              <Text level={4} fontWeight={700}>
+                รายการสินค้า
+              </Text>
+            </Col>
+            <Col span={12}>
+              <div style={{ display: "flex", justifyContent: "end", paddingRight: 8, gap: 8 }}>
+                <Image src={icons.ribbonBadgeBlue} preview={false} width={20} />{" "}
+                <span>ของแถมโปรโมชั่น</span>
+                <Image src={icons.ribbonBadgeRed} preview={false} width={20} />{" "}
+                <span>ของแถม Special Request</span>
+              </div>
+            </Col>
+          </Row>
+          <br />
           <Table
             columns={columns}
-            dataSource={orderData?.orderProducts || []}
+            dataSource={
+              orderData?.orderProducts?.sort((a, b) =>
+                ("" + (a.productCodeNAV || a.productFreebiesCodeNAV)).localeCompare(
+                  (b.productCodeNAV || b.productFreebiesCodeNAV || ""),
+                ),
+              ) || []
+            }
             pagination={false}
             scroll={{ x: "max-content" }}
           />
@@ -777,6 +803,11 @@ export const OrderDetail: React.FC = () => {
                 หมายเหตุ (สำหรับ Sale Co)
               </Text>
               <DetailBox>{orderData?.saleCoRemark || "-"}</DetailBox>
+              <br />
+              <Text level={5} fontWeight={700}>
+                หมายเหตุ (การจัดส่ง)
+              </Text>
+              <DetailBox>{orderData?.deliveryRemark || "-"}</DetailBox>
               <br />
               <Text level={5} fontWeight={700}>
                 หมายเหตุ (ขอส่วนลดพิเศษเพิ่ม)
@@ -817,6 +848,7 @@ export const OrderDetail: React.FC = () => {
                     value={priceFormatter(orderData?.discount || "0", undefined, true)}
                     color='error'
                     alignRight
+                    style={{ color: "#2ED477" }}
                   />
                   <DetailItem
                     label='ส่วนลดพิเศษ'
@@ -830,18 +862,20 @@ export const OrderDetail: React.FC = () => {
                     alignRight
                   />
                   <DetailItem
-                    label='ส่วนลดดูแลราคา'
-                    labelEn='CO. ดูแลราคา / วงเงินเคลม'
-                    value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
-                    color='success'
-                    alignRight
-                  />
-                  <DetailItem
                     label='ส่วนลดเงินสด'
                     labelEn='Cash'
                     value={priceFormatter(orderData?.cashDiscount || "0", undefined, true)}
                     color='secondary'
+                    style={{ color: "#FF9138" }}
                     alignRight
+                  />
+                  <DetailItem
+                    label=' ส่วนลดดูแลราคา'
+                    labelEn='CO. ดูแลราคา / วงเงินเคลม'
+                    value={priceFormatter(orderData?.coDiscount || "0", undefined, true)}
+                    color='success'
+                    alignRight
+                    style={{ color: "#F46363" }}
                   />
                 </DetailBox>
                 <br />
