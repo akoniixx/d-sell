@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.24] - Release Date: 2023-09-07
+
+- fixed select muti brand for Fer in shop management
+
 ## Resolved [v0.6.23] - Release Date: 2023-09-06
 
 - added dupplicate promotion
