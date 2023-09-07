@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.6.23] - Release Date: 2023-09-06
+
+- added dupplicate promotion
+- disable mix volum type for ICPI & ICPF
+
 ## Resolved [v0.6.22] - Release Date: 2023-09-05
 
 - fixed create promotion
