@@ -37,9 +37,9 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 60
           envFrom:
-          # - secretRef:
-          #     name: bo-sellcoda-dev
+            # - secretRef:
+            #     name: bo-sellcoda-dev
             - configMapRef:
                 name: bo-sellcoda-dev
       imagePullSecrets:
-      - name: gcr-image-pull-secret
+        - name: gcr-image-pull-secret
