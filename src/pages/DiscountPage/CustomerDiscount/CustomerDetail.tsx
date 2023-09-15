@@ -30,6 +30,7 @@ type factorType = -1 | 0 | 1;
 export const CustomerCreditMemoDetail: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
+  const pageSize = 10;
 
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
@@ -40,6 +41,8 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const [data, setData] = useState<any[]>();
   const [historyLoading, setHistoryLoading] = useState(false);
   const [history, setHistory] = useState();
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
 
   // Manual CO
   const [showConfirmModal, setConfirmModal] = useState(false);
@@ -51,8 +54,11 @@ export const CustomerCreditMemoDetail: React.FC = () => {
   const [showManualCoDetail, setShowManualCoDetail] = useState<any>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (page < 2) {
+      fetchData();
+    }
+    fetchOrder();
+  }, [page]);
 
   const fetchData = async () => {
     setLoadingProfile(true);
@@ -67,10 +73,14 @@ export const CustomerCreditMemoDetail: React.FC = () => {
       .finally(() => {
         setLoadingProfile(false);
       });
-
     setLoading(true);
-    await getOrderHistory({ customerCompanyId: id })
+    fetchOrder();
+  };
+  const fetchOrder = async () => {
+    const id = pathSplit[3];
+    await getOrderHistory({ customerCompanyId: id, page: page, take: pageSize })
       .then((res: any) => {
+        setCount(res.count);
         setData(res?.data);
       })
       .catch((e: any) => {
@@ -261,8 +271,15 @@ export const CustomerCreditMemoDetail: React.FC = () => {
             <Table
               columns={creditMemoColumn}
               dataSource={data?.map((s: any, i: any) => ({ ...s, key: i }))}
-              pagination={false}
               scroll={{ y: 500 }}
+              pagination={{
+                pageSize,
+                current: page,
+                total: count,
+                showSizeChanger: false,
+                position: ["bottomCenter"],
+                onChange: (page) => setPage(page),
+              }}
             />
           </TableContainer>
           <Modal
