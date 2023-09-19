@@ -4,6 +4,10 @@
 
 - Feature: Permission Setting
 
+## Resolved [v0.6.25] - Release Date: 2023-09-15
+
+- added page in customer discount CO menu
+
 ## Resolved [v0.6.24] - Release Date: 2023-09-07
 
 - fixed select muti brand for Fer in shop management
