@@ -138,6 +138,7 @@ interface MainList {
 
 interface RoleGroup {
   isNested?: boolean;
+  groupKey: string;
   groupName: string;
   list: (MainList | Group)[];
 }
@@ -149,129 +150,148 @@ interface StaticRoles {
 export const staticRolesObject: StaticRoles = {
   manageOrder: {
     groupName: "จัดการคำสั่งซื้อ",
+    groupKey: "ORDER",
     list: [
       {
         label: "ดูคำสั่งซื้อ",
-        value: "viewOrder",
+        value: "view",
       },
       {
-        label: "จัดการคำสั่งซื้อ",
-        value: "manageOrder",
-      },
-      {
-        label: "เชื่อมต่อ Navision",
-        value: "connectNavision",
+        label: "แก้ไขสถานะคำสั่งซื้อ",
+        value: "edit",
       },
     ],
   },
   specialRequest: {
     groupName: "อนุมัติคำสั่งซื้อ (Special Request)",
+    groupKey: "SPREQ",
     list: [
       {
         label: "ดูคำสั่งซื้อ",
-        value: "viewOrder",
+        value: "view",
       },
       {
         label: "อนุมัติ/ ยกเลิก คำสั่งซื้อ",
-        value: "approveOrder",
+        value: "approve",
       },
     ],
   },
   productList: {
     groupName: "รายการสินค้า",
+    groupKey: "PROD",
     list: [
       {
         label: "ดูสินค้า",
-        value: "viewProduct",
+        value: "view",
       },
       {
         label: "แก้ไขสินค้า",
-        value: "editProduct",
+        value: "edit",
       },
       {
         label: "เชื่อมต่อ Navision",
-        value: "connectNavision",
+        value: "sync",
       },
     ],
   },
   priceSpecialExclusive: {
     groupName: "ราคาสินค้าเฉพาะร้าน",
+    groupKey: "SPPRICE",
     list: [
       {
         label: "ดูราคาสินค้า",
-        value: "viewPrice",
+        value: "view",
       },
       {
         label: "สร้างราคาสินค้า",
-        value: "createPrice",
+        value: "create",
       },
       {
         label: "แก้ไขราคาสินค้า",
-        value: "editPrice",
+        value: "edit",
       },
       {
         label: "ลบราคาสินค้า",
-        value: "deletePrice",
+        value: "delete",
       },
     ],
   },
   promotionSetting: {
     groupName: "ตั้งค่าโปรโมชั่น",
+    groupKey: "PROMO",
     list: [
       {
-        label: "ดูโปรโมชั่น",
-        value: "viewPromotion",
+        label: "สร้างโปรโมชั่น",
+        value: "create",
       },
       {
-        label: "สร้างโปรโมชั่น",
-        value: "createPromotion",
+        label: "ดูโปรโมชั่น",
+        value: "view",
       },
       {
         label: "แก้ไขโปรโมชั่น",
-        value: "editPromotion",
+        value: "edit",
       },
       {
         label: "ลบโปรโมชั่น",
-        value: "deletePromotion",
+        value: "delete",
+      },
+      {
+        label: "อนุมัติโปรโมชั่น",
+        value: "approve",
+      },
+      {
+        label: "จัดการเอกสารโปรโมชั่น",
+        value: "document",
       },
     ],
   },
   freebieList: {
     groupName: "รายการของแถม",
+    groupKey: "FREEB",
     list: [
       {
         label: "ดูรายการของแถม",
-        value: "viewFreebie",
+        value: "view",
       },
       {
         label: "แก้ไขของแถม",
-        value: "editFreebie",
+        value: "edit",
+      },
+      {
+        label: "เชื่อมต่อ Navision",
+        value: "sync",
       },
     ],
   },
   discountCo: {
     isNested: true,
     groupName: "ส่วนลดดูแลราคา",
+    groupKey: "DISCO",
     list: [
       {
         label: "รายการส่วนลด",
         groupNameNested: "discountList",
         listNested: [
           {
-            label: "ดูรายการส่วนลด",
-            value: "viewDiscount",
+            label: "สร้างรายการส่วนลด",
+            value: "create",
           },
           {
-            label: "สร้างรายการส่วนลด",
-            value: "createDiscount",
+            label: "ดูรายการส่วนลด",
+            value: "view",
           },
           {
             label: "แก้ไขรายการส่วนลด",
-            value: "editDiscount",
+            value: "edit",
           },
           {
             label: "ลบรายการส่วนลด",
-            value: "deleteDiscount",
+            value: "delete",
+          },
+          {
+            label: "อนุมัติรายการส่วนลด",
+            value: "approve",
           },
         ],
       },
@@ -281,20 +301,16 @@ export const staticRolesObject: StaticRoles = {
 
         listNested: [
           {
-            label: "ดูรายการส่วนลด",
-            value: "viewDiscount",
+            label: "สร้างส่วนลดดูแลราคารายร้าน",
+            value: "create",
           },
           {
-            label: "สร้างรายการส่วนลด",
-            value: "createDiscount",
+            label: "ดูส่วนลดดูแลราคารายร้าน",
+            value: "view",
           },
           {
-            label: "แก้ไขรายการส่วนลด",
-            value: "editDiscount",
-          },
-          {
-            label: "ลบรายการส่วนลด",
-            value: "deleteDiscount",
+            label: "แก้ไขส่วนลดดูแลราคารายร้าน",
+            value: "edit",
           },
         ],
       },
@@ -303,20 +319,24 @@ export const staticRolesObject: StaticRoles = {
         label: "จัดการเงื่อนไขดูแลราคา",
         listNested: [
           {
-            label: "ดูเงื่อนไข",
-            value: "viewCondition",
+            label: "สร้างจัดการเงื่อนไขดูแลราคา",
+            value: "create",
           },
           {
-            label: "สร้างเงื่อนไข",
-            value: "createCondition",
+            label: "ดูจัดการเงื่อนไขดูแลราคา",
+            value: "view",
           },
           {
-            label: "แก้ไขเงื่อนไข",
-            value: "editCondition",
+            label: "แก้ไขจัดการเงื่อนไขดูแลราคา",
+            value: "edit",
           },
           {
-            label: "ลบเงื่อนไข",
-            value: "deleteCondition",
+            label: "ลบจัดการเงื่อนไขดูแลราคา",
+            value: "delete",
+          },
+          {
+            label: "อนุมัติจัดการเงื่อนไขดูแลราคา",
+            value: "approve",
           },
         ],
       },
@@ -328,6 +348,7 @@ export const staticManageRoles: StaticRoles = {
   manageUser: {
     isNested: true,
     groupName: "จัดการผู้ใช้งาน",
+    groupKey: "USER",
     list: [
       {
         label: "รายชื่อผู้ใช้งาน",
@@ -335,19 +356,15 @@ export const staticManageRoles: StaticRoles = {
         listNested: [
           {
             label: "ดูรายชื่อผู้ใช้งาน",
-            value: "viewUser",
+            value: "view",
           },
           {
             label: "เพิ่มผู้ใช้งาน",
-            value: "addUser",
+            value: "create",
           },
           {
             label: "แก้ไขผู้ใช้งาน",
-            value: "editUser",
-          },
-          {
-            label: "ลบผู้ใช้งาน",
-            value: "deleteUser",
+            value: "edit",
           },
         ],
       },
@@ -357,19 +374,19 @@ export const staticManageRoles: StaticRoles = {
         listNested: [
           {
             label: "ดูรายการบทบาทผู้ใช้งาน",
-            value: "viewRoles",
+            value: "view",
           },
           {
             label: "เพิ่มบทบาทผู้ใช้งาน",
-            value: "addRoles",
+            value: "create",
           },
           {
             label: "แก้ไขบทบาทผู้ใช้งาน",
-            value: "editRoles",
+            value: "edit",
           },
           {
             label: "ลบบทบาทผู้ใช้งาน",
-            value: "deleteRoles",
+            value: "delete",
           },
         ],
       },
@@ -377,7 +394,8 @@ export const staticManageRoles: StaticRoles = {
   },
   manageStore: {
     isNested: true,
-    groupName: "จัดการสินค้า",
+    groupName: "จัดการร้านค้า",
+    groupKey: "STORE",
     list: [
       {
         label: "รายชื่อร้านค้า",
@@ -385,19 +403,19 @@ export const staticManageRoles: StaticRoles = {
         listNested: [
           {
             label: "ดูรายชื่อร้านค้า",
-            value: "viewStore",
+            value: "view",
           },
           {
             label: "สร้างร้านค้า",
-            value: "createStore",
+            value: "create",
           },
           {
             label: "แก้ไขร้านค้า",
-            value: "editStore",
+            value: "edit",
           },
           {
-            label: "ลบร้านค้า",
-            value: "deleteStore",
+            label: "เชื่อมต่อ Navision",
+            value: "sync",
           },
         ],
       },
@@ -407,11 +425,11 @@ export const staticManageRoles: StaticRoles = {
         listNested: [
           {
             label: "ดูรายการอนุมัติ",
-            value: "viewApprovePhone",
+            value: "view",
           },
           {
             label: "อนุมัติการเปลี่ยนเบอร์มือถือร้านค้า",
-            value: "approvePhone",
+            value: "approve",
           },
         ],
       },

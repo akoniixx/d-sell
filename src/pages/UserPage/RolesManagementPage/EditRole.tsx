@@ -56,24 +56,34 @@ export default function EditRole(): JSX.Element {
           const {
             menus,
           }: {
-            menus: string;
+            menus: any;
           } = result;
           const newMenus: {
             menuName: string;
             permission: string[];
-          }[] = JSON.parse(menus);
+          }[] = typeof menus === "string" ? JSON.parse(menus) : menus;
 
-          const priceList = newMenus.find((item) => item.menuName === "priceList");
-          const orderManagement = newMenus.find((item) => item.menuName === "orderManagement");
-          const specialRequest = newMenus.find((item) => item.menuName === "specialRequest");
-          const promotionSetting = newMenus.find((item) => item.menuName === "promotionSetting");
           const discountCo = newMenus.find((item) => item.menuName === "discountCo");
+          const freebieList = newMenus.find((item) => item.menuName === "freebieList");
+          const manageOrder = newMenus.find((item) => item.menuName === "manageOrder");
+          const manageStore = newMenus.find((item) => item.menuName === "manageStore");
+          const manageUser = newMenus.find((item) => item.menuName === "manageUser");
+          const priceSpecialExclusive = newMenus.find(
+            (item) => item.menuName === "priceSpecialExclusive",
+          );
+          const productList = newMenus.find((item) => item.menuName === "productList");
+          const promotionSetting = newMenus.find((item) => item.menuName === "promotionSetting");
+          const specialRequest = newMenus.find((item) => item.menuName === "specialRequest");
           const saleManagement = newMenus.find((item) => item.menuName === "saleManagement");
           const roleManagement = newMenus.find((item) => item.menuName === "roleManagement");
           form.setFieldsValue({
             ...result,
-            priceList: priceList?.permission,
-            orderManagement: orderManagement?.permission,
+            freebieList: freebieList?.permission,
+            manageOrder: manageOrder?.permission,
+            manageStore: manageStore?.permission,
+            manageUser: manageUser?.permission,
+            priceSpecialExclusive: priceSpecialExclusive?.permission,
+            productList: productList?.permission,
             specialRequest: specialRequest?.permission,
             promotionSetting: promotionSetting?.permission,
             discountCo: discountCo?.permission,
@@ -106,6 +116,7 @@ export default function EditRole(): JSX.Element {
       menus,
       updateBy: `${profile?.firstname} ${profile?.lastname}`,
     };
+    console.log("onFinish", values, payload);
     try {
       setLoading(true);
       const res = await roleDatasource.updateRole(roleId || "", payload);

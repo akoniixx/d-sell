@@ -54,7 +54,7 @@ function CheckboxNested({ disabled, data, name, value, onChange }: Props) {
         onChange={(value) => {
           onChange && onChange(value);
         }}
-        value={value}
+        value={value || []}
       >
         {data.map((item) => {
           return (

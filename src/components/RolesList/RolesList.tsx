@@ -13,8 +13,9 @@ const CardRole = styled.div`
 `;
 interface Props {
   form: FormInstance;
+  disabled?: boolean;
 }
-export default function RolesList({ form }: Props) {
+export default function RolesList({ form, disabled }: Props) {
   const { commonCheckList, manageCheckList } = useMemo(() => {
     const commonCheckList = Object.keys(staticRolesObject).map((key) => {
       return {
@@ -76,33 +77,35 @@ export default function RolesList({ form }: Props) {
         }}
       >
         <Text fontWeight={700}>ผู้ใช้งานจะมีสิทธิ์ใช้งานดังนี้</Text>
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            alignItems: "center",
-          }}
-        >
-          <Button
-            title='เลือกทั้งหมด'
+        {!disabled && (
+          <div
             style={{
-              width: 96,
-              padding: "2px 4px",
+              display: "flex",
+              gap: 16,
+              alignItems: "center",
             }}
-            onClick={onClickSelectAll}
-            height={32}
-          />
-          <Button
-            title='ล้าง'
-            onClick={onClearAll}
-            typeButton='primary-light'
-            style={{
-              width: 96,
-              padding: "4px 8px",
-            }}
-            height={32}
-          />
-        </div>
+          >
+            <Button
+              title='เลือกทั้งหมด'
+              style={{
+                width: 96,
+                padding: "2px 4px",
+              }}
+              onClick={onClickSelectAll}
+              height={32}
+            />
+            <Button
+              title='ล้าง'
+              onClick={onClearAll}
+              typeButton='primary-light'
+              style={{
+                width: 96,
+                padding: "4px 8px",
+              }}
+              height={32}
+            />
+          </div>
+        )}
       </Row>
       <div
         style={{
@@ -118,7 +121,7 @@ export default function RolesList({ form }: Props) {
               if (!el.isNested) {
                 return (
                   <Form.Item noStyle name={el.menuName} key={el.menuName}>
-                    <CheckboxGroup data={data} name={el.groupName} />
+                    <CheckboxGroup data={data} name={el.groupName} disabled={disabled} />
                   </Form.Item>
                 );
               } else {
@@ -130,6 +133,7 @@ export default function RolesList({ form }: Props) {
                         isNested={el.isNested}
                         name={el.groupName}
                         nameKey={el.menuName}
+                        disabled={disabled}
                       />
                     </Form.Item>
                   </>
@@ -145,7 +149,7 @@ export default function RolesList({ form }: Props) {
               if (!el.isNested) {
                 return (
                   <Form.Item noStyle name={el.menuName} key={el.menuName}>
-                    <CheckboxGroup data={data} name={el.groupName} />
+                    <CheckboxGroup data={data} name={el.groupName} disabled={disabled} />
                   </Form.Item>
                 );
               } else {
@@ -157,6 +161,7 @@ export default function RolesList({ form }: Props) {
                         isNested={el.isNested}
                         name={el.groupName}
                         nameKey={el.menuName}
+                        disabled={disabled}
                       />
                     </Form.Item>
                   </>

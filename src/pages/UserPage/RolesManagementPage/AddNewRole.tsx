@@ -75,22 +75,61 @@ export default function AddNewRole(): JSX.Element {
   const profile = useRecoilValue(profileAtom);
 
   const onFinish = async (values: FormData) => {
+    console.log("onFinish", values);
     try {
       const { rolename, roledescription, ...rest } = values;
-      const formatMenu = Object.keys(rest as any).map((key) => {
+      const keyObj = Object.keys(rest);
+      const menus = keyObj.map((item) => {
         return {
-          menuName: key,
-          menu: rest[key as keyof Keys],
+          menuName: item,
+          permission: rest[item as keyof typeof rest],
         };
       });
       const payload = {
         rolename,
         roledescription,
         company: profile?.company,
-        menus: formatMenu,
+        menus,
         updateBy: `${profile?.firstname} ${profile?.lastname}`,
       };
-      console.log(JSON.stringify(payload, null, 2));
+      try {
+        setLoading(true);
+        const res = await roleDatasource.createNewRole(payload);
+
+        if (res) {
+          Swal.fire({
+            title: "บันทึกข้อมูลสำเร็จ",
+            text: "",
+            width: 250,
+            icon: "success",
+            timer: 2000,
+            customClass: {
+              title: "custom-title",
+            },
+            showConfirmButton: false,
+          }).then(() => {
+            setLoading(false);
+            navigate("/UserPage/RoleManagementPage");
+          });
+        } else {
+          Swal.fire({
+            title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
+            text: "",
+            width: 250,
+            icon: "error",
+            customClass: {
+              title: "custom-title",
+            },
+            showConfirmButton: false,
+          }).then(() => {
+            setLoading(false);
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
+      }
     } catch (error) {
       console.log(error);
     }

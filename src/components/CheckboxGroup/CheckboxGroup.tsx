@@ -41,7 +41,6 @@ export const CheckBoxStyled = styled(Checkbox)<{ disabled?: boolean; isGroup?: b
     width: 24px !important;
     height: 24px !important;
     border-radius: 4px !important;
-    background-color: ${({ isGroup }) => (isGroup ? color.white : color.background2)} !important;
     border-color: ${color.background2} !important;
   }
   .ant-checkbox-checked .ant-checkbox-inner {
