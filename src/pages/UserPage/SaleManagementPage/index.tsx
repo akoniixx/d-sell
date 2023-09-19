@@ -53,7 +53,6 @@ function SaleManagementPage() {
       return item.menuName === "saleManagement";
     },
   );
-  const includeCreate = findRoleSaleManagement.permission.includes("create");
 
   const {
     data,
@@ -82,7 +81,6 @@ function SaleManagementPage() {
     searchParams.get("status") && setTab(searchParams.get("status") || "all");
   });
   const defaultTableColumns = useMemo(() => {
-    const includeEdit = findRoleSaleManagement.permission.includes("edit");
     const staticData = [
       {
         title: "ลำดับ",
@@ -211,7 +209,7 @@ function SaleManagementPage() {
               <MenuTable
                 hideDelete
                 hindSync
-                hideEdit={!includeEdit}
+                // hideEdit={!includeEdit}
                 onClickList={() => {
                   setDetailData(data);
                   setVisible(true);
@@ -273,16 +271,14 @@ function SaleManagementPage() {
                   value={keyword}
                 />
               </div>
-              {includeCreate && (
-                <div>
-                  <Button
-                    onClick={() => {
-                      navigate("AddSale");
-                    }}
-                    title=' + เพิ่มผู้ใช้งาน'
-                  />
-                </div>
-              )}
+              <div>
+                <Button
+                  onClick={() => {
+                    navigate("AddSale");
+                  }}
+                  title=' + เพิ่มผู้ใช้งาน'
+                />
+              </div>
             </div>
           }
         />

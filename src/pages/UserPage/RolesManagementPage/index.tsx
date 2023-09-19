@@ -28,7 +28,6 @@ export default function RolesManagementPage(): JSX.Element {
   const findRoleManagement = parseRole.find((item: { permission: string[]; menuName: string }) => {
     return item.menuName === "roleManagement";
   });
-  const includeCreate = findRoleManagement.permission.includes("create");
   const [debouncedValue, loading] = useDebounce(keyword, 500);
   const {
     data: awaitData,
@@ -92,9 +91,6 @@ export default function RolesManagementPage(): JSX.Element {
     [getAllRoles],
   );
   const defaultTableColumns = useMemo(() => {
-    const includeEdit = findRoleManagement?.permission.includes("edit");
-    const includeDelete = findRoleManagement?.permission.includes("delete");
-    const includeView = findRoleManagement?.permission.includes("view");
     const staticData = [
       {
         title: "ลำดับ",
@@ -157,9 +153,9 @@ export default function RolesManagementPage(): JSX.Element {
                 onClickList={() => {
                   navigate(`DetailRole/${data.roleId}`);
                 }}
-                hideDelete={!includeDelete}
-                hideList={!includeView}
-                hideEdit={!includeEdit}
+                // hideDelete={!includeDelete}
+                // hideList={!includeView}
+                // hideEdit={!includeEdit}
                 hindSync
                 titleModalWarning='ต้องการลบข้อมูลบทบาทผู้ใช้งานนี้'
                 descriptionModalWarning='โปรดยืนยันการลบข้อมูลบทบาทผู้ใช้งาน'
@@ -207,16 +203,15 @@ export default function RolesManagementPage(): JSX.Element {
                   value={keyword}
                 />
               </div>
-              {includeCreate && (
-                <div>
-                  <Button
-                    title='+ เพิ่มบทบาท'
-                    onClick={() => {
-                      navigate("AddNewRole");
-                    }}
-                  />
-                </div>
-              )}
+
+              <div>
+                <Button
+                  title='+ เพิ่มบทบาท'
+                  onClick={() => {
+                    navigate("AddNewRole");
+                  }}
+                />
+              </div>
             </div>
           }
         />
