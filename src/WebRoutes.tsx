@@ -6,7 +6,7 @@ import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
 import { AuthPage } from "./pages/AuthPage/AuthPage";
 import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
-import { OrderPage } from "./pages/OrderPage/OrderPage";
+
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
 import { DistributionPageDetail } from "./pages/PriceListPage/ProductDetailPage";
 import { DistributionPageEdit } from "./pages/PriceListPage/ProductEditPage";
@@ -49,6 +49,7 @@ import { IndexConditionCOPage } from "./pages/DiscountPage/ConditionCO/IndexCond
 import { CreateConditionCOPage } from "./pages/DiscountPage/ConditionCO/CreateConditionCOPage";
 import { DetailConditionCOPage } from "./pages/DiscountPage/ConditionCO/DetailConditionCOPage";
 import { PromotionDetail } from "./pages/promotionPage/promotionDetail";
+import ModalPermissionDenied from "./components/Modal/ModalPermissionDenied";
 
 interface IRoute {
   path: string;
@@ -497,6 +498,7 @@ const WebRoutes: React.FC<any> = () => {
           </Route>
         )}
       </Routes>
+      <ModalPermissionDenied />
     </BrowserRouter>
   );
 };

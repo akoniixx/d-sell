@@ -2,7 +2,7 @@ import { atom } from "recoil";
 
 export interface RoleType {
   company?: "ICPL" | "ICPI" | "ICPF" | "ICK";
-  menus: string;
+  menus: any;
   roleId: string;
   roledescription: string;
   rolename: string;

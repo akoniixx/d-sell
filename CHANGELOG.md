@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.26] - Release Date: 2023-09-19
+
+- Feature: Permission Setting
+
 ## Resolved [v0.6.25] - Release Date: 2023-09-15
 
 - added page in customer discount CO menu
