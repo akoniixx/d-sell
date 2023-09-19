@@ -7,9 +7,8 @@ interface Props {
   bodyStyle?: React.CSSProperties;
   children?: React.ReactNode;
   width?: number | string;
-  maskClosable?: boolean;
 }
-function Modal({ visible, bodyStyle, onCancel, children, width, ...props }: Props): JSX.Element {
+function Modal({ visible, bodyStyle, onCancel, children, width }: Props): JSX.Element {
   return (
     <AntdModal
       open={visible}
@@ -19,7 +18,6 @@ function Modal({ visible, bodyStyle, onCancel, children, width, ...props }: Prop
       width={width || 400}
       footer={null}
       onCancel={onCancel}
-      {...props}
     >
       {children}
     </AntdModal>

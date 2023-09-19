@@ -6,14 +6,9 @@ import iconImport from "../../resource/icon";
 import Text from "../Text/Text";
 import { useNavigate } from "react-router-dom";
 import { Dropdown, MenuProps } from "antd";
-import {
-  checkPermissionRenderMenu,
-  checkPermissionRenderSubMenu,
-} from "../../utility/func/RedirectByPermission";
+import { checkPermissionRenderMenu } from "../../utility/func/RedirectByPermission";
 import { useRecoilValue } from "recoil";
 import { roleAtom } from "../../store/RoleAtom";
-import { mockRoles } from "../../utility/StaticPermission";
-import { isArray } from "lodash";
 
 interface Props {
   isOpenSidebar?: boolean;
@@ -21,7 +16,10 @@ interface Props {
     path: string;
     name: string;
     title: string;
-    permission: string;
+    permission?: {
+      name: string;
+      action: string;
+    } | null;
   }[];
   icon?: JSX.Element;
   name: string;
@@ -134,26 +132,12 @@ function CollapseMenu({
   const [isCollapse, setIsCollapse] = React.useState(true);
   const navigate = useNavigate();
   const roleData = useRecoilValue(roleAtom);
-
-  const newRoles: any = mockRoles
-    .map((el: any) => {
-      const permission = isArray(el.menu)
-        ? false
-        : Object.keys(el.menu as any).map((key) => {
-            return el.menu[key as keyof typeof el.menu].length > 0 ? key : false;
-          });
-      if (permission) {
-        return permission;
-      }
-    })
-    .filter((el) => el);
-
   const menus: MenuProps["items"] = subLists.map((item) => {
-    const isPremiss = checkPermissionRenderSubMenu({
-      permission: newRoles,
-      subMenuName: item?.permission,
+    const isPremission = checkPermissionRenderMenu({
+      permission: item.permission || null,
+      menus: roleData?.menus,
     });
-    if (!isPremiss) return null;
+    if (!isPremission) return null;
     return {
       label: (
         <div>
@@ -242,9 +226,9 @@ function CollapseMenu({
           }}
         >
           {subLists.map((subList, idx) => {
-            const isPremiss = checkPermissionRenderSubMenu({
-              permission: newRoles,
-              subMenuName: subList?.permission,
+            const isPremiss = checkPermissionRenderMenu({
+              menus: roleData?.menus,
+              permission: subList?.permission || null,
             });
             if (!isPremiss) return null;
             return (
