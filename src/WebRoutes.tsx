@@ -6,7 +6,6 @@ import SpecialRequestPage from "./pages/ApproveOrderPage/SpecialRequestPage";
 import { AuthPage } from "./pages/AuthPage/AuthPage";
 import ErrorLoginPage from "./pages/ErrorPage/ErrorLoginPage";
 import PageNotFound from "./pages/HttpError/PageNotFound";
-import { OrderPage } from "./pages/OrderPage/OrderPage";
 import { DistributionPage } from "./pages/PriceListPage/DistributionPage";
 import { DistributionPageDetail } from "./pages/PriceListPage/ProductDetailPage";
 import { DistributionPageEdit } from "./pages/PriceListPage/ProductEditPage";

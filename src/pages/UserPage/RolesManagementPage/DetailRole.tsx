@@ -14,6 +14,7 @@ import color from "../../../resource/color";
 import { profileAtom } from "../../../store/ProfileAtom";
 import { defaultPropsForm } from "../../../utility/DefaultProps";
 import { websiteBackOffice } from "../../../utility/StaticPermission";
+import RolesList from "../../../components/RolesList/RolesList";
 const CardRole = styled.div`
   border: 1px solid ${color.background1};
   border-radius: 8px;
@@ -32,20 +33,32 @@ function DetailRole() {
       const newMenus: {
         menuName: string;
         permission: string[];
-      }[] = JSON.parse(data.menus);
+      }[] = typeof data.menues === "string" ? JSON.parse(data.menus) : data.menus;
 
-      const priceList = newMenus.find((item) => item.menuName === "priceList");
-      const orderManagement = newMenus.find((item) => item.menuName === "orderManagement");
-      const specialRequest = newMenus.find((item) => item.menuName === "specialRequest");
-      const promotionSetting = newMenus.find((item) => item.menuName === "promotionSetting");
       const discountCo = newMenus.find((item) => item.menuName === "discountCo");
+      const freebieList = newMenus.find((item) => item.menuName === "freebieList");
+      const manageOrder = newMenus.find((item) => item.menuName === "manageOrder");
+      const manageStore = newMenus.find((item) => item.menuName === "manageStore");
+      const manageUser = newMenus.find((item) => item.menuName === "manageUser");
+      const priceSpecialExclusive = newMenus.find(
+        (item) => item.menuName === "priceSpecialExclusive",
+      );
+      const productList = newMenus.find((item) => item.menuName === "productList");
+      const promotionSetting = newMenus.find((item) => item.menuName === "promotionSetting");
+      const specialRequest = newMenus.find((item) => item.menuName === "specialRequest");
       const saleManagement = newMenus.find((item) => item.menuName === "saleManagement");
       const roleManagement = newMenus.find((item) => item.menuName === "roleManagement");
       form.setFieldsValue({
-        priceList: priceList?.permission,
-        orderManagement: orderManagement?.permission,
+        ...data,
+        freebieList: freebieList?.permission,
+        manageOrder: manageOrder?.permission,
+        manageStore: manageStore?.permission,
+        manageUser: manageUser?.permission,
+        priceSpecialExclusive: priceSpecialExclusive?.permission,
+        productList: productList?.permission,
         specialRequest: specialRequest?.permission,
         promotionSetting: promotionSetting?.permission,
+
         discountCo: discountCo?.permission,
         saleManagement: saleManagement?.permission,
         roleManagement: roleManagement?.permission,
@@ -143,93 +156,7 @@ function DetailRole() {
           <Text fontWeight={700}>สิทธิการใช้งานแพลตฟอร์มต่างๆ ของ Sellcoda</Text>
         </Row>
         <CardRole>
-          <Row
-            style={{
-              justifyContent: "space-between",
-              padding: 16,
-              alignItems: "center",
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-              backgroundColor: color.background1,
-            }}
-          >
-            <Text fontWeight={700}>Website Backoffice</Text>
-          </Row>
-          <div
-            style={{
-              padding: 24,
-            }}
-          >
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='orderManagement'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.orderManagement}
-                    name='Order Management'
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='specialRequest'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.specialRequest}
-                    name='Special Request'
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='promotionSetting'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.promotionSetting}
-                    name='Promotion Setting'
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='discountCo'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.discountCo}
-                    name='Discount (CO) / ( ส่วนลดดูแลราคา)'
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='priceList'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.priceListX10}
-                    name='Price List X+10'
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='saleManagement'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.saleManagement}
-                    name='Sale Management'
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='roleManagement'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.roleManagement}
-                    name='Role Management'
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </div>
+          <RolesList form={form} disabled />
         </CardRole>
       </Form>
     </CardContainer>

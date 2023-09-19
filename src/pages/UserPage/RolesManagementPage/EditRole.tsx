@@ -17,6 +17,7 @@ import color from "../../../resource/color";
 import { profileAtom } from "../../../store/ProfileAtom";
 import { defaultPropsForm } from "../../../utility/DefaultProps";
 import { websiteBackOffice } from "../../../utility/StaticPermission";
+import RolesList from "../../../components/RolesList/RolesList";
 
 interface FormData {
   rolename: string;
@@ -55,24 +56,34 @@ export default function EditRole(): JSX.Element {
           const {
             menus,
           }: {
-            menus: string;
+            menus: any;
           } = result;
           const newMenus: {
             menuName: string;
             permission: string[];
-          }[] = JSON.parse(menus);
+          }[] = typeof menus === "string" ? JSON.parse(menus) : menus;
 
-          const priceList = newMenus.find((item) => item.menuName === "priceList");
-          const orderManagement = newMenus.find((item) => item.menuName === "orderManagement");
-          const specialRequest = newMenus.find((item) => item.menuName === "specialRequest");
-          const promotionSetting = newMenus.find((item) => item.menuName === "promotionSetting");
           const discountCo = newMenus.find((item) => item.menuName === "discountCo");
+          const freebieList = newMenus.find((item) => item.menuName === "freebieList");
+          const manageOrder = newMenus.find((item) => item.menuName === "manageOrder");
+          const manageStore = newMenus.find((item) => item.menuName === "manageStore");
+          const manageUser = newMenus.find((item) => item.menuName === "manageUser");
+          const priceSpecialExclusive = newMenus.find(
+            (item) => item.menuName === "priceSpecialExclusive",
+          );
+          const productList = newMenus.find((item) => item.menuName === "productList");
+          const promotionSetting = newMenus.find((item) => item.menuName === "promotionSetting");
+          const specialRequest = newMenus.find((item) => item.menuName === "specialRequest");
           const saleManagement = newMenus.find((item) => item.menuName === "saleManagement");
           const roleManagement = newMenus.find((item) => item.menuName === "roleManagement");
           form.setFieldsValue({
             ...result,
-            priceList: priceList?.permission,
-            orderManagement: orderManagement?.permission,
+            freebieList: freebieList?.permission,
+            manageOrder: manageOrder?.permission,
+            manageStore: manageStore?.permission,
+            manageUser: manageUser?.permission,
+            priceSpecialExclusive: priceSpecialExclusive?.permission,
+            productList: productList?.permission,
             specialRequest: specialRequest?.permission,
             promotionSetting: promotionSetting?.permission,
             discountCo: discountCo?.permission,
@@ -105,6 +116,7 @@ export default function EditRole(): JSX.Element {
       menus,
       updateBy: `${profile?.firstname} ${profile?.lastname}`,
     };
+    console.log("onFinish", values, payload);
     try {
       setLoading(true);
       const res = await roleDatasource.updateRole(roleId || "", payload);
@@ -188,14 +200,7 @@ export default function EditRole(): JSX.Element {
         style={{
           marginTop: 32,
         }}
-        initialValues={{
-          orderManagement: [],
-          priceList: [],
-          promotionSetting: [],
-          roleManagement: [],
-          saleManagement: [],
-          specialRequest: [],
-        }}
+        initialValues={{}}
         form={form}
         onFinish={onFinish}
       >
@@ -224,100 +229,7 @@ export default function EditRole(): JSX.Element {
         <Row style={{ padding: " 16px 0" }}>
           <Text fontWeight={700}>ตั้งค่าสิทธิการใช้งานแพลตฟอร์มต่างๆ ของ Sellcoda</Text>
         </Row>
-        <CardRole>
-          <Row
-            style={{
-              justifyContent: "space-between",
-              padding: 16,
-              alignItems: "center",
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-              backgroundColor: color.background1,
-            }}
-          >
-            <Text fontWeight={700}>Website Backoffice</Text>
-            <div
-              style={{
-                display: "flex",
-                gap: 16,
-                alignItems: "center",
-              }}
-            >
-              <Button
-                title='เลือกทั้งหมด'
-                style={{
-                  width: 96,
-                  padding: "2px 4px",
-                }}
-                onClick={onClickSelectAllBo}
-                height={32}
-              />
-              <Button
-                title='ล้าง'
-                onClick={onClearAllBo}
-                typeButton='primary-light'
-                style={{
-                  width: 96,
-                  padding: "4px 8px",
-                }}
-                height={32}
-              />
-            </div>
-          </Row>
-          <div
-            style={{
-              padding: 24,
-            }}
-          >
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='orderManagement'>
-                  <CheckboxGroup data={websiteBackOffice.orderManagement} name='Order Management' />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='specialRequest'>
-                  <CheckboxGroup data={websiteBackOffice.specialRequest} name='Special Request' />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='promotionSetting'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.promotionSetting}
-                    name='Promotion Setting'
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='discountCo'>
-                  <CheckboxGroup
-                    data={websiteBackOffice.discountCo}
-                    name='Discount (CO) / ( ส่วนลดดูแลราคา)'
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='priceList'>
-                  <CheckboxGroup data={websiteBackOffice.priceListX10} name='Price List X+10' />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item noStyle name='saleManagement'>
-                  <CheckboxGroup data={websiteBackOffice.saleManagement} name='Sale Management' />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row justify={"space-between"}>
-              <Col span={8}>
-                <Form.Item noStyle name='roleManagement'>
-                  <CheckboxGroup data={websiteBackOffice.roleManagement} name='Role Management' />
-                </Form.Item>
-              </Col>
-            </Row>
-          </div>
-        </CardRole>
+        <RolesList form={form} />
 
         <Bottom>
           <Col span={22}>

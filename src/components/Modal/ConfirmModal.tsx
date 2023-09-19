@@ -68,8 +68,8 @@ function ConfirmModal({
             display: "flex",
           }}
         >
-          <Button height={32} title={cancelText} typeButton='primary-light' onClick={onCancel} />
-          <Button height={32} title={confirmText} onClick={onConfirm} loading={loading} />
+          <Button title={cancelText} typeButton='primary-light' onClick={onCancel} />
+          <Button title={confirmText} onClick={onConfirm} loading={loading} />
         </Col>
       </Row>
     </ModalStyled>

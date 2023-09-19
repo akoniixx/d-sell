@@ -1,3 +1,4 @@
+import { isArray } from "lodash";
 import { protectRoutesData } from "../../WebRoutes";
 
 export const redirectByRole = (menus?: string) => {
@@ -75,27 +76,32 @@ export const checkPermissionRenderMenu = ({
   menus,
   permission,
 }: {
-  menus?: string;
-  permission: {
-    name: string | string[];
-    action: string;
-  } | null;
-}) => {
-  const newMenus: {
+  menus?: {
     menuName: string;
     permission: string[];
-  }[] = JSON.parse(menus || "[]");
-  const isPermission = newMenus.some((menu) => {
-    if (permission === null) return true;
-    if (Array.isArray(permission.name)) {
-      return (
-        (menu.permission || []).includes(permission.action) &&
-        permission.name.includes(menu.menuName)
-      );
-    }
-    return (
-      (menu.permission || []).includes(permission?.action) && menu.menuName === permission?.name
-    );
+    menu: any;
+  }[];
+  permission: string[];
+}) => {
+  const isHaveSubMenu = menus
+    ?.map((el) => el.menu)
+    .some((el) => (isArray(el) ? true : Object.keys(el).length > 0));
+  const isPermission = menus?.some((menu) => {
+    return permission.includes(menu.menuName);
   });
+
+  return isPermission && isHaveSubMenu;
+};
+export const checkPermissionRenderSubMenu = ({
+  permission,
+  subMenuName,
+}: {
+  permission: string[][];
+  subMenuName: string;
+}) => {
+  const isPermission = permission.some((menu) => {
+    return menu.includes(subMenuName);
+  });
+
   return isPermission;
 };
