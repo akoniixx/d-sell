@@ -46,7 +46,8 @@ function SaleManagementPage() {
   const [detailData, setDetailData] = useState<SaleEntity>({});
   const [debouncedValue, loadingDebouncing] = useDebounce(keyword, 500);
   const roleData = useRecoilValue(roleAtom);
-  const parseRole = JSON.parse(roleData?.menus || "[]");
+  const parseRole =
+    typeof roleData?.menus === "string" ? JSON.parse(roleData?.menus || "[]") : roleData?.menus;
   const findRoleSaleManagement = parseRole.find(
     (item: { permission: string[]; menuName: string }) => {
       return item.menuName === "saleManagement";

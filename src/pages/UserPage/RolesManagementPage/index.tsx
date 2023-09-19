@@ -23,7 +23,8 @@ export default function RolesManagementPage(): JSX.Element {
   const [keyword, setKeyword] = React.useState<string | undefined>(undefined);
   const navigate = useNavigate();
   const roleData = useRecoilValue(roleAtom);
-  const parseRole = JSON.parse(roleData?.menus || "[]");
+  const parseRole =
+    typeof roleData?.menus === "string" ? JSON.parse(roleData?.menus || "[]") : roleData?.menus;
   const findRoleManagement = parseRole.find((item: { permission: string[]; menuName: string }) => {
     return item.menuName === "roleManagement";
   });
