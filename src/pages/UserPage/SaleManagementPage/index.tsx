@@ -46,13 +46,13 @@ function SaleManagementPage() {
   const [detailData, setDetailData] = useState<SaleEntity>({});
   const [debouncedValue, loadingDebouncing] = useDebounce(keyword, 500);
   const roleData = useRecoilValue(roleAtom);
-  const parseRole =
-    typeof roleData?.menus === "string" ? JSON.parse(roleData?.menus || "[]") : roleData?.menus;
+  const parseRole = JSON.parse(roleData?.menus || "[]");
   const findRoleSaleManagement = parseRole.find(
     (item: { permission: string[]; menuName: string }) => {
       return item.menuName === "saleManagement";
     },
   );
+  const includeCreate = findRoleSaleManagement.permission.includes("create");
 
   const {
     data,
@@ -81,6 +81,7 @@ function SaleManagementPage() {
     searchParams.get("status") && setTab(searchParams.get("status") || "all");
   });
   const defaultTableColumns = useMemo(() => {
+    const includeEdit = findRoleSaleManagement.permission.includes("edit");
     const staticData = [
       {
         title: "ลำดับ",
@@ -209,7 +210,7 @@ function SaleManagementPage() {
               <MenuTable
                 hideDelete
                 hindSync
-                // hideEdit={!includeEdit}
+                hideEdit={!includeEdit}
                 onClickList={() => {
                   setDetailData(data);
                   setVisible(true);
@@ -271,14 +272,16 @@ function SaleManagementPage() {
                   value={keyword}
                 />
               </div>
-              <div>
-                <Button
-                  onClick={() => {
-                    navigate("AddSale");
-                  }}
-                  title=' + เพิ่มผู้ใช้งาน'
-                />
-              </div>
+              {includeCreate && (
+                <div>
+                  <Button
+                    onClick={() => {
+                      navigate("AddSale");
+                    }}
+                    title=' + เพิ่มผู้ใช้งาน'
+                  />
+                </div>
+              )}
             </div>
           }
         />

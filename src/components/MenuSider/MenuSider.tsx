@@ -18,8 +18,6 @@ import { checkPermissionRenderMenu } from "../../utility/func/RedirectByPermissi
 import { useRecoilValue } from "recoil";
 import { roleAtom } from "../../store/RoleAtom";
 import packageJson from "../../../package.json";
-import { mockRoles } from "../../utility/StaticPermission";
-import { isArray } from "lodash";
 
 interface Props {
   style?: React.CSSProperties;
@@ -27,12 +25,18 @@ interface Props {
     path: string;
     name: string;
     title: string;
-    permission: string[];
+    permission: {
+      name: string | string[];
+      action: string;
+    } | null;
     subMenu: {
       path: string;
       name: string;
       title: string;
-      permission: string;
+      permission?: {
+        name: string;
+        action: string;
+      } | null;
     }[];
   }[];
   isOpenSidebar?: boolean;
@@ -189,6 +193,10 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
         subPath: isHaveSubPath ? isHaveSubPath.name : "",
       });
     }
+    // const pathNameSplit = pathName.split("/");
+    // if (pathNameSplit.length > 2) {
+    //   setCurrent(pathNameSplit[2]);
+    // }
   });
 
   const onClickList = (name: string) => {
@@ -197,20 +205,13 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
       subPath: "",
     });
   };
-  const newRoles = mockRoles.map((el) => {
-    return {
-      ...el,
-      permission: isArray(el.menu) ? [] : Object.keys(el.menu),
-    };
-  });
-
   return (
     <MenuSiderStyled style={style}>
       <div>
         {lists.map((list, idx) => {
           const isPremiss = checkPermissionRenderMenu({
-            menus: newRoles,
-            permission: list?.permission || [],
+            menus: roleData?.menus,
+            permission: list?.permission || null,
           });
 
           if (!isPremiss) return null;

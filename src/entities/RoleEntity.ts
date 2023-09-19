@@ -2,6 +2,9 @@ export interface RoleCreatePayload {
   rolename?: string;
   roledescription?: string;
   company?: string;
-  menus?: any[];
+  menus?: {
+    menuName: string;
+    permission: string[];
+  }[];
   updateBy?: string;
 }
