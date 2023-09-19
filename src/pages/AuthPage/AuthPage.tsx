@@ -33,20 +33,22 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
     try {
       await AuthDatasource.login(data.account.userName).then((res: any) => {
+        console.log("login res", res);
+
         if (res.accessToken) {
-            setPersistedProfile({
-              ...res.data,
-              roleId: res.rolePermission.roleId,
-            });
-            setToken(res.accessToken);
-            setRole(res.rolePermission);
-            setProfile({
-              ...res.data,
-              roleId: res.rolePermission.roleId,
-            });
-            navigate(`${redirectByRole(res.rolePermission.menus)}`);
+          setPersistedProfile({
+            ...res.data,
+            roleId: res.rolePermission.roleId,
+          });
+          setToken(res.accessToken);
+          setRole(res.rolePermission);
+          setProfile({
+            ...res.data,
+            roleId: res.rolePermission.roleId,
+          });
+          navigate(`${redirectByRole(res.rolePermission.menus)}`);
         } else {
-          setLoading(false)
+          setLoading(false);
           return navigate("ErrorLoginPage");
         }
       });
