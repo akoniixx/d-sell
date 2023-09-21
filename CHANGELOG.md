@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.27] - Release Date: 2023-09-21
+
+- fix layout
+
 ## Resolved [v0.6.26] - Release Date: 2023-09-19
 
 - Feature: Permission Setting

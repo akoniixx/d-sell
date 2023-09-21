@@ -91,7 +91,7 @@ export const pathLists = [
         path: "/list",
         name: "discountList",
         title: "ราคาสินค้าเฉพาะร้าน",
-        permission: "priceSpecialExclusive",
+        permission: "specialPrice",
       },
     ],
   },

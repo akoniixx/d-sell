@@ -195,24 +195,30 @@ export const staticRolesObject: StaticRoles = {
     ],
   },
   priceSpecialExclusive: {
-    groupName: "ราคาสินค้าเฉพาะร้าน",
+    groupName: "ราคาสินค้า",
     groupKey: "SPPRICE",
     list: [
       {
-        label: "ดูราคาสินค้า",
-        value: "view",
-      },
-      {
-        label: "สร้างราคาสินค้า",
-        value: "create",
-      },
-      {
-        label: "แก้ไขราคาสินค้า",
-        value: "edit",
-      },
-      {
-        label: "ลบราคาสินค้า",
-        value: "delete",
+        label: "ราคาสินค้าเฉพาะร้าน",
+        groupNameNested: "specialPrice",
+        listNested: [
+          {
+            label: "ดูราคาสินค้า",
+            value: "view",
+          },
+          {
+            label: "สร้างราคาสินค้า",
+            value: "create",
+          },
+          {
+            label: "แก้ไขราคาสินค้า",
+            value: "edit",
+          },
+          {
+            label: "ลบราคาสินค้า",
+            value: "delete",
+          },
+        ],
       },
     ],
   },
@@ -452,7 +458,9 @@ export const mockRoles = [
   },
   {
     menuName: "priceSpecialExclusive",
-    menu: ["viewPrice", "createPrice", "editPrice", "deletePrice"],
+    menu: {
+      specialPrice: ["specialPrice", "createPrice", "editPrice", "deletePrice"],
+    },
   },
   {
     menuName: "promotionSetting",
