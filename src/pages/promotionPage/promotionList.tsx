@@ -218,29 +218,6 @@ export const PromotionListPage: React.FC = () => {
         };
       },
     },
-    // {
-    //   title: "เลขที่อ้างอิง",
-    //   dataIndex: "referencePromotion",
-    //   key: "referencePromotion",
-    //   render: (value: string[], row: any, index: number) => {
-    //     const val = value?.join(",");
-    //     return {
-    //       children: (
-    //         <FlexCol>
-    //           <Tooltip title={val}>
-    //             {val ? (
-    //               <Text level={5} key={val}>
-    //                 {val.length >= 10 ? val.slice(0, 15) + "..." : val}
-    //               </Text>
-    //             ) : (
-    //               "-"
-    //             )}
-    //           </Tooltip>
-    //         </FlexCol>
-    //       ),
-    //     };
-    //   },
-    // },
     {
       title: "ระยะเวลา",
       dataIndex: "startDate",
