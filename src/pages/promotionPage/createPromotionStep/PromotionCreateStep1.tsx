@@ -9,20 +9,23 @@ import {
   Select as AntdSelect,
   Tooltip,
   Modal,
-  Pagination,
+  Switch,
+  Checkbox,
+  Divider,
+  Spin,
 } from "antd";
-import React, { useEffect, useState, memo, useMemo } from "react";
-import { FlexCol, FlexRow, ScrollContainer } from "../../../components/Container/Container";
+import { useEffect, useState } from "react";
+import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import styled from "styled-components";
 import color from "../../../resource/color";
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import { BellOutlined, DeleteOutlined, EyeOutlined, UploadOutlined } from "@ant-design/icons";
 import Input from "../../../components/Input/Input";
 import Select from "../../../components/Select/Select";
 import DatePicker, { TimePicker } from "../../../components/DatePicker/DatePicker";
 import TextArea from "../../../components/Input/TextArea";
 import dayjs, { Dayjs } from "dayjs";
-import { PromotionType, PROMOTION_TYPE_NAME } from "../../../definitions/promotion";
+import { PROMOTION_TYPE_NAME } from "../../../definitions/promotion";
 import { checkPromotionCode, getPromotion } from "../../../datasource/PromotionDatasource";
 import ImgCrop from "../../../components/ImgCrop/ImgCrop";
 import { RcFile } from "antd/lib/upload";
@@ -30,10 +33,14 @@ import icon from "../../../resource/icon";
 import { normFile } from "../../../utility/uploadHelper";
 import { useRecoilValue } from "recoil";
 import promotionState from "../../../store/promotion";
-import { Document, Page, pdfjs } from "react-pdf";
-import PageSpin from "../../../components/Spin/pageSpin";
-import axios from "axios";
+import { Document, pdfjs } from "react-pdf";
 import { ImageWithDeleteButton } from "../../../components/Image/Image";
+import image from "../../../resource/image";
+
+const Image = styled.img`
+  position: relative;
+  margin: 0px auto;
+`;
 
 const StyledDoc = styled(Document)`
   .react-pdf__Page__textContent.textLayer,
@@ -49,8 +56,8 @@ const UploadHorizontal = styled(Upload)`
   .ant-upload-list-picture-card-container,
   .ant-upload-picture-card-wrapper,
   .ant-upload-list-picture-card .ant-upload-list-item {
-    height: 120px;
-    width: 160px;
+    height: 130px;
+    width: 220px;
   }
 `;
 
@@ -139,7 +146,6 @@ interface Props {
   isEditing?: boolean;
   isCopying?: boolean;
 }
-
 export const PromotionCreateStep1 = ({
   form,
   file1,
@@ -163,6 +169,9 @@ export const PromotionCreateStep1 = ({
   const promoStateValue = useRecoilValue(promotionState);
 
   const [promotions, setPromotions] = useState();
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [isShowPromotion, setIsShowPromotion] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const imgCropProps = {
     modalTitle: "ปรับขนาดรูปภาพ",
@@ -173,7 +182,11 @@ export const PromotionCreateStep1 = ({
   useEffect(() => {
     if (!isEditing || promoStateValue.promotion) {
       fetchPromotion();
+      setIsShowPromotion(form.getFieldValue("isShowPromotion"));
     }
+    setTimeout(() => {
+      setLoading(false);
+    }, 3000);
     pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
   }, [promoStateValue]);
 
@@ -196,11 +209,17 @@ export const PromotionCreateStep1 = ({
 
   return (
     <>
-      <Text level={5} fontWeight={700}>
-        รายละเอียดข้อมูลเบื้องต้น
-      </Text>
-      <Form form={form} layout='vertical'>
-        <FlexRow justify='start' style={{ padding: "20px 0" }}>
+      <Form
+        form={form}
+        layout='vertical'
+        initialValues={{ isShowSaleApp: true, isShowShopApp: true, isShowPromotion: true }}
+      >
+        <Row className='pb-3'>
+          <Text level={5} fontWeight={700}>
+            รายละเอียดข้อมูลเบื้องต้น
+          </Text>
+        </Row>
+        {/* <FlexRow justify='start' style={{ padding: "20px 0" }}>
           <FlexCol style={{ marginRight: 16 }}>
             <Form.Item noStyle name='verticalImage' valuePropName='file'>
               <ImgCrop aspect={3 / 4} {...imgCropProps}>
@@ -328,7 +347,7 @@ export const PromotionCreateStep1 = ({
               4:3
             </Text>
           </FlexCol>
-        </FlexRow>
+        </FlexRow> */}
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -649,7 +668,7 @@ export const PromotionCreateStep1 = ({
             <Form.Item name='referencePromotion'>
               <AntdSelect
                 mode='multiple'
-                placeholder='เลือกโปรโมชันอ้างอิงโปรโมชันที่เกี่ยวข้อง'
+                placeholder='เลือกโปรโมชันอ้างอิงโปรโมชั่นที่เกี่ยวข้อง'
                 onChange={() => {
                   console.log();
                 }}
@@ -666,7 +685,357 @@ export const PromotionCreateStep1 = ({
             </Form.Item>
           </Col>
         </Row>
+        <Row className='pb-3' gutter={16}>
+          <Col>
+            <Text level={5} fontWeight={700}>
+              ตั้งค่าแสดงโปรโมชันในแอปพลิเคชัน
+            </Text>
+          </Col>
+          <Col>
+            <Form.Item name='isShowPromotion' valuePropName='checked'>
+              <Switch onChange={(e) => setIsShowPromotion(e)} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <div
+          style={{
+            backgroundColor: isShowPromotion ? "#FBFDFF" : "#E5EAEE",
+            borderRadius: "5px",
+            padding: "10px",
+          }}
+        >
+          <Row>
+            <Col span={18}>
+              <Text level={5} fontWeight={700}>
+                รายละเอียดการแสดงผล
+              </Text>
+            </Col>
+            <Col span={6}>
+              <Text level={5} fontWeight={700}>
+                <BellOutlined /> รายละเอียดการแสดงผล
+              </Text>
+            </Col>
+          </Row>
+          <Row justify='space-between' gutter={8}>
+            <Col span={4}>
+              <Row>
+                <FlexCol style={{ marginRight: 16 }}>
+                  <Row>
+                    <span style={{ color: color.error }}>*</span>รูปภาพประกอบโปรโมชั่น
+                  </Row>
+                  <Form.Item noStyle name='horizontalImage' valuePropName='file'>
+                    {isShowPromotion ? (
+                      <ImgCrop aspect={16 / 9} {...imgCropProps}>
+                        <UploadHorizontal
+                          listType='picture-card'
+                          maxCount={1}
+                          beforeUpload={(file) => {
+                            const isJpgOrPng =
+                              file.type === "image/jpeg" || file.type === "image/png";
+                            if (!isJpgOrPng) {
+                              message.error("You can only upload JPG/PNG file!");
+                              return true;
+                            }
+                            setFile2(file);
+                            getBase64(file as RcFile, (url) => {
+                              setImgUrl2(url);
+                            });
+                          }}
+                          customRequest={() => {
+                            console.log("customRequest");
+                          }}
+                          onChange={({ file }: any) => {
+                            return "success";
+                          }}
+                          onRemove={() => {
+                            setFile2(undefined);
+                          }}
+                          showUploadList={false}
+                          disabled={!!file2 || !!imageUrl2}
+                        >
+                          {!file2 && !imageUrl2 ? (
+                            <UploadArea
+                              style={{
+                                width: "220px",
+                                height: "130px",
+                              }}
+                            >
+                              {UploadIcon}
+                            </UploadArea>
+                          ) : (
+                            <Spin spinning={loading}>
+                              <ImageWithDeleteButton
+                                width='220px'
+                                height='130px'
+                                src={imageUrl2}
+                                handleDelete={() => {
+                                  setFile2(undefined);
+                                  setImgUrl2(undefined);
+                                }}
+                              />
+                            </Spin>
+                          )}
+                        </UploadHorizontal>
+                      </ImgCrop>
+                    ) : (
+                      <>
+                        {!file2 && !imageUrl2 ? (
+                          <UploadArea
+                            style={{
+                              width: "220px",
+                              height: "130px",
+                            }}
+                          >
+                            {UploadIcon}
+                          </UploadArea>
+                        ) : (
+                          <Image
+                            style={{
+                              width: "220px",
+                              height: "130px",
+                              borderRadius: 4,
+                              filter: "grayscale(100%)",
+                            }}
+                            src={imageUrl2}
+                          />
+                        )}
+                      </>
+                    )}
+                  </Form.Item>
+                </FlexCol>
+                <FlexCol style={{ marginRight: 32 }}>
+                  <Text level={6} color='Text3'>
+                    JPG, GIF or PNG. Size of
+                    <br />
+                    Size of 1200*675 px
+                    <br />
+                    (16:9)
+                  </Text>
+                </FlexCol>
+              </Row>
+              <Col style={{ paddingTop: 50 }}>
+                <Text level={5} fontWeight={700}>
+                  แสดงในแอปพลิเคชัน
+                </Text>
+                <Form.Item name='isShowSaleApp' valuePropName='checked' noStyle>
+                  <Checkbox disabled={!isShowPromotion}>Sale App</Checkbox>
+                </Form.Item>
+                <Form.Item name='isShowShopApp' valuePropName='checked' noStyle>
+                  <Checkbox disabled={!isShowPromotion}>Shop App</Checkbox>
+                </Form.Item>
+              </Col>
+            </Col>
+            <Col span={12}>
+              <Col>
+                <Form.Item
+                  name='promotionSubject'
+                  label='ชื่อเรื่องโปรโมชั่น'
+                  rules={[
+                    {
+                      required: true,
+                      message: "*โปรดระบุชื่อเรื่องโปรโมชั่น",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder='ระบุชื่อเรื่องโปรโมชั่น'
+                    disabled={!isShowPromotion}
+                    autoComplete='off'
+                  />
+                </Form.Item>
+              </Col>
+              <Col>
+                <Form.Item name='promotionDetail' label='รายละเอียดโปรโมชั่น'>
+                  <TextArea
+                    placeholder='ระบุรายละเอียด'
+                    disabled={!isShowPromotion}
+                    autoComplete='off'
+                  />
+                </Form.Item>
+              </Col>
+              <Col>
+                <Text level={5} fontWeight={700}>
+                  ดูภาพการแสดงผลในแอปพลิเคชัน
+                </Text>
+                <br />
+                <Button
+                  style={{
+                    color: isShowPromotion ? color.primary : color.Disable,
+                    borderColor: isShowPromotion ? color.primary : color.Disable,
+                  }}
+                  onClick={() => setShowModal(!showModal)}
+                  disabled={!isShowPromotion}
+                >
+                  <EyeOutlined style={{ fontSize: "18px" }} />
+                  ดูภาพ
+                </Button>
+              </Col>
+            </Col>
+            <Col span={6}>
+              <Col>
+                <Form.Item
+                  name='promotionNotiSubject'
+                  label='พาดหัวแจ้งเตือน'
+                  rules={[
+                    {
+                      required: true,
+                      message: "*โปรดระบุพาดหัวแจ้งเตือน",
+                    },
+                  ]}
+                >
+                  <TextArea
+                    placeholder='ระบุพาดหัวแจ้งเตือน'
+                    disabled={!isShowPromotion}
+                    maxLength={50}
+                    showCount
+                    autoSize={{ minRows: 1, maxRows: 1 }}
+                    autoComplete='off'
+                  />
+                </Form.Item>
+              </Col>
+              <Col>
+                <Form.Item
+                  name='promotionNotiDetail'
+                  label='รายละเอียดแจ้งเตือน'
+                  rules={[
+                    {
+                      required: true,
+                      message: "*โปรดระบุรายละเอียดพาดหัว",
+                    },
+                  ]}
+                >
+                  <TextArea
+                    placeholder='ระบุรายละเอียดพาดหัวแจ้งเตือน'
+                    disabled={!isShowPromotion}
+                    maxLength={150}
+                    showCount
+                    autoComplete='off'
+                  />
+                </Form.Item>
+              </Col>
+              <Row gutter={8}>
+                <label>แจ้งแตือน ก่อนเริ่มโปรโมชั่น</label>
+                <Col span={12}>
+                  <Form.Item name='firstDateNoti'>
+                    <DatePicker
+                      style={{ width: "100%" }}
+                      disabledDate={(current: Dayjs) => {
+                        const startDate = form.getFieldValue("startDate");
+                        const dateToday = dayjs(new Date());
+                        return current.isBefore(dateToday) || current.isAfter(dayjs(startDate));
+                      }}
+                      enablePast
+                      disabled={!isShowPromotion}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name='firstTimeNoti' initialValue={dayjs("07:00", "HH:mm")}>
+                    <TimePicker disabled={!isShowPromotion} />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={8}>
+                <label>แจ้งแตือน วันที่เริ่มโปรโมชัน</label>
+                <Col span={12}>
+                  <Form.Item name='startDate'>
+                    <DatePicker
+                      style={{ width: "100%" }}
+                      enablePast
+                      disabled
+                      placeholder='วันที่เริ่มโปรโมชั่น'
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name='secondTimeNoti' initialValue={dayjs("07:00", "HH:mm")}>
+                    <TimePicker allowClear={false} disabled={!isShowPromotion} />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </div>
       </Form>
+      {showModal && (
+        <Modal
+          open={showModal}
+          onCancel={() => setShowModal(!showModal)}
+          footer={false}
+          width={600}
+        >
+          <Row justify={"space-between"} gutter={8} className='pt-3'>
+            <Col span={12}>
+              <div
+                style={{
+                  borderColor: color.Disable,
+                  border: "solid",
+                  borderRadius: "22px",
+                }}
+              >
+                <img
+                  src={imageUrl2}
+                  height={132}
+                  width={248}
+                  style={{
+                    position: "absolute",
+                    marginTop: "85%",
+                    marginLeft: "4%",
+                    borderRadius: "10px",
+                  }}
+                />
+                <img src={image.indexShopApp} height={600} width={269} />
+              </div>
+            </Col>
+            <Col span={12}>
+              <div
+                style={{
+                  borderColor: color.Disable,
+                  border: "solid",
+                  borderRadius: "22px",
+                }}
+              >
+                <img
+                  src={imageUrl2}
+                  height={132}
+                  width={248}
+                  style={{
+                    position: "absolute",
+                    marginTop: "25%",
+                    marginLeft: "4%",
+                    borderRadius: "10px",
+                  }}
+                />
+                <Row
+                  style={{ position: "absolute", marginTop: "75%", marginLeft: "4%", width: "90%" }}
+                >
+                  <Col span={24}>
+                    {form.getFieldValue("promotionSubject") ? (
+                      <Text fontWeight={700}>{form.getFieldValue("promotionSubject")}</Text>
+                    ) : (
+                      <Text fontWeight={700}>(ชื่อโปรโมชัน)</Text>
+                    )}
+                  </Col>
+                  <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
+                  {form.getFieldValue("promotionDetail") && (
+                    <>
+                      {" "}
+                      <Col span={24}>
+                        <Text level={6}>รายละเอียดโปรโมชั่น</Text>
+                      </Col>
+                      <Col span={24}>
+                        <Text level={6}>{form.getFieldValue("promotionDetail")}</Text>
+                      </Col>
+                    </>
+                  )}
+                  <img src={image.detailPromotionCard} height={180} width={245} className='pt-3' />
+                </Row>
+                <img src={image.detailPromotion} height={600} width={268} />
+              </div>
+            </Col>
+          </Row>
+        </Modal>
+      )}
     </>
   );
 };
