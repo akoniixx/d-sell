@@ -7,12 +7,26 @@ import {
 } from "@ant-design/icons";
 import React, { ReactNode, useEffect, useState } from "react";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
-import Button from "../../components/Button/Button";
+import Buttons from "../../components/Button/Button";
 import Tabs from "../../components/AntdTabs/AntdTabs";
 import { CardContainer, GroupCardContainer } from "../../components/Card/CardContainer";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import Text from "../../components/Text/Text";
-import { Avatar, Card, Col, Collapse, Divider, Form, Image, Row, Table, Tooltip } from "antd";
+import {
+  Avatar,
+  Card,
+  Col,
+  Collapse,
+  Divider,
+  Form,
+  Image,
+  Modal,
+  Row,
+  Table,
+  Tooltip,
+  Button,
+  Spin,
+} from "antd";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import TextArea from "../../components/Input/TextArea";
 import styled from "styled-components";
@@ -63,6 +77,14 @@ const MemoArea = styled.div`
   align-items: center;
   padding: 16px;
 `;
+
+export interface NotiApp {
+  imagePromotion: string;
+  promotionSubject: string;
+  promotionDetail: string;
+  isShowShopApp: boolean;
+  isShowSaleApp: boolean;
+}
 
 const DetailTab: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -142,7 +164,7 @@ const DetailTab: React.FC = () => {
 
   const ToggleButton = ({ title, isSelected }: { title: string; isSelected: boolean }) => {
     return (
-      <Button
+      <Buttons
         title={title}
         typeButton={isSelected ? "primary" : "primary-light"}
         style={{
@@ -189,7 +211,7 @@ const DetailTab: React.FC = () => {
 
   return (
     <>
-      <FlexRow justify='start' style={{ padding: "20px 0" }}>
+      {/* <FlexRow justify='start' style={{ padding: "20px 0" }}>
         <FlexCol style={{ marginRight: 16 }}>
           {promotion?.promotionImageFirst ? (
             <Image
@@ -238,7 +260,7 @@ const DetailTab: React.FC = () => {
             />
           )}
         </FlexCol>
-      </FlexRow>
+      </FlexRow> */}
       <Row gutter={16}>
         <Col span={12}>
           <Descriptions
@@ -341,7 +363,7 @@ const DetailTab: React.FC = () => {
                   </FlexRow>
                 </Col>
                 <Col span={8}>
-                  <Button
+                  <Buttons
                     title='ดูรายละเอียด'
                     icon={<EyeOutlined />}
                     onClick={() => {
@@ -369,7 +391,7 @@ const DetailTab: React.FC = () => {
                   </FlexRow>
                 </Col>
                 <Col span={8}>
-                  <Button
+                  <Buttons
                     title='ดาวน์โหลด'
                     icon={<DownloadOutlined style={{ color: "white" }} />}
                     onClick={onDownloadExcel}
@@ -1023,6 +1045,159 @@ const DetailTab: React.FC = () => {
   );
 };
 
+const DetailApp = (
+  imagePromotion?: string,
+  promotionSubject?: string,
+  promotionDetail?: string,
+  isShowShopApp?: boolean,
+  isShowSaleApp?: boolean,
+  isShowPromotion?: boolean,
+) => {
+  const appList = () => {
+    const sale = isShowSaleApp ? "Sale App" : "";
+    const shop = isShowShopApp ? "Shop App" : "";
+    const payload = [sale, shop].filter((x) => x);
+    return payload.length > 1 ? payload.join(",") : payload;
+  };
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+  }, []);
+
+  return (
+    <MemoArea>
+      <Row>
+        <Col span={8}>
+          <Text level={5} fontWeight={600}>
+            รายละเอียดการแสดงผลในแอปพลิเคชัน
+          </Text>
+          <Spin style={{ marginLeft: "-10%" }} spinning={loading}>
+            <Image
+              preview={isShowPromotion}
+              src={imagePromotion}
+              width={300}
+              style={{ borderRadius: "10px", filter: !isShowPromotion ? "grayscale(100%)" : "" }}
+            />
+          </Spin>
+        </Col>
+        <Col span={16}>
+          <Descriptions label='ชื่อเรื่องโปรโมชัน' value={promotionSubject} />
+          <Descriptions label='รายละเอียดโปรโมชัน' value={promotionDetail} />
+          <Descriptions label='แอปพลิเคชัน' value={appList()} />
+          <Descriptions
+            label='สถานะ'
+            value={
+              <Tag color={isShowPromotion ? color.success : color.error}>
+                {isShowPromotion ? "แสดงผล" : "ปิดการแสดงผล"}
+              </Tag>
+            }
+          />
+          <Row style={{ padding: "16px 0px" }}>
+            <Col span={8}>
+              <Text color='Text3'>ดูภาพการแสดงผล :</Text>
+            </Col>
+            <Col span={4}>
+              <Button
+                style={{
+                  color: isShowPromotion ? color.primary : color.Disable,
+                  borderColor: isShowPromotion ? color.primary : color.Disable,
+                }}
+                onClick={() => setShowModal(!showModal)}
+                disabled={!isShowPromotion}
+              >
+                <EyeOutlined style={{ fontSize: "18px" }} />
+                ดูภาพ
+              </Button>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      {showModal && (
+        <Modal
+          open={showModal}
+          onCancel={() => setShowModal(!showModal)}
+          footer={false}
+          width={600}
+        >
+          <Row justify={"space-between"} gutter={8} className='pt-3'>
+            <Col span={12}>
+              <div
+                style={{
+                  borderColor: color.Disable,
+                  border: "solid",
+                  borderRadius: "22px",
+                }}
+              >
+                <img
+                  src={imagePromotion}
+                  height={132}
+                  width={248}
+                  style={{
+                    position: "absolute",
+                    marginTop: "85%",
+                    marginLeft: "4%",
+                    borderRadius: "10px",
+                  }}
+                />
+                <img src={image.indexShopApp} height={600} width={269} />
+              </div>
+            </Col>
+            <Col span={12}>
+              <div
+                style={{
+                  borderColor: color.Disable,
+                  border: "solid",
+                  borderRadius: "22px",
+                }}
+              >
+                <img
+                  src={imagePromotion}
+                  height={132}
+                  width={248}
+                  style={{
+                    position: "absolute",
+                    marginTop: "25%",
+                    marginLeft: "4%",
+                    borderRadius: "10px",
+                  }}
+                />
+                <Row
+                  style={{ position: "absolute", marginTop: "75%", marginLeft: "4%", width: "90%" }}
+                >
+                  <Col span={24}>
+                    {promotionSubject ? (
+                      <Text fontWeight={700}>{promotionSubject}</Text>
+                    ) : (
+                      <Text fontWeight={700}>(ชื่อโปรโมชัน)</Text>
+                    )}
+                  </Col>
+                  <Divider style={{ marginTop: "10px", marginBottom: "10px" }} />
+                  {promotionDetail && (
+                    <>
+                      <Col span={24}>
+                        <Text level={6}>รายละเอียดโปรโมชัน</Text>
+                      </Col>
+                      <Col span={24}>
+                        <Text level={6}>{promotionDetail}</Text>
+                      </Col>
+                    </>
+                  )}
+                  <img src={image.detailPromotionCard} height={180} width={245} className='pt-3' />
+                </Row>
+                <img src={image.detailPromotion} height={600} width={268} />
+              </div>
+            </Col>
+          </Row>
+        </Modal>
+      )}
+    </MemoArea>
+  );
+};
+
 const HistoryTab: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
@@ -1126,7 +1301,13 @@ const HistoryTab: React.FC = () => {
       <br />
       <br />
       <TableContainer>
-        <Table columns={columns} dataSource={histories} pagination={false} />
+        <Table
+          columns={columns}
+          dataSource={histories}
+          pagination={false}
+          style={{ height: "500px" }}
+          scroll={{ y: 500 }}
+        />
       </TableContainer>
     </>
   );
@@ -1138,7 +1319,6 @@ export const PromotionDetail: React.FC = () => {
   const navigate = useNavigate();
 
   const promoStateValue = useRecoilValue(promotionState);
-
   const isInvalid =
     !promoStateValue.promotion || moment(promoStateValue.promotion?.endDate).isBefore(moment());
 
@@ -1150,7 +1330,7 @@ export const PromotionDetail: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการโปรโมชั่น", path: "/PromotionPage/promotion" },
+              { text: "รายการโปรโมชัน", path: "/PromotionPage/promotion" },
               {
                 text: "รายละเอียดโปรโมชัน",
                 path: window.location.pathname,
@@ -1160,7 +1340,7 @@ export const PromotionDetail: React.FC = () => {
         }
         extra={
           !isInvalid && (
-            <Button
+            <Buttons
               title='แก้ไขโปรโมชัน'
               icon={<EditOutlined />}
               onClick={() => navigate(`/PromotionPage/promotion/edit/${pathSplit[4]}`)}
@@ -1179,6 +1359,22 @@ export const PromotionDetail: React.FC = () => {
     },
     {
       key: "2",
+      label: "รายละเอียดการแสดงผล",
+      children: (
+        <>
+          {DetailApp(
+            promoStateValue?.promotion?.promotionImageSecond,
+            promoStateValue?.promotion?.promotionSubject,
+            promoStateValue?.promotion?.promotionDetail,
+            promoStateValue?.promotion?.isShowShopApp,
+            promoStateValue?.promotion?.isShowSaleApp,
+            promoStateValue?.promotion?.isShowPromotion,
+          )}
+        </>
+      ),
+    },
+    {
+      key: "3",
       label: "ประวัติการสร้างโปรโมชัน",
       children: <HistoryTab />,
     },

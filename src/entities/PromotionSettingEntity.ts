@@ -68,6 +68,11 @@ interface PromotionSettingEntity {
   createBy?: string;
   updateBy?: string;
   promotionShop?: PromotionShopEntity[];
+  isShowPromotion: boolean;
+  isShowSaleApp?: boolean;
+  isShowShopApp?: boolean;
+  promotionDetail?: string;
+  promotionSubject?: string;
 }
 
 export default PromotionSettingEntity;
