@@ -1,6 +1,6 @@
 ## [Version - 0]
 
-## Resolved [v0.6.28] - Release Date: 2023-09-/ภ
+## Resolved [v0.6.28] - Release Date: 2023-09-24
 
 - Improve: Permission
 
