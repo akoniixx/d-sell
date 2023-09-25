@@ -33,7 +33,7 @@ export const redirectByRole = (menus?: string) => {
       );
     });
   });
-  return redirectPath?.path || "/";
+  return redirectPath?.path || "/home";
 };
 export const checkPermission = (menus?: string, path?: string) => {
   if (!menus) return false;
@@ -81,11 +81,11 @@ export const checkPermissionRenderMenu = ({
     permission: string[];
     menu: any;
   }[];
-  permission: string[];
+  permission: any[];
 }) => {
-  const isHaveSubMenu = menus
-    ?.map((el) => el.menu)
-    .some((el) => (isArray(el) ? true : Object.keys(el).length > 0));
+  const isHaveSubMenu = (menus || [])
+    .map((el) => el.menu)
+    .some((el) => (isArray(el) ? true : Object.keys(el || {}).length > 0));
   const isPermission = menus?.some((menu) => {
     return permission.includes(menu.menuName);
   });

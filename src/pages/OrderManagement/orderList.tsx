@@ -26,6 +26,9 @@ import { numberFormatter, priceFormatter } from "../../utility/Formatter";
 import { OrderEntity } from "../../entities/OrderEntity";
 import { zoneDatasource } from "../../datasource/ZoneDatasource";
 import { getOrderStatus } from "../../utility/OrderStatus";
+import Permission, { checkPermission } from "../../components/Permission/Permission";
+import { roleAtom } from "../../store/RoleAtom";
+import { useRecoilValue } from "recoil";
 
 const SLASH_DMY = "DD/MM/YYYY HH:mm";
 const SummaryBox = ({
@@ -64,6 +67,8 @@ export const OrderList: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+
+  const roleData = useRecoilValue(roleAtom);
 
   const navigate = useNavigate();
 
@@ -326,6 +331,7 @@ export const OrderList: React.FC = () => {
       dataIndex: "action",
       key: "action",
       width: 100,
+      hidden: !checkPermission(["manageOrder", "view"], roleData),
       render: (value: any, row: any, index: number) => {
         return {
           children: row.status ? (
@@ -363,7 +369,7 @@ export const OrderList: React.FC = () => {
         };
       },
     },
-  ];
+  ].filter((item) => !item.hidden);
 
   return (
     <>

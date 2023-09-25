@@ -13,6 +13,7 @@ import { shopDatasource } from "../../../../datasource/ShopDatasource";
 import { Spin } from "antd";
 import { useRecoilValue } from "recoil";
 import { profileAtom } from "../../../../store/ProfileAtom";
+import Permission from "../../../../components/Permission/Permission";
 function DetailShopPage(): JSX.Element {
   const { shopId } = useParams();
   const navigate = useNavigate();
@@ -69,25 +70,27 @@ function DetailShopPage(): JSX.Element {
           </Text>
         }
         extra={
-          <Button
-            typeButton={isDisabled ? "disabled" : "primary"}
-            disabled={isDisabled}
-            onClick={() => {
-              navigate({
-                pathname: `EditShopPage`,
-                search: `?taxId=${data?.taxNo}`,
-              });
-            }}
-            icon={
-              <FormOutlined
-                style={{
-                  color: "white",
-                  fontSize: 17,
-                }}
-              />
-            }
-            title='แก้ไขรายละเอียด'
-          />
+          <Permission permission={["storeList", "edit"]}>
+            <Button
+              typeButton={isDisabled ? "disabled" : "primary"}
+              disabled={isDisabled}
+              onClick={() => {
+                navigate({
+                  pathname: `EditShopPage`,
+                  search: `?taxId=${data?.taxNo}`,
+                });
+              }}
+              icon={
+                <FormOutlined
+                  style={{
+                    color: "white",
+                    fontSize: 17,
+                  }}
+                />
+              }
+              title='แก้ไขรายละเอียด'
+            />
+          </Permission>
         }
       />
       <div
