@@ -10,5 +10,9 @@ export default {
   product_box: require("./media/images/product-box.png"),
   empty_shop: require("./media/images/empty_shop.png"),
   emptyPromotion: require("./media/images/default_promotion.jpg"),
-  emptyProFreebie: require("./media/images/IconEmtryStateOnFreebie.png"), 
+  emptyProFreebie: require("./media/images/IconEmtryStateOnFreebie.png"),
+  indexShopApp: require("./media/images/LaddaShopApp-Homepage.png"),
+  expPromotion: require("./media/images/expPromotion.png"),
+  detailPromotion: require("./media/images/LaddaShopApp-PromotionDetail.png"),
+  detailPromotionCard: require("./media/images/proDetailCard.png"),
 };

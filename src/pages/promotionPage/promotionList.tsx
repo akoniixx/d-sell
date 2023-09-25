@@ -1,5 +1,5 @@
 import React, { PropsWithoutRef, useEffect, useMemo, useState } from "react";
-import { Table, Tabs, Row, Col, Avatar, Switch, Modal, message, Tooltip } from "antd";
+import { Table, Tabs, Row, Col, Image, Switch, Modal, message, Tooltip, Spin } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import {
   UnorderedListOutlined,
@@ -194,10 +194,10 @@ export const PromotionListPage: React.FC = () => {
           children: (
             <FlexRow align='center'>
               <div style={{ marginRight: 16 }}>
-                <Avatar
+                <Image
                   src={row.promotionImageSecond || image.emptyPromotion}
-                  size={60}
-                  shape='square'
+                  width={80}
+                  style={{ borderRadius: "10px" }}
                 />
               </div>
               <FlexCol>
@@ -228,29 +228,6 @@ export const PromotionListPage: React.FC = () => {
         };
       },
     },
-    // {
-    //   title: "เลขที่อ้างอิง",
-    //   dataIndex: "referencePromotion",
-    //   key: "referencePromotion",
-    //   render: (value: string[], row: any, index: number) => {
-    //     const val = value?.join(",");
-    //     return {
-    //       children: (
-    //         <FlexCol>
-    //           <Tooltip title={val}>
-    //             {val ? (
-    //               <Text level={5} key={val}>
-    //                 {val.length >= 10 ? val.slice(0, 15) + "..." : val}
-    //               </Text>
-    //             ) : (
-    //               "-"
-    //             )}
-    //           </Tooltip>
-    //         </FlexCol>
-    //       ),
-    //     };
-    //   },
-    // },
     {
       title: "ระยะเวลา",
       dataIndex: "startDate",

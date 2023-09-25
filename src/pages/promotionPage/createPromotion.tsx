@@ -26,6 +26,7 @@ import dayjs, { Dayjs } from "dayjs";
 import promotionState from "../../store/promotion";
 import { PromotionConditionGroupEntity } from "../../entities/PromotionSettingEntity";
 import StepAntd from "../../components/StepAntd/StepAntd";
+import moment from "moment";
 
 export const PromotionCreatePage: React.FC = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -76,7 +77,6 @@ export const PromotionCreatePage: React.FC = () => {
     MEMO: "memo",
   };
   const addFileEditHistory = (s: string) => {
-    console.log("setHistory", s);
     const set = new Set(fileEditHistory);
     set.add(s);
     setFileEditHistoy(set);
@@ -144,6 +144,8 @@ export const PromotionCreatePage: React.FC = () => {
           ...res,
           startDate: copyId ? undefined : dayjs(res.startDate),
           endDate: copyId ? undefined : dayjs(res.endDate),
+          startTime: copyId ? undefined : dayjs(res.startDate),
+          endTime: copyId ? undefined : dayjs(res.endDate),
           referencePromotion: res.referencePromotion ? res.referencePromotion : [],
           memoFile: res.fileMemoPath
             ? [
@@ -155,6 +157,10 @@ export const PromotionCreatePage: React.FC = () => {
                 },
               ]
             : undefined,
+          firstDateNoti: copyId ? undefined : dayjs(res.notiFirstDate),
+          notiSecondDate: copyId ? undefined : dayjs(res.notiSecondDate),
+          firstTimeNoti: copyId ? undefined : dayjs(res.notiFirstDate),
+          secondTimeNoti: copyId ? undefined : dayjs(res.notiSecondDate),
         });
         form2.setFieldsValue({
           stores: res.promotionShop,
@@ -354,8 +360,11 @@ export const PromotionCreatePage: React.FC = () => {
               return;
             }
             const pass = Object.entries(promoList).every(([key, value]) => {
-              if(promotionData.promotionType === PromotionType.FREEBIES_MIX && key.split('-')[1] === 'weight' ){
-                return true
+              if (
+                promotionData.promotionType === PromotionType.FREEBIES_MIX &&
+                key.split("-")[1] === "weight"
+              ) {
+                return true;
               }
               return (value as any[]).every(
                 (val: any) =>
@@ -399,8 +408,20 @@ export const PromotionCreatePage: React.FC = () => {
 
   const onSubmit = async (promotionStatus: boolean, promotionData: any) => {
     setCreating(true);
-    const { promotionType, items, stores, startDate, endDate, startTime, endTime } = promotionData;
+    const {
+      promotionType,
+      items,
+      stores,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+      firstDateNoti,
+      firstTimeNoti,
+      secondTimeNoti,
+    } = promotionData;
     const id = isEditing ? pathSplit[4] : undefined;
+
     const submitData = {
       ...promotionData,
       promotionId: id,
@@ -417,14 +438,28 @@ export const PromotionCreatePage: React.FC = () => {
       conditionDetailFreebies: undefined,
       startDate:
         startDate && startTime
-          ? `${startDate.format("YYYY-MM-DD")} ${startTime.format("HH:mm")}:00.000`
+          ? dayjs(
+              `${startDate.format("YYYY-MM-DD")} ${startTime.format("HH:mm")}:00.000`,
+            ).toISOString()
           : undefined,
       endDate:
         endDate && endTime
-          ? `${endDate.format("YYYY-MM-DD")} ${endTime.format("HH:mm")}:00.000`
+          ? dayjs(`${endDate.format("YYYY-MM-DD")} ${endTime.format("HH:mm")}:00.000`).toISOString()
           : undefined,
       startTime: undefined,
       endTime: undefined,
+      notiFirstDate:
+        firstDateNoti && firstTimeNoti
+          ? dayjs(
+              `${firstDateNoti.format("YYYY-MM-DD")} ${firstTimeNoti.format("HH:mm")}:00.000`,
+            ).toISOString()
+          : undefined,
+      notiSecondDate:
+        startDate && secondTimeNoti
+          ? dayjs(
+              `${startDate.format("YYYY-MM-DD")} ${secondTimeNoti.format("HH:mm")}:00.000`,
+            ).toISOString()
+          : undefined,
       createBy: isEditing ? undefined : `${firstname} ${lastname}`,
       updateBy: isEditing ? `${firstname} ${lastname}` : undefined,
     };
@@ -629,9 +664,9 @@ export const PromotionCreatePage: React.FC = () => {
           // if (file2) formData.append("promotionImageSecond", file2);
           // if (fileMemo) formData.append("fileMemo", fileMemo?.originFileObj);
 
-          for (const pair of formData.entries()) {
-            console.log(pair[0] + ", " + pair[1]);
-          }
+          // for (const pair of formData.entries()) {
+          //   console.log(pair[0] + ", " + pair[1]);
+          // }
           updatePromotionFile(formData)
             .then((res) => {
               onDone();
@@ -647,8 +682,8 @@ export const PromotionCreatePage: React.FC = () => {
       }
     };
 
-    // console.log("submitData", submitData);
-    // return;
+    console.log("submitData", submitData);
+
     if (!isEditing) {
       await createPromotion(submitData)
         .then(callback)
