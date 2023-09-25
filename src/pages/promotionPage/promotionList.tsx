@@ -25,6 +25,9 @@ import {
 import { PROMOTION_TYPE_NAME } from "../../definitions/promotion";
 import image from "../../resource/image";
 import promotionState from "../../store/promotion";
+import Permission, { checkPermission } from "../../components/Permission/Permission";
+import { useRecoilValue } from "recoil";
+import { roleAtom } from "../../store/RoleAtom";
 
 type FixedType = "left" | "right" | boolean;
 const REQUEST_DMY = "YYYY-MM-DD";
@@ -37,6 +40,7 @@ export const PromotionListPage: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
+  const roleData = useRecoilValue(roleAtom);
 
   const navigate = useNavigate();
 
@@ -84,7 +88,11 @@ export const PromotionListPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
-        <Col className='gutter-row' xl={10} sm={6}>
+        <Col
+          className='gutter-row'
+          xl={checkPermission(["promotionSetting", "create"], roleData) ? 10 : 14}
+          sm={6}
+        >
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -125,14 +133,16 @@ export const PromotionListPage: React.FC = () => {
             }}
           />
         </Col>
-        <Col className='gutter-row' xl={4} sm={6}>
-          <Button
-            type='primary'
-            title='+ สร้างโปรโมชัน'
-            height={40}
-            onClick={() => (window.location.pathname = "/PromotionPage/promotion/create")}
-          />
-        </Col>
+        <Permission permission={["promotionSetting", "create"]}>
+          <Col className='gutter-row' xl={4} sm={6}>
+            <Button
+              type='primary'
+              title='+ สร้างโปรโมชัน'
+              height={40}
+              onClick={() => (window.location.pathname = "/PromotionPage/promotion/create")}
+            />
+          </Col>
+        </Permission>
       </Row>
     );
   };
@@ -275,7 +285,11 @@ export const PromotionListPage: React.FC = () => {
                       })
                       .catch(() => message.error("แก้ไขสถานะโปรโมชั่นไม่สำเร็จ"));
                   }}
-                  disabled={moment(row.endDate).isBefore(moment()) || row.promotionStatus}
+                  disabled={
+                    moment(row.endDate).isBefore(moment()) ||
+                    row.promotionStatus ||
+                    !checkPermission(["promotionSetting", "approve"], roleData)
+                  }
                 />
               ) : (
                 <Text level={6} color='Text3'>
@@ -292,55 +306,68 @@ export const PromotionListPage: React.FC = () => {
       dataIndex: "action",
       key: "action",
       fixed: "right" as FixedType | undefined,
+      hidden:
+        !checkPermission(["promotionSetting", "create"], roleData) &&
+        !checkPermission(["promotionSetting", "view"], roleData) &&
+        !checkPermission(["promotionSetting", "edit"], roleData) &&
+        !checkPermission(["promotionSetting", "delete"], roleData),
       render: (value: any, row: any, index: number) => {
         const isExpired = moment(row.endDate).isBefore(moment());
         return {
           children: (
             <>
               <Row>
-                <ActionBtn
-                  onClick={() => navigate("/PromotionPage/promotion/detail/" + row.promotionId)}
-                  icon={<UnorderedListOutlined />}
-                />
-                {!isExpired && (
+                <Permission permission={["promotionSetting", "view"]}>
                   <ActionBtn
-                    onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
-                    icon={<EditOutlined />}
+                    onClick={() => navigate("/PromotionPage/promotion/detail/" + row.promotionId)}
+                    icon={<UnorderedListOutlined />}
                   />
+                </Permission>
+                {!isExpired && (
+                  <Permission permission={["promotionSetting", "edit"]}>
+                    <ActionBtn
+                      onClick={() => navigate("/PromotionPage/promotion/edit/" + row.promotionId)}
+                      icon={<EditOutlined />}
+                    />
+                  </Permission>
                 )}
-                <ActionBtn
-                  onClick={() => {
-                    const query = new URLSearchParams({ copy_id: row.promotionId }).toString();
-                    Modal.confirm({
-                      title: "ต้องการคัดลอกโปรโมชันนี้ใช่หรือไม่",
-                      content: `โปรดตรวจสอบรายละเอียดโปรโมชัน “${row.promotionName}” (${row.promotionCode}) ที่ต้องการคัดลอก ก่อนกดยืนยัน`,
-                      okText: "ยืนยัน",
-                      onOk: () => navigate("/PromotionPage/promotion/create/?" + query),
-                    });
-                  }}
-                  icon={<CopyOutlined />}
-                />
-                {!isExpired && (
+                <Permission permission={["promotionSetting", "create"]}>
                   <ActionBtn
-                    onClick={() =>
+                    onClick={() => {
+                      const query = new URLSearchParams({ copy_id: row.promotionId }).toString();
                       Modal.confirm({
-                        title: "ยืนยันการลบโปรโมชั่น",
-                        okText: "",
-                        cancelText: "",
-                        onOk: async () => {
-                          await deletePromotion({
-                            promotionId: row.promotionId,
-                            updateBy: firstname + " " + lastname,
-                          })
-                            .then((res) => {
-                              navigate(0);
-                            })
-                            .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
-                        },
-                      })
-                    }
-                    icon={<DeleteOutlined style={{ color: color.error }} />}
+                        title: "ต้องการคัดลอกโปรโมชันนี้ใช่หรือไม่",
+                        content: `โปรดตรวจสอบรายละเอียดโปรโมชัน “${row.promotionName}” (${row.promotionCode}) ที่ต้องการคัดลอก ก่อนกดยืนยัน`,
+                        okText: "ยืนยัน",
+                        onOk: () => navigate("/PromotionPage/promotion/create/?" + query),
+                      });
+                    }}
+                    icon={<CopyOutlined />}
                   />
+                </Permission>
+                {!isExpired && (
+                  <Permission permission={["promotionSetting", "delete"]}>
+                    <ActionBtn
+                      onClick={() =>
+                        Modal.confirm({
+                          title: "ยืนยันการลบโปรโมชั่น",
+                          okText: "",
+                          cancelText: "",
+                          onOk: async () => {
+                            await deletePromotion({
+                              promotionId: row.promotionId,
+                              updateBy: firstname + " " + lastname,
+                            })
+                              .then((res) => {
+                                navigate(0);
+                              })
+                              .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                          },
+                        })
+                      }
+                      icon={<DeleteOutlined style={{ color: color.error }} />}
+                    />
+                  </Permission>
                 )}
               </Row>
             </>
@@ -348,7 +375,7 @@ export const PromotionListPage: React.FC = () => {
         };
       },
     },
-  ];
+  ].filter((item) => !item.hidden);
 
   return (
     <>

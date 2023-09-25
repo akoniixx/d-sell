@@ -23,6 +23,7 @@ import useDebounce from "../../../hook/useDebounce";
 import { useLocalStorage } from "../../../hook/useLocalStorage";
 import { useRecoilValue } from "recoil";
 import { roleAtom } from "../../../store/RoleAtom";
+import Permission, { checkPermission } from "../../../components/Permission/Permission";
 
 const NoImage = styled.div`
   width: 42px;
@@ -209,7 +210,8 @@ function SaleManagementPage() {
               <MenuTable
                 hideDelete
                 hindSync
-                // hideEdit={!includeEdit}
+                hideEdit={!checkPermission(["userList", "edit"], roleData)}
+                hideList={!checkPermission(["userList", "view"], roleData)}
                 onClickList={() => {
                   setDetailData(data);
                   setVisible(true);
@@ -271,14 +273,16 @@ function SaleManagementPage() {
                   value={keyword}
                 />
               </div>
-              <div>
-                <Button
-                  onClick={() => {
-                    navigate("AddSale");
-                  }}
-                  title=' + เพิ่มผู้ใช้งาน'
-                />
-              </div>
+              <Permission permission={["userList", "create"]}>
+                <div>
+                  <Button
+                    onClick={() => {
+                      navigate("AddSale");
+                    }}
+                    title=' + เพิ่มผู้ใช้งาน'
+                  />
+                </div>
+              </Permission>
             </div>
           }
         />

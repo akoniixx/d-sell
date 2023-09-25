@@ -24,6 +24,7 @@ import Input from "../../../components/Input/Input";
 import DatePicker from "../../../components/DatePicker/DatePicker";
 import TextArea from "../../../components/Input/TextArea";
 import "moment/locale/th";
+import Permission from "../../../components/Permission/Permission";
 
 type factorType = -1 | 0 | 1;
 
@@ -506,7 +507,9 @@ export const CustomerCreditMemoDetail: React.FC = () => {
                 </Text>
               </Col>
               <Col span={6}>
-                <Button title='+ เพิ่มส่วนลดดูแลราคาแบบ Manual' onClick={toggleConfirmModal} />
+                <Permission permission={["manageConditionStore", "edit"]}>
+                  <Button title='+ เพิ่มส่วนลดดูแลราคาแบบ Manual' onClick={toggleConfirmModal} />
+                </Permission>
                 <Modal
                   open={showConfirmModal}
                   onCancel={toggleConfirmModal}

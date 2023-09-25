@@ -13,6 +13,9 @@ import { priceFormatter } from "../../../utility/Formatter";
 import { getZones } from "../../../datasource/CustomerDatasource";
 import Select from "../../../components/Select/Select";
 import { AlignType } from "rc-table/lib/interface";
+import Permission, { checkPermission } from "../../../components/Permission/Permission";
+import { useRecoilValue } from "recoil";
+import { roleAtom } from "../../../store/RoleAtom";
 
 type FixedType = "left" | "right" | boolean;
 
@@ -20,6 +23,7 @@ export const CustomerDiscountListPage: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company, firstname, lastname } = userProfile;
+  const roleData = useRecoilValue(roleAtom);
 
   const navigate = useNavigate();
 
@@ -89,6 +93,9 @@ export const CustomerDiscountListPage: React.FC = () => {
             </span>
           </div>
         </Col>
+        <Permission permission={["manageConditionStore", "create"]} reverse>
+          <Col span={4} />
+        </Permission>
         <Col span={4}>
           <Select
             allowClear
@@ -121,14 +128,16 @@ export const CustomerDiscountListPage: React.FC = () => {
           />
         </Col>
         {company !== "ICPF" && (
-          <Col span={4}>
-            <Button
-              type='primary'
-              title='+ สร้างส่วนลดดูแลราคา'
-              height={40}
-              onClick={() => navigate(`/discount/create`)}
-            />
-          </Col>
+          <Permission permission={["manageConditionStore", "create"]}>
+            <Col span={4}>
+              <Button
+                type='primary'
+                title='+ สร้างส่วนลดดูแลราคา'
+                height={40}
+                onClick={() => navigate(`/discount/create`)}
+              />
+            </Col>
+          </Permission>
         )}
       </Row>
     );
@@ -217,6 +226,7 @@ export const CustomerDiscountListPage: React.FC = () => {
       key: "action",
       width: "15%",
       fixed: "right" as FixedType | undefined,
+      hidden: !checkPermission(["manageConditionStore", "view"], roleData),
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -236,7 +246,7 @@ export const CustomerDiscountListPage: React.FC = () => {
         };
       },
     },
-  ];
+  ].filter((item) => !item.hidden);
 
   return (
     <>

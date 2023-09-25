@@ -18,6 +18,7 @@ import styled from "styled-components";
 import { ProductCategoryEntity } from "../../entities/ProductCategoryEntity";
 import { getProductFreebieDetail } from "../../datasource/PromotionDatasource";
 import TextArea from "antd/lib/input/TextArea";
+import Permission from "../../components/Permission/Permission";
 
 const Container = styled.div`
   margin: 32px 0px 10px 0px;
@@ -116,7 +117,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     productFreebiesCodeNAV,
     productFreebiesImage,
   } = dataState || {};
-  
+
   const dataGroup1 = [
     {
       label: "Product Brands",
@@ -188,19 +189,21 @@ export const DistributionPageDetail: React.FC = (props: any) => {
         showBack
         onBack={() => navigate(`/${pathSplit[1]}/${pathSplit[2]}`)}
         extra={
-          <Button
-            type='primary'
-            onClick={() =>
-              navigate(
-                `/${pathSplit[1]}/${pathSplit[2]}/edit/${
-                  isFreebie ? productFreebiesId : productId
-                }`,
-              )
-            }
-          >
-            <EditOutlined />
-            แก้ไขรายละเอียด
-          </Button>
+          <Permission permission={["productList", "edit"]}>
+            <Button
+              type='primary'
+              onClick={() =>
+                navigate(
+                  `/${pathSplit[1]}/${pathSplit[2]}/edit/${
+                    isFreebie ? productFreebiesId : productId
+                  }`,
+                )
+              }
+            >
+              <EditOutlined />
+              แก้ไขรายละเอียด
+            </Button>
+          </Permission>
         }
         extraTitle={
           productStatus && (

@@ -32,6 +32,7 @@ import { getOrderDetail, submitToNav, updateOrderStatus } from "../../datasource
 import { OrderEntity } from "../../entities/OrderEntity";
 import { getOrderStatus } from "../../utility/OrderStatus";
 import TextArea from "../../components/Input/TextArea";
+import Permission from "../../components/Permission/Permission";
 
 const SLASH_DMY = "DD/MM/YYYY";
 type FixedType = "left" | "right" | boolean | undefined;
@@ -782,7 +783,7 @@ export const OrderDetail: React.FC = () => {
             dataSource={
               orderData?.orderProducts?.sort((a, b) =>
                 ("" + (a.productCodeNAV || a.productFreebiesCodeNAV)).localeCompare(
-                  (b.productCodeNAV || b.productFreebiesCodeNAV || ""),
+                  b.productCodeNAV || b.productFreebiesCodeNAV || "",
                 ),
               ) || []
             }
@@ -904,7 +905,13 @@ export const OrderDetail: React.FC = () => {
             </CardContainer>
           </Col>
         </Row>
-        {!isViewMode && getOption()}
+        {!isViewMode && (
+          <Permission
+            permission={isSpecialRequestMode ? ["specialRequest", "edit"] : ["manageOrder", "edit"]}
+          >
+            <div>{getOption()}</div>
+          </Permission>
+        )}
       </div>
       <Modal open={showCancelModal} footer={false} closable={false} width={420}>
         <FlexCol align='center'>

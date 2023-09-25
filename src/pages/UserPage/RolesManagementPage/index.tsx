@@ -16,6 +16,7 @@ import { roleDatasource } from "../../../datasource/RoleDatasource";
 import useDebounce from "../../../hook/useDebounce";
 import { profileAtom } from "../../../store/ProfileAtom";
 import { roleAtom } from "../../../store/RoleAtom";
+import Permission, { checkPermission } from "../../../components/Permission/Permission";
 
 export default function RolesManagementPage(): JSX.Element {
   const profile = useRecoilValue(profileAtom);
@@ -153,9 +154,9 @@ export default function RolesManagementPage(): JSX.Element {
                 onClickList={() => {
                   navigate(`DetailRole/${data.roleId}`);
                 }}
-                // hideDelete={!includeDelete}
-                // hideList={!includeView}
-                // hideEdit={!includeEdit}
+                hideDelete={!checkPermission(["manageRoles", "delete"], roleData)}
+                hideEdit={!checkPermission(["manageRoles", "edit"], roleData)}
+                hideList={!checkPermission(["manageRoles", "view"], roleData)}
                 hindSync
                 titleModalWarning='ต้องการลบข้อมูลบทบาทผู้ใช้งานนี้'
                 descriptionModalWarning='โปรดยืนยันการลบข้อมูลบทบาทผู้ใช้งาน'
@@ -204,14 +205,16 @@ export default function RolesManagementPage(): JSX.Element {
                 />
               </div>
 
-              <div>
-                <Button
-                  title='+ เพิ่มบทบาท'
-                  onClick={() => {
-                    navigate("AddNewRole");
-                  }}
-                />
-              </div>
+              <Permission permission={["manageRoles", "create"]}>
+                <div>
+                  <Button
+                    title='+ เพิ่มบทบาท'
+                    onClick={() => {
+                      navigate("AddNewRole");
+                    }}
+                  />
+                </div>
+              </Permission>
             </div>
           }
         />

@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.28] - Release Date: 2023-09-24
+
+- Improve: Permission
+
 ## Resolved [v0.6.27] - Release Date: 2023-09-21
 
 - fix layout

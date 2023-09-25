@@ -6,6 +6,7 @@ export interface RoleType {
   roleId: string;
   roledescription: string;
   rolename: string;
+  permission?: string[];
 }
 const roleAtom = atom<RoleType | null>({
   key: "roleAtom",

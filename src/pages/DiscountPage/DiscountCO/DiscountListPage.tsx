@@ -22,6 +22,9 @@ import { dateFormatter } from "../../../utility/Formatter";
 import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import color from "../../../resource/color";
+import { useRecoilValue } from "recoil";
+import { roleAtom } from "../../../store/RoleAtom";
+import Permission, { checkPermission } from "../../../components/Permission/Permission";
 
 const SLASH_DMY = "DD/MM/YYYY";
 const REQUEST_DMY = "YYYY-MM-DD";
@@ -36,6 +39,8 @@ export const DiscountListPage: React.FC = () => {
   const { company, firstname, lastname } = userProfile;
 
   const [loadingSyncProduct, setLoadingSyncProduct] = useState(false);
+
+  const roleData = useRecoilValue(roleAtom);
 
   const navigate = useNavigate();
 
@@ -119,7 +124,10 @@ export const DiscountListPage: React.FC = () => {
   const PageTitle = () => {
     return (
       <Row align='middle' gutter={16}>
-        <Col className='gutter-row' span={10}>
+        <Col
+          className='gutter-row'
+          span={!checkPermission(["discountList", "create"], roleData) ? 14 : 10}
+        >
           <div>
             <span
               className='card-label font-weight-bolder text-dark'
@@ -161,26 +169,28 @@ export const DiscountListPage: React.FC = () => {
             }}
           />
         </Col>
-        {company !== "ICPF" ? (
-          <Col className='gutter-row' xl={4} sm={6}>
-            <Button
-              type='primary'
-              title='+ สร้างส่วนลดดูแลราคา'
-              height={40}
-              onClick={() => navigate(`/discount/create`)}
-            />
-          </Col>
-        ) : (
-          <Col className='gutter-row' xl={4} sm={6}>
-            <Button
-              title='Navision'
-              icon={<SyncOutlined />}
-              onClick={onSyncProduct}
-              loading={loadingSyncProduct}
-              height={40}
-            />
-          </Col>
-        )}
+        <Permission permission={["discountList", "create"]}>
+          {company !== "ICPF" ? (
+            <Col className='gutter-row' xl={4} sm={6}>
+              <Button
+                type='primary'
+                title='+ สร้างส่วนลดดูแลราคา'
+                height={40}
+                onClick={() => navigate(`/discount/create`)}
+              />
+            </Col>
+          ) : (
+            <Col className='gutter-row' xl={4} sm={6}>
+              <Button
+                title='Navision'
+                icon={<SyncOutlined />}
+                onClick={onSyncProduct}
+                loading={loadingSyncProduct}
+                height={40}
+              />
+            </Col>
+          )}
+        </Permission>
       </Row>
     );
   };
@@ -257,6 +267,7 @@ export const DiscountListPage: React.FC = () => {
             <Switch
               checked={row.creditMemoStatus}
               onChange={(val) => onChangeStatus(row.creditMemoId, val)}
+              disabled={!checkPermission(["discountList", "approve"], roleData)}
             />
           ),
         };
@@ -272,64 +283,70 @@ export const DiscountListPage: React.FC = () => {
         return {
           children: (
             <Row justify={"start"} gutter={8}>
-              <Col span={8}>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/discount/detail/" + row.creditMemoId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-              </Col>
-              <Col span={8}>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/discount/edit/" + row.creditMemoId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <EditOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-              </Col>
-              {company !== "ICPF" && (
+              <Permission permission={["discountList", "view"]}>
                 <Col span={8}>
                   <div
                     className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                    onClick={async () => {
-                      Modal.confirm({
-                        title: "ต้องการลบข้อมูล",
-                        content: "โปรดยืนยันการลบข้อมูลรายการ ส่วนลดดูแลราคา",
-                        onOk: async () => {
-                          await deleteCreditMemo({
-                            creditMemoId: row?.creditMemoId,
-                            updateBy: `${firstname} ${lastname}`,
-                          })
-                            .then(({ success, userMessage }: any) => {
-                              if (success) {
-                                Modal.success({
-                                  title: "ลบข้อมูลสำเร็จ",
-                                  onOk: () => navigate(0),
-                                });
-                              } else {
-                                Modal.error({
-                                  title: "ลบข้อมูลไม่สำเร็จ",
-                                  content: userMessage,
-                                });
-                              }
-                            })
-                            .catch((e: any) => {
-                              console.log(e);
-                            });
-                        },
-                      });
-                    }}
+                    onClick={() => navigate("/discount/detail/" + row.creditMemoId)}
                   >
                     <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                      <DeleteOutlined style={{ color: color["error"] }} />
+                      <UnorderedListOutlined style={{ color: color["primary"] }} />
                     </span>
                   </div>
                 </Col>
+              </Permission>
+              <Permission permission={["discountList", "edit"]}>
+                <Col span={8}>
+                  <div
+                    className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                    onClick={() => navigate("/discount/edit/" + row.creditMemoId)}
+                  >
+                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                      <EditOutlined style={{ color: color["primary"] }} />
+                    </span>
+                  </div>
+                </Col>
+              </Permission>
+              {company !== "ICPF" && (
+                <Permission permission={["discountList", "delete"]}>
+                  <Col span={8}>
+                    <div
+                      className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                      onClick={async () => {
+                        Modal.confirm({
+                          title: "ต้องการลบข้อมูล",
+                          content: "โปรดยืนยันการลบข้อมูลรายการ ส่วนลดดูแลราคา",
+                          onOk: async () => {
+                            await deleteCreditMemo({
+                              creditMemoId: row?.creditMemoId,
+                              updateBy: `${firstname} ${lastname}`,
+                            })
+                              .then(({ success, userMessage }: any) => {
+                                if (success) {
+                                  Modal.success({
+                                    title: "ลบข้อมูลสำเร็จ",
+                                    onOk: () => navigate(0),
+                                  });
+                                } else {
+                                  Modal.error({
+                                    title: "ลบข้อมูลไม่สำเร็จ",
+                                    content: userMessage,
+                                  });
+                                }
+                              })
+                              .catch((e: any) => {
+                                console.log(e);
+                              });
+                          },
+                        });
+                      }}
+                    >
+                      <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                        <DeleteOutlined style={{ color: color["error"] }} />
+                      </span>
+                    </div>
+                  </Col>
+                </Permission>
               )}
             </Row>
           ),

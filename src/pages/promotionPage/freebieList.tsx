@@ -21,6 +21,9 @@ import { useNavigate } from "react-router-dom";
 import Select from "../../components/Select/Select";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
+import Permission, { checkPermission } from "../../components/Permission/Permission";
+import { useRecoilValue } from "recoil";
+import { roleAtom } from "../../store/RoleAtom";
 const SLASH_DMY = "DD/MM/YYYY";
 
 export const FreebieListPage: React.FC = () => {
@@ -31,6 +34,8 @@ export const FreebieListPage: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+
+  const roleData = useRecoilValue(roleAtom);
 
   const navigate = useNavigate();
 
@@ -149,9 +154,11 @@ export const FreebieListPage: React.FC = () => {
             />
           </div>
         </Col>
-        <Col className='gutter-row' span={5}>
-          <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
-        </Col>
+        <Permission permission={["freebieList", "sync"]}>
+          <Col className='gutter-row' span={5}>
+            <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
+          </Col>
+        </Permission>
       </Row>
     );
   };
@@ -251,6 +258,9 @@ export const FreebieListPage: React.FC = () => {
       key: "action",
       width: "5%",
       fixed: "right" as FixedType | undefined,
+      hidden:
+        !checkPermission(["freebieList", "view"], roleData) ||
+        !checkPermission(["freebieList", "edit"], roleData),
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -270,7 +280,7 @@ export const FreebieListPage: React.FC = () => {
         };
       },
     },
-  ];
+  ].filter((item) => !item.hidden);
 
   return (
     <>
