@@ -71,6 +71,8 @@ export const PromotionCreatePage: React.FC = () => {
   const [fileMemoUrl, _setFileMemoUrl] = useState<any>();
   const [fileEditHistory, setFileEditHistoy] = useState(new Set());
 
+  const [imgPromotion, setImgPromotion] = useState<boolean>(false);
+
   const fileKeys = {
     IMAGE1: "img1",
     IMAGE2: "img2",
@@ -157,10 +159,23 @@ export const PromotionCreatePage: React.FC = () => {
                 },
               ]
             : undefined,
-          firstDateNoti: copyId ? undefined : dayjs(res.notiFirstDate),
+          firstDateNoti: copyId
+            ? undefined
+            : res.notiFirstDate
+            ? dayjs(res.notiFirstDate)
+            : undefined,
           notiSecondDate: copyId ? undefined : dayjs(res.notiSecondDate),
-          firstTimeNoti: copyId ? undefined : dayjs(res.notiFirstDate),
-          secondTimeNoti: copyId ? undefined : dayjs(res.notiSecondDate),
+          firstTimeNoti: copyId
+            ? undefined
+            : res.firstTimeNoti
+            ? dayjs(res.firstTimeNoti)
+            : dayjs("0000-00-00 07:00"),
+          secondTimeNoti: copyId
+            ? undefined
+            : res.secondTimeNoti
+            ? dayjs(res.secondTimeNoti)
+            : dayjs("0000-00-00 07:00"),
+          isShowPromotion: res.isShowPromotion,
         });
         form2.setFieldsValue({
           stores: res.promotionShop,
@@ -302,6 +317,8 @@ export const PromotionCreatePage: React.FC = () => {
       isEditing={isEditing}
       isCopying={!!copyId}
       key={0}
+      imgPromotion={imgPromotion}
+      setImgPromotion={setImgPromotion}
     />,
     <PromotionCreateStep2
       form={form2}
@@ -321,10 +338,10 @@ export const PromotionCreatePage: React.FC = () => {
 
   const onNext = async () => {
     if (step === 0) {
+      setImgPromotion(file2 || imageUrl2 ? false : true);
       form1
         .validateFields()
         .then((values) => {
-          setStep(step + 1);
           setPromotionData({
             ...promotionData,
             ...values,
@@ -333,6 +350,11 @@ export const PromotionCreatePage: React.FC = () => {
         .catch((errInfo) => {
           console.log("errInfo", errInfo);
         });
+      if (form1.getFieldValue("isShowPromotion")) {
+        (file2 || imageUrl2) && setStep(step + 1);
+      } else {
+        setStep(step + 1);
+      }
     } else if (step === 1) {
       const stores = form2.getFieldValue("stores");
       if (!stores || stores.length <= 0) {

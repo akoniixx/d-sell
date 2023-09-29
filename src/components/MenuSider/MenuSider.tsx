@@ -126,6 +126,13 @@ const iconsInActive = {
       }}
     />
   ),
+  promotionNoti: (
+    <GiftOutlined
+      style={{
+        fontSize: "20px",
+      }}
+    />
+  ),
   freebies: (
     <GiftOutlined
       style={{

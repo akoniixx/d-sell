@@ -9,6 +9,13 @@ const getPromotionNotiList = async (params: object) => {
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
+const getPromotionNotiById = async (id: string) => {
+  return await httpClient
+    .get(`${baseUrl}/promotion-notification/${id}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 const createPromotionNoti = async (params: object) => {
   return await httpClient
     .post(`${baseUrl}/promotion-notification`, params)
@@ -16,4 +23,4 @@ const createPromotionNoti = async (params: object) => {
     .catch((err) => console.log(err));
 };
 
-export { getPromotionNotiList, createPromotionNoti };
+export { getPromotionNotiList, createPromotionNoti, getPromotionNotiById };

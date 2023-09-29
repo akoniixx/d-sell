@@ -1,4 +1,4 @@
-import { SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { FieldTimeOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Col, Row, Table, Image, Space, Modal, Form, Checkbox, Radio, Divider, Badge } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import React, { useEffect, useMemo, useState } from "react";
@@ -484,8 +484,8 @@ export const PromotionNotification: React.FC = () => {
                   },
                 ]}
               >
-                <Radio.Group>
-                  <Space direction='vertical'>
+                <Radio.Group style={{ width: "100%" }}>
+                  <Space direction='vertical' style={{ width: "100%" }}>
                     <Radio disabled={isDisable} value={true}>
                       ส่งทันที
                     </Radio>

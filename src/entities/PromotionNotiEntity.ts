@@ -22,6 +22,7 @@ export interface PromotionNoti extends CreatePromotionNoti {
   updateBy: string;
   updatedAt: string;
   promotionName: string;
+  promotionCode: string;
 }
 
 export interface SelectPromotionList {
