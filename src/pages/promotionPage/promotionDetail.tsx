@@ -1171,7 +1171,17 @@ const DetailApp = (
   }, []);
 
   return (
-    <MemoArea>
+    <div
+      style={{
+        width: "100%",
+        backgroundColor: color.background1,
+        border: "1px solid",
+        borderColor: color.background2,
+        borderRadius: "8px",
+        alignItems: "center",
+        padding: "16px",
+      }}
+    >
       <Row>
         <Col span={8}>
           <Text level={5} fontWeight={600}>
@@ -1296,7 +1306,7 @@ const DetailApp = (
           </Row>
         </Modal>
       )}
-    </MemoArea>
+    </div>
   );
 };
 
