@@ -115,6 +115,16 @@ const getReportExcel = async (id: string, company: string) => {
     .catch((err) => console.log(err));
 };
 
+const getActivePromotion = async (company: string, isShowPromotion: boolean) => {
+  return await httpClient
+    .get(`${baseUrl}/promotion/promotion-active`, { params: { company, isShowPromotion } })
+    .then((res: AxiosResponse) => {
+      console.log(res.data);
+      return res.data;
+    })
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductFreebies,
   syncProductFreebie,
@@ -132,4 +142,5 @@ export {
   getPromotionLog,
   getProductFreebiePromotionDetail,
   getReportExcel,
+  getActivePromotion,
 };
