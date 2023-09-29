@@ -2,7 +2,7 @@
   "compilerOptions": {
     "isolatedModules": true,
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["dom", "dom.iterable", "esnext", "ES2021.String"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

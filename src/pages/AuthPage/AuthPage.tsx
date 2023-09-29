@@ -33,7 +33,7 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
     try {
       await AuthDatasource.login(data.account.userName).then((res: any) => {
-        console.log("login res", res);
+        // console.log("login res", res);
 
         if (res.accessToken) {
           setPersistedProfile({
@@ -41,7 +41,9 @@ export const AuthPage: React.FC = () => {
             roleId: res.rolePermission.roleId,
           });
           setToken(res.accessToken);
-          setRole(res.rolePermission);
+          setRole({
+            ...res.rolePermission,
+          });
           setProfile({
             ...res.data,
             roleId: res.rolePermission.roleId,

@@ -446,50 +446,50 @@ export const staticManageRoles: StaticRoles = {
 export const mockRoles = [
   {
     menuName: "manageOrder",
-    menu: ["viewOrder", "manageOrder", "connectNavision"],
+    menu: ["view", "edit"],
   },
   {
     menuName: "specialRequest",
-    menu: ["viewOrder", "approveOrder"],
+    menu: ["view", "approve"],
   },
   {
     menuName: "productList",
-    menu: ["viewProduct", "editProduct", "connectNavision"],
+    menu: ["view", "edit", "sync"],
   },
   {
     menuName: "priceSpecialExclusive",
     menu: {
-      specialPrice: ["specialPrice", "createPrice", "editPrice", "deletePrice"],
+      specialPrice: ["view", "create", "edit", "delete"],
     },
   },
   {
     menuName: "promotionSetting",
-    menu: ["viewPromotion", "createPromotion", "editPromotion", "deletePromotion"],
+    menu: ["create", "view", "edit", "delete", "approve", "document"],
   },
   {
     menuName: "freebieList",
-    menu: ["viewFreebie", "editFreebie"],
+    menu: ["view", "edit", "sync"],
   },
   {
     menuName: "discountCo",
     menu: {
-      discountList: ["viewDiscount", "createDiscount", "editDiscount", "deleteDiscount"],
-      manageConditionStore: ["viewDiscount", "createDiscount", "editDiscount", "deleteDiscount"],
-      manageCondition: ["viewCondition", "createCondition", "editCondition", "deleteCondition"],
+      discountList: ["create", "view", "edit", "delete", "approve"],
+      manageConditionStore: ["create", "view", "edit", "delete", "approve"],
+      manageCondition: ["create", "view", "edit"],
     },
   },
   {
     menuName: "manageUser",
     menu: {
-      userList: ["viewUser", "addUser", "editUser", "deleteUser"],
-      manageRoles: ["viewRoles", "addRoles", "editRoles", "deleteRoles"],
+      userList: ["view", "create", "edit"],
+      manageRoles: ["view", "create", "edit", "delete"],
     },
   },
   {
     menuName: "manageStore",
     menu: {
-      storeList: ["viewStore", "createStore", "editStore", "deleteStore"],
-      approvePhone: ["viewApprovePhone", "approvePhone"],
+      storeList: ["view", "create", "edit", "sync"],
+      approvePhone: ["view", "approve"],
     },
   },
 ];

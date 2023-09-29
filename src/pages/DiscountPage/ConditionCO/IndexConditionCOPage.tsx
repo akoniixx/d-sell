@@ -5,7 +5,7 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import { Col, Modal, Row, Switch, Table, Tabs } from "antd";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import Button from "../../../components/Button/Button";
 import { FlexCol } from "../../../components/Container/Container";
@@ -22,11 +22,15 @@ import {
 import { dateFormatter } from "../../../utility/Formatter";
 import moment from "moment";
 import dayjs from "dayjs";
+import Permission, { checkPermission } from "../../../components/Permission/Permission";
+import { useRecoilValue } from "recoil";
+import { roleAtom } from "../../../store/RoleAtom";
 
 export const IndexConditionCOPage: React.FC = () => {
   const navigate = useNavigate();
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+  const roleData = useRecoilValue(roleAtom);
 
   const [page, setPage] = useState<number>(1);
   const pageSize = 8;
@@ -145,6 +149,9 @@ export const IndexConditionCOPage: React.FC = () => {
             </span>
           </div>
         </Col>
+        <Permission permission={["manageCondition", "create"]} reverse>
+          <Col span={4} />
+        </Permission>
         <Col className='gutter-row' xl={4} sm={6}>
           <Input
             placeholder='ค้นหารายการ'
@@ -166,14 +173,16 @@ export const IndexConditionCOPage: React.FC = () => {
             ]}
           />
         </Col>
-        <Col className='gutter-row' xl={4} sm={6}>
-          <Button
-            type='primary'
-            title='+ สร้างเงื่อนไข'
-            height={40}
-            onClick={() => (window.location.pathname = "discount/createConditionCo")}
-          />
-        </Col>
+        <Permission permission={["manageCondition", "create"]}>
+          <Col className='gutter-row' xl={4} sm={6}>
+            <Button
+              type='primary'
+              title='+ สร้างเงื่อนไข'
+              height={40}
+              onClick={() => (window.location.pathname = "discount/createConditionCo")}
+            />
+          </Col>
+        </Permission>
       </Row>
     );
   };
@@ -269,6 +278,7 @@ export const IndexConditionCOPage: React.FC = () => {
             <Switch
               checked={value}
               onChange={(e) => handleChangeStatus(e, row.creditMemoConditionId)}
+              disabled={!checkPermission(["manageCondition", "approve"], roleData)}
             />
           ),
         };
@@ -282,41 +292,47 @@ export const IndexConditionCOPage: React.FC = () => {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <Row justify={'space-between'} gutter={8}>
-              <Col span={8}>
-                <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined
-                      style={{ color: color["primary"] }}
-                      onClick={() =>
-                        navigate(`/discount/conditionco/detail/` + row.creditMemoConditionId)
-                      }
-                    />
-                  </span>
-                </div>
-              </Col>
-              <Col span={8}>
-                <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <EditOutlined
-                      style={{ color: color["primary"] }}
-                      onClick={() =>
-                        navigate(`/discount/editConditionCo/` + row.creditMemoConditionId)
-                      }
-                    />
-                  </span>
-                </div>
-              </Col>
-              <Col span={8}>
-                <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <DeleteOutlined
-                      style={{ color: color["error"] }}
-                      onClick={() => handleDelete(row.creditMemoConditionId)}
-                    />
-                  </span>
-                </div>
-              </Col>
+            <Row justify={"space-between"} gutter={8}>
+              <Permission permission={["manageCondition", "view"]}>
+                <Col span={8}>
+                  <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
+                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                      <UnorderedListOutlined
+                        style={{ color: color["primary"] }}
+                        onClick={() =>
+                          navigate(`/discount/conditionco/detail/` + row.creditMemoConditionId)
+                        }
+                      />
+                    </span>
+                  </div>
+                </Col>
+              </Permission>
+              <Permission permission={["manageCondition", "edit"]}>
+                <Col span={8}>
+                  <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
+                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                      <EditOutlined
+                        style={{ color: color["primary"] }}
+                        onClick={() =>
+                          navigate(`/discount/editConditionCo/` + row.creditMemoConditionId)
+                        }
+                      />
+                    </span>
+                  </div>
+                </Col>
+              </Permission>
+              <Permission permission={["manageCondition", "delete"]}>
+                <Col span={8}>
+                  <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
+                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                      <DeleteOutlined
+                        style={{ color: color["error"] }}
+                        onClick={() => handleDelete(row.creditMemoConditionId)}
+                      />
+                    </span>
+                  </div>
+                </Col>
+              </Permission>
             </Row>
           ),
         };

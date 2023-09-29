@@ -13,6 +13,8 @@ import { getCustomers, getZones } from "../../datasource/CustomerDatasource";
 import { deleteSpecialPrice, getSpecialPriceList } from "../../datasource/SpecialPriceDatasource";
 import { StoreEntity, ZoneEntity } from "../../entities/StoreEntity";
 import { AlignType } from "rc-table/lib/interface";
+import Permission, { checkPermission } from "../../components/Permission/Permission";
+import { roleAtom } from "../../store/RoleAtom";
 
 const SLASH_DMY = "DD/MM/YYYY";
 
@@ -23,6 +25,8 @@ export const PriceListX10: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+
+  const roleData = useRecoilValue(roleAtom);
 
   const navigate = useNavigate();
 
@@ -156,6 +160,9 @@ export const PriceListX10: React.FC = () => {
             </span>
           </div>
         </Col>
+        <Permission permission={["specialPrice", "create"]} reverse>
+          <Col span={4} />
+        </Permission>
         <Col className='gutter-row' xl={4} sm={6}>
           <div style={style}>
             <Input
@@ -191,14 +198,16 @@ export const PriceListX10: React.FC = () => {
             value={zoneFilter}
           />
         </Col>
-        <Col className='gutter-row' xl={4} sm={6}>
-          <Button
-            type='primary'
-            title='+ เพิ่มราคาเฉพาะร้าน'
-            height={40}
-            onClick={() => navigate(`/price/create`)}
-          />
-        </Col>
+        <Permission permission={["specialPrice", "create"]}>
+          <Col className='gutter-row' xl={4} sm={6}>
+            <Button
+              type='primary'
+              title='+ เพิ่มราคาเฉพาะร้าน'
+              height={40}
+              onClick={() => navigate(`/price/create`)}
+            />
+          </Col>
+        </Permission>
       </Row>
     );
   };
@@ -254,39 +263,46 @@ export const PriceListX10: React.FC = () => {
       dataIndex: "action",
       key: "action",
       width: "15%",
+      hidden:
+        !checkPermission(["specialPrice", "view"], roleData) &&
+        !checkPermission(["specialPrice", "delete"], roleData),
       render: (value: any, row: any, index: number) => {
         return {
           children: row.status ? (
             <Row justify={"start"} gutter={12}>
-              <Col span={6}>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/price/detail/" + row.customerCompanyId)}
-                >
-                  <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                    <UnorderedListOutlined style={{ color: color["primary"] }} />
-                  </span>
-                </div>
-              </Col>
-              <Col span={6}>
-                <div
-                  className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() =>
-                    Modal.confirm({
-                      title: "ต้องการลบร้านค้านี้ที่มีสินค้าราคาพิเศษ ?",
-                      okText: "ยืนยัน",
-                      cancelText: "ยกเลิก",
-                      onOk: () => {
-                        deleteSpecial(row.customerCompanyId, company);
-                      },
-                    })
-                  }
-                >
-                  <span className='svg-icon svg-icon-danger svg-icon-2x'>
-                    <DeleteOutlined style={{ color: color["error"] }} />
-                  </span>
-                </div>
-              </Col>
+              <Permission permission={["specialPrice", "view"]}>
+                <Col span={6}>
+                  <div
+                    className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                    onClick={() => navigate("/price/detail/" + row.customerCompanyId)}
+                  >
+                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
+                      <UnorderedListOutlined style={{ color: color["primary"] }} />
+                    </span>
+                  </div>
+                </Col>
+              </Permission>
+              <Permission permission={["specialPrice", "delete"]}>
+                <Col span={6}>
+                  <div
+                    className='btn btn-icon btn-light btn-hover-primary btn-sm'
+                    onClick={() =>
+                      Modal.confirm({
+                        title: "ต้องการลบร้านค้านี้ที่มีสินค้าราคาพิเศษ ?",
+                        okText: "ยืนยัน",
+                        cancelText: "ยกเลิก",
+                        onOk: () => {
+                          deleteSpecial(row.customerCompanyId, company);
+                        },
+                      })
+                    }
+                  >
+                    <span className='svg-icon svg-icon-danger svg-icon-2x'>
+                      <DeleteOutlined style={{ color: color["error"] }} />
+                    </span>
+                  </div>
+                </Col>
+              </Permission>
             </Row>
           ) : (
             <>
@@ -296,7 +312,7 @@ export const PriceListX10: React.FC = () => {
         };
       },
     },
-  ];
+  ].filter((item) => !item.hidden);
 
   return (
     <>

@@ -69,6 +69,13 @@ interface IRoute {
 }
 export const protectRoutesData: IRoute[] = [
   {
+    path: "/",
+    element: <HomePage />,
+    permission: null,
+    nestedRoutes: [],
+    index: false,
+  },
+  {
     path: "/home",
     element: <HomePage />,
     permission: null,

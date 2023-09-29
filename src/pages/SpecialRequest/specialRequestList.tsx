@@ -26,6 +26,8 @@ import { OrderEntity } from "../../entities/OrderEntity";
 import { getOrderStatus, getSpecialRequestStatus } from "../../utility/OrderStatus";
 import Tag from "../../components/Tag/Tag";
 import { zoneDatasource } from "../../datasource/ZoneDatasource";
+import { checkPermission } from "../../components/Permission/Permission";
+import { roleAtom } from "../../store/RoleAtom";
 
 const SLASH_DMY = "DD/MM/YYYY";
 
@@ -35,6 +37,8 @@ export const SpecialRequestList: React.FC = () => {
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+
+  const roleData = useRecoilValue(roleAtom);
 
   const navigate = useNavigate();
 
@@ -275,6 +279,7 @@ export const SpecialRequestList: React.FC = () => {
       dataIndex: "orderId",
       key: "orderId",
       width: "10%",
+      hidden: !checkPermission(["specialRequest", "view"], roleData),
       render: (orderId: any, row: any, index: number) => {
         return {
           children: row.status ? (
@@ -298,7 +303,7 @@ export const SpecialRequestList: React.FC = () => {
         };
       },
     },
-  ];
+  ].filter((item) => !item.hidden);
 
   const tabsItems = [
     {

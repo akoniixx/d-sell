@@ -31,7 +31,7 @@ export const DiscountCOPage: React.FC = () => {
       <div className='d-flex flex-row justify-content-between my-4'>
         <div>
           <span className='card-label font-weight-bolder text-dark' style={{ fontSize: 20 }}>
-            รายการ เพิ่ม/ลด ส่วนลดดูแลราคา
+            รายการ เพิ่ม/ลด ส่วนลดดูแลราคา่าืสาืา่สืสาื
           </span>
         </div>
 

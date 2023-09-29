@@ -20,6 +20,7 @@ import { roleAtom } from "../../store/RoleAtom";
 import packageJson from "../../../package.json";
 import { mockRoles } from "../../utility/StaticPermission";
 import { isArray } from "lodash";
+import Permission from "../Permission/Permission";
 
 interface Props {
   style?: React.CSSProperties;
@@ -210,6 +211,20 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
       permission: isArray(el.menu) ? [] : Object.keys(el.menu),
     };
   });
+  const permissionList: string[] = [];
+  (roleData?.menus || []).forEach((el: { permission: any; menuName: string }) => {
+    if (isArray(el.permission) && el.permission.length > 0) {
+      permissionList.push(el.menuName);
+    }
+    if (!isArray(el.permission) && Object.keys(el.permission).length > 0) {
+      permissionList.push(el.menuName);
+      Object.keys(el.permission).forEach((key) => {
+        if (el.permission[key].length > 0) {
+          permissionList.push(key);
+        }
+      });
+    }
+  });
 
   return (
     <MenuSiderStyled style={style}>
@@ -217,7 +232,7 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
         {lists.map((list, idx) => {
           const isPremiss = checkPermissionRenderMenu({
             menus: newRoles,
-            permission: list?.permission || [],
+            permission: permissionList,
           });
 
           if (!isPremiss) return null;

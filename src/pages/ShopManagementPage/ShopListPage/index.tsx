@@ -22,6 +22,8 @@ import { CustomerEntityShopListIndex } from "../../../entities/CustomerEntity";
 import useDebounce from "../../../hook/useDebounce";
 import { color } from "../../../resource";
 import { profileAtom } from "../../../store/ProfileAtom";
+import Permission, { checkPermission } from "../../../components/Permission/Permission";
+import { roleAtom } from "../../../store/RoleAtom";
 
 function ShopListPage(): JSX.Element {
   const [visibleCreate, setVisibleCreate] = React.useState(false);
@@ -38,6 +40,8 @@ function ShopListPage(): JSX.Element {
   const [visible, setVisible] = React.useState<boolean>(false);
   const [debouncedValueSearch, loadingDebouncing] = useDebounce(keyword, 500);
   const [isCreating, setIsCreating] = React.useState(false);
+
+  const roleData = useRecoilValue(roleAtom);
 
   const getZoneByCompany = async () => {
     const res = await zoneDatasource.getAllZoneByCompany(profile?.company);
@@ -273,6 +277,8 @@ function ShopListPage(): JSX.Element {
                 <MenuTable
                   hideDelete
                   hideEdit
+                  hideList={!checkPermission(["storeList", "view"], roleData)}
+                  hindSync={!checkPermission(["storeList", "sync"], roleData)}
                   onClickList={() => {
                     onClickDetail(data?.customerId || "");
                   }}
@@ -438,21 +444,25 @@ function ShopListPage(): JSX.Element {
                 }}
               />
             </div>
-            <div>
-              <Button
-                onClick={() => {
-                  setVisible(true);
-                }}
-                title=' + เพิ่มร้านค้า'
-              />
-            </div>
-            <div>
-              <Button
-                title='เชื่อมต่อ Navision'
-                icon={<SyncOutlined style={{ color: "white" }} />}
-                onClick={onSyncCustomer}
-              />
-            </div>
+            <Permission permission={["storeList", "create"]}>
+              <div>
+                <Button
+                  onClick={() => {
+                    setVisible(true);
+                  }}
+                  title=' + เพิ่มร้านค้า'
+                />
+              </div>
+            </Permission>
+            <Permission permission={["storeList", "sync"]}>
+              <div>
+                <Button
+                  title='เชื่อมต่อ Navision'
+                  icon={<SyncOutlined style={{ color: "white" }} />}
+                  onClick={onSyncCustomer}
+                />
+              </div>
+            </Permission>
           </div>
         }
       />
