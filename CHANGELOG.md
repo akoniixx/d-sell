@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.6.29] - Release Date: 2023-09-29
+
+- enhanced promotion noti setting
+- add Feature: noti promotion menu
+
 ## Resolved [v0.6.28] - Release Date: 2023-09-24
 
 - Improve: Permission
