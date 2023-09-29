@@ -10,7 +10,7 @@ interface Props {
   data: {
     key: string;
     value?: string;
-    label?: string;
+    label?: string | JSX.Element;
   }[];
   onChange?: (v: any) => void;
   setValue?: (value: any) => void;
