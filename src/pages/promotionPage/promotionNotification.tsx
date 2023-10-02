@@ -3,7 +3,6 @@ import {
   ClockCircleOutlined,
   DeleteOutlined,
   EditOutlined,
-  FieldTimeOutlined,
   SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
@@ -19,10 +18,10 @@ import {
   Radio,
   Divider,
   Badge,
-  Spin,
+  message,
 } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../../components/Button/Button";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { FlexCol } from "../../components/Container/Container";
@@ -37,6 +36,7 @@ import TextArea from "antd/lib/input/TextArea";
 import { getActivePromotion } from "../../datasource/PromotionDatasource";
 import {
   createPromotionNoti,
+  deletePromotionNoti,
   getPromotionNotiById,
   getPromotionNotiList,
   updatePromotionNoti,
@@ -47,9 +47,11 @@ import {
   mapPromotionNotiStatusColor,
   PromotionNotiStatus,
 } from "../../definitions/promotionNotiStatus";
+import { useNavigate } from "react-router-dom";
 
 export const PromotionNotification: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
   const take = 10;
@@ -239,7 +241,7 @@ export const PromotionNotification: React.FC = () => {
                   สร้างจากโปรโมชัน
                 </Text>
               )}
-              {row.status === "WAITING" && (
+              {(!row.isFromPromotionMaster && row.status) === "WAITING" && (
                 <Text color='warning' level={6}>
                   <ClockCircleOutlined color='warning' style={{ fontSize: "15px" }} /> ตั้งเวลา
                 </Text>
@@ -352,7 +354,7 @@ export const PromotionNotification: React.FC = () => {
           children: (
             <>
               <Row justify={"start"} gutter={16}>
-                {row.status !== "WAITING" && (
+                {(row.status === "DONE" || row.isFromPromotionMaster) && (
                   <ActionBtn
                     onClick={() => {
                       setTitle("view");
@@ -363,7 +365,7 @@ export const PromotionNotification: React.FC = () => {
                     icon={<UnorderedListOutlined />}
                   />
                 )}
-                {row.status !== "DONE" && (
+                {row.status !== "DONE" && !row.isFromPromotionMaster && (
                   <>
                     <ActionBtn
                       onClick={() => {
@@ -378,16 +380,13 @@ export const PromotionNotification: React.FC = () => {
                           title: "ต้องการยืนยันการลบการแจ้งเตือน",
                           okText: "",
                           cancelText: "",
-                          // onOk: async () => {
-                          //   await deletePromotion({
-                          //     promotionId: row.promotionId,
-                          //     updateBy: firstname + " " + lastname,
-                          //   })
-                          //     .then((res) => {
-                          //       navigate(0);
-                          //     })
-                          //     .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
-                          // },
+                          onOk: async () => {
+                            await deletePromotionNoti(row.promotionNotiId)
+                              .then((res) => {
+                                navigate(0);
+                              })
+                              .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                          },
                         })
                       }
                       icon={<DeleteOutlined style={{ color: color.error }} />}

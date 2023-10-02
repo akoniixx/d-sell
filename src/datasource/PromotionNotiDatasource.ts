@@ -30,7 +30,7 @@ const updatePromotionNoti = async (data: object) => {
 
 const deletePromotionNoti = async (id: string) => {
   return await httpClient
-    .delete(`${baseUrl}/promotion-notification`)
+    .delete(`${baseUrl}/promotion-notification/${id}`)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
