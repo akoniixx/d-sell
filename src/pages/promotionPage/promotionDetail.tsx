@@ -396,7 +396,7 @@ const DetailTab: React.FC = () => {
                     </FlexRow>
                   </Col>
                   <Col span={8}>
-                    <Button
+                    <Buttons
                       title='ดาวน์โหลด'
                       icon={<DownloadOutlined style={{ color: "white" }} />}
                       onClick={onDownloadExcel}
