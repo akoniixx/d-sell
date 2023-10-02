@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.7.2] - Release Date: 2023-10-02
+
+- added highlight news menu
+
 ## Features [v0.7.1] - Release Date: 2023-10-02
 
 - Feature: News

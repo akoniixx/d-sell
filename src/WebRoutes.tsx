@@ -53,6 +53,7 @@ import { NewsEdit } from "./pages/NewsPage/CreateNewsPage";
 import { PinedNews } from "./pages/NewsPage/PinedNews";
 import { PromotionNotification } from "./pages/promotionPage/promotionNotification";
 import { HighLightNews } from "./pages/NewsPage/HighLightNews";
+import { CreateHighLightNewsPage } from "./pages/NewsPage/CreateHighLightNews";
 
 interface IRoute {
   path: string;
@@ -452,6 +453,11 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "highlight",
         element: <HighLightNews />,
+        permission: null,
+      },
+      {
+        path: "createhighlight",
+        element: <CreateHighLightNewsPage />,
         permission: null,
       },
     ],
