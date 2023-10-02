@@ -105,7 +105,7 @@ function StepOne({
                   },
                 ]}
               >
-                <Select data={selectBrand} mode='multiple'/>
+                <Select data={selectBrand} mode='multiple' />
               </Form.Item>
             </Col>
             <Col span={10}>

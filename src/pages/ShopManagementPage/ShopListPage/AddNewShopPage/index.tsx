@@ -51,7 +51,7 @@ function AddNewShopPage(): JSX.Element {
           taxNo: taxId || "",
           company: profile?.company || "",
         });
-        const brandData = await shopDatasource.getBrandList(profile?.company || "").then(res => {
+        const brandData = await shopDatasource.getBrandList(profile?.company || "").then((res) => {
           const map = res.map((x: any) => {
             return {
               company: x.company,

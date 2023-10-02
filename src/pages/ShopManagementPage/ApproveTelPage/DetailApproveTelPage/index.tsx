@@ -225,7 +225,9 @@ function DetailApproveTelPage() {
     dateStartMember: {
       label: "วันที่เริ่มเป็นสมาชิก",
       value: currentCompany
-        ? dayjs(currentCompany?.createDate).locale("th").format("D MMM BBBB")
+        ? dayjs(currentCompany?.createDate)
+            .locale("th")
+            .format("D MMM BBBB")
         : "-",
     },
     email: {

@@ -421,9 +421,7 @@ export const DistributionPageEdit: React.FC = (props: any) => {
             <Row gutter={24}>
               {dataGroup1
                 ?.filter((e: any) => !isFreebie || !e.freebieHide)
-                .map((d, i) => (
-                  <ProdFormItem {...d} customSpan={isFreebie ? 24 : 12} key={i} />
-                ))}
+                .map((d, i) => <ProdFormItem {...d} customSpan={isFreebie ? 24 : 12} key={i} />)}
               {isFreebie && (
                 <>
                   <Col xl={12} sm={12}>

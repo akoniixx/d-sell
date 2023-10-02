@@ -98,8 +98,8 @@ export const PriceListX10: React.FC = () => {
       });
       const mapCusDate = data.map((a: any) => ({ ...a, last_update: "" }));
       const { responseData } = await getSpecialPriceList({ company });
-      const specialPriceList = responseData?.filter((r: any) =>
-        mapCusDate?.find((d: any) => d.customerCompanyId === r.customer_company_id),
+      const specialPriceList = responseData?.filter(
+        (r: any) => mapCusDate?.find((d: any) => d.customerCompanyId === r.customer_company_id),
       );
       const specialPriceData = mapCusDate
         ?.map((d: any, i: number) => {
