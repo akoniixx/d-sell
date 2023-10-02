@@ -29,8 +29,12 @@ export interface SelectPromotionList {
   promotionId: string;
   promotionName: string;
   startDate: string;
+  endDate: string;
   isShowSaleApp: boolean;
   isShowShopApp: boolean;
   promotionNotiDetail: string;
   promotionNotiSubject: string;
+  promotionCode: string;
+  promotionStatus: string;
+  isShowPromotion: boolean;
 }

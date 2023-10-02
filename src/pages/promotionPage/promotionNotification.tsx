@@ -1,7 +1,27 @@
-import { FieldTimeOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import { Col, Row, Table, Image, Space, Modal, Form, Checkbox, Radio, Divider, Badge } from "antd";
+import {
+  CheckCircleTwoTone,
+  ClockCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  SearchOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
+import {
+  Col,
+  Row,
+  Table,
+  Image,
+  Space,
+  Modal,
+  Form,
+  Checkbox,
+  Radio,
+  Divider,
+  Badge,
+  message,
+} from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../../components/Button/Button";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { FlexCol } from "../../components/Container/Container";
@@ -16,7 +36,10 @@ import TextArea from "antd/lib/input/TextArea";
 import { getActivePromotion } from "../../datasource/PromotionDatasource";
 import {
   createPromotionNoti,
+  deletePromotionNoti,
+  getPromotionNotiById,
   getPromotionNotiList,
+  updatePromotionNoti,
 } from "../../datasource/PromotionNotiDatasource";
 import { PromotionNotiList, SelectPromotionList } from "../../entities/PromotionNotiEntity";
 import {
@@ -24,9 +47,11 @@ import {
   mapPromotionNotiStatusColor,
   PromotionNotiStatus,
 } from "../../definitions/promotionNotiStatus";
+import { useNavigate } from "react-router-dom";
 
 export const PromotionNotification: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
   const take = 10;
@@ -40,12 +65,28 @@ export const PromotionNotification: React.FC = () => {
   const [searchShop, setSearchShop] = useState<any>();
   const [searchSale, setSearchSale] = useState<any>();
   const [isDisable, setIsDisable] = useState<boolean>(true);
+  const [isDone, setIsDone] = useState<boolean>(false);
+  const [title, setTitle] = useState("");
+  const mapTitle: any = {
+    create: "เพิ่มการแจ้งเตือน",
+    edit: "แก้ไขการแจ้งเตือน",
+    view: "การแจ้งเตือน",
+  };
 
-  const appList = [
-    { key: "all", value: "all", label: "ทั้งหมด" },
-    { key: "sale", value: "sale", label: "Sale App" },
-    { key: "shop", value: "shop", label: "Shop App" },
-  ];
+  const ActionBtn = ({ onClick, icon }: any) => {
+    return (
+      <Col span={6}>
+        <div className='btn btn-icon btn-light btn-hover-primary btn-sm' onClick={onClick}>
+          <span
+            className='svg-icon svg-icon-primary svg-icon-2x'
+            style={{ color: color["primary"] }}
+          >
+            {icon}
+          </span>
+        </div>
+      </Col>
+    );
+  };
 
   const getPromotion = async () => {
     await getPromotionNotiList({
@@ -57,7 +98,6 @@ export const PromotionNotification: React.FC = () => {
       isShowShopApp: searchShop,
       isShowSaleApp: searchSale,
     }).then((res) => {
-      console.log("res", res);
       setDataPromotion(res);
     });
   };
@@ -93,6 +133,7 @@ export const PromotionNotification: React.FC = () => {
     form.setFieldsValue({
       promotionNotiId: "",
       promotionId: find?.promotionId,
+      promotionCode: find?.promotionCode,
       promotionName: find?.promotionName,
       promotionNotiSubject: find?.promotionNotiSubject,
       promotionNotiDetail: find?.promotionNotiDetail,
@@ -100,16 +141,22 @@ export const PromotionNotification: React.FC = () => {
       isShowShopApp: find?.isShowShopApp,
       startDate: dayjs(find?.startDate),
       startTime: dayjs(find?.startDate),
+      endDate: find?.endDate,
+      promotionStatus: find?.promotionStatus,
+      isShowPromotion: find?.isShowPromotion,
     });
   };
-  const editNotiPromotion = async (id: string) => {
-    setIsDisable(false);
+  const editNotiPromotion = async (id: string, title?: string) => {
+    title === "edit" && setIsDisable(false);
     setShowModal(!showModal);
-    const find = await dataPromotion?.data?.find((x) => x.promotionNotiId === id);
+    const find = await getPromotionNotiById(id).then((res) => {
+      return res;
+    });
     await form.setFieldsValue({
-      promotionNotiId: find?.promotionNotiId,
+      promotionNotiId: id,
       promotionId: find?.promotionId,
       promotionName: find?.promotionName,
+      promotionCode: find?.promotionCode,
       promotionNotiSubject: find?.promotionNotiSubject,
       promotionNotiDetail: find?.promotionNotiDetail,
       isShowSaleApp: find?.isShowSaleApp,
@@ -119,14 +166,13 @@ export const PromotionNotification: React.FC = () => {
       sendType: find?.isSendNow,
       notiDate: dayjs(find?.executeTime),
       notiTime: dayjs(find?.executeTime),
+      endDate: dayjs(find?.endDate),
     });
   };
-
   const closeModal = () => {
     form.resetFields();
     setShowModal(!showModal);
   };
-
   const PageTitle = (
     <Row align='middle' gutter={16}>
       <Col span={6}>
@@ -138,7 +184,10 @@ export const PromotionNotification: React.FC = () => {
         <Input
           placeholder='ค้นหาชื่อโปรโมชัน'
           suffix={<SearchOutlined style={{ color: "grey" }} />}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value);
+          }}
         />
       </Col>
       <Col span={3}>
@@ -147,16 +196,26 @@ export const PromotionNotification: React.FC = () => {
           placeholder='เลือกสถานะ'
           data={PromotionNotiStatus}
           style={{ width: "100%" }}
-          onChange={(e) => setStatus(e)}
+          onChange={(e) => {
+            setPage(1);
+            setStatus(e);
+          }}
         />
       </Col>
       <Col span={5}>
         <Select
           allowClear
           placeholder='เลือกแอปพลิเคชัน'
-          data={appList}
+          data={[
+            { key: "all", value: "all", label: "ทั้งหมด" },
+            { key: "sale", value: "sale", label: "Sale App" },
+            { key: "shop", value: "shop", label: "Shop App" },
+          ]}
           style={{ width: "100%" }}
-          onChange={(e) => searchApp(e)}
+          onChange={(e) => {
+            setPage(1);
+            searchApp(e);
+          }}
         />
       </Col>
       <Col>
@@ -164,7 +223,11 @@ export const PromotionNotification: React.FC = () => {
           type='primary'
           title='+ เพิ่มการแจ้งเตือน'
           height={40}
-          onClick={() => setShowModal(!showModal)}
+          onClick={() => {
+            setTitle("create");
+            setIsDisable(false);
+            setShowModal(!showModal);
+          }}
         />
       </Col>
     </Row>
@@ -185,6 +248,11 @@ export const PromotionNotification: React.FC = () => {
                   สร้างจากโปรโมชัน
                 </Text>
               )}
+              {row.status === "WAITING" && (
+                <Text color='warning' level={6}>
+                  <ClockCircleOutlined color='warning' style={{ fontSize: "15px" }} /> ตั้งเวลา
+                </Text>
+              )}
             </FlexCol>
           ),
         };
@@ -194,7 +262,7 @@ export const PromotionNotification: React.FC = () => {
       title: "ชื่อโปรโมชัน/พาดหัว",
       dataIndex: "promotionName",
       key: "promotionName",
-      width: "40%",
+      width: "35%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -212,7 +280,7 @@ export const PromotionNotification: React.FC = () => {
       title: "แอปพลิเคชัน",
       dataIndex: "application",
       key: "application",
-      width: "15%",
+      width: "16%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -238,29 +306,29 @@ export const PromotionNotification: React.FC = () => {
         };
       },
     },
-    {
-      title: "อ่านแล้ว",
-      dataIndex: "reader",
-      key: "reader",
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: (
-            <Row gutter={16} justify={"space-between"}>
-              <Col span={24}>
-                <Text level={5} style={{ paddingLeft: "5px" }}>
-                  10
-                </Text>
-              </Col>
-              <Col span={24}>
-                <Text level={5} style={{ paddingLeft: "5px" }}>
-                  5
-                </Text>
-              </Col>
-            </Row>
-          ),
-        };
-      },
-    },
+    // {
+    //   title: "อ่านแล้ว",
+    //   dataIndex: "reader",
+    //   key: "reader",
+    //   render: (value: any, row: any, index: number) => {
+    //     return {
+    //       children: (
+    //         <Row gutter={16} justify={"space-between"}>
+    //           <Col span={24}>
+    //             <Text level={5} style={{ paddingLeft: "5px" }}>
+    //               10
+    //             </Text>
+    //           </Col>
+    //           <Col span={24}>
+    //             <Text level={5} style={{ paddingLeft: "5px" }}>
+    //               5
+    //             </Text>
+    //           </Col>
+    //         </Row>
+    //       ),
+    //     };
+    //   },
+    // },
     {
       title: "สถานะ",
       dataIndex: "status",
@@ -292,17 +360,46 @@ export const PromotionNotification: React.FC = () => {
         return {
           children: (
             <>
-              <Row>
-                <div className='d-flex flex-row justify-content-between'>
-                  <div className='btn btn-icon btn-light btn-hover-primary btn-sm'>
-                    <span className='svg-icon svg-icon-primary svg-icon-2x'>
-                      <UnorderedListOutlined
-                        style={{ color: color["primary"] }}
-                        onClick={() => editNotiPromotion(row.promotionNotiId)}
-                      />
-                    </span>
-                  </div>
-                </div>
+              <Row justify={"start"} gutter={16}>
+                {(row.status === "DONE" || row.isFromPromotionMaster) && (
+                  <ActionBtn
+                    onClick={() => {
+                      setTitle("view");
+                      setShowModal(true);
+                      setIsDisable(true);
+                      editNotiPromotion(row.promotionNotiId, "view");
+                    }}
+                    icon={<UnorderedListOutlined />}
+                  />
+                )}
+                {row.status !== "DONE" && !row.isFromPromotionMaster && (
+                  <>
+                    <ActionBtn
+                      onClick={() => {
+                        setTitle("edit");
+                        editNotiPromotion(row.promotionNotiId, "edit");
+                      }}
+                      icon={<EditOutlined />}
+                    />
+                    <ActionBtn
+                      onClick={() =>
+                        Modal.confirm({
+                          title: "ต้องการยืนยันการลบการแจ้งเตือน",
+                          okText: "",
+                          cancelText: "",
+                          onOk: async () => {
+                            await deletePromotionNoti(row.promotionNotiId)
+                              .then((res) => {
+                                navigate(0);
+                              })
+                              .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                          },
+                        })
+                      }
+                      icon={<DeleteOutlined style={{ color: color.error }} />}
+                    />
+                  </>
+                )}
               </Row>
             </>
           ),
@@ -310,11 +407,9 @@ export const PromotionNotification: React.FC = () => {
       },
     },
   ];
-
   const createNoti = async () => {
     await form.validateFields();
     const payload = form.getFieldsValue(true);
-    //console.log(payload);
     form.setFieldsValue({
       isSendNow: payload.sendType,
       executeTime:
@@ -328,15 +423,22 @@ export const PromotionNotification: React.FC = () => {
       updateBy: `${userProfile.firstname} ${userProfile.lastname}`,
     });
     const submit = form.getFieldsValue(true);
-    console.log(submit);
     if (submit?.promotionNotiId) {
-      console.log(1);
-      closeModal();
-    } else {
-      await createPromotionNoti(submit).then((res) => {
-        console.log(res);
+      setIsDone(true);
+      await updatePromotionNoti(submit).then((res) => {
         if (res.success) {
           closeModal();
+          getPromotion();
+          setIsDone(false);
+        }
+      });
+    } else {
+      setIsDone(true);
+      await createPromotionNoti(submit).then((res) => {
+        if (res.success) {
+          closeModal();
+          getPromotion();
+          setIsDone(false);
         }
       });
     }
@@ -372,7 +474,7 @@ export const PromotionNotification: React.FC = () => {
           width={700}
           title={
             <Text level={4} fontWeight={700}>
-              {form.getFieldValue("promotionNotiId") ? "แก้ไขการแจ้งเตือน" : "เพิ่มการแจ้งเตือน"}
+              {mapTitle[title]}
             </Text>
           }
         >
@@ -396,6 +498,7 @@ export const PromotionNotification: React.FC = () => {
                     label: i.promotionName,
                   }))}
                   onChange={(e) => selectedPromotion(e)}
+                  disabled={isDisable}
                 />
               </Form.Item>
             </Col>
@@ -518,8 +621,13 @@ export const PromotionNotification: React.FC = () => {
                                     enablePast
                                     disabledDate={(current: Dayjs) => {
                                       const startDate = getFieldValue("startDate");
-                                      return current && current.isBefore(dayjs(startDate));
+                                      const endDate = getFieldValue("endDate");
+                                      return (
+                                        current.isAfter(endDate) ||
+                                        current.isBefore(dayjs(startDate))
+                                      );
                                     }}
+                                    disabled={isDisable}
                                   />
                                 </Form.Item>
                               </Col>
@@ -529,7 +637,7 @@ export const PromotionNotification: React.FC = () => {
                                   name='notiTime'
                                   initialValue={dayjs("07:00", "HH:mm")}
                                 >
-                                  <TimePicker allowClear={false} />
+                                  <TimePicker allowClear={false} disabled={isDisable} />
                                 </Form.Item>
                               </Col>
                             </Row>
@@ -542,14 +650,31 @@ export const PromotionNotification: React.FC = () => {
               </Form.Item>
             </Col>
             <Divider />
-            <Row justify='space-between' gutter={12}>
-              <Col xl={3} sm={6}></Col>
-              <Col xl={18} sm={12}></Col>
-              <Col xl={3} sm={6}>
-                <Button typeButton='primary' title='บันทึก' onClick={() => createNoti()} />
-              </Col>
-            </Row>
+            {title !== "view" && (
+              <Row justify='space-between' gutter={12}>
+                <Col xl={3} sm={6}></Col>
+                <Col xl={18} sm={12}></Col>
+                <Col xl={3} sm={6}>
+                  <Button typeButton='primary' title='บันทึก' onClick={() => createNoti()} />
+                </Col>
+              </Row>
+            )}
           </Form>
+        </Modal>
+      )}
+      {isDone && (
+        <Modal open={isDone} footer={null} width={220} closable={false}>
+          <FlexCol align='space-around' justify='center' style={{ width: 172, height: 172 }}>
+            <CheckCircleTwoTone twoToneColor={color.success} style={{ fontSize: 36 }} />
+            <br />
+            <Text level={4} align='center'>
+              <>
+                {title === "edit" ? "แก้ไข" : "สร้าง"}โปรโมชั่น
+                <br />
+                สำเร็จ
+              </>
+            </Text>
+          </FlexCol>
         </Modal>
       )}
     </>

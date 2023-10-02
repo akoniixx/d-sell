@@ -167,13 +167,13 @@ export const PromotionCreatePage: React.FC = () => {
           notiSecondDate: copyId ? undefined : dayjs(res.notiSecondDate),
           firstTimeNoti: copyId
             ? undefined
-            : res.firstTimeNoti
-            ? dayjs(res.firstTimeNoti)
+            : res.notiFirstDate
+            ? dayjs(res.notiFirstDate)
             : dayjs("0000-00-00 07:00"),
           secondTimeNoti: copyId
             ? undefined
-            : res.secondTimeNoti
-            ? dayjs(res.secondTimeNoti)
+            : res.notiSecondDate
+            ? dayjs(res.notiSecondDate)
             : dayjs("0000-00-00 07:00"),
           isShowPromotion: res.isShowPromotion,
         });
@@ -703,9 +703,6 @@ export const PromotionCreatePage: React.FC = () => {
         console.log(developerMessage);
       }
     };
-
-    console.log("submitData", submitData);
-
     if (!isEditing) {
       await createPromotion(submitData)
         .then(callback)
