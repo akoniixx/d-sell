@@ -60,7 +60,7 @@ export const HighLightNews: React.FC = () => {
         //     onChange: (p) => setPage(p),
         //     showSizeChanger: false,
         //   }}
-      />    
+      /> 
       </CardContainer>
   );
 };
