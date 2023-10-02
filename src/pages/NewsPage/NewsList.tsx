@@ -330,7 +330,7 @@ export const NewsList: React.FC = () => {
                   marginRight: 8,
                 }}
                 src={
-                  "https://scontent.fbkk5-3.fna.fbcdn.net/v/t39.30808-6/380462397_694230676063061_8896879796615980264_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=49d041&_nc_ohc=nafZ3uaI11IAX_tPslR&_nc_ht=scontent.fbkk5-3.fna&oh=00_AfAGCtsHcMISV9vjAjZjeLCoDMQd200ZaEYwwHMFVKK3zA&oe=65175B66"
+                  "https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D&w=1000&q=80"
                 }
               />
               <Text level={5}>{"เคล็ดลับเสริมต้นข้าว ต้นแกร่ง ร่วงใหญ่ ผลผลิตสูง"}</Text>
@@ -363,8 +363,14 @@ export const NewsList: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{"Shop App"}</Text>
-              <Text level={5}>{"Sale App"}</Text>
+              <Text level={5}>
+                <img width={20} height={20} src={image.iconShopApp} />
+                &nbsp;&nbsp;{"Shop App"}
+              </Text>
+              <Text level={5}>
+                <img width={20} height={20} src={image.iconSaleApp} />
+                &nbsp;&nbsp;{"Sale App"}
+              </Text>
             </FlexCol>
           ),
         };

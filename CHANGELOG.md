@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.7.3] - Release Date: 2023-10-02
+
+- update UI news setting & pin news
+
 ## Features [v0.7.2] - Release Date: 2023-10-02
 
 - added highlight news menu
