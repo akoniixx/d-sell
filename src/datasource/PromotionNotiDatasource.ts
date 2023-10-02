@@ -15,12 +15,30 @@ const getPromotionNotiById = async (id: string) => {
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
-
 const createPromotionNoti = async (params: object) => {
   return await httpClient
     .post(`${baseUrl}/promotion-notification`, params)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
+const updatePromotionNoti = async (data: object) => {
+  return await httpClient
+    .patch(`${baseUrl}/promotion-notification`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
 
-export { getPromotionNotiList, createPromotionNoti, getPromotionNotiById };
+const deletePromotionNoti = async (id: string) => {
+  return await httpClient
+    .delete(`${baseUrl}/promotion-notification`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+export {
+  getPromotionNotiList,
+  createPromotionNoti,
+  getPromotionNotiById,
+  deletePromotionNoti,
+  updatePromotionNoti,
+};
