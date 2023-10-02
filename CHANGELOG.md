@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.6.30] - Release Date: 2023-09-29
+
+- fix permission document in promotion detail page
+
 ## Resolved [v0.6.29] - Release Date: 2023-09-29
 
 - enhanced promotion noti setting
