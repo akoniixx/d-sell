@@ -17,4 +17,6 @@ export default {
   detailPromotionCard: require("./media/images/proDetailCard.png"),
   iconSaleApp: require("./media/images/iconSaleApp.png"),
   iconShopApp: require("./media/images/iconShopApp.png"),
+  expHighLight: require("./media/images/expHighLight.png"),
+  indexHighLightApp: require("./media/images/indexHighLightApp.png"),
 };
