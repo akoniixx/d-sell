@@ -52,6 +52,7 @@ import { NewsList } from "./pages/NewsPage/NewsList";
 import { NewsEdit } from "./pages/NewsPage/CreateNewsPage";
 import { PinedNews } from "./pages/NewsPage/PinedNews";
 import { PromotionNotification } from "./pages/promotionPage/promotionNotification";
+import { HighLightNews } from "./pages/NewsPage/HighLightNews";
 
 interface IRoute {
   path: string;
@@ -446,6 +447,11 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "pin",
         element: <PinedNews />,
+        permission: null,
+      },
+      {
+        path: "highlight",
+        element: <HighLightNews />,
         permission: null,
       },
     ],
