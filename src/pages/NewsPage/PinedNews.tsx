@@ -1,6 +1,6 @@
 import React, { useState, useRef, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Row, Col, Card, Form, Divider, Table as AntdTable } from "antd";
+import { Button, Row, Col, Card, Form, Divider, Table as AntdTable, Modal } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { useEffectOnce } from "react-use";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
@@ -22,6 +22,7 @@ import { MenuOutlined, MinusCircleOutlined, PushpinFilled } from "@ant-design/ic
 import color from "../../resource/color";
 import Input from "../../components/Input/Input";
 import { FlexRow } from "../../components/Container/Container";
+import AutoComplete from "../../components/AutoComplete/AutoComplete";
 
 const mockData = [
   {
@@ -32,23 +33,25 @@ const mockData = [
     key: "2",
     name: "two",
   },
-  {
-    key: "3",
-    name: "three",
-  },
-  {
-    key: "4",
-    name: "four",
-  },
-  {
-    key: "5",
-    name: "five",
-  },
+  // {
+  //   key: "3",
+  //   name: "three",
+  // },
+  // {
+  //   key: "4",
+  //   name: "four",
+  // },
+  // {
+  //   key: "5",
+  //   name: "five",
+  // },
 ];
+
+const boxHeight = 57;
 
 const IndexBox = styled.div`
   width: 56px;
-  height: 57px;
+  height: ${boxHeight}px;
   margin-top: 12px;
 
   border-radius: 4px;
@@ -59,6 +62,36 @@ const IndexBox = styled.div`
   font-size: 24px;
   font-weight: 700;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const AddBox = styled.div`
+  width: 100%;
+  height: ${boxHeight}px;
+
+  border-radius: 4px;
+  border: 1px dashed ${color.primary};
+  background: white;
+
+  color: ${color.primary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+`;
+
+const EmptyBox = styled.div`
+  width: 100%;
+  height: ${boxHeight}px;
+  margin-top: 12px;
+
+  border-radius: 4px;
+  background: rgba(239, 242, 249, 0.4);
+
+  color: ${color.Text3};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,6 +154,8 @@ const TableRow = ({ children, ...props }: any) => {
   );
 };
 
+const TemplateArray = Array.from({ length: 5 }, (v, i) => i + 1);
+
 export const PinedNews: React.FC = (props: any) => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
@@ -128,7 +163,8 @@ export const PinedNews: React.FC = (props: any) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  const [dataState, setDataState] = useState<any>([]);
+  const [mainList, setMainList] = useState<any>([]);
+  const [allList, setAllList] = useState<any>([]);
   const [uploading, setUploading] = useState(false);
 
   useEffectOnce(() => {
@@ -138,7 +174,8 @@ export const PinedNews: React.FC = (props: any) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      setDataState(mockData);
+      setMainList(mockData);
+      setAllList(mockData);
     } catch (e) {
       console.log(e);
     } finally {
@@ -150,44 +187,130 @@ export const PinedNews: React.FC = (props: any) => {
     return <PageTitleNested title={"รายการปักหมุดข่าวสาร"} showBack={false} />;
   };
 
-  const columns: ColumnsType<any> = [
-    {
-      key: "sort",
-      width: 50,
-    },
-    {
-      title: "ข่าวสารที่เลือก",
-      dataIndex: "name",
-      render: (value, record, index) => {
-        return (
-          <FlexRow align='center' justify='space-between'>
-            <PushpinFilled style={{ color: "#F2C94C", fontSize: 20 }} />
-            <Input value={value} style={{ width: "calc(100% - 32px)" }} />
-          </FlexRow>
-        );
-      },
-    },
-    {
-      title: "",
-      width: 50,
-      render: (value, record, index) => {
-        return (
-          <Row justify='end'>
-            <MinusCircleOutlined style={{ color: color.error }} />
-          </Row>
-        );
-      },
-    },
-  ];
-
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (active.id !== over?.id) {
-      setDataState((previous: any) => {
+      setMainList((previous: any) => {
         const activeIndex = previous.findIndex((i: any) => i.key === active.id);
         const overIndex = previous.findIndex((i: any) => i.key === over?.id);
         return arrayMove(previous, activeIndex, overIndex);
       });
     }
+  };
+
+  const Group = ({
+    title,
+    dataSource,
+    setDataSource,
+  }: {
+    title: string;
+    dataSource: any;
+    setDataSource: (any: any) => void;
+  }) => {
+    const columns: ColumnsType<any> = [
+      {
+        key: "sort",
+        width: 50,
+      },
+      {
+        title: "ข่าวสารที่เลือก",
+        dataIndex: "name",
+        render: (value, record, index) => {
+          return (
+            <FlexRow align='center' justify='space-between'>
+              <PushpinFilled style={{ color: "#F2C94C", fontSize: 20 }} />
+              <AutoComplete defaultValue={value} style={{ width: "calc(100% - 32px)" }} />
+            </FlexRow>
+          );
+        },
+      },
+      {
+        title: "",
+        width: 50,
+        render: (value, record, index) => {
+          return (
+            <Row justify='end'>
+              <MinusCircleOutlined
+                style={{ color: color.error }}
+                onClick={() => {
+                  Modal.confirm({
+                    title: "ต้องการยืนยันการลบหมุดข่าวสาร",
+                    content:
+                      "โปรดตรวจสอบหมุดข่าวสารที่คุณต้องการลบ ก่อนกดยืนยัน เพราะอาจส่งผลต่อการทำงานของผู้ดูแลระบบ",
+                    onOk: () => {
+                      setDataSource(dataSource.filter((v: any, i: number) => i !== index));
+                    },
+                  });
+                }}
+              />
+            </Row>
+          );
+        },
+      },
+    ];
+
+    const onAdd = () => {
+      setDataSource([...dataSource, { key: `${dataSource.length + 1}` }]);
+    };
+
+    return (
+      <>
+        <br />
+        <br />
+        <Text level={5} fontWeight={700}>
+          {title}
+        </Text>
+        <br />
+        <br />
+        <Row gutter={16}>
+          <Col style={{ width: 72 }}>
+            <Row justify='center'>
+              <Text level={6} fontWeight={700} style={{ color: "#6B7995" }}>
+                ลำดับ
+              </Text>
+            </Row>
+            {TemplateArray.map((i) => {
+              return <IndexBox key={i}>{i}</IndexBox>;
+            })}
+          </Col>
+          <Col style={{ width: "calc(100% - 72px)" }}>
+            <Row style={{ padding: "0px 10px" }}>
+              <Text level={6} fontWeight={700} style={{ color: "#6B7995" }}>
+                ข่าวสารที่เลือก
+              </Text>
+            </Row>
+            <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+              <SortableContext
+                // rowKey array
+                items={dataSource.map((i: any) => i.key)}
+                strategy={verticalListSortingStrategy}
+              >
+                <Table
+                  components={{
+                    body: {
+                      row: TableRow,
+                    },
+                  }}
+                  rowKey='key'
+                  columns={columns}
+                  dataSource={dataSource}
+                  pagination={false}
+                  showHeader={false}
+                />
+              </SortableContext>
+            </DndContext>
+            {TemplateArray.map((v, i) => {
+              return dataSource[i] ? (
+                <></>
+              ) : i === dataSource.length ? (
+                <AddBox onClick={onAdd}>+ เพิ่มปักหมุดข่าวสาร</AddBox>
+              ) : (
+                <EmptyBox>ไม่มีปักหมุดข่าวสาร</EmptyBox>
+              );
+            })}
+          </Col>
+        </Row>
+      </>
+    );
   };
 
   return loading ? (
@@ -199,53 +322,16 @@ export const PinedNews: React.FC = (props: any) => {
       <Col span={24}>
         <CardContainer>
           <PageTitle />
-          <br />
-          <br />
-          <Text level={5} fontWeight={700}>
-            หน้าหลักในแอปพลิเคชัน
-          </Text>
-          <br />
-          <br />
-          <Row gutter={16}>
-            <Col style={{ width: 72 }}>
-              <Row justify='center'>
-                <Text level={6} fontWeight={700} style={{ color: "#6B7995" }}>
-                  ลำดับ
-                </Text>
-              </Row>
-              {Array.from({ length: 5 }, (v, i) => i + 1).map((i) => {
-                return <IndexBox key={i}>{i}</IndexBox>;
-              })}
-            </Col>
-            <Col style={{ width: "calc(100% - 72px)" }}>
-              <Row style={{ padding: "0px 10px" }}>
-                <Text level={6} fontWeight={700} style={{ color: "#6B7995" }}>
-                  ข่าวสารที่เลือก
-                </Text>
-              </Row>
-              <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-                <SortableContext
-                  // rowKey array
-                  items={dataState.map((i: any) => i.key)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <Table
-                    components={{
-                      body: {
-                        row: TableRow,
-                      },
-                    }}
-                    rowKey='key'
-                    columns={columns}
-                    dataSource={dataState}
-                    pagination={false}
-                    showHeader={false}
-                  />
-                </SortableContext>
-              </DndContext>
-            </Col>
-          </Row>
-
+          <Group
+            title={"หน้าหลักในแอปพลิเคชัน"}
+            dataSource={mainList}
+            setDataSource={setMainList}
+          />
+          <Group
+            title={"หน้าข่าวสารทั้งหมดในแอปพลิเคชัน"}
+            dataSource={allList}
+            setDataSource={setAllList}
+          />
           <Divider />
           <Row align='middle' justify='end'>
             <Button
