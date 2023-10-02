@@ -48,7 +48,11 @@ import { IndexConditionCOPage } from "./pages/DiscountPage/ConditionCO/IndexCond
 import { CreateConditionCOPage } from "./pages/DiscountPage/ConditionCO/CreateConditionCOPage";
 import { DetailConditionCOPage } from "./pages/DiscountPage/ConditionCO/DetailConditionCOPage";
 import { PromotionDetail } from "./pages/promotionPage/promotionDetail";
+import { NewsList } from "./pages/NewsPage/NewsList";
+import { NewsEdit } from "./pages/NewsPage/CreateNewsPage";
+import { PinedNews } from "./pages/NewsPage/PinedNews";
 import { PromotionNotification } from "./pages/promotionPage/promotionNotification";
+import { HighLightNews } from "./pages/NewsPage/HighLightNews";
 
 interface IRoute {
   path: string;
@@ -418,6 +422,36 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "detail/:id",
         element: <SpecialPriceDetail />,
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/news/*",
+    element: <RedirectPathPage />,
+    permission: {
+      name: "news",
+      action: "view",
+    },
+    nestedRoutes: [
+      {
+        path: "list",
+        element: <NewsList />,
+        permission: null,
+      },
+      {
+        path: "create",
+        element: <NewsEdit />,
+        permission: null,
+      },
+      {
+        path: "pin",
+        element: <PinedNews />,
+        permission: null,
+      },
+      {
+        path: "highlight",
+        element: <HighLightNews />,
         permission: null,
       },
     ],

@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.7.1] - Release Date: 2023-10-02
+
+- Feature: News
+
 ## Features [v0.7.0] - Release Date: 2023-10-02
 
 - added promotion notication menu

@@ -130,6 +130,32 @@ export const pathLists = [
     ],
   },
   {
+    path: "/news",
+    name: "news",
+    title: "ข่าวสาร",
+    permission: ["news"],
+    subMenu: [
+      {
+        path: "/list",
+        name: "newsList",
+        title: "รายการข่าวสาร",
+        permission: "newsList",
+      },
+      {
+        path: "/pin",
+        name: "pinedNews",
+        title: "ปักหมุดข่าวสาร",
+        permission: "pinedNews",
+      },
+      {
+        path: "/highlight",
+        name: "highlightNews",
+        title: "ข่าวสารไฮไลท์",
+        permission: "highlightNews",
+      },
+    ],
+  },
+  {
     path: "/UserPage",
     name: "user",
     title: "จัดการผู้ใช้งาน",

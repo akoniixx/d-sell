@@ -18,7 +18,7 @@ interface Props {
   bgColor?: string;
   textColor?: string;
 }
-function CardSection({ children, extra, style, title, leftComponent, bgColor,textColor }: Props) {
+function CardSection({ children, extra, style, title, leftComponent, bgColor, textColor }: Props) {
   return (
     <CardSectionStyled style={style}>
       <Row
@@ -31,7 +31,13 @@ function CardSection({ children, extra, style, title, leftComponent, bgColor,tex
           backgroundColor: bgColor,
         }}
       >
-        {leftComponent ? leftComponent : <Text style={{color : textColor}} fontWeight={700}>{title}</Text>}
+        {leftComponent ? (
+          leftComponent
+        ) : (
+          <Text style={{ color: textColor }} fontWeight={700}>
+            {title}
+          </Text>
+        )}
         {extra}
       </Row>
       {children}

@@ -115,7 +115,9 @@ const TextSubStyled = styled(Text)<{ isFocus?: boolean }>`
     }
   }}
   margin-left: 24px;
-  font-family: Helvetica, IBM Plex Sans Thai !important;
+  font-family:
+    Helvetica,
+    IBM Plex Sans Thai !important;
 
   &:hover {
     color: ${(props) => (props.isFocus ? color.primary : color.Text1)};

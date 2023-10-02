@@ -14,7 +14,7 @@ import {
   Divider,
   Spin,
 } from "antd";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import styled from "styled-components";

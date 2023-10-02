@@ -11,6 +11,7 @@ import {
   FundOutlined,
   ContainerOutlined,
   ShopOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
 import CollapseMenu from "./CollapseMenu";
 import { useEffectOnce } from "react-use";
@@ -171,6 +172,13 @@ const iconsInActive = {
   ),
   user: (
     <UserOutlined
+      style={{
+        fontSize: "20px",
+      }}
+    />
+  ),
+  news: (
+    <BookOutlined
       style={{
         fontSize: "20px",
       }}
