@@ -98,7 +98,6 @@ export const PromotionNotification: React.FC = () => {
       isShowShopApp: searchShop,
       isShowSaleApp: searchSale,
     }).then((res) => {
-      console.log("res", res);
       setDataPromotion(res);
     });
   };
@@ -148,7 +147,6 @@ export const PromotionNotification: React.FC = () => {
     });
   };
   const editNotiPromotion = async (id: string, title?: string) => {
-    console.log(id);
     title === "edit" && setIsDisable(false);
     setShowModal(!showModal);
     const find = await getPromotionNotiById(id).then((res) => {
@@ -186,7 +184,10 @@ export const PromotionNotification: React.FC = () => {
         <Input
           placeholder='ค้นหาชื่อโปรโมชัน'
           suffix={<SearchOutlined style={{ color: "grey" }} />}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value);
+          }}
         />
       </Col>
       <Col span={3}>
@@ -195,7 +196,10 @@ export const PromotionNotification: React.FC = () => {
           placeholder='เลือกสถานะ'
           data={PromotionNotiStatus}
           style={{ width: "100%" }}
-          onChange={(e) => setStatus(e)}
+          onChange={(e) => {
+            setPage(1);
+            setStatus(e);
+          }}
         />
       </Col>
       <Col span={5}>
@@ -208,7 +212,10 @@ export const PromotionNotification: React.FC = () => {
             { key: "shop", value: "shop", label: "Shop App" },
           ]}
           style={{ width: "100%" }}
-          onChange={(e) => searchApp(e)}
+          onChange={(e) => {
+            setPage(1);
+            searchApp(e);
+          }}
         />
       </Col>
       <Col>
@@ -416,7 +423,6 @@ export const PromotionNotification: React.FC = () => {
       updateBy: `${userProfile.firstname} ${userProfile.lastname}`,
     });
     const submit = form.getFieldsValue(true);
-    console.log(submit);
     if (submit?.promotionNotiId) {
       setIsDone(true);
       await updatePromotionNoti(submit).then((res) => {
