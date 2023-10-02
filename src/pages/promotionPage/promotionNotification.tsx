@@ -146,6 +146,7 @@ export const PromotionNotification: React.FC = () => {
     });
   };
   const editNotiPromotion = async (id: string, title?: string) => {
+    console.log(id);
     title === "edit" && setIsDisable(false);
     setShowModal(!showModal);
     const find = await getPromotionNotiById(id).then((res) => {
