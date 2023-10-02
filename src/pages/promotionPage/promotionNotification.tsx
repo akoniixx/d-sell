@@ -306,29 +306,29 @@ export const PromotionNotification: React.FC = () => {
         };
       },
     },
-    {
-      title: "อ่านแล้ว",
-      dataIndex: "reader",
-      key: "reader",
-      render: (value: any, row: any, index: number) => {
-        return {
-          children: (
-            <Row gutter={16} justify={"space-between"}>
-              <Col span={24}>
-                <Text level={5} style={{ paddingLeft: "5px" }}>
-                  10
-                </Text>
-              </Col>
-              <Col span={24}>
-                <Text level={5} style={{ paddingLeft: "5px" }}>
-                  5
-                </Text>
-              </Col>
-            </Row>
-          ),
-        };
-      },
-    },
+    // {
+    //   title: "อ่านแล้ว",
+    //   dataIndex: "reader",
+    //   key: "reader",
+    //   render: (value: any, row: any, index: number) => {
+    //     return {
+    //       children: (
+    //         <Row gutter={16} justify={"space-between"}>
+    //           <Col span={24}>
+    //             <Text level={5} style={{ paddingLeft: "5px" }}>
+    //               10
+    //             </Text>
+    //           </Col>
+    //           <Col span={24}>
+    //             <Text level={5} style={{ paddingLeft: "5px" }}>
+    //               5
+    //             </Text>
+    //           </Col>
+    //         </Row>
+    //       ),
+    //     };
+    //   },
+    // },
     {
       title: "สถานะ",
       dataIndex: "status",
