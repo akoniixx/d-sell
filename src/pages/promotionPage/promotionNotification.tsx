@@ -241,7 +241,7 @@ export const PromotionNotification: React.FC = () => {
                   สร้างจากโปรโมชัน
                 </Text>
               )}
-              {(!row.isFromPromotionMaster && row.status) === "WAITING" && (
+              {row.status === "WAITING" && (
                 <Text color='warning' level={6}>
                   <ClockCircleOutlined color='warning' style={{ fontSize: "15px" }} /> ตั้งเวลา
                 </Text>
