@@ -298,9 +298,13 @@ const DetailTab: React.FC = () => {
           <Descriptions
             label='ระยะเวลาใช้โปรโมชัน'
             value={
-              moment(promotion?.startDate).locale("th").format("LLL") +
+              moment(promotion?.startDate)
+                .locale("th")
+                .format("LLL") +
               " - " +
-              moment(promotion?.endDate).locale("th").format("LLL")
+              moment(promotion?.endDate)
+                .locale("th")
+                .format("LLL")
             }
           />
         </Col>
@@ -392,7 +396,7 @@ const DetailTab: React.FC = () => {
                     </FlexRow>
                   </Col>
                   <Col span={8}>
-                    <Button
+                    <Buttons
                       title='ดาวน์โหลด'
                       icon={<DownloadOutlined style={{ color: "white" }} />}
                       onClick={onDownloadExcel}
@@ -406,107 +410,6 @@ const DetailTab: React.FC = () => {
           <br />
         </div>
       </Permission>
-
-      <>
-        <br />
-        <Row align='middle' gutter={16}>
-          <Col span={12}>
-            <Text level={5} fontWeight={700}>
-              ไฟล์ Memo Promotion
-            </Text>
-          </Col>
-          <Col span={12}>
-            <Text level={5} fontWeight={700}>
-              ไฟล์ Excel
-            </Text>
-          </Col>
-        </Row>
-        <br />
-        <Row align='middle' gutter={16}>
-          <Col span={12}>
-            <MemoArea>
-              <Row align='middle' justify='space-between' style={{ width: "100%" }}>
-                <Col span={16}>
-                  <FlexRow align='center' style={{ height: "100%" }}>
-                    &nbsp;&nbsp;&nbsp;
-                    <svg
-                      width='24'
-                      height='31'
-                      viewBox='0 0 24 31'
-                      fill='none'
-                      xmlns='http://www.w3.org/2000/svg'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        clipRule='evenodd'
-                        d='M20.0596 0.0175781L24 3.84855V5.85091V27.5176C24 28.8983 22.8487 30.0176 21.4286 30.0176H2.57143C1.15127 30.0176 0 28.8983 0 27.5176V2.51758C0 1.13687 1.15127 0.0175781 2.57143 0.0175781H18H20.0596ZM18 1.18424H2.57143C1.85609 1.18424 1.26867 1.71671 1.2056 2.39622L1.2 2.51758V27.5176C1.2 28.213 1.74768 28.7842 2.4466 28.8455L2.57143 28.8509H21.4286C22.1439 28.8509 22.7313 28.3184 22.7944 27.6389L22.8 27.5176V5.85091H18V1.18424ZM22.8 4.68424L22.8 4.33174L19.5626 1.18424H19.2V4.68424H22.8Z'
-                        fill='#464E5F'
-                      />
-                      <path d='M4 15.6846H5.83333V17.5179H4V15.6846Z' fill='#464E5F' />
-                      <path
-                        d='M6.75 12.0176H8.98014C9.41286 12.0176 9.74294 12.0895 9.97039 12.2334C10.2034 12.372 10.3587 12.5718 10.4364 12.833C10.5196 13.0888 10.5612 13.4246 10.5612 13.8403C10.5612 14.24 10.5224 14.5704 10.4447 14.8315C10.367 15.0873 10.2117 15.2925 9.97871 15.4471C9.74571 15.5963 9.40731 15.6709 8.9635 15.6709H7.80682V17.5176H6.75V12.0176ZM8.614 14.7916C8.89138 14.7916 9.08832 14.7676 9.20482 14.7196C9.32687 14.6663 9.40454 14.5784 9.43782 14.4558C9.47665 14.3279 9.49607 14.1227 9.49607 13.8403C9.49607 13.5578 9.47665 13.3553 9.43782 13.2327C9.40454 13.1048 9.32964 13.0169 9.21314 12.9689C9.09664 12.9209 8.90248 12.8969 8.63064 12.8969H7.80682V14.7916H8.614Z'
-                        fill='#464E5F'
-                      />
-                      <path
-                        d='M11.4471 12.0176H13.1696C13.8741 12.0176 14.3734 12.0949 14.6674 12.2494C14.967 12.3986 15.1529 12.6491 15.225 13.0009C15.3027 13.3473 15.3415 13.9362 15.3415 14.7676C15.3415 15.599 15.3027 16.1905 15.225 16.5423C15.1529 16.8887 14.967 17.1392 14.6674 17.2937C14.3734 17.443 13.8741 17.5176 13.1696 17.5176H11.4471V12.0176ZM13.1197 16.6382C13.5246 16.6382 13.7965 16.6089 13.9352 16.5503C14.0794 16.4917 14.1709 16.3451 14.2098 16.1106C14.2542 15.8761 14.2763 15.4284 14.2763 14.7676C14.2763 14.1067 14.2542 13.6591 14.2098 13.4246C14.1709 13.1901 14.0794 13.0435 13.9352 12.9849C13.7965 12.9263 13.5246 12.8969 13.1197 12.8969H12.5039V16.6382H13.1197Z'
-                        fill='#464E5F'
-                      />
-                      <path
-                        d='M16.3879 17.5176V12.0176H19.5833V12.8969H17.4447V14.4318H19.3337V15.3192H17.4447V17.5176H16.3879Z'
-                        fill='#464E5F'
-                      />
-                    </svg>
-                    &nbsp;&nbsp;&nbsp;
-                    <Text level={6} color='Text3'>
-                      {promotion?.fileMemoPath
-                        ? `${promotion.fileMemoPath.substring(0, 40)}...`
-                        : "ไม่มีไฟล์แนบ"}
-                    </Text>
-                  </FlexRow>
-                </Col>
-                <Col span={8}>
-                  <Buttons
-                    title='ดูรายละเอียด'
-                    icon={<EyeOutlined />}
-                    onClick={() => {
-                      const pdfWindow = window.open();
-                      if (pdfWindow) pdfWindow.location.href = promotion?.fileMemoPath || "";
-                    }}
-                    disabled={!promotion?.fileMemoPath}
-                    typeButton={promotion?.fileMemoPath ? "primary" : "disabled"}
-                  />
-                </Col>
-              </Row>
-            </MemoArea>
-          </Col>
-          <Col span={12}>
-            <MemoArea>
-              <Row align='middle' justify='space-between' style={{ width: "100%" }}>
-                <Col span={16}>
-                  <FlexRow align='center' style={{ height: "100%" }}>
-                    &nbsp;&nbsp;&nbsp;
-                    <FileExcelOutlined style={{ fontSize: 28 }} />
-                    &nbsp;&nbsp;&nbsp;
-                    <Text level={6} color='Text3'>
-                      {`${promotion?.promotionCode}.xlsx`}
-                    </Text>
-                  </FlexRow>
-                </Col>
-                <Col span={8}>
-                  <Buttons
-                    title='ดาวน์โหลด'
-                    icon={<DownloadOutlined style={{ color: "white" }} />}
-                    onClick={onDownloadExcel}
-                  />
-                </Col>
-              </Row>
-            </MemoArea>
-          </Col>
-        </Row>
-        <br />
-        <br />
-      </>
-
       <Divider />
       <Text level={2}>รายละเอียดรายการ</Text>
       <br />
@@ -1171,7 +1074,17 @@ const DetailApp = (
   }, []);
 
   return (
-    <MemoArea>
+    <div
+      style={{
+        width: "100%",
+        backgroundColor: color.background1,
+        border: "1px solid",
+        borderColor: color.background2,
+        borderRadius: "8px",
+        alignItems: "center",
+        padding: "16px",
+      }}
+    >
       <Row>
         <Col span={8}>
           <Text level={5} fontWeight={600}>
@@ -1296,7 +1209,7 @@ const DetailApp = (
           </Row>
         </Modal>
       )}
-    </MemoArea>
+    </div>
   );
 };
 

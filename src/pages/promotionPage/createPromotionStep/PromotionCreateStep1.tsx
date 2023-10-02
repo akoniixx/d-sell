@@ -73,7 +73,7 @@ const UploadVeritical = styled(Upload)`
 
 const UploadArea = styled.div`
   background: ${color.background1};
-  border: 1px dashed ${color.Text3};
+  border: 1px dashed;
   border-radius: 6px;
 
   display: flex;
@@ -145,6 +145,8 @@ interface Props {
   setImgUrl2: (setImgUrl2?: string) => void;
   isEditing?: boolean;
   isCopying?: boolean;
+  imgPromotion?: boolean;
+  setImgPromotion?: any;
 }
 export const PromotionCreateStep1 = ({
   form,
@@ -162,11 +164,13 @@ export const PromotionCreateStep1 = ({
   setImgUrl2,
   isEditing,
   isCopying,
+  imgPromotion,
+  setImgPromotion,
 }: Props) => {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
-
   const promoStateValue = useRecoilValue(promotionState);
+  const date = Form.useWatch("startDate", form);
 
   const [promotions, setPromotions] = useState();
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -205,6 +209,13 @@ export const PromotionCreateStep1 = ({
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const checkDate = () => {
+    const datePro = dayjs(date);
+    const current = dayjs(new Date());
+    const final = !isShowPromotion ? !isShowPromotion : current > datePro ? true : false;
+    return final;
   };
 
   return (
@@ -754,14 +765,17 @@ export const PromotionCreateStep1 = ({
                           disabled={!!file2 || !!imageUrl2}
                         >
                           {!file2 && !imageUrl2 ? (
-                            <UploadArea
-                              style={{
-                                width: "220px",
-                                height: "130px",
-                              }}
-                            >
-                              {UploadIcon}
-                            </UploadArea>
+                            <>
+                              <UploadArea
+                                style={{
+                                  width: "220px",
+                                  height: "130px",
+                                  borderColor: imgPromotion ? color.error : color.Text3,
+                                }}
+                              >
+                                {UploadIcon}
+                              </UploadArea>
+                            </>
                           ) : (
                             <Spin spinning={loading}>
                               <ImageWithDeleteButton
@@ -803,6 +817,11 @@ export const PromotionCreateStep1 = ({
                     )}
                   </Form.Item>
                 </FlexCol>
+                {imgPromotion && isShowPromotion && (
+                  <Text level={6} style={{ color: color.error }}>
+                    กรุณาใส่รูปภาพโปรโมชัน
+                  </Text>
+                )}
                 <FlexCol style={{ marginRight: 32 }}>
                   <Text level={6} color='Text3'>
                     JPG, GIF or PNG. Size of
@@ -832,7 +851,7 @@ export const PromotionCreateStep1 = ({
                   label='ชื่อเรื่องโปรโมชั่น'
                   rules={[
                     {
-                      required: true,
+                      required: isShowPromotion,
                       message: "*โปรดระบุชื่อเรื่องโปรโมชั่น",
                     },
                   ]}
@@ -878,7 +897,7 @@ export const PromotionCreateStep1 = ({
                   label='พาดหัวแจ้งเตือน'
                   rules={[
                     {
-                      required: true,
+                      required: isShowPromotion,
                       message: "*โปรดระบุพาดหัวแจ้งเตือน",
                     },
                   ]}
@@ -899,7 +918,7 @@ export const PromotionCreateStep1 = ({
                   label='รายละเอียดแจ้งเตือน'
                   rules={[
                     {
-                      required: true,
+                      required: isShowPromotion,
                       message: "*โปรดระบุรายละเอียดพาดหัว",
                     },
                   ]}
@@ -925,13 +944,13 @@ export const PromotionCreateStep1 = ({
                         return current.isBefore(dateToday) || current.isAfter(dayjs(startDate));
                       }}
                       enablePast
-                      disabled={!isShowPromotion}
+                      disabled={checkDate()}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name='firstTimeNoti' initialValue={dayjs("07:00", "HH:mm")}>
-                    <TimePicker disabled={!isShowPromotion} />
+                    <TimePicker disabled={checkDate()} />
                   </Form.Item>
                 </Col>
               </Row>
@@ -949,7 +968,7 @@ export const PromotionCreateStep1 = ({
                 </Col>
                 <Col span={12}>
                   <Form.Item name='secondTimeNoti' initialValue={dayjs("07:00", "HH:mm")}>
-                    <TimePicker allowClear={false} disabled={!isShowPromotion} />
+                    <TimePicker allowClear={false} disabled={checkDate()} />
                   </Form.Item>
                 </Col>
               </Row>

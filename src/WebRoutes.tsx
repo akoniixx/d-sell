@@ -51,6 +51,7 @@ import { PromotionDetail } from "./pages/promotionPage/promotionDetail";
 import { NewsList } from "./pages/NewsPage/NewsList";
 import { NewsEdit } from "./pages/NewsPage/CreateNewsPage";
 import { PinedNews } from "./pages/NewsPage/PinedNews";
+import { PromotionNotification } from "./pages/promotionPage/promotionNotification";
 
 interface IRoute {
   path: string;
@@ -366,6 +367,11 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "promotion/edit/:id",
         element: <PromotionCreatePage />,
+        permission: null,
+      },
+      {
+        path: "promotionNoti",
+        element: <PromotionNotification />,
         permission: null,
       },
     ],

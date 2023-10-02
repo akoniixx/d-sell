@@ -15,4 +15,6 @@ export default {
   expPromotion: require("./media/images/expPromotion.png"),
   detailPromotion: require("./media/images/LaddaShopApp-PromotionDetail.png"),
   detailPromotionCard: require("./media/images/proDetailCard.png"),
+  iconSaleApp: require("./media/images/iconSaleApp.png"),
+  iconShopApp: require("./media/images/iconShopApp.png"),
 };
