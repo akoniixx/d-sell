@@ -24,14 +24,31 @@ import Input from "../../components/Input/Input";
 import { FlexRow } from "../../components/Container/Container";
 import AutoComplete from "../../components/AutoComplete/AutoComplete";
 
+const mockNews: any = [
+  "ข่าวที่หนึ่งจ้า",
+  "ข่าวที่สองจ้า",
+  "ข่าวอะไรไม่รู้",
+  "พี่แบงค์เหงามาก ขับรถไปกวนคนอื่นไปทั่ว",
+  "วันนี้มีไก่สิบตัว",
+  "ข่าวด่วน พี่ไหมโมโหหิวกินดาร์ทเข้าไปทั้งตัว",
+  "แมวเป้า ข่าวจ้าข่าว",
+  "ทำความรู้จัก “วูช” รถไฟหัวกระสุนแรกของอินโดนีเซีย",
+  "สองผู้คิดค้นวัคซีนเอ็มอาร์เอ็นเอ คว้ารางวัลโนเบลสาขาการแพทย์ 2023",
+  "น้ำซัด สะพานวังแขม กำแพงเพชร ทรุดตัว",
+  "ราคาทองคำทางด้านเทคนิคยังเป็นขาลง หลังราคายังลดลงทำจุดต่ำสุดใหม่อย่างต่อเนื่อง",
+  "ณัฐพงษ์ เรืองปัญญาวุฒิ สส. บัญชีรายชื่อ แถลงข่าว Policy Watch จับตานโยบายด้านดิจิทัล",
+  "ปธน.ไบเดน ลงนามรับรองกฎหมายงบชั่วคราว-ช่วยรัฐบาลเลี่ยงปิดทำการ",
+  "จังหวัดปราจีนบุรี ร่วมกับเทศบาลเมืองปราจีนบุรี ติดตั้งธงสีเหลืองแจ้งเตือนระดับน้ำท่วม",
+  "สุโขทัย อ่วมพนังกั้นน้ำยมแตกหลายจุดทะลักชุมชนในเขตเมือง เตรียมรับมวลน้ำอีกระลอก",
+];
 const mockData = [
   {
     key: "1",
-    name: "one",
+    name: mockNews[0],
   },
   {
     key: "2",
-    name: "two",
+    name: mockNews[1],
   },
   // {
   //   key: "3",
@@ -218,7 +235,21 @@ export const PinedNews: React.FC = (props: any) => {
           return (
             <FlexRow align='center' justify='space-between'>
               <PushpinFilled style={{ color: "#F2C94C", fontSize: 20 }} />
-              <AutoComplete defaultValue={value} style={{ width: "calc(100% - 32px)" }} />
+              <AutoComplete
+                defaultValue={value}
+                style={{ width: "calc(100% - 32px)" }}
+                options={mockNews
+                  .filter((e: string) => !dataSource.find((s: any) => s.name === e))
+                  .map((e: string) => ({ value: e }))}
+                onSelect={(val: any) => {
+                  const newData = [...dataSource];
+                  newData[index] = {
+                    ...dataSource[index],
+                    name: val,
+                  };
+                  setDataSource(newData);
+                }}
+              />
             </FlexRow>
           );
         },
