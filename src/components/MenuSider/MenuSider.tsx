@@ -12,6 +12,7 @@ import {
   ContainerOutlined,
   ShopOutlined,
   BookOutlined,
+  ReconciliationOutlined,
 } from "@ant-design/icons";
 import CollapseMenu from "./CollapseMenu";
 import { useEffectOnce } from "react-use";
@@ -179,6 +180,13 @@ const iconsInActive = {
   ),
   news: (
     <BookOutlined
+      style={{
+        fontSize: "20px",
+      }}
+    />
+  ),
+  productshop: (
+    <ReconciliationOutlined
       style={{
         fontSize: "20px",
       }}

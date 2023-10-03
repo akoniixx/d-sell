@@ -341,119 +341,121 @@ export const ModalSelectedProduct = ({
         footer={false}
         zIndex={300}
       >
-        <Row gutter={16}>
-          <Col span={9}>
-            <Form.Item label='ค้นหาสินค้า' name='searchText'>
-              <Input
-                placeholder='ค้นหาชื่อสินค้าหรือรหัสสินค้า...'
-                suffix={<SearchOutlined />}
-                style={{ width: "100%" }}
-                onPressEnter={(e) => handleSearchKeyword(e)}
-                onChange={(e) => setKeyword(e.target.value)}
-                defaultValue={keyword}
-                value={keyword}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item label='Product Group' name='productGroup'>
-              <Select
-                data={[
-                  {
-                    key: "",
-                    value: "",
-                    label: "ทั้งหมด",
-                  },
-                  ...productGroup.map((p: any) => ({
-                    key: p.product_group,
-                    value: p.product_group,
-                    label: p.product_group,
-                  })),
-                ]}
-                onChange={(e) => handleSearchProdGroup(e)}
-                placeholder='ทั้งหมด'
-                style={{ width: "100%" }}
-                value={prodGroup}
-              />
-            </Form.Item>
-          </Col>
+        <Form layout='vertical'>
+          <Row gutter={16}>
+            <Col span={9}>
+              <Form.Item label='ค้นหาสินค้า' name='searchText'>
+                <Input
+                  placeholder='ค้นหาชื่อสินค้าหรือรหัสสินค้า...'
+                  suffix={<SearchOutlined />}
+                  style={{ width: "100%" }}
+                  onPressEnter={(e) => handleSearchKeyword(e)}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  defaultValue={keyword}
+                  value={keyword}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Form.Item label='Product Group' name='productGroup'>
+                <Select
+                  data={[
+                    {
+                      key: "",
+                      value: "",
+                      label: "ทั้งหมด",
+                    },
+                    ...productGroup.map((p: any) => ({
+                      key: p.product_group,
+                      value: p.product_group,
+                      label: p.product_group,
+                    })),
+                  ]}
+                  onChange={(e) => handleSearchProdGroup(e)}
+                  placeholder='ทั้งหมด'
+                  style={{ width: "100%" }}
+                  value={prodGroup}
+                />
+              </Form.Item>
+            </Col>
 
-          {company === "ICPL" && (
-            <Col span={4}>
-              <Form.Item label='Strategy Group' name='strategyGroup'>
-                <Select
-                  data={[
-                    {
-                      key: "",
-                      value: "",
-                      label: "ทั้งหมด",
-                    },
-                    ...strategyGroup.map((p: any) => ({
-                      key: p.productCategoryId,
-                      value: p.productCategoryId,
-                      label: p.productCategoryName,
-                    })),
-                  ]}
-                  onChange={(e) => handleSearchStrategyGroup(e)}
-                  placeholder='ทั้งหมด'
-                  style={{ width: "100%" }}
-                  value={selectedStrategy}
-                />
-              </Form.Item>
+            {company === "ICPL" && (
+              <Col span={4}>
+                <Form.Item label='Strategy Group' name='strategyGroup'>
+                  <Select
+                    data={[
+                      {
+                        key: "",
+                        value: "",
+                        label: "ทั้งหมด",
+                      },
+                      ...strategyGroup.map((p: any) => ({
+                        key: p.productCategoryId,
+                        value: p.productCategoryId,
+                        label: p.productCategoryName,
+                      })),
+                    ]}
+                    onChange={(e) => handleSearchStrategyGroup(e)}
+                    placeholder='ทั้งหมด'
+                    style={{ width: "100%" }}
+                    value={selectedStrategy}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+            {brand?.length && (
+              <Col span={4}>
+                <Form.Item label='ยี่ห้อ' name='brand'>
+                  <Select
+                    data={[
+                      {
+                        key: "",
+                        value: "",
+                        label: "ทั้งหมด",
+                      },
+                      ...brand.map((p: any) => ({
+                        key: p.productBrandId,
+                        value: p.productBrandId,
+                        label: p.productBrandName,
+                      })),
+                    ]}
+                    onChange={(e) => handleSearchBrand(e)}
+                    placeholder='ทั้งหมด'
+                    style={{ width: "100%" }}
+                    value={selectedBrand}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+            {company === "ICPI" && (
+              <Col span={4}>
+                <Form.Item label='Location' name='brand'>
+                  <Select
+                    data={[
+                      {
+                        key: "",
+                        value: "",
+                        label: "ทั้งหมด",
+                      },
+                      ...LOCATION_DATA.filter((c: any) => c.company === company).map((p: any) => ({
+                        key: p.LocationName,
+                        value: p.LocationName,
+                        label: p.LocationNameTH,
+                      })),
+                    ]}
+                    onChange={(e) => handleSearchLocation(e)}
+                    placeholder='ทั้งหมด'
+                    style={{ width: "100%" }}
+                    value={location}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+            <Col span={3} style={{ paddingTop: "22px" }}>
+              <Button title='ล้างการค้นหา' typeButton='primary-light' onClick={handleClearSearch} />
             </Col>
-          )}
-          {brand?.length && (
-            <Col span={4}>
-              <Form.Item label='ยี่ห้อ' name='brand'>
-                <Select
-                  data={[
-                    {
-                      key: "",
-                      value: "",
-                      label: "ทั้งหมด",
-                    },
-                    ...brand.map((p: any) => ({
-                      key: p.productBrandId,
-                      value: p.productBrandId,
-                      label: p.productBrandName,
-                    })),
-                  ]}
-                  onChange={(e) => handleSearchBrand(e)}
-                  placeholder='ทั้งหมด'
-                  style={{ width: "100%" }}
-                  value={selectedBrand}
-                />
-              </Form.Item>
-            </Col>
-          )}
-          {company === "ICPI" && (
-            <Col span={4}>
-              <Form.Item label='Location' name='brand'>
-                <Select
-                  data={[
-                    {
-                      key: "",
-                      value: "",
-                      label: "ทั้งหมด",
-                    },
-                    ...LOCATION_DATA.filter((c: any) => c.company === company).map((p: any) => ({
-                      key: p.LocationName,
-                      value: p.LocationName,
-                      label: p.LocationNameTH,
-                    })),
-                  ]}
-                  onChange={(e) => handleSearchLocation(e)}
-                  placeholder='ทั้งหมด'
-                  style={{ width: "100%" }}
-                  value={location}
-                />
-              </Form.Item>
-            </Col>
-          )}
-          <Col span={3}>
-            <Button title='ล้างการค้นหา' typeButton='primary-light' onClick={handleClearSearch} />
-          </Col>
-        </Row>
+          </Row>
+        </Form>
         <br />
         <TableContainer>
           <Table
