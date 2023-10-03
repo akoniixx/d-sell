@@ -1,6 +1,20 @@
 import React, { useState, useRef, ReactNode, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, Row, Col, Image, Card, Form, Upload, Radio, Divider, Spin, message } from "antd";
+import {
+  Button,
+  Row,
+  Col,
+  Image,
+  Card,
+  Form,
+  Upload,
+  Radio,
+  Divider,
+  Spin,
+  message,
+  Checkbox,
+  Space,
+} from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { CameraOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import {
@@ -92,6 +106,8 @@ export const NewsEdit: React.FC = (props: any) => {
   const [uploading, setUploading] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>();
   const [isRemoved, setRemoved] = useState(false);
+  const [topic, setTopic] = useState("หัวข้อข่าว");
+  const [desc, setDesc] = useState("-");
 
   const quillRef = useRef<any>(null);
   const outputDivRef = useRef<any>(null);
@@ -187,6 +203,7 @@ export const NewsEdit: React.FC = (props: any) => {
           //   plugins: [htmlParser],
           // });
           // outputDivRef.current.textContent = prettyHtml;
+          setDesc(quill.root.innerHTML);
         }
       });
     }
@@ -417,20 +434,62 @@ export const NewsEdit: React.FC = (props: any) => {
                     },
                   ]}
                 >
-                  <Input placeholder='ระบุชื่อหัวข้อข่าว' autoComplete='off' />
+                  <Input
+                    placeholder='ระบุชื่อหัวข้อข่าว'
+                    autoComplete='off'
+                    onBlur={(e) => setTopic(e.target.value)}
+                  />
                 </Form.Item>
-                <Form.Item label='รายละเอียดข่าว' required>
+                {/* <Form.Item label='รายละเอียดข่าว' required>
                   <ReactQuill ref={quillRef} modules={modules} />
-                </Form.Item>
+                </Form.Item> */}
                 <br />
                 <Form.Item name='type' label='หมวดหมู่' initialValue={newsTypes.NEWS.key} required>
-                  <Radio.Group
-                    options={Object.values(newsTypes).map(({ key, name }) => ({
-                      key,
-                      label: name,
-                      value: key,
-                    }))}
+                  <Radio.Group>
+                    <br />
+                    <Space direction='vertical'>
+                      {Object.values(newsTypes).map(({ key, name }) => (
+                        <Radio value={key} key={key}>
+                          {name}
+                        </Radio>
+                      ))}
+                    </Space>
+                  </Radio.Group>
+                </Form.Item>
+                <Form.Item name='type' label='แอปพลิเคชัน' required>
+                  <Checkbox.Group
+                    options={[
+                      {
+                        label: "Shop Application",
+                        value: "1",
+                      },
+                      {
+                        label: "Sale Application",
+                        value: "2",
+                      },
+                    ]}
                   />
+                </Form.Item>
+                <Form.Item name='type' label='สถานะ' required>
+                  <Radio.Group>
+                    <br />
+                    <Space direction='vertical'>
+                      {[
+                        {
+                          name: "ใช้งาน",
+                          key: "1",
+                        },
+                        {
+                          name: "แบบร่าง",
+                          key: "2",
+                        },
+                      ].map(({ key, name }) => (
+                        <Radio value={key} key={key}>
+                          {name}
+                        </Radio>
+                      ))}
+                    </Space>
+                  </Radio.Group>
                 </Form.Item>
               </Col>
               <Col style={{ width: "320px" }}>
@@ -455,7 +514,7 @@ export const NewsEdit: React.FC = (props: any) => {
                   </UploadArea>
                   <br />
                   <Text level={4} fontWeight={700}>
-                    Title
+                    {topic}
                   </Text>
                   <Row>
                     <Text level={6} color='Text3'>
@@ -467,6 +526,7 @@ export const NewsEdit: React.FC = (props: any) => {
                     </Text>
                   </Row>
                   <Divider />
+                  <div dangerouslySetInnerHTML={{ __html: desc }}></div>
                 </div>
               </Col>
             </Row>
