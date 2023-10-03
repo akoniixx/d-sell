@@ -440,9 +440,9 @@ export const NewsEdit: React.FC = (props: any) => {
                     onBlur={(e) => setTopic(e.target.value)}
                   />
                 </Form.Item>
-                {/* <Form.Item label='รายละเอียดข่าว' required>
+                <Form.Item label='รายละเอียดข่าว' required>
                   <ReactQuill ref={quillRef} modules={modules} />
-                </Form.Item> */}
+                </Form.Item>
                 <br />
                 <Form.Item name='type' label='หมวดหมู่' initialValue={newsTypes.NEWS.key} required>
                   <Radio.Group>
