@@ -27,9 +27,6 @@ export const ProductShopDetail: React.FC = () => {
   const [searchProd, setSearchProd] = useState<ProductEntity[]>([]);
   const [productGroup, setProductGroup] = useState<ProductGroupEntity[]>([]);
 
-  const [selectedStoreKeys, setSelectedStoreKeys] = useState<React.Key[]>([]);
-  //const [selectedStoreList, setSelectedStoreList] = useState<StoreEntity[]>([]);
-
   const mockData = [
     {
       img: image.product_no_image,

@@ -9,6 +9,8 @@ import Button from "../../components/Button/Button";
 import { useNavigate } from "react-router-dom";
 import { dateFormatter } from "../../utility/Formatter";
 import { color } from "../../resource";
+import { getProductShop } from "../../datasource/ProductShopDatasource";
+import { ProductShopList } from "../../entities/ProductShopEntity";
 
 export const IndexProductShop: React.FC = () => {
   const navigate = useNavigate();
@@ -17,15 +19,18 @@ export const IndexProductShop: React.FC = () => {
   const take = 10;
 
   const [page, setPage] = useState<number>(1);
+  const [data, setData] = useState<ProductShopList>();
 
-  const mockData = [
-    {
-      customerNo: "CL111111",
-      customerName: "ไหมการเกษตร",
-      zone: "A01",
-      totalProduct: 10,
-    },
-  ];
+  const getShopList = async () => {
+    await getProductShop({ company }).then((res) => {
+      console.log("res", res);
+      setData(res.data);
+    });
+  };
+
+  useEffect(() => {
+    getShopList();
+  }, [page]);
 
   const ActionBtn = ({ onClick, icon }: any) => {
     return (
@@ -146,6 +151,7 @@ export const IndexProductShop: React.FC = () => {
       },
     },
   ];
+
   return (
     <CardContainer>
       {PageTitle} <br />
@@ -153,14 +159,14 @@ export const IndexProductShop: React.FC = () => {
         className='rounded-lg'
         columns={columns}
         //scroll={{ x: 1300 }}
-        dataSource={mockData}
+        dataSource={data?.data}
         size='large'
         tableLayout='fixed'
         pagination={{
           position: ["bottomCenter"],
           pageSize: take,
           current: page,
-          total: 10,
+          total: data?.count,
           onChange: (p) => setPage(p),
           showSizeChanger: false,
         }}
