@@ -146,8 +146,8 @@ export const PromotionCreatePage: React.FC = () => {
           ...res,
           startDate: copyId ? undefined : dayjs(res.startDate),
           endDate: copyId ? undefined : dayjs(res.endDate),
-          startTime: copyId ? undefined : dayjs(res.startDate),
-          endTime: copyId ? undefined : dayjs(res.endDate),
+          startTime: copyId ? dayjs("0000-00-00 00:00") : dayjs(res.startDate),
+          endTime: copyId ? dayjs("0000-00-00 23:59") : dayjs(res.endDate),
           referencePromotion: res.referencePromotion ? res.referencePromotion : [],
           memoFile: res.fileMemoPath
             ? [
@@ -166,12 +166,12 @@ export const PromotionCreatePage: React.FC = () => {
             : undefined,
           notiSecondDate: copyId ? undefined : dayjs(res.notiSecondDate),
           firstTimeNoti: copyId
-            ? undefined
+            ? dayjs("0000-00-00 07:00")
             : res.notiFirstDate
             ? dayjs(res.notiFirstDate)
             : dayjs("0000-00-00 07:00"),
           secondTimeNoti: copyId
-            ? undefined
+            ? dayjs("0000-00-00 07:00")
             : res.notiSecondDate
             ? dayjs(res.notiSecondDate)
             : dayjs("0000-00-00 07:00"),
@@ -254,7 +254,7 @@ export const PromotionCreatePage: React.FC = () => {
   const PageTitle = () => {
     return (
       <PageTitleNested
-        title={isEditing ? "แก้ไขโปรโมชั่น" : "เพิ่มโปรโมชั่น"}
+        title={isEditing ? "แก้ไขโปรโมชัน" : "เพิ่มโปรโมชัน"}
         showBack
         extra={
           <StepAntd
@@ -277,7 +277,7 @@ export const PromotionCreatePage: React.FC = () => {
                   <>
                     รายละเอียด
                     <br />
-                    โปรโมชั่น
+                    โปรโมชัน
                   </>
                 ),
               },
@@ -287,9 +287,9 @@ export const PromotionCreatePage: React.FC = () => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการโปรโมชั่น", path: "/PromotionPage/promotion" },
+              { text: "รายการโปรโมชัน", path: "/PromotionPage/promotion" },
               {
-                text: isEditing ? "แก้ไขโปรโมชั่น" : "เพิ่มโปรโมชั่น",
+                text: isEditing ? "แก้ไขโปรโมชัน" : "เพิ่มโปรโมชัน",
                 path: window.location.pathname,
               },
             ]}
@@ -777,7 +777,7 @@ export const PromotionCreatePage: React.FC = () => {
           <Text level={4} align='center'>
             {isDone ? (
               <>
-                {isEditing ? "แก้ไข" : "สร้าง"}โปรโมชั่น
+                {isEditing ? "แก้ไข" : "สร้าง"}โปรโมชัน
                 <br />
                 สำเร็จ
               </>
@@ -785,7 +785,7 @@ export const PromotionCreatePage: React.FC = () => {
               <>
                 กำลัง{isEditing ? "แก้ไข" : "สร้าง"}
                 <br />
-                โปรโมชั่น
+                โปรโมชัน
               </>
             )}
           </Text>

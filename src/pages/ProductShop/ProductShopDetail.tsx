@@ -1,4 +1,4 @@
-import { Col, Divider, Row, Button, Table, Avatar, Checkbox } from "antd";
+import { Col, Divider, Row, Button, Table, Avatar, Checkbox, Modal } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
@@ -8,54 +8,155 @@ import PageTitleNested from "../../components/PageTitle/PageTitleNested";
 import { color } from "../../resource";
 import Text from "../../components/Text/Text";
 import Select from "../../components/Select/Select";
-import { EditOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import Input from "../../components/Input/Input";
 import TableContainer from "../../components/Table/TableContainer";
 import image from "../../resource/image";
 import Buttons from "../../components/Button/Button";
 import { ModalSelectedProduct } from "../Shared/ModalSelecteProduct";
 import { ProductEntity } from "../../entities/PoductEntity";
-import { ProductGroupEntity } from "../../entities/ProductGroupEntity";
+import {
+  createProductShop,
+  getProductShopByCusComId,
+} from "../../datasource/ProductShopDatasource";
+import { CreateProductShopEntity, DetailProductShopEntity } from "../../entities/ProductShopEntity";
+import { getProductCategory } from "../../datasource/ProductDatasource";
+import { getCustomers } from "../../datasource/CustomerDatasource";
+import { CusComEntity } from "../../entities/CustomerEntity";
 
 export const ProductShopDetail: React.FC = () => {
   const navigate = useNavigate();
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
+  const { pathname } = window.location;
+  const cusComId = pathname.split("/")[3];
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [data, setData] = useState<DetailProductShopEntity>();
+  const [cusDetail, setCusDetail] = useState<CusComEntity>();
   const [showModalProd, setShowModalProd] = useState<boolean>(false);
   const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
   const [searchProd, setSearchProd] = useState<ProductEntity[]>([]);
-  const [productGroup, setProductGroup] = useState<ProductGroupEntity[]>([]);
+  const [productGroup, setProductGroup] = useState<any[]>([]);
+  const [searchProduct, setSearchProduct] = useState("");
+  const [prodGroup, setProdGroup] = useState("");
 
-  const mockData = [
-    {
-      img: image.product_no_image,
-      name: "ไซม๊อกซิเมท",
-      packing: "40*500 cc",
-      commonName: "CYMOXANIL+MANCOZEB 8%+64% WP",
-      group: "Expand",
-    },
-    {
-      img: image.product_no_image,
-      name: "ไซม๊อกซิเมท",
-      packing: "40*500 cc",
-      commonName: "CYMOXANIL+MANCOZEB 8%+64% WP",
-      group: "Expand",
-    },
-    {
-      img: image.product_no_image,
-      name: "ไซม๊อกซิเมท",
-      packing: "40*500 cc",
-      commonName: "CYMOXANIL+MANCOZEB 8%+64% WP",
-      group: "Expand",
-    },
-  ];
+  const getByCusComId = async () => {
+    const cus = await getCustomers({
+      company,
+      isActive: true,
+    }).then(async (res) => {
+      return res.data.find((x: any) => x.customerCompanyId === cusComId);
+    });
+    setCusDetail(cus);
+    await getProductShopByCusComId({ customerCompanyId: cusComId }).then((res) => {
+      setData(res);
+      const mapProduct = res.data.map((x: any) => {
+        return { ...x.product, isChecked: false };
+      });
+      setSelectedProd(mapProduct);
+      setSearchProd(mapProduct);
+    });
+  };
+  const fetchCatetory = async () => {
+    await getProductCategory(company).then((res) => {
+      const data = res.map((item: any) => {
+        return {
+          label: item.productCategoryName,
+          value: item.productCategoryId,
+          key: item.productCategoryId,
+        };
+      });
+      setProductGroup(data);
+    });
+  };
+
+  useEffect(() => {
+    getByCusComId();
+    fetchCatetory();
+  }, []);
+
+  const searchText = (e: any) => {
+    const valueUpperCase: string = e.toUpperCase();
+    const find = selectedProd.filter((x) => {
+      const searchName = !e || x.productName?.includes(valueUpperCase);
+      const searchGroup = !prodGroup || x.productCategoryId === prodGroup;
+      return searchName && searchGroup;
+    });
+    setSearchProd(find);
+  };
+  const searchProGroup = (e: any) => {
+    const find = selectedProd.filter((x) => {
+      const searchName = !searchProduct || x.productName?.includes(searchProduct);
+      const searchGroup = !e || x.productCategoryId === e;
+      return searchName && searchGroup;
+    });
+    setSearchProd(find);
+  };
   const callBackProduct = (item: ProductEntity[]) => {
     item = item.map((p: any) => ({ ...p, isChecked: false }));
     setSelectedProd(item);
     setSearchProd(item);
   };
-
+  const handleCheckBox = (e: any, prodId: string) => {
+    const checkBoxed = selectedProd.map((item) => ({
+      ...item,
+      isChecked: item.productId === prodId ? e.target.checked : item.isChecked,
+    }));
+    setSelectedProd(checkBoxed);
+    const find = checkBoxed.filter((x) => {
+      const searchName = !searchProduct || x.productName?.includes(searchProduct);
+      const searchGroup = !prodGroup || x.productCategoryId === prodGroup;
+      return searchName && searchGroup;
+    });
+    setSearchProd(find);
+  };
+  const handleAllCheckBox = (e: any) => {
+    const d = searchProd.map((p: any) => ({ ...p, isChecked: e.target.checked }));
+    const checkBoxed = selectedProd.map((x: any) => {
+      const matching = d.find((i) => i.productId === x.productId);
+      if (matching) {
+        return { ...matching, isChecked: e.target.checked };
+      }
+      return {
+        ...x,
+        isChecked: x.isChecked,
+      };
+    });
+    setSelectedProd(checkBoxed);
+    const find = checkBoxed.filter((x) => {
+      const searchName = !searchProduct || x.productName?.includes(searchProduct);
+      const searchGroup = !prodGroup || x.productCategoryId === prodGroup;
+      return searchName && searchGroup;
+    });
+    setSearchProd(find);
+  };
+  const handleDelete = () => {
+    const deleted = selectedProd.filter((x) => !x.isChecked);
+    setSelectedProd(deleted);
+    setSearchProd(deleted);
+  };
+  const sumbit = async () => {
+    const dataCus = data?.data[0];
+    const mapProd: any = selectedProd.map((x) => {
+      return { productId: x.productId };
+    });
+    const final: CreateProductShopEntity = {
+      company: company,
+      customerCompanyId: data?.data[0].customerCompanyId || 0,
+      customerId: dataCus?.customerId || 0,
+      customerNo: dataCus?.customerNo || "",
+      customerName: dataCus?.customerName || "",
+      zone: dataCus?.zone || "",
+      createBy: userProfile.firstname + " " + userProfile.lastname,
+      productIdList: mapProd,
+    };
+    await createProductShop(final).then((res) => {
+      if (res.success) {
+        getByCusComId();
+        setIsEdit(!isEdit);
+      }
+    });
+  };
   const detail = () => {
     return (
       <div
@@ -71,18 +172,15 @@ export const ProductShopDetail: React.FC = () => {
       >
         <Row justify={"space-between"}>
           <Col span={12}>
-            <Descriptions label='ชื่อร้านค้า' value='หจก.พืชสิน (จ.อุตรดิตถ์)' />
+            <Descriptions label='ชื่อร้านค้า' value={cusDetail?.customerName || "-"} />
           </Col>
           <Col span={12}>
-            <Descriptions label='ชื่อสมาชิก' value='คุณวรนิษฐ พิศักดิ์ศิร' />
+            <Descriptions label='รหัสร้านค้า' value={cusDetail?.customerNo || "-"} />
           </Col>
         </Row>
         <Row justify={"space-between"}>
           <Col span={12}>
-            <Descriptions label='รหัสสมาชิก' value='11009388577' />
-          </Col>
-          <Col span={12}>
-            <Descriptions label='เขต' value='A01' />
+            <Descriptions label='เขต' value={cusDetail?.zone || "-"} />
           </Col>
         </Row>
       </div>
@@ -92,61 +190,137 @@ export const ProductShopDetail: React.FC = () => {
     return (
       <CardContainer>
         <Row justify={"space-between"} gutter={8}>
-          <Col span={11}>
+          <Col span={isEdit ? 9 : 11}>
             <Text fontWeight={700}>รายการสินค้า</Text>
           </Col>
           <Col span={5}>
             <Select
               allowClear
               placeholder='Product Group : ทั้งหมด'
-              data={[]}
+              data={productGroup}
               style={{ width: "100%" }}
-              //onChange={(e) => searchApp(e)}
+              onChange={(e) => {
+                searchProGroup(e);
+                setProdGroup(e);
+              }}
             />
           </Col>
           <Col span={5}>
             <Input
               placeholder='ค้นหาสินค้า...'
               suffix={<SearchOutlined style={{ color: "grey" }} />}
-              //onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                searchText(e.target.value);
+                setSearchProduct(e.target.value);
+              }}
+              allowClear
             />
           </Col>
-          <Col span={3}>
-            {!isEdit && (
+          {!isEdit && (
+            <Col span={3}>
               <Button type='primary' style={{ height: "38px" }} onClick={() => setIsEdit(true)}>
                 <EditOutlined />
                 แก้ไขสินค้า
               </Button>
-            )}
+            </Col>
+          )}
 
-            {isEdit && (
-              <Button
-                type='primary'
-                style={{ height: "38px" }}
-                onClick={() => setShowModalProd(!showModalProd)}
-              >
-                <PlusOutlined />
-                เพิ่มสินค้า
-              </Button>
-            )}
-          </Col>
+          {isEdit && (
+            <>
+              <Col>
+                <Button
+                  type='primary'
+                  style={{ height: "38px" }}
+                  onClick={() => setShowModalProd(!showModalProd)}
+                >
+                  <PlusOutlined />
+                  เพิ่มสินค้า
+                </Button>
+              </Col>
+              <Col>
+                <Button
+                  style={{
+                    height: "39px",
+                    backgroundColor: selectedProd.filter((x) => x.isChecked).length
+                      ? color.error
+                      : color.Disable,
+                    color: color.white,
+                  }}
+                  onClick={() => handleDelete()}
+                >
+                  <DeleteOutlined style={{ color: "white" }} />
+                  {`ลบรายการ (${selectedProd.length})`}
+                </Button>
+              </Col>
+            </>
+          )}
         </Row>
         <br />
         <TableContainer>
           <Table
             scroll={{ y: 480 }}
             columns={isEdit ? columns : columns.filter((x: any) => x.dataIndex !== "index")}
-            dataSource={mockData}
+            dataSource={searchProd}
             pagination={false}
           />
         </TableContainer>
         <Divider />
         {isEdit && (
           <Row justify='space-between' gutter={12}>
-            <Col xl={3} sm={6}></Col>
+            <Col xl={3} sm={6}>
+              <Buttons
+                typeButton='danger'
+                title='ยกเลิกการแก้ไข'
+                onClick={() => {
+                  Modal.confirm({
+                    title: (
+                      <>
+                        <Text fontWeight={700} level={4}>
+                          ยืนยันการยกเลิก
+                        </Text>
+                        <br />
+                        <Text level={6}>
+                          โปรดตรวจสอบรายละเอียดสินค้าอีกครั้ง ก่อนการกดยืนยันยกเลิกการแก้ไข
+                        </Text>
+                      </>
+                    ),
+                    okText: "",
+                    cancelText: "",
+                    onOk: async () => {
+                      getByCusComId();
+                      setIsEdit(!isEdit);
+                    },
+                  });
+                }}
+              />
+            </Col>
             <Col xl={18} sm={12}></Col>
             <Col xl={3} sm={6}>
-              <Buttons typeButton='primary' title='บันทึก' />
+              <Buttons
+                typeButton='primary'
+                title='บันทึก'
+                onClick={() => {
+                  Modal.confirm({
+                    title: (
+                      <>
+                        <Text fontWeight={700} level={4}>
+                          ต้องการยืนยันการบันทึกรายการร้านค้า
+                        </Text>
+                        <br />
+                        <Text level={6}>
+                          โปรดตรวจสอบรายละเอียดสินค้าอีกครั้งก่อนกดยืนยัน
+                          เพราะอาจส่งผลต่อการแสดงผลในระบบแอปพลิเคชัน
+                        </Text>
+                      </>
+                    ),
+                    okText: "",
+                    cancelText: "",
+                    onOk: async () => {
+                      sumbit();
+                    },
+                  });
+                }}
+              />
             </Col>
           </Row>
         )}
@@ -158,38 +332,51 @@ export const ProductShopDetail: React.FC = () => {
     {
       title: isEdit && (
         <Checkbox
-          //onClick={(e) => handleAllCheckBoxDelete(e)}
-          checked={selectedProd.every((x) => x.isChecked)}
+          onClick={(e) => handleAllCheckBox(e)}
+          checked={
+            selectedProd.length > 0 || searchProd.length > 0
+              ? selectedProd.every((x) => x.isChecked) || searchProd.every((x) => x.isChecked)
+              : false
+          }
         />
       ),
       width: "5%",
       dataIndex: "index",
       render: (text: string, value: any) => (
-        <Checkbox
-          checked={value.isChecked}
-          //onClick={(e) => handleCheckBoxDelete(e, value.productId)}
-        />
+        <Checkbox checked={value.isChecked} onClick={(e) => handleCheckBox(e, value.productId)} />
       ),
     },
     {
       title: "ชื่อสินค้า",
       dataIndex: "name",
       key: "customerNo",
+      width: "50%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <Row gutter={8}>
               <Col>
-                <Avatar src={row.img} size={70} shape='square' onError={() => false} />
+                <Avatar
+                  src={row.productImage ? row.productImage : image.product_no_image}
+                  size={70}
+                  shape='square'
+                  onError={() => false}
+                />
               </Col>
               <Col>
-                <Text>{row.name}</Text>
+                <Text>{row.productName}</Text>
                 <br />
                 <Text level={6}>{row.commonName}</Text>
                 <br />
-                <Text level={6} color='Text3'>
-                  Stragery Group : {row.group}
-                </Text>
+                {company !== "ICPL" ? (
+                  <Text level={6} color='Text3'>
+                    Product Group : {row.productGroup || "-"}
+                  </Text>
+                ) : (
+                  <Text level={6} color='Text3'>
+                    Stragery Group : {row.productStrategy || "-"}
+                  </Text>
+                )}
               </Col>
             </Row>
           ),
@@ -198,8 +385,9 @@ export const ProductShopDetail: React.FC = () => {
     },
     {
       title: "",
-      dataIndex: "packing",
-      key: "packing",
+      dataIndex: "packSize",
+      key: "packSize",
+      width: isEdit ? "30%" : "35%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
@@ -209,6 +397,9 @@ export const ProductShopDetail: React.FC = () => {
           ),
         };
       },
+    },
+    {
+      title: <div>{`ทั้งหมด ${selectedProd?.length} รายการ`}</div>,
     },
   ];
 

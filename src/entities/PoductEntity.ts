@@ -42,4 +42,6 @@ export interface ProductEntity {
   productBrandName?: string;
   discountPrice?: string;
   size?: string;
+  isFreebie?: boolean;
+  isSpecialRequestFreebie?: boolean;
 }

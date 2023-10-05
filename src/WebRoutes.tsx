@@ -475,7 +475,7 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
-        path: "detail",
+        path: "detail/:id",
         element: <ProductShopDetail />,
         permission: null,
       },

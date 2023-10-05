@@ -3,14 +3,14 @@ import React, { useEffect, useState } from "react";
 import { CardContainer } from "../../components/Card/CardContainer";
 import Text from "../../components/Text/Text";
 import Input from "../../components/Input/Input";
-import { EditOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import Select from "../../components/Select/Select";
-import Button from "../../components/Button/Button";
 import { useNavigate } from "react-router-dom";
-import { dateFormatter } from "../../utility/Formatter";
 import { color } from "../../resource";
 import { getProductShop } from "../../datasource/ProductShopDatasource";
 import { ProductShopList } from "../../entities/ProductShopEntity";
+import { zoneDatasource } from "../../datasource/ZoneDatasource";
+import { getCustomers } from "../../datasource/CustomerDatasource";
 
 export const IndexProductShop: React.FC = () => {
   const navigate = useNavigate();
@@ -20,17 +20,53 @@ export const IndexProductShop: React.FC = () => {
 
   const [page, setPage] = useState<number>(1);
   const [data, setData] = useState<ProductShopList>();
+  const [zone, setZone] = useState<{ label: string; value: string; key: string }[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [searchZone, setSearchZone] = useState("");
 
+  const getZoneByCompany = async () => {
+    const res = await zoneDatasource.getAllZoneByCompany(company);
+    const data = res.map((item: any) => {
+      return {
+        label: item.zoneName,
+        value: item.zoneName,
+        key: item.zoneId,
+      };
+    });
+    setZone(data);
+  };
   const getShopList = async () => {
-    await getProductShop({ company }).then((res) => {
-      console.log("res", res);
-      setData(res.data);
+    const cusList = await getCustomers({
+      company,
+      isActive: true,
+      searchText,
+      zone: searchZone,
+    }).then(async (res) => {
+      return res.data;
+    });
+    const proShop = await getProductShop({
+      company,
+    }).then((res) => {
+      return res.data;
+    });
+    const mapCusCom = cusList.map((x: any) => {
+      const map = proShop.find((y: any) => `${y.customerCompanyId}` === `${x.customerCompanyId}`);
+      if (map) {
+        return { ...x, totalProduct: map.totalProduct };
+      } else {
+        return { ...x, totalProduct: 0 };
+      }
+    });
+    setData({
+      count: mapCusCom.length,
+      data: mapCusCom.sort((a: any, b: any) => (a.totalProduct < b.totalProduct ? 1 : -1)),
     });
   };
 
   useEffect(() => {
     getShopList();
-  }, [page]);
+    getZoneByCompany();
+  }, [page, searchText, searchZone]);
 
   const ActionBtn = ({ onClick, icon }: any) => {
     return (
@@ -56,18 +92,24 @@ export const IndexProductShop: React.FC = () => {
       </Col>
       <Col span={6}>
         <Input
+          allowClear
           placeholder='ค้นหาร้านค้า...'
           suffix={<SearchOutlined style={{ color: "grey" }} />}
-          //onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setPage(1), setSearchText(e.target.value);
+          }}
         />
       </Col>
       <Col span={5}>
         <Select
           allowClear
-          placeholder='เขต'
-          data={[]}
+          placeholder='เขต : ทั้งหมด'
+          data={zone}
           style={{ width: "100%" }}
-          //onChange={(e) => searchApp(e)}
+          onChange={(e) => {
+            setPage(1);
+            setSearchZone(e);
+          }}
         />
       </Col>
     </Row>
@@ -141,7 +183,7 @@ export const IndexProductShop: React.FC = () => {
             <Row justify={"start"} gutter={8}>
               <ActionBtn
                 onClick={() => {
-                  navigate(`/productshop/detail`);
+                  navigate(`/productshop/detail/${row.customerCompanyId}`);
                 }}
                 icon={<UnorderedListOutlined />}
               />
@@ -153,24 +195,26 @@ export const IndexProductShop: React.FC = () => {
   ];
 
   return (
-    <CardContainer>
-      {PageTitle} <br />
-      <Table
-        className='rounded-lg'
-        columns={columns}
-        //scroll={{ x: 1300 }}
-        dataSource={data?.data}
-        size='large'
-        tableLayout='fixed'
-        pagination={{
-          position: ["bottomCenter"],
-          pageSize: take,
-          current: page,
-          total: data?.count,
-          onChange: (p) => setPage(p),
-          showSizeChanger: false,
-        }}
-      />
-    </CardContainer>
+    <>
+      <CardContainer>
+        {PageTitle} <br />
+        <Table
+          className='rounded-lg'
+          columns={columns}
+          //scroll={{ x: 1300 }}
+          dataSource={data?.data}
+          size='large'
+          tableLayout='fixed'
+          pagination={{
+            position: ["bottomCenter"],
+            pageSize: take,
+            current: page,
+            total: data?.count,
+            onChange: (p) => setPage(p),
+            showSizeChanger: false,
+          }}
+        />
+      </CardContainer>
+    </>
   );
 };
