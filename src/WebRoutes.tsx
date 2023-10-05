@@ -54,6 +54,8 @@ import { PinedNews } from "./pages/NewsPage/PinedNews";
 import { PromotionNotification } from "./pages/promotionPage/promotionNotification";
 import { HighLightNews } from "./pages/NewsPage/HighLightNews";
 import { CreateHighLightNewsPage } from "./pages/NewsPage/CreateHighLightNews";
+import { IndexProductShop } from "./pages/ProductShop/IndexProductShop";
+import { ProductShopDetail } from "./pages/ProductShop/ProductShopDetail";
 
 interface IRoute {
   path: string;
@@ -458,6 +460,23 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "createhighlight",
         element: <CreateHighLightNewsPage />,
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/productshop/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "list",
+        element: <IndexProductShop />,
+        permission: null,
+      },
+      {
+        path: "detail/:id",
+        element: <ProductShopDetail />,
         permission: null,
       },
     ],

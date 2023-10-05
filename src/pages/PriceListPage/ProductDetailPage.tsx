@@ -1,6 +1,6 @@
 import React, { useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { Row, Col, Tag, Card, Button, Image } from "antd";
+import { Row, Col, Tag, Card, Button, Image, Tabs } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { EditOutlined } from "@ant-design/icons";
 import { getProductDetail } from "../../datasource/ProductDatasource";
@@ -62,6 +62,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
 
   const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState<ProductEntity>();
+  const [selectedTab, setSelectedTab] = useState<"product" | "shop">("product");
 
   useEffectOnce(() => {
     fetchProduct();
@@ -188,23 +189,6 @@ export const DistributionPageDetail: React.FC = (props: any) => {
         title='รายละเอียดสินค้า'
         showBack
         onBack={() => navigate(`/${pathSplit[1]}/${pathSplit[2]}`)}
-        extra={
-          <Permission permission={["productList", "edit"]}>
-            <Button
-              type='primary'
-              onClick={() =>
-                navigate(
-                  `/${pathSplit[1]}/${pathSplit[2]}/edit/${
-                    isFreebie ? productFreebiesId : productId
-                  }`,
-                )
-              }
-            >
-              <EditOutlined />
-              แก้ไขรายละเอียด
-            </Button>
-          </Permission>
-        }
         extraTitle={
           productStatus && (
             <Tag color={STATUS_COLOR_MAPPING[productStatus]}>{nameFormatter(productStatus)}</Tag>
@@ -222,6 +206,17 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     );
   };
 
+  const tabsItems = [
+    {
+      label: "รายละเอียดสินค้า ",
+      key: "product",
+    },
+    {
+      label: "ร้านค้าที่มีสินค้า ",
+      key: "shop",
+    },
+  ];
+
   return loading ? (
     <div className='container '>
       <Card loading />
@@ -231,60 +226,97 @@ export const DistributionPageDetail: React.FC = (props: any) => {
       <div className='container '>
         <CardContainer>
           <PageTitle />
-          <Container>
-            <Image
-              src={(isFreebie ? productFreebiesImage : productImage) || image.product_no_image}
-              style={{
-                width: "136px",
-                height: "136px",
-                objectFit: "contain",
-              }}
-            />
-          </Container>
-          <Container>
-            {dataGroup1
-              .filter((e) => !isFreebie || !e.freebieHide)
-              .map((p: DescProps, i) => (
-                <ProdDesc {...p} key={i} />
-              ))}
-          </Container>
-          {!isFreebie && (
+          <br />
+          <Tabs
+            items={tabsItems}
+            onChange={(key: string) => {
+              setSelectedTab((key as "product" | "shop") || "product");
+            }}
+            defaultValue={selectedTab}
+          />
+          {selectedTab === "product" ? (
             <>
               <Container>
-                <Text color='primary' fontWeight={700}>
-                  UNIT SIZE
-                </Text>
-                {dataGroup2.map((p: DescProps, i) => (
-                  <ProdDesc {...p} key={i} />
-                ))}
+                <Row gutter={8} justify={"space-between"}>
+                  <Col>
+                    <Image
+                      src={
+                        (isFreebie ? productFreebiesImage : productImage) || image.product_no_image
+                      }
+                      style={{
+                        width: "136px",
+                        height: "136px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  </Col>
+                  <Col>
+                    <Permission permission={["productList", "edit"]}>
+                      <Button
+                        type='primary'
+                        onClick={() =>
+                          navigate(
+                            `/${pathSplit[1]}/${pathSplit[2]}/edit/${
+                              isFreebie ? productFreebiesId : productId
+                            }`,
+                          )
+                        }
+                      >
+                        <EditOutlined />
+                        แก้ไขรายละเอียด
+                      </Button>
+                    </Permission>
+                  </Col>
+                </Row>
               </Container>
               <Container>
-                <Text color='primary' fontWeight={700}>
-                  PACKAGE SIZE
-                </Text>
-                {dataGroup3.map((p: DescProps, i) => (
-                  <ProdDesc {...p} key={i} />
-                ))}
+                {dataGroup1
+                  .filter((e) => !isFreebie || !e.freebieHide)
+                  .map((p: DescProps, i) => (
+                    <ProdDesc {...p} key={i} />
+                  ))}
+              </Container>
+              {!isFreebie && (
+                <>
+                  <Container>
+                    <Text color='primary' fontWeight={700}>
+                      UNIT SIZE
+                    </Text>
+                    {dataGroup2.map((p: DescProps, i) => (
+                      <ProdDesc {...p} key={i} />
+                    ))}
+                  </Container>
+                  <Container>
+                    <Text color='primary' fontWeight={700}>
+                      PACKAGE SIZE
+                    </Text>
+                    {dataGroup3.map((p: DescProps, i) => (
+                      <ProdDesc {...p} key={i} />
+                    ))}
+                  </Container>
+                </>
+              )}
+              <Container>
+                <Row align='middle' style={{ padding: "8px 0px" }}>
+                  <Col xl={6} sm={8}>
+                    <Text level={5} color='Text3'>
+                      คุณสมบัติและประโยชน์
+                    </Text>
+                  </Col>
+                  <Col xl={18} sm={16}>
+                    <TextArea
+                      rows={description?.length ? 5 : 0}
+                      value={description || "-"}
+                      bordered={false}
+                      style={{ fontFamily: "Sarabun", fontSize: "16px", padding: 0 }}
+                    />
+                  </Col>
+                </Row>
               </Container>
             </>
+          ) : (
+            <></>
           )}
-          <Container>
-            <Row align='middle' style={{ padding: "8px 0px" }}>
-              <Col xl={6} sm={8}>
-                <Text level={5} color='Text3'>
-                  คุณสมบัติและประโยชน์
-                </Text>
-              </Col>
-              <Col xl={18} sm={16}>
-                <TextArea
-                  rows={description?.length ? 5 : 0}
-                  value={description || "-"}
-                  bordered={false}
-                  style={{ fontFamily: "Sarabun", fontSize: "16px", padding: 0 }}
-                />
-              </Col>
-            </Row>
-          </Container>
         </CardContainer>
       </div>
     </>

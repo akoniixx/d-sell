@@ -205,3 +205,12 @@ export interface PayloadApproveCustomerEntity {
   company: string;
   zone?: string;
 }
+
+export interface CusComEntity {
+  company: string;
+  customerCompanyId: string;
+  customerId: string;
+  customerName: string;
+  customerNo: string;
+  zone: string;
+}

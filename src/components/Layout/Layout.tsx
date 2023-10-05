@@ -103,6 +103,13 @@ export const pathLists = [
     ],
   },
   {
+    path: "/Productshop/list",
+    name: "productshop",
+    title: "สินค้าขายเฉพาะร้าน",
+    permission: ["productshop"],
+    subMenu: [],
+  },
+  {
     path: "/PriceListPage/DistributionPage",
     name: "priceList",
     title: "รายการสินค้า",

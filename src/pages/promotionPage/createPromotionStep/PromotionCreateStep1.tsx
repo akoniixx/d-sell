@@ -19,7 +19,13 @@ import { FlexCol } from "../../../components/Container/Container";
 import Text from "../../../components/Text/Text";
 import styled from "styled-components";
 import color from "../../../resource/color";
-import { BellOutlined, DeleteOutlined, EyeOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  BellOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  EyeOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import Input from "../../../components/Input/Input";
 import Select from "../../../components/Select/Select";
 import DatePicker, { TimePicker } from "../../../components/DatePicker/DatePicker";
@@ -679,7 +685,7 @@ export const PromotionCreateStep1 = ({
             <Form.Item name='referencePromotion'>
               <AntdSelect
                 mode='multiple'
-                placeholder='เลือกโปรโมชันอ้างอิงโปรโมชั่นที่เกี่ยวข้อง'
+                placeholder='เลือกโปรโมชันอ้างอิงโปรโมชันที่เกี่ยวข้อง'
                 onChange={() => {
                   console.log();
                 }}
@@ -732,7 +738,7 @@ export const PromotionCreateStep1 = ({
               <Row>
                 <FlexCol style={{ marginRight: 16 }}>
                   <Row>
-                    <span style={{ color: color.error }}>*</span>รูปภาพประกอบโปรโมชั่น
+                    <span style={{ color: color.error }}>*</span>รูปภาพประกอบโปรโมชัน
                   </Row>
                   <Form.Item noStyle name='horizontalImage' valuePropName='file'>
                     {isShowPromotion ? (
@@ -848,23 +854,23 @@ export const PromotionCreateStep1 = ({
               <Col>
                 <Form.Item
                   name='promotionSubject'
-                  label='ชื่อเรื่องโปรโมชั่น'
+                  label='ชื่อเรื่องโปรโมชัน'
                   rules={[
                     {
                       required: isShowPromotion,
-                      message: "*โปรดระบุชื่อเรื่องโปรโมชั่น",
+                      message: "*โปรดระบุชื่อเรื่องโปรโมชัน",
                     },
                   ]}
                 >
                   <Input
-                    placeholder='ระบุชื่อเรื่องโปรโมชั่น'
+                    placeholder='ระบุชื่อเรื่องโปรโมชัน'
                     disabled={!isShowPromotion}
                     autoComplete='off'
                   />
                 </Form.Item>
               </Col>
               <Col>
-                <Form.Item name='promotionDetail' label='รายละเอียดโปรโมชั่น'>
+                <Form.Item name='promotionDetail' label='รายละเอียดโปรโมชัน'>
                   <TextArea
                     placeholder='ระบุรายละเอียด'
                     disabled={!isShowPromotion}
@@ -933,7 +939,17 @@ export const PromotionCreateStep1 = ({
                 </Form.Item>
               </Col>
               <Row gutter={8}>
-                <label>แจ้งแตือน ก่อนเริ่มโปรโมชั่น</label>
+                <label>
+                  แจ้งแตือน ก่อนเริ่มโปรโมชัน{" "}
+                  <span>
+                    <Tooltip
+                      placement='top'
+                      title='หมายเหตุ: ถ้าไม่มีการระบุวันที่แจ้งเตือนก่อนเริ่มโปรโมชันจะไม่มีแสดงผลแจ้งเตือนไปที่แอปพลิเคชัน'
+                    >
+                      <ExclamationCircleOutlined />
+                    </Tooltip>
+                  </span>
+                </label>
                 <Col span={12}>
                   <Form.Item name='firstDateNoti'>
                     <DatePicker
@@ -962,7 +978,7 @@ export const PromotionCreateStep1 = ({
                       style={{ width: "100%" }}
                       enablePast
                       disabled
-                      placeholder='วันที่เริ่มโปรโมชั่น'
+                      placeholder='วันที่เริ่มโปรโมชัน'
                     />
                   </Form.Item>
                 </Col>
@@ -1040,7 +1056,7 @@ export const PromotionCreateStep1 = ({
                     <>
                       {" "}
                       <Col span={24}>
-                        <Text level={6}>รายละเอียดโปรโมชั่น</Text>
+                        <Text level={6}>รายละเอียดโปรโมชัน</Text>
                       </Col>
                       <Col span={24}>
                         <Text level={6}>{form.getFieldValue("promotionDetail")}</Text>
