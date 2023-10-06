@@ -1,6 +1,10 @@
 ## [Version - 0]
 
-## Features [v0.8.1] - Release Date: 2023-10-05
+## Features [v0.8.1] - Release Date: 2023-10-06
+
+- fix special request permission
+
+## Features [v0.8.1] - Release Date: 2023-10-06
 
 - fix permission
 

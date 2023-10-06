@@ -913,7 +913,9 @@ export const OrderDetail: React.FC = () => {
         </Row>
         {!isViewMode && (
           <Permission
-            permission={isSpecialRequestMode ? ["specialRequest", "edit"] : ["manageOrder", "edit"]}
+            permission={
+              isSpecialRequestMode ? ["specialRequest", "approve"] : ["manageOrder", "edit"]
+            }
           >
             <div>{getOption()}</div>
           </Permission>
