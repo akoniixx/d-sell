@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Features [v0.9.0] - Release Date: 2023-10-06
+
+- enhanced product shop (view product)
+- removed locaton from selecte shop componemt
+
 ## Features [v0.8.1] - Release Date: 2023-10-06
 
 - fix special request permission
