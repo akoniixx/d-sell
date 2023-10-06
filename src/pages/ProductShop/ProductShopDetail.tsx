@@ -180,7 +180,7 @@ export const ProductShopDetail: React.FC = () => {
     return (
       <CardContainer>
         <Row justify={"space-between"} gutter={8}>
-          <Col span={isEdit ? 9 : 11}>
+          <Col span={isEdit ? 8 : 11}>
             <Text fontWeight={700}>รายการสินค้า</Text>
           </Col>
           <Col span={5}>
