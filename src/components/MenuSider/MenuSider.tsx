@@ -216,7 +216,7 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
     if (isArray(el.permission) && el.permission.length > 0) {
       permissionList.push(el.menuName);
     }
-    if (!isArray(el.permission) && Object.keys(el.permission).length > 0) {
+    if (!isArray(el.permission) && el.permission && Object.keys(el.permission)?.length > 0) {
       permissionList.push(el.menuName);
       Object.keys(el.permission).forEach((key) => {
         if (el.permission[key].length > 0) {
