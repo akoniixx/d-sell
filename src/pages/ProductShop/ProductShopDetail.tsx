@@ -31,7 +31,6 @@ export const ProductShopDetail: React.FC = () => {
   const { pathname } = window.location;
   const cusComId = pathname.split("/")[3];
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [data, setData] = useState<DetailProductShopEntity>();
   const [cusDetail, setCusDetail] = useState<CusComEntity>();
   const [showModalProd, setShowModalProd] = useState<boolean>(false);
   const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
@@ -49,7 +48,6 @@ export const ProductShopDetail: React.FC = () => {
     });
     setCusDetail(cus);
     await getProductShopByCusComId({ customerCompanyId: cusComId }).then((res) => {
-      setData(res);
       const mapProduct = res.data.map((x: any) => {
         return { ...x.product, isChecked: false };
       });
@@ -135,18 +133,17 @@ export const ProductShopDetail: React.FC = () => {
     setSelectedProd(deleted);
     setSearchProd(deleted);
   };
-  const sumbit = async () => {
-    const dataCus = data?.data[0];
+  const submit = async () => {
     const mapProd: any = selectedProd.map((x) => {
       return { productId: x.productId };
     });
     const final: CreateProductShopEntity = {
       company: company,
-      customerCompanyId: data?.data[0].customerCompanyId || 0,
-      customerId: dataCus?.customerId || 0,
-      customerNo: dataCus?.customerNo || "",
-      customerName: dataCus?.customerName || "",
-      zone: dataCus?.zone || "",
+      customerCompanyId: Number(cusDetail?.customerCompanyId) || 0,
+      customerId: Number(cusDetail?.customerId) || 0,
+      customerNo: cusDetail?.customerNo || "",
+      customerName: cusDetail?.customerName || "",
+      zone: cusDetail?.zone || "",
       createBy: userProfile.firstname + " " + userProfile.lastname,
       productIdList: mapProd,
     };
@@ -316,7 +313,7 @@ export const ProductShopDetail: React.FC = () => {
                     okText: "",
                     cancelText: "",
                     onOk: async () => {
-                      sumbit();
+                      submit();
                     },
                   });
                 }}

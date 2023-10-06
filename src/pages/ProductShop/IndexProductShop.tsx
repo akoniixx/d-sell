@@ -46,6 +46,7 @@ export const IndexProductShop: React.FC = () => {
     });
     const proShop = await getProductShop({
       company,
+      isPage: false,
     }).then((res) => {
       return res.data;
     });
@@ -96,7 +97,8 @@ export const IndexProductShop: React.FC = () => {
           placeholder='ค้นหาร้านค้า...'
           suffix={<SearchOutlined style={{ color: "grey" }} />}
           onChange={(e) => {
-            setPage(1), setSearchText(e.target.value);
+            setPage(1);
+            setSearchText(e.target.value);
           }}
         />
       </Col>
