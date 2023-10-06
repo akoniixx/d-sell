@@ -27,7 +27,7 @@ import { StoreEntity } from "../../entities/StoreEntity";
 import TableContainer from "../../components/Table/TableContainer";
 import { color } from "../../resource";
 import Buttons from "../../components/Button/Button";
-import { getProductShop } from "../../datasource/ProductShopDatasource";
+import { createShopProduct, getProductShop } from "../../datasource/ProductShopDatasource";
 import { CreateShopProductEntity } from "../../entities/ProductShopEntity";
 
 const Container = styled.div`
@@ -85,7 +85,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
 
   useEffect(() => {
     getShopProduct();
-  }, [zone, searchText]);
+  }, []);
 
   useEffectOnce(() => {
     fetchProduct();
@@ -125,9 +125,11 @@ export const DistributionPageDetail: React.FC = (props: any) => {
       isPage: false,
       productId: id,
     }).then((res) => {
-      console.log(res);
-      setSelectedShop(res.data);
-      setSearchShop(res.data);
+      const mapProduct = res.data.map((x: any) => {
+        return { ...x, isChecked: false };
+      });
+      setSelectedShop(mapProduct);
+      setSearchShop(mapProduct);
     });
   };
 
@@ -252,26 +254,90 @@ export const DistributionPageDetail: React.FC = (props: any) => {
       key: "shop",
     },
   ];
+  const callBackShop = (item: StoreEntity[]) => {
+    item = item.map((p: any) => ({ ...p, isChecked: false }));
+    setSelectedShop([...selectedShop, ...item]);
+    setSearchShop([...selectedShop, ...item]);
+    setShowModalShop(!showModalShop);
+  };
+  const handleAllCheckBox = (e: any) => {
+    const d = searchShop.map((p: any) => ({ ...p, isChecked: e.target.checked }));
+    const checkBoxed = selectedShop.map((x: any) => {
+      const matching = d.find((i) => `${i.customerId}` === `${x.customerId}`);
+      if (matching) {
+        return { ...matching, isChecked: e.target.checked };
+      }
+      return {
+        ...x,
+        isChecked: x.isChecked,
+      };
+    });
+    setSelectedShop(checkBoxed);
+    const find = checkBoxed.filter((x) => {
+      const searchName = !searchText || x.customerName?.includes(searchText);
+      const zone = !searchZone || x.zone === searchZone;
+      return searchName && zone;
+    });
+    setSearchShop(find);
+  };
+  const handleCheckBox = (e: any, cusId: number) => {
+    const checkBoxed = selectedShop.map((item) => ({
+      ...item,
+      isChecked: `${item.customerId}` === `${cusId}` ? e.target.checked : item.isChecked,
+    }));
+    setSelectedShop(checkBoxed);
+    const find = checkBoxed.filter((x) => {
+      const searchName = !searchText || x.customerName?.includes(searchText);
+      const zone = !searchZone || x.zone === searchZone;
+      return searchName && zone;
+    });
+    setSearchShop(find);
+  };
+  const handleSearchText = (e: any) => {
+    const valueUpperCase: string = e.toUpperCase();
+    const find = selectedShop.filter((x) => {
+      const searchName = !e || x.customerName?.includes(valueUpperCase);
+      const zone = !searchZone || x.zone === searchZone;
+      return searchName && zone;
+    });
+    setSearchShop(find);
+  };
+  const handleSearchZone = (e: any) => {
+    const find = selectedShop.filter((x) => {
+      const searchName = !searchText || x.customerName?.includes(searchText);
+      const zone = !e || x.zone === e;
+      return searchName && zone;
+    });
+    setSearchShop(find);
+  };
+  const handleDelete = () => {
+    const deleted = selectedShop.filter((x) => !x.isChecked);
+    setSearchShop(deleted);
+    setSelectedShop(deleted);
+  };
+
   const columns: any = [
     {
       title: isEdit && (
         <Checkbox
-          //onClick={(e) => handleAllCheckBox(e)}
+          onClick={(e) => handleAllCheckBox(e)}
           checked={
             selectedShop.length > 0 || searchShop.length > 0
-              ? selectedShop.every((x) => x.isChecked) || selectedShop.every((x) => x.isChecked)
+              ? selectedShop.every((x) => x.isChecked) || searchShop.every((x) => x.isChecked)
               : false
           }
         />
       ),
       width: "5%",
       dataIndex: "index",
-      render: (text: string, value: any) => (
-        <Checkbox
-          checked={value.isChecked}
-          //onClick={(e) => handleCheckBox(e, value.productId)}
-        />
-      ),
+      render: (text: string, value: any) => {
+        return (
+          <Checkbox
+            checked={value.isChecked}
+            onClick={(e) => handleCheckBox(e, value.customerId)}
+          />
+        );
+      },
     },
     {
       title: "Customer No.",
@@ -316,32 +382,27 @@ export const DistributionPageDetail: React.FC = (props: any) => {
       },
     },
   ];
-  const callBackShop = (item: StoreEntity[]) => {
-    item = item.map((p: any) => ({ ...p, isChecked: false }));
-    setSelectedShop([...selectedShop, ...item]);
-    setSearchShop([...selectedShop, ...item]);
-    setShowModalShop(!showModalShop);
-  };
-
-  const submit = () => {
-    console.log("s", selectedShop);
+  const submit = async () => {
     const mapCus: any = selectedShop.map((x) => {
       return {
-        customerCompanyId: x.customerCompanyId,
-        customerId: x.customerId,
+        customerCompanyId: Number(x.customerCompanyId),
+        customerId: Number(x.customerId),
         customerNo: x.customerNo,
         customerName: x.customerName,
         zone: x.zone,
       };
     });
-    console.log("map"), mapCus;
     const final: CreateShopProductEntity = {
       company: company,
       productId: id,
       createBy: userProfile.firstname + " " + userProfile.lastname,
       customer: mapCus,
     };
-    console.log(final);
+    await createShopProduct(final).then((res) => {
+      if (res.success) {
+        setIsEdit(!isEdit);
+      }
+    });
   };
 
   return loading ? (
@@ -456,7 +517,10 @@ export const DistributionPageDetail: React.FC = (props: any) => {
                     placeholder='เขต : ทั้งหมด'
                     data={zone}
                     style={{ width: "100%" }}
-                    onChange={(e) => setSearchZone(e)}
+                    onChange={(e) => {
+                      setSearchZone(e);
+                      handleSearchZone(e);
+                    }}
                   />
                 </Col>
                 <Col span={5}>
@@ -464,7 +528,10 @@ export const DistributionPageDetail: React.FC = (props: any) => {
                     allowClear
                     placeholder='ค้นหาร้านค้า...'
                     suffix={<SearchOutlined style={{ color: "grey" }} />}
-                    onChange={(e) => setSearchText(e.target.value)}
+                    onChange={(e) => {
+                      setSearchText(e.target.value);
+                      handleSearchText(e.target.value);
+                    }}
                   />
                 </Col>
                 {!isEdit && (
@@ -500,10 +567,10 @@ export const DistributionPageDetail: React.FC = (props: any) => {
                             : color.Disable,
                           color: color.white,
                         }}
-                        //onClick={() => handleDelete()}
+                        onClick={() => handleDelete()}
                       >
                         <DeleteOutlined style={{ color: "white" }} />
-                        {`ลบรายการ (${selectedShop.length})`}
+                        {`ลบรายการ (${selectedShop.filter((x) => x.isChecked).length})`}
                       </Button>
                     </Col>
                   </>
@@ -514,7 +581,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
                 <Table
                   scroll={{ y: 480 }}
                   columns={isEdit ? columns : columns.filter((x: any) => x.dataIndex !== "index")}
-                  dataSource={selectedShop}
+                  dataSource={searchShop}
                   pagination={false}
                 />
               </TableContainer>
@@ -564,7 +631,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
                           </Text>
                           <br />
                           <Text level={6}>
-                            โปรดตรวจสอบรายละเอียดสินค้าอีกครั้งก่อนกดยืนยัน
+                            โปรดตรวจสอบรายละเอียดร้านค้าอีกครั้งก่อนกดยืนยัน
                             เพราะอาจส่งผลต่อการแสดงผลในระบบแอปพลิเคชัน
                           </Text>
                         </>

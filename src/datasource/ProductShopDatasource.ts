@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { BASE_URL, httpClient } from "../config/develop-config";
-import { CreateProductShopEntity } from "../entities/ProductShopEntity";
+import { CreateProductShopEntity, CreateShopProductEntity } from "../entities/ProductShopEntity";
 
 const baseUrl = `${BASE_URL}/master`;
 
@@ -22,5 +22,11 @@ const createProductShop = async (params: CreateProductShopEntity) => {
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
+const createShopProduct = async (params: CreateShopProductEntity) => {
+  return await httpClient
+    .post(`${baseUrl}/product-shop/customer`, params)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
 
-export { getProductShop, getProductShopByCusComId, createProductShop };
+export { getProductShop, getProductShopByCusComId, createProductShop, createShopProduct };

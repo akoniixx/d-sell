@@ -20,7 +20,7 @@ import {
   getProductShopByCusComId,
 } from "../../datasource/ProductShopDatasource";
 import { CreateProductShopEntity, DetailProductShopEntity } from "../../entities/ProductShopEntity";
-import { getProductCategory } from "../../datasource/ProductDatasource";
+import { getProductCategory, getProductGroup } from "../../datasource/ProductDatasource";
 import { getCustomers } from "../../datasource/CustomerDatasource";
 import { CusComEntity } from "../../entities/CustomerEntity";
 
@@ -56,15 +56,8 @@ export const ProductShopDetail: React.FC = () => {
     });
   };
   const fetchCatetory = async () => {
-    await getProductCategory(company).then((res) => {
-      const data = res.map((item: any) => {
-        return {
-          label: item.productCategoryName,
-          value: item.productCategoryId,
-          key: item.productCategoryId,
-        };
-      });
-      setProductGroup(data);
+    await getProductGroup(company).then((res) => {
+      setProductGroup(res.responseData);
     });
   };
 
@@ -85,7 +78,7 @@ export const ProductShopDetail: React.FC = () => {
   const searchProGroup = (e: any) => {
     const find = selectedProd.filter((x) => {
       const searchName = !searchProduct || x.productName?.includes(searchProduct);
-      const searchGroup = !e || x.productCategoryId === e;
+      const searchGroup = !e || x.productGroup === e;
       return searchName && searchGroup;
     });
     setSearchProd(find);
@@ -194,7 +187,18 @@ export const ProductShopDetail: React.FC = () => {
             <Select
               allowClear
               placeholder='Product Group : ทั้งหมด'
-              data={productGroup}
+              data={[
+                {
+                  key: "",
+                  value: "",
+                  label: "ทั้งหมด",
+                },
+                ...productGroup.map((p: any) => ({
+                  key: p.product_group,
+                  value: p.product_group,
+                  label: p.product_group,
+                })),
+              ]}
               style={{ width: "100%" }}
               onChange={(e) => {
                 searchProGroup(e);
@@ -246,7 +250,7 @@ export const ProductShopDetail: React.FC = () => {
                   onClick={() => handleDelete()}
                 >
                   <DeleteOutlined style={{ color: "white" }} />
-                  {`ลบรายการ (${selectedProd.length})`}
+                  {`ลบรายการ (${selectedProd.filter((x) => x.isChecked).length})`}
                 </Button>
               </Col>
             </>
