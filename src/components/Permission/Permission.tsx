@@ -17,7 +17,7 @@ const getPermissionList = (roleData: RoleType | null) => {
       permissionList.push(el.menuName);
       permissionMap[el.menuName] = el.permission;
     }
-    if (!isArray(el.permission) && Object.keys(el.permission).length > 0) {
+    if (el?.permission && !isArray(el.permission) && Object.keys(el.permission).length > 0) {
       permissionList.push(el.menuName);
       Object.keys(el.permission).forEach((key) => {
         if (el.permission[key].length > 0) {
