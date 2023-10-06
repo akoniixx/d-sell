@@ -137,6 +137,7 @@ export const OrderDetail: React.FC = () => {
     const id = pathSplit[2];
     await getOrderDetail(id)
       .then((res: OrderEntity) => {
+        console.log(res);
         setOrderData(res);
       })
       .catch((e: any) => {
@@ -469,9 +470,14 @@ export const OrderDetail: React.FC = () => {
         return {
           children: (
             <>
-              {!price && (
+              {product.isFreebie && !product.isSpecialRequestFreebie && (
                 <div style={{ position: "relative", bottom: 26, right: -10 }}>
-                  <Badge.Ribbon text='ของแถม' placement='end'></Badge.Ribbon>
+                  <Badge.Ribbon text='ของแถม' placement='end' />
+                </div>
+              )}
+              {product.isFreebie && product.isSpecialRequestFreebie && (
+                <div style={{ position: "relative", bottom: 26, right: -10 }}>
+                  <Badge.Ribbon text='ของแถม' placement='end' color={color.error} />
                 </div>
               )}
               <FlexCol>

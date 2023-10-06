@@ -103,6 +103,13 @@ export const pathLists = [
     ],
   },
   {
+    path: "/Productshop/list",
+    name: "productshop",
+    title: "สินค้าขายเฉพาะร้าน",
+    permission: ["productshop"],
+    subMenu: [],
+  },
+  {
     path: "/PriceListPage/DistributionPage",
     name: "priceList",
     title: "รายการสินค้า",
@@ -126,6 +133,32 @@ export const pathLists = [
         name: "approveTel",
         title: "อนุมัติเบอร์โทรศัพท์",
         permission: "approvePhone",
+      },
+    ],
+  },
+  {
+    path: "/news",
+    name: "news",
+    title: "ข่าวสาร",
+    permission: ["news"],
+    subMenu: [
+      {
+        path: "/list",
+        name: "newsList",
+        title: "รายการข่าวสาร",
+        permission: "newsList",
+      },
+      {
+        path: "/pin",
+        name: "pinedNews",
+        title: "ปักหมุดข่าวสาร",
+        permission: "pinedNews",
+      },
+      {
+        path: "/highlight",
+        name: "highlightNews",
+        title: "ข่าวสารไฮไลท์",
+        permission: "highlightNews",
       },
     ],
   },

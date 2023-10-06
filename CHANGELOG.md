@@ -1,5 +1,25 @@
 ## [Version - 0]
 
+## Features [v0.8.0] - Release Date: 2023-10-05
+
+- Feature : Product Shop (view Shop)
+
+## Features [v0.7.3] - Release Date: 2023-10-02
+
+- update UI news setting & pin news
+
+## Features [v0.7.2] - Release Date: 2023-10-02
+
+- added highlight news menu
+
+## Features [v0.7.1] - Release Date: 2023-10-02
+
+- Feature: News
+
+## Features [v0.7.0] - Release Date: 2023-10-02
+
+- added promotion notication menu
+
 ## Resolved [v0.6.31] - Release Date: 2023-10-02
 
 - fix promotion file download

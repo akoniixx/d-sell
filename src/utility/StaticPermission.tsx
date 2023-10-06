@@ -348,6 +348,59 @@ export const staticRolesObject: StaticRoles = {
       },
     ],
   },
+  news: {
+    isNested: true,
+    groupName: "ข่าวสาร",
+    groupKey: "NEWS",
+    list: [
+      {
+        label: "รายการข่าวสาร",
+        groupNameNested: "newsList",
+        listNested: [
+          {
+            label: "สร้างรายการข่าวสาร",
+            value: "create",
+          },
+          {
+            label: "แก้ไขรายการข่าวสาร",
+            value: "edit",
+          },
+          {
+            label: "ลบรายการข่าวสาร",
+            value: "delete",
+          },
+        ],
+      },
+      {
+        label: "ปักหมุดข่าวสาร",
+        groupNameNested: "pinedNews",
+        listNested: [
+          {
+            label: "แก้ไขปักหมุดข่าวสาร",
+            value: "edit",
+          },
+        ],
+      },
+      {
+        groupNameNested: "highlightNews",
+        label: "ข่าวสารไฮไลท์",
+        listNested: [
+          {
+            label: "สร้างข่าวสารไฮไลท์",
+            value: "create",
+          },
+          {
+            label: "แก้ไขข่าวสารไฮไลท์",
+            value: "edit",
+          },
+          {
+            label: "ลบข่าวสารไฮไลท์",
+            value: "delete",
+          },
+        ],
+      },
+    ],
+  },
 };
 export const staticManageRoles: StaticRoles = {
   // Manage
@@ -476,6 +529,14 @@ export const mockRoles = [
       discountList: ["create", "view", "edit", "delete", "approve"],
       manageConditionStore: ["create", "view", "edit", "delete", "approve"],
       manageCondition: ["create", "view", "edit"],
+    },
+  },
+  {
+    menuName: "news",
+    menu: {
+      newsList: ["create", "edit", "delete"],
+      pinedNews: ["edit"],
+      highlightNews: ["create", "edit", "delete"],
     },
   },
   {

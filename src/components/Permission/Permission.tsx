@@ -32,7 +32,7 @@ const getPermissionList = (roleData: RoleType | null) => {
 
 export const checkPermission = (permission: string[], roleData: RoleType | null) => {
   const { permissionList, permissionMap } = getPermissionList(roleData);
-  console.log("permissionList", permissionList, permissionMap);
+  // console.log("permissionList", permissionList, permissionMap);
 
   if (permission.length <= 0) return true;
 
