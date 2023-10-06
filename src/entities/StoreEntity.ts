@@ -7,6 +7,7 @@ export interface StoreEntity {
   isChecked?: boolean;
   usedAmount: string;
   balance: string;
+  customerId?: number;
 }
 
 export interface ZoneEntity {

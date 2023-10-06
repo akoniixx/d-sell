@@ -35,6 +35,7 @@ export const ModalSelectedProduct = ({
   callBackProduct: (item: ProductEntity[]) => void;
   prodSelected: ProductEntity[];
 }) => {
+  console.log("p", productGroup);
   const [prodList, setProdList] = useState<ProductEntity[]>([]);
   const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
   const [prodGroup, setProdGroup] = useState("");
@@ -378,7 +379,6 @@ export const ModalSelectedProduct = ({
                 />
               </Form.Item>
             </Col>
-
             {company === "ICPL" && (
               <Col span={4}>
                 <Form.Item label='Strategy Group' name='strategyGroup'>
@@ -427,7 +427,7 @@ export const ModalSelectedProduct = ({
                 </Form.Item>
               </Col>
             )}
-            {company === "ICPI" && (
+            {/* {company === "ICPI" && (
               <Col span={4}>
                 <Form.Item label='Location' name='brand'>
                   <Select
@@ -450,7 +450,7 @@ export const ModalSelectedProduct = ({
                   />
                 </Form.Item>
               </Col>
-            )}
+            )} */}
             <Col span={3} style={{ paddingTop: "22px" }}>
               <Button title='ล้างการค้นหา' typeButton='primary-light' onClick={handleClearSearch} />
             </Col>

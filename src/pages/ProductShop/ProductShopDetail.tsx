@@ -20,7 +20,7 @@ import {
   getProductShopByCusComId,
 } from "../../datasource/ProductShopDatasource";
 import { CreateProductShopEntity, DetailProductShopEntity } from "../../entities/ProductShopEntity";
-import { getProductCategory } from "../../datasource/ProductDatasource";
+import { getProductCategory, getProductGroup } from "../../datasource/ProductDatasource";
 import { getCustomers } from "../../datasource/CustomerDatasource";
 import { CusComEntity } from "../../entities/CustomerEntity";
 
@@ -31,7 +31,6 @@ export const ProductShopDetail: React.FC = () => {
   const { pathname } = window.location;
   const cusComId = pathname.split("/")[3];
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [data, setData] = useState<DetailProductShopEntity>();
   const [cusDetail, setCusDetail] = useState<CusComEntity>();
   const [showModalProd, setShowModalProd] = useState<boolean>(false);
   const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
@@ -49,7 +48,6 @@ export const ProductShopDetail: React.FC = () => {
     });
     setCusDetail(cus);
     await getProductShopByCusComId({ customerCompanyId: cusComId }).then((res) => {
-      setData(res);
       const mapProduct = res.data.map((x: any) => {
         return { ...x.product, isChecked: false };
       });
@@ -58,15 +56,8 @@ export const ProductShopDetail: React.FC = () => {
     });
   };
   const fetchCatetory = async () => {
-    await getProductCategory(company).then((res) => {
-      const data = res.map((item: any) => {
-        return {
-          label: item.productCategoryName,
-          value: item.productCategoryId,
-          key: item.productCategoryId,
-        };
-      });
-      setProductGroup(data);
+    await getProductGroup(company).then((res) => {
+      setProductGroup(res.responseData);
     });
   };
 
@@ -87,7 +78,7 @@ export const ProductShopDetail: React.FC = () => {
   const searchProGroup = (e: any) => {
     const find = selectedProd.filter((x) => {
       const searchName = !searchProduct || x.productName?.includes(searchProduct);
-      const searchGroup = !e || x.productCategoryId === e;
+      const searchGroup = !e || x.productGroup === e;
       return searchName && searchGroup;
     });
     setSearchProd(find);
@@ -135,18 +126,17 @@ export const ProductShopDetail: React.FC = () => {
     setSelectedProd(deleted);
     setSearchProd(deleted);
   };
-  const sumbit = async () => {
-    const dataCus = data?.data[0];
+  const submit = async () => {
     const mapProd: any = selectedProd.map((x) => {
       return { productId: x.productId };
     });
     const final: CreateProductShopEntity = {
       company: company,
-      customerCompanyId: data?.data[0].customerCompanyId || 0,
-      customerId: dataCus?.customerId || 0,
-      customerNo: dataCus?.customerNo || "",
-      customerName: dataCus?.customerName || "",
-      zone: dataCus?.zone || "",
+      customerCompanyId: Number(cusDetail?.customerCompanyId) || 0,
+      customerId: Number(cusDetail?.customerId) || 0,
+      customerNo: cusDetail?.customerNo || "",
+      customerName: cusDetail?.customerName || "",
+      zone: cusDetail?.zone || "",
       createBy: userProfile.firstname + " " + userProfile.lastname,
       productIdList: mapProd,
     };
@@ -197,7 +187,18 @@ export const ProductShopDetail: React.FC = () => {
             <Select
               allowClear
               placeholder='Product Group : ทั้งหมด'
-              data={productGroup}
+              data={[
+                {
+                  key: "",
+                  value: "",
+                  label: "ทั้งหมด",
+                },
+                ...productGroup.map((p: any) => ({
+                  key: p.product_group,
+                  value: p.product_group,
+                  label: p.product_group,
+                })),
+              ]}
               style={{ width: "100%" }}
               onChange={(e) => {
                 searchProGroup(e);
@@ -249,7 +250,7 @@ export const ProductShopDetail: React.FC = () => {
                   onClick={() => handleDelete()}
                 >
                   <DeleteOutlined style={{ color: "white" }} />
-                  {`ลบรายการ (${selectedProd.length})`}
+                  {`ลบรายการ (${selectedProd.filter((x) => x.isChecked).length})`}
                 </Button>
               </Col>
             </>
@@ -316,7 +317,7 @@ export const ProductShopDetail: React.FC = () => {
                     okText: "",
                     cancelText: "",
                     onOk: async () => {
-                      sumbit();
+                      submit();
                     },
                   });
                 }}
