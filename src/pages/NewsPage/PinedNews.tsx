@@ -173,6 +173,54 @@ const TableRow = ({ children, ...props }: any) => {
 
 const TemplateArray = Array.from({ length: 5 }, (v, i) => i + 1);
 
+const NameInput = ({
+  defaultValue,
+  dataSource,
+  setDataSource,
+  index,
+  allOptions,
+}: {
+  defaultValue: string;
+  dataSource: any[];
+  setDataSource: (a: any) => void;
+  index: number;
+  allOptions: any[];
+}) => {
+  const [options, setOptions] = useState<any[]>(
+    allOptions
+      .filter((e: string) => !dataSource.find((s: any) => s.name === e))
+      .map((e: string) => ({ value: e })),
+  );
+
+  return (
+    <FlexRow align='center' justify='space-between'>
+      <PushpinFilled style={{ color: "#F2C94C", fontSize: 20 }} />
+      <AutoComplete
+        defaultValue={defaultValue}
+        style={{ width: "calc(100% - 32px)" }}
+        options={options}
+        onSelect={(val: any) => {
+          const newData = [...dataSource];
+          newData[index] = {
+            ...dataSource[index],
+            name: val,
+          };
+          setDataSource(newData);
+        }}
+        onSearch={(value: string) => {
+          let newOptions = allOptions.filter(
+            (e: string) => !dataSource.find((s: any) => s?.name === e),
+          );
+          if (value) {
+            newOptions = newOptions.filter((e: string) => e?.includes(value));
+          }
+          setOptions(newOptions.map((e: string) => ({ value: e, label: e })));
+        }}
+      />
+    </FlexRow>
+  );
+};
+
 export const PinedNews: React.FC = (props: any) => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
@@ -233,24 +281,13 @@ export const PinedNews: React.FC = (props: any) => {
         dataIndex: "name",
         render: (value, record, index) => {
           return (
-            <FlexRow align='center' justify='space-between'>
-              <PushpinFilled style={{ color: "#F2C94C", fontSize: 20 }} />
-              <AutoComplete
-                defaultValue={value}
-                style={{ width: "calc(100% - 32px)" }}
-                options={mockNews
-                  .filter((e: string) => !dataSource.find((s: any) => s.name === e))
-                  .map((e: string) => ({ value: e }))}
-                onSelect={(val: any) => {
-                  const newData = [...dataSource];
-                  newData[index] = {
-                    ...dataSource[index],
-                    name: val,
-                  };
-                  setDataSource(newData);
-                }}
-              />
-            </FlexRow>
+            <NameInput
+              defaultValue={value}
+              dataSource={dataSource}
+              setDataSource={setDataSource}
+              index={index}
+              allOptions={mockNews}
+            />
           );
         },
       },
@@ -309,31 +346,35 @@ export const PinedNews: React.FC = (props: any) => {
                 ข่าวสารที่เลือก
               </Text>
             </Row>
-            <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-              <SortableContext
-                // rowKey array
-                items={dataSource.map((i: any) => i.key)}
-                strategy={verticalListSortingStrategy}
-              >
-                <Table
-                  components={{
-                    body: {
-                      row: TableRow,
-                    },
-                  }}
-                  rowKey='key'
-                  columns={columns}
-                  dataSource={dataSource}
-                  pagination={false}
-                  showHeader={false}
-                />
-              </SortableContext>
-            </DndContext>
-            {TemplateArray.map((v, i) => {
-              return dataSource[i] ? (
-                <></>
-              ) : i === dataSource.length ? (
-                <AddBox onClick={onAdd}>+ เพิ่มปักหมุดข่าวสาร</AddBox>
+            {dataSource.length > 0 ? (
+              <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+                <SortableContext
+                  // rowKey array
+                  items={dataSource.map((i: any) => i.key)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <Table
+                    components={{
+                      body: {
+                        row: TableRow,
+                      },
+                    }}
+                    rowKey='key'
+                    columns={columns}
+                    dataSource={dataSource}
+                    pagination={false}
+                    showHeader={false}
+                  />
+                </SortableContext>
+              </DndContext>
+            ) : (
+              <div style={{ height: 12 }} />
+            )}
+            {TemplateArray.filter((v, i) => !dataSource[i]).map((v, i) => {
+              return i === 0 ? (
+                <AddBox onClick={onAdd} key='add'>
+                  + เพิ่มปักหมุดข่าวสาร
+                </AddBox>
               ) : (
                 <EmptyBox>ไม่มีปักหมุดข่าวสาร</EmptyBox>
               );

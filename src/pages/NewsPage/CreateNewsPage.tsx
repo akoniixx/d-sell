@@ -14,6 +14,7 @@ import {
   message,
   Checkbox,
   Space,
+  FormInstance,
 } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { CameraOutlined, UnorderedListOutlined } from "@ant-design/icons";
@@ -88,6 +89,134 @@ const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   reader.readAsDataURL(img);
 };
 
+const Preview = ({ form }: { form: FormInstance }) => {
+  const topic = Form.useWatch("topic", form);
+  const desc = Form.useWatch("desc", form);
+  const file = Form.useWatch("file", form);
+  const [imgUrl, setImgUrl] = useState<string | undefined>();
+  useEffect(() => {
+    if (file)
+      getBase64(file as RcFile, (url) => {
+        setImgUrl(url);
+      });
+  }, [file]);
+  return (
+    <Col style={{ width: "320px" }}>
+      <Text level={5} fontWeight={700}>
+        ภาพตัวอย่างในแอปพลิเคชัน
+      </Text>
+      <div
+        style={{
+          padding: 12,
+          border: `1px solid ${color.background2}`,
+          borderRadius: 8,
+          marginTop: 8,
+        }}
+      >
+        {
+          <UploadArea
+            style={{
+              width: 280,
+              height: 280,
+              backgroundImage: imgUrl ? `url("${imgUrl}")` : undefined,
+              backgroundSize: "contain",
+            }}
+          >
+            {!imgUrl && UploadIcon}
+          </UploadArea>
+        }
+        <br />
+        <Text level={4} fontWeight={700}>
+          {topic || "หัวข้อข่าว"}
+        </Text>
+        <Row>
+          <Text level={6} color='Text3'>
+            13 พ.ย. 2564, 12:00 น.
+          </Text>
+          &nbsp;&nbsp;
+          <Text level={6} color='Text3'>
+            อ่านแล้ว 0
+          </Text>
+        </Row>
+        <Divider />
+        <div
+          style={{ overflow: "hidden", wordWrap: "break-word" }}
+          dangerouslySetInnerHTML={{ __html: desc || "-" }}
+        />
+      </div>
+    </Col>
+  );
+};
+
+const ImageUpload = ({
+  form,
+  initFile,
+  initUrl,
+}: {
+  form: FormInstance;
+  initFile?: any;
+  initUrl?: string;
+}) => {
+  const [imgFile, _setImgFile] = useState<any>(initFile);
+  const [imgUrl, setImgUrl] = useState<string | undefined>(initUrl);
+  const setImgFile = (file: any) => {
+    _setImgFile(file);
+    form.setFieldValue("file", file);
+    getBase64(file as RcFile, (url) => {
+      setImgUrl(url);
+    });
+  };
+  return (
+    <ImgCrop aspect={1} {...imgCropProps}>
+      <UploadBox
+        listType='picture-card'
+        maxCount={1}
+        beforeUpload={(file) => {
+          const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+          if (!isJpgOrPng) {
+            message.error("You can only upload JPG/PNG file!");
+            return true;
+          }
+          setImgFile(file);
+        }}
+        customRequest={() => {
+          console.log("customRequest");
+        }}
+        onChange={({ file }: any) => {
+          return "success";
+        }}
+        onRemove={() => {
+          setImgFile(undefined);
+        }}
+        showUploadList={false}
+        disabled={!!imgFile || !!imgUrl}
+      >
+        {!imgFile && !imgUrl ? (
+          <UploadArea
+            style={{
+              width: imageSize,
+              height: imageSize,
+            }}
+          >
+            {UploadIcon}
+          </UploadArea>
+        ) : (
+          // <Spin spinning={loading}>
+          <ImageWithDeleteButton
+            width={imageSize}
+            height={imageSize}
+            src={imgUrl}
+            handleDelete={() => {
+              setImgFile(undefined);
+            }}
+          />
+          // </Spin>
+        )}
+      </UploadBox>
+    </ImgCrop>
+  );
+};
+
 export const NewsEdit: React.FC = (props: any) => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
@@ -97,17 +226,7 @@ export const NewsEdit: React.FC = (props: any) => {
 
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [dataState, setDataState] = useState<any>();
-  const [categories, setCategories] = useState<Array<ProductCategoryEntity>>();
-  const [file, setFile] = useState<any>();
-  const [imgFile, setImgFile] = useState<any>();
-  const [imgUrl, setImgUrl] = useState<any>();
   const [uploading, setUploading] = useState(false);
-  const [fileList, setFileList] = useState<UploadFile[]>();
-  const [isRemoved, setRemoved] = useState(false);
-  const [topic, setTopic] = useState("หัวข้อข่าว");
-  const [desc, setDesc] = useState("-");
 
   const quillRef = useRef<any>(null);
   const outputDivRef = useRef<any>(null);
@@ -153,23 +272,31 @@ export const NewsEdit: React.FC = (props: any) => {
       const width = prompt("Enter image width:", "100");
       const height = prompt("Enter image height:", "200");
 
-      axios
-        .post("https://api-dnds-dev.iconkaset.com/file/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE5YWYwYzgyLWFhOTYtNDBkOC1iNzk4LTAzMTM4NTk3NzI1MCIsInRlbGVwaG9uZU5vIjoiMDkzNTE5MTUyOSIsImlhdCI6MTY5MjE2MjQ1NywiZXhwIjoxNjk5OTM4NDU3fQ.mBIXdTD-YIT7JyHGMVdArEQ6Rz3GkZR_QxEkfNVaJ2s",
-          },
-        })
-        .then(async (res) => {
-          const image = await axios.get(
-            `https://api-dnds-dev.iconkaset.com/file/geturl?path=${res.data.path}`,
-          );
-          quillRef.current.getEditor().deleteText(range.index, 1);
-          const quill = quillRef.current.getEditor();
-          quill.insertEmbed(range.index, "image", image.data.url);
-          quill.formatText(range.index, 1, { width: `${width}px`, height: `${height}px` });
-        });
+      // axios
+      //   .post("https://api-dnds-dev.iconkaset.com/file/upload", formData, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //       Authorization:
+      //         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE5YWYwYzgyLWFhOTYtNDBkOC1iNzk4LTAzMTM4NTk3NzI1MCIsInRlbGVwaG9uZU5vIjoiMDkzNTE5MTUyOSIsImlhdCI6MTY5MjE2MjQ1NywiZXhwIjoxNjk5OTM4NDU3fQ.mBIXdTD-YIT7JyHGMVdArEQ6Rz3GkZR_QxEkfNVaJ2s",
+      //     },
+      //   })
+      //   .then(async (res) => {
+      //     const image = await axios.get(
+      //       `https://api-dnds-dev.iconkaset.com/file/geturl?path=${res.data.path}`,
+      //     );
+      //     quillRef.current.getEditor().deleteText(range.index, 1);
+      //     const quill = quillRef.current.getEditor();
+      //     quill.insertEmbed(range.index, "image", image.data.url);
+      //     quill.formatText(range.index, 1, { width: `${width}px`, height: `${height}px` });
+      //   });
+      quillRef.current.getEditor().deleteText(range.index, 1);
+      const quill = quillRef.current.getEditor();
+      quill.insertEmbed(
+        range.index,
+        "image",
+        "https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D&w=1000&q=80",
+      );
+      quill.formatText(range.index, 1, { width: `${width}px`, height: `${height}px` });
     };
   };
 
@@ -187,96 +314,26 @@ export const NewsEdit: React.FC = (props: any) => {
     },
   };
 
-  useEffectOnce(() => {
-    fetchProduct();
-  });
-
   useEffect(() => {
     if (quillRef.current) {
       const quill = quillRef.current.getEditor();
 
       quill.on("text-change", async () => {
         if (outputDivRef.current) {
-          console.log(quill.root.innerHTML);
+          console.log("inner", quill.root.innerHTML);
           // const prettyHtml = await prettier.format(quill.root.innerHTML, {
           //   parser: "html",
           //   plugins: [htmlParser],
           // });
           // outputDivRef.current.textContent = prettyHtml;
-          setDesc(quill.root.innerHTML);
         }
       });
     }
   }, []);
 
-  const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      let data: any = {};
-      const id = parseInt(pathSplit[4]);
-      if (isFreebie) {
-        data = await getProductFreebiePromotionDetail(id);
-      } else {
-        data = await getProductDetail(parseInt(pathSplit[4]));
-      }
-      const userProfile = JSON.parse(localStorage.getItem("profile")!);
-      const { company } = userProfile;
-      const categories = await getProductCategory(company);
-      setDataState(data);
-      setCategories(categories);
-
-      form.setFieldsValue({
-        saleUOM: data.qtySaleUnit + " " + (company === "ICPL" ? data.baseUOM : data.packingUOM),
-        unitPrice:
-          priceFormatter(parseFloat(data.unitPrice || "")) +
-          "/" +
-          (company === "ICPL" ? data.baseUOM : data.packingUOM),
-        basePrice:
-          priceFormatter(parseFloat(data.marketPrice || "")) +
-          "/" +
-          (data.saleUOMTH || data.saleUOM),
-      });
-
-      const url = isFreebie ? data.productFreebies?.productFreebiesImage : data.productImage;
-      if (url) {
-        setFileList([
-          {
-            uid: "-1",
-            name: "image.png",
-            status: "done",
-            url,
-          },
-        ]);
-      }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateData = async () => {
     const { description, productCategoryId, productStatus } = form.getFieldsValue();
     const data = new FormData();
-    if (isFreebie) {
-      data.append("productFreebiesId", `${productFreebiesId}`);
-      data.append("productFreebiesStatus", `${productStatus}`);
-    } else {
-      data.append("productId", `${productId}`);
-      data.append("description", description || "");
-      data.append("productCategoryId", productCategoryId);
-    }
-
-    if (!isRemoved && productImage) {
-      data.append("productImage", productImage);
-    }
-    if (!isRemoved && productFreebiesImage) {
-      data.append("productFreebiesImage", productFreebiesImage);
-    }
-    if (file && file.uid !== "-1") {
-      data.append("file", file!);
-    }
-
     try {
       setUploading(true);
       if (isFreebie) {
@@ -284,7 +341,7 @@ export const NewsEdit: React.FC = (props: any) => {
         navigate(`/freebies/freebies`);
       } else {
         const res = await updateProduct(data);
-        navigate(`/PriceListPage/DistributionPage/${productId}`);
+        // navigate(`/PriceListPage/DistributionPage/${productId}`);
       }
       //message.success('บันทึกข้อมูลสำเร็จ');
     } catch (e) {
@@ -293,29 +350,6 @@ export const NewsEdit: React.FC = (props: any) => {
       setUploading(false);
     }
   };
-
-  const {
-    baseUnitOfMeaEn,
-    baseUnitOfMeaTh,
-    commonName,
-    company,
-    description,
-    productBrand,
-    productCategoryId,
-    productCodeNAV,
-    productGroup,
-    productId,
-    productImage,
-    productLocation,
-    productName,
-    productStatus,
-    productFreebiesId,
-    productFreebiesCodeNAV,
-    productFreebiesImage,
-    productFreebiesStatus,
-    promotionOfProduct,
-    productFreebies,
-  } = dataState || {};
 
   const PageTitle = () => {
     return (
@@ -326,7 +360,7 @@ export const NewsEdit: React.FC = (props: any) => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการข่าวสาร", path: `/${pathSplit[1]}/${pathSplit[2]}` },
+              { text: "รายการข่าวสาร", path: `/${pathSplit[1]}/list` },
               { text: "เพิ่มข่าวสาร", path: window.location.pathname },
             ]}
           />
@@ -335,11 +369,7 @@ export const NewsEdit: React.FC = (props: any) => {
     );
   };
 
-  return loading ? (
-    <div className='container '>
-      <Card loading />
-    </div>
-  ) : (
+  return (
     <Row justify={"space-between"} gutter={8}>
       <Col span={24}>
         <CardContainer>
@@ -353,59 +383,8 @@ export const NewsEdit: React.FC = (props: any) => {
                 </Text>
                 <FlexRow style={{ padding: "16px 0px" }}>
                   <FlexCol style={{ marginRight: 16 }}>
-                    <Form.Item noStyle name='horizontalImage' valuePropName='file'>
-                      <ImgCrop aspect={1} {...imgCropProps}>
-                        <UploadBox
-                          listType='picture-card'
-                          maxCount={1}
-                          beforeUpload={(file) => {
-                            const isJpgOrPng =
-                              file.type === "image/jpeg" || file.type === "image/png";
-                            if (!isJpgOrPng) {
-                              message.error("You can only upload JPG/PNG file!");
-                              return true;
-                            }
-                            setImgUrl(file);
-                            getBase64(file as RcFile, (url) => {
-                              setImgFile(url);
-                            });
-                          }}
-                          customRequest={() => {
-                            console.log("customRequest");
-                          }}
-                          onChange={({ file }: any) => {
-                            return "success";
-                          }}
-                          onRemove={() => {
-                            setImgFile(undefined);
-                          }}
-                          showUploadList={false}
-                          disabled={!!imgFile || !!imgUrl}
-                        >
-                          {!imgFile && !imgUrl ? (
-                            <UploadArea
-                              style={{
-                                width: imageSize,
-                                height: imageSize,
-                              }}
-                            >
-                              {UploadIcon}
-                            </UploadArea>
-                          ) : (
-                            <Spin spinning={loading}>
-                              <ImageWithDeleteButton
-                                width={imageSize}
-                                height={imageSize}
-                                src={imgUrl}
-                                handleDelete={() => {
-                                  setImgFile(undefined);
-                                  setImgUrl(undefined);
-                                }}
-                              />
-                            </Spin>
-                          )}
-                        </UploadBox>
-                      </ImgCrop>
+                    <Form.Item noStyle name='file' valuePropName='file'>
+                      <ImageUpload form={form} />
                     </Form.Item>
                   </FlexCol>
                   <FlexCol>
@@ -437,11 +416,17 @@ export const NewsEdit: React.FC = (props: any) => {
                   <Input
                     placeholder='ระบุชื่อหัวข้อข่าว'
                     autoComplete='off'
-                    onBlur={(e) => setTopic(e.target.value)}
+                    // onBlur={(e) => setTopic(e.target.value)}
                   />
                 </Form.Item>
-                <Form.Item label='รายละเอียดข่าว' required>
-                  <ReactQuill ref={quillRef} modules={modules} />
+                <Form.Item label='รายละเอียดข่าว' name='desc' required>
+                  <ReactQuill
+                    ref={quillRef}
+                    modules={modules}
+                    // onChange={(e) => {
+                    //   console.log("onChange", form.getFieldValue("desc"));
+                    // }}
+                  />
                 </Form.Item>
                 <br />
                 <Form.Item name='type' label='หมวดหมู่' initialValue={newsTypes.NEWS.key} required>
@@ -492,43 +477,7 @@ export const NewsEdit: React.FC = (props: any) => {
                   </Radio.Group>
                 </Form.Item>
               </Col>
-              <Col style={{ width: "320px" }}>
-                <Text level={5} fontWeight={700}>
-                  ภาพตัวอย่างในแอปพลิเคชัน
-                </Text>
-                <div
-                  style={{
-                    padding: 12,
-                    border: `1px solid ${color.background2}`,
-                    borderRadius: 8,
-                    marginTop: 8,
-                  }}
-                >
-                  <UploadArea
-                    style={{
-                      width: 280,
-                      height: 280,
-                    }}
-                  >
-                    {UploadIcon}
-                  </UploadArea>
-                  <br />
-                  <Text level={4} fontWeight={700}>
-                    {topic}
-                  </Text>
-                  <Row>
-                    <Text level={6} color='Text3'>
-                      13 พ.ย. 2564, 12:00 น.
-                    </Text>
-                    &nbsp;&nbsp;
-                    <Text level={6} color='Text3'>
-                      อ่านแล้ว 0
-                    </Text>
-                  </Row>
-                  <Divider />
-                  <div dangerouslySetInnerHTML={{ __html: desc }}></div>
-                </div>
-              </Col>
+              <Preview form={form} />
             </Row>
             <Divider />
             <Row align='middle' justify='end'>
