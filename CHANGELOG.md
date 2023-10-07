@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.9.1] - Release Date: 2023-10-06
+
+- fixed clear search in shop modal
+
 ## Features [v0.9.0] - Release Date: 2023-10-06
 
 - enhanced product shop (view product)

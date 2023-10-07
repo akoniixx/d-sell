@@ -35,7 +35,6 @@ export const ModalSelectedProduct = ({
   callBackProduct: (item: ProductEntity[]) => void;
   prodSelected: ProductEntity[];
 }) => {
-  console.log("p", productGroup);
   const [prodList, setProdList] = useState<ProductEntity[]>([]);
   const [selectedProd, setSelectedProd] = useState<ProductEntity[]>([]);
   const [prodGroup, setProdGroup] = useState("");
@@ -198,7 +197,7 @@ export const ModalSelectedProduct = ({
   const handleClearSearch = () => {
     setKeyword("");
     setProdGroup("");
-    setLocation("");
+    //setLocation("");
     setSelectedStrategy("");
     setSelectedBrand("");
     setSelectedProd(prodList);
@@ -345,7 +344,7 @@ export const ModalSelectedProduct = ({
         <Form layout='vertical'>
           <Row gutter={16}>
             <Col span={9}>
-              <Form.Item label='ค้นหาสินค้า' name='searchText'>
+              <Form.Item label='ค้นหาสินค้า'>
                 <Input
                   placeholder='ค้นหาชื่อสินค้าหรือรหัสสินค้า...'
                   suffix={<SearchOutlined />}
@@ -358,7 +357,7 @@ export const ModalSelectedProduct = ({
               </Form.Item>
             </Col>
             <Col span={4}>
-              <Form.Item label='Product Group' name='productGroup'>
+              <Form.Item label='Product Group'>
                 <Select
                   data={[
                     {
@@ -381,7 +380,7 @@ export const ModalSelectedProduct = ({
             </Col>
             {company === "ICPL" && (
               <Col span={4}>
-                <Form.Item label='Strategy Group' name='strategyGroup'>
+                <Form.Item label='Strategy Group'>
                   <Select
                     data={[
                       {
@@ -405,7 +404,7 @@ export const ModalSelectedProduct = ({
             )}
             {brand?.length && (
               <Col span={4}>
-                <Form.Item label='ยี่ห้อ' name='brand'>
+                <Form.Item label='ยี่ห้อ'>
                   <Select
                     data={[
                       {
