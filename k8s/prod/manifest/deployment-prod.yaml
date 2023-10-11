@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: bo-sellcoda
-          image: asia.gcr.io/iconkaset-app/sellcoda/bo-sellcoda:<VERSION>
+          image: asia-southeast1-docker.pkg.dev/iconkaset-app/sellcoda/bo-sellcoda:<VERSION>
           imagePullPolicy: Always
           ports:
             - containerPort: 80
