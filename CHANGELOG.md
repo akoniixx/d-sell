@@ -1,8 +1,17 @@
 ## [Version - 0]
 
-## Features [v0.8.3] - Release Date: 2023-10-06
+## Features [v0.9.2] - Release Date: 2023-10-06
 
 - Update Feature: News (API news and pined)
+
+## Resolved [v0.9.1] - Release Date: 2023-10-06
+
+- fixed clear search in shop modal
+
+## Features [v0.9.0] - Release Date: 2023-10-06
+
+- enhanced product shop (view product)
+- removed locaton from selecte shop componemt
 
 ## Features [v0.8.2] - Release Date: 2023-10-06
 

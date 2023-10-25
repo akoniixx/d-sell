@@ -9,12 +9,12 @@ image: docker:stable
 # Define variables and environment-specific configuration
 variables:
   PROJECT_ID: iconkaset-app
-  REGISTRY_HOSTNAME: asia.gcr.io/${PROJECT_ID}
+  REGISTRY_HOSTNAME: asia-southeast1-docker.pkg.dev/${PROJECT_ID}
   IMAGE_NAME: sellcoda/bo-sellcoda
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
   SECRET_NAME: gcr-image-pull-secret
 services:
-  - docker:24.0.5-dind
+  - docker:24.0.6-dind
 
 # Define the Docker build job
 build-dev:
@@ -25,7 +25,7 @@ build-dev:
   before_script:
     - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
     - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
-    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia-southeast1-docker.pkg.dev
     - bash k8s/dev/script/run-get-secret.bash ${PROJECT_ID} ${SECRET_KEY} .env  # pull env from secret manager
     # - ls -lrt .env; cat .env
   script:
@@ -46,7 +46,7 @@ build-staging:
   before_script:
     - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
     - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
-    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia-southeast1-docker.pkg.dev
     - bash k8s/staging/script/run-get-secret.bash ${PROJECT_ID} ${SECRET_KEY} .env  # pull env from secret manager
     # - ls -lrt .env; cat .env
   script:
@@ -67,7 +67,7 @@ build-prod:
   before_script:
     - echo "$SERVICE_ACCOUNT_KEY" > SERVICE_ACCOUNT_KEY.json
     - gcloud auth activate-service-account --key-file=SERVICE_ACCOUNT_KEY.json
-    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia.gcr.io
+    - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia-southeast1-docker.pkg.dev
     - bash k8s/prod/script/run-get-secret.bash ${PROJECT_ID} ${SECRET_KEY} .env  # pull env from secret manager
     # - ls -lrt .env; cat .env
   script:
@@ -98,7 +98,7 @@ deploy-dev:
     - bash k8s/dev/script/check-namespace-dev.bash
     - sed -i "s/<VERSION>/${IMAGE_TAG}/g" k8s/dev/manifest/deployment-dev.yaml
     - bash k8s/dev/script/gcr-image-pull-secret-dev.bash
-    - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia.gcr.io" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
+    - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia-southeast1-docker.pkg.dev" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
     - kubectl apply -f k8s/dev/manifest/
   only:
     - develop
@@ -120,7 +120,7 @@ deploy-staging:
     - bash k8s/staging/script/check-namespace-staging.bash
     - sed -i "s/<VERSION>/${IMAGE_TAG}/g" k8s/staging/manifest/deployment-staging.yaml
     - bash k8s/staging/script/gcr-image-pull-secret-staging.bash
-    - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia.gcr.io" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
+    - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia-southeast1-docker.pkg.dev" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
     - kubectl apply -f k8s/staging/manifest/
   only:
     - staging
@@ -142,7 +142,7 @@ deploy-prod:
     - bash k8s/prod/script/check-namespace-prod.bash
     - sed -i "s/<VERSION>/${IMAGE_TAG}/g" k8s/prod/manifest/deployment-prod.yaml
     - bash k8s/prod/script/gcr-image-pull-secret-prod.bash
-    - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia.gcr.io" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
+    - kubectl create secret docker-registry ${SECRET_NAME} -n ${NAMESPACE} --docker-server="asia-southeast1-docker.pkg.dev" --docker-username=_json_key --docker-password="$(cat SERVICE_ACCOUNT_KEY.json)" --docker-email=ick.devops@gmail.com
     - kubectl apply -f k8s/prod/manifest/
   only:
     - main

@@ -43,3 +43,18 @@ export interface CreateProductShopEntity {
     productId: number;
   }[];
 }
+
+export interface CreateShopProductEntity {
+  company: string;
+  productId: number;
+  createBy: string;
+  customer: [
+    {
+      customerCompanyId: string;
+      customerId: number;
+      customerNo: string;
+      customerName: string;
+      zone: string;
+    },
+  ];
+}

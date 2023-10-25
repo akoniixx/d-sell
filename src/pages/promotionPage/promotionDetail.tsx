@@ -1257,7 +1257,7 @@ const HistoryTab: React.FC = () => {
         const mapValue: any = {
           CreatePromotion: "สร้างโปรโมชัน",
           Changedata: "แก้ไขโปรโมชัน",
-          Changestatus: "เปลี่ยนสถานะ",
+          Changestatus: "อนุมัติโปรโมชัน",
         };
         const value = action?.replaceAll(" ", "");
         return <Text level={6}>{mapValue[value]}</Text>;
@@ -1273,7 +1273,7 @@ const HistoryTab: React.FC = () => {
           <>
             {action === "Changestatus" ? (
               <Tag color={value === "true" ? color.success : color.warning}>
-                {value === "true" ? "ACTIVE" : "INACTIVE"}
+                {value === "true" ? "อนุมัติแล้ว" : "รอการตรวจสอบ"}
               </Tag>
             ) : (
               <Text level={6}>{value || "-"}</Text>
@@ -1290,9 +1290,11 @@ const HistoryTab: React.FC = () => {
         const action = row.action?.replaceAll(" ", "");
         return (
           <>
-            {action === "Changestatus" ? (
+            {action === "CreatePromotion" ? (
+              <Tag color={color.warning}>รอการตรวจสอบ</Tag>
+            ) : action === "Changestatus" ? (
               <Tag color={value === "true" ? color.success : color.warning}>
-                {value === "true" ? "ACTIVE" : "INACTIVE"}
+                {value === "true" ? "อนุมัติแล้ว" : "รอการตรวจสอบ"}
               </Tag>
             ) : (
               <Text level={6}>{value || "-"}</Text>
