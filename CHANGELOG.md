@@ -1,6 +1,10 @@
 ## [Version - 0]
 
-## Features [v0.9.2] - Release Date: 2023-10-06
+## Features [v0.9.3] - Release Date: 2023-10-25
+
+- edit News API url
+
+## Features [v0.9.2] - Release Date: 2023-10-25
 
 - Update Feature: News (API news and pined)
 
