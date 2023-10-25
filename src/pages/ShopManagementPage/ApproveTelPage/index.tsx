@@ -149,7 +149,7 @@ function ApproveTelPage(): JSX.Element {
           );
           const userShop = data?.customer?.customerToUserShops[0]?.userShop;
           if (item.key === "contact") {
-            const telList = [];
+            const telList: any[] = [];
             if (data.newTelephone) {
               telList.push(data.newTelephone);
             }

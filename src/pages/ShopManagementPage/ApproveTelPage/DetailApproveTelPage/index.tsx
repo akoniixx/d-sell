@@ -112,8 +112,8 @@ function DetailApproveTelPage() {
   const isApprovedSecond = data && data?.newSecondTelephone;
 
   const { listApprove, listApproved } = useMemo(() => {
-    const listApprove = [];
-    const listApproved = [];
+    const listApprove: any[] = [];
+    const listApproved: any[] = [];
     const reasonApprove = data?.reasonApprove ? data.reasonApprove : "";
     // const userShop = data?.customer.customerToUserShops[0].userShop;
     const updateBy = `${data?.createBy} , ${dayjs(data?.createDate).format(

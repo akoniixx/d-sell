@@ -2,12 +2,7 @@
   "compilerOptions": {
     "isolatedModules": true,
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext",
-      "ES2021.String"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext", "ES2021.String"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -20,10 +15,8 @@
     "resolveJsonModule": true,
     "downlevelIteration": true,
     "noEmit": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "noImplicitAny": false
   },
-  "include": [
-    "src",
-    "craco.config.js"
-  ]
+  "include": ["src", "craco.config.js"]
 }

@@ -23,6 +23,9 @@ import color from "../../resource/color";
 import Input from "../../components/Input/Input";
 import { FlexRow } from "../../components/Container/Container";
 import AutoComplete from "../../components/AutoComplete/AutoComplete";
+import { getNewsList, getPinedNewsList, updatePinedNewsList } from "../../datasource/News";
+import { NewsEntity, PinedNewsEntity } from "../../entities/NewsEntity";
+import { PinPage } from "../../definitions/news";
 
 const mockNews: any = [
   "ข่าวที่หนึ่งจ้า",
@@ -173,15 +176,20 @@ const TableRow = ({ children, ...props }: any) => {
 
 const TemplateArray = Array.from({ length: 5 }, (v, i) => i + 1);
 
-export const PinedNews: React.FC = (props: any) => {
+export const PinedNewsPage: React.FC = (props: any) => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
+
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company, firstname, lastname } = userProfile;
 
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  const [mainList, setMainList] = useState<any>([]);
-  const [allList, setAllList] = useState<any>([]);
+  const [mainPageList, setMainPageList] = useState<PinedNewsEntity[]>([]);
+  const [newsPageList, setNewsPageList] = useState<PinedNewsEntity[]>([]);
+  const [deletedList, setDeletedList] = useState<PinedNewsEntity[]>([]);
+  const [allNewsList, setAllNewsList] = useState<NewsEntity[]>([]);
   const [uploading, setUploading] = useState(false);
 
   useEffectOnce(() => {
@@ -189,10 +197,35 @@ export const PinedNews: React.FC = (props: any) => {
   });
 
   const fetchData = async () => {
+    const formatData = (list: PinedNewsEntity[]) =>
+      list
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+        .map((n, i) => {
+          const news: PinedNewsEntity = {
+            ...n,
+            key: `${i + 1}`,
+          };
+          return news;
+        });
     try {
       setLoading(true);
-      setMainList(mockData);
-      setAllList(mockData);
+      await getPinedNewsList({ company }).then(({ responseData }) => {
+        console.log("getPinedNewsList", responseData);
+        const mainPageList = responseData.filter((n: PinedNewsEntity) => n.page === "MAIN_PAGE");
+        const newsPageList = responseData.filter((n: PinedNewsEntity) => n.page === "NEWS_PAGE");
+
+        setMainPageList(formatData(mainPageList));
+        setNewsPageList(formatData(newsPageList));
+      });
+
+      await getNewsList({
+        company,
+        status: "PUBLISHED",
+        take: 999,
+        page: 1,
+      }).then(({ responseData }) => {
+        setAllNewsList(responseData?.data);
+      });
     } catch (e) {
       console.log(e);
     } finally {
@@ -200,18 +233,39 @@ export const PinedNews: React.FC = (props: any) => {
     }
   };
 
-  const PageTitle = () => {
-    return <PageTitleNested title={"รายการปักหมุดข่าวสาร"} showBack={false} />;
+  const onUpdate = async () => {
+    const formatData = (list: PinedNewsEntity[], page: PinPage) =>
+      list.map((n, i) => {
+        return {
+          ...n,
+          order: i + 1,
+          page,
+          company,
+        };
+      });
+
+    setUploading(true);
+    await updatePinedNewsList({
+      newsList: [
+        ...formatData(mainPageList, "MAIN_PAGE"),
+        ...formatData(newsPageList, "NEWS_PAGE"),
+        ...deletedList.map((n) => ({ pinedNewsId: n.pinedNewsId, isDelete: true })),
+      ],
+      createBy: firstname + " " + lastname,
+    })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setUploading(false);
+      });
   };
 
-  const onDragEnd = ({ active, over }: DragEndEvent) => {
-    if (active.id !== over?.id) {
-      setMainList((previous: any) => {
-        const activeIndex = previous.findIndex((i: any) => i.key === active.id);
-        const overIndex = previous.findIndex((i: any) => i.key === over?.id);
-        return arrayMove(previous, activeIndex, overIndex);
-      });
-    }
+  const PageTitle = () => {
+    return <PageTitleNested title={"รายการปักหมุดข่าวสาร"} showBack={false} />;
   };
 
   const Group = ({
@@ -220,7 +274,7 @@ export const PinedNews: React.FC = (props: any) => {
     setDataSource,
   }: {
     title: string;
-    dataSource: any;
+    dataSource: PinedNewsEntity[];
     setDataSource: (any: any) => void;
   }) => {
     const columns: ColumnsType<any> = [
@@ -230,7 +284,7 @@ export const PinedNews: React.FC = (props: any) => {
       },
       {
         title: "ข่าวสารที่เลือก",
-        dataIndex: "name",
+        dataIndex: "topic",
         render: (value, record, index) => {
           return (
             <FlexRow align='center' justify='space-between'>
@@ -238,14 +292,15 @@ export const PinedNews: React.FC = (props: any) => {
               <AutoComplete
                 defaultValue={value}
                 style={{ width: "calc(100% - 32px)" }}
-                options={mockNews
-                  .filter((e: string) => !dataSource.find((s: any) => s.name === e))
-                  .map((e: string) => ({ value: e }))}
-                onSelect={(val: any) => {
+                options={allNewsList
+                  .filter((e) => !dataSource.find((s) => s.topic === e.topic))
+                  .map((e) => ({ value: e.newsId, label: e.topic }))}
+                onSelect={(val, option) => {
                   const newData = [...dataSource];
                   newData[index] = {
                     ...dataSource[index],
-                    name: val,
+                    topic: option.label,
+                    newsId: val,
                   };
                   setDataSource(newData);
                 }}
@@ -269,6 +324,7 @@ export const PinedNews: React.FC = (props: any) => {
                       "โปรดตรวจสอบหมุดข่าวสารที่คุณต้องการลบ ก่อนกดยืนยัน เพราะอาจส่งผลต่อการทำงานของผู้ดูแลระบบ",
                     onOk: () => {
                       setDataSource(dataSource.filter((v: any, i: number) => i !== index));
+                      setDeletedList([...deletedList, record]);
                     },
                   });
                 }}
@@ -281,6 +337,16 @@ export const PinedNews: React.FC = (props: any) => {
 
     const onAdd = () => {
       setDataSource([...dataSource, { key: `${dataSource.length + 1}` }]);
+    };
+
+    const onDragEnd = ({ active, over }: DragEndEvent) => {
+      if (active.id !== over?.id) {
+        setDataSource((previous: any) => {
+          const activeIndex = previous.findIndex((i: any) => i.key === active.id);
+          const overIndex = previous.findIndex((i: any) => i.key === over?.id);
+          return arrayMove(previous, activeIndex, overIndex);
+        });
+      }
     };
 
     return (
@@ -309,26 +375,34 @@ export const PinedNews: React.FC = (props: any) => {
                 ข่าวสารที่เลือก
               </Text>
             </Row>
-            <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-              <SortableContext
-                // rowKey array
-                items={dataSource.map((i: any) => i.key)}
-                strategy={verticalListSortingStrategy}
-              >
-                <Table
-                  components={{
-                    body: {
-                      row: TableRow,
-                    },
-                  }}
-                  rowKey='key'
-                  columns={columns}
-                  dataSource={dataSource}
-                  pagination={false}
-                  showHeader={false}
-                />
-              </SortableContext>
-            </DndContext>
+            <div
+              style={
+                dataSource.length <= 0
+                  ? { height: 12, overflow: "hidden", visibility: "hidden" }
+                  : {}
+              }
+            >
+              <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+                <SortableContext
+                  // rowKey array
+                  items={dataSource.map((i: any) => i.key)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <Table
+                    components={{
+                      body: {
+                        row: TableRow,
+                      },
+                    }}
+                    rowKey='key'
+                    columns={columns}
+                    dataSource={dataSource}
+                    pagination={false}
+                    showHeader={false}
+                  />
+                </SortableContext>
+              </DndContext>
+            </div>
             {TemplateArray.map((v, i) => {
               return dataSource[i] ? (
                 <></>
@@ -355,13 +429,13 @@ export const PinedNews: React.FC = (props: any) => {
           <PageTitle />
           <Group
             title={"หน้าหลักในแอปพลิเคชัน"}
-            dataSource={mainList}
-            setDataSource={setMainList}
+            dataSource={mainPageList}
+            setDataSource={setMainPageList}
           />
           <Group
             title={"หน้าข่าวสารทั้งหมดในแอปพลิเคชัน"}
-            dataSource={allList}
-            setDataSource={setAllList}
+            dataSource={newsPageList}
+            setDataSource={setNewsPageList}
           />
           <Divider />
           <Row align='middle' justify='end'>
@@ -371,6 +445,12 @@ export const PinedNews: React.FC = (props: any) => {
               size='large'
               style={{ width: 136 }}
               loading={uploading}
+              onClick={() => {
+                Modal.confirm({
+                  title: "บันทึกการเปลี่ยนแปลง",
+                  onOk: onUpdate,
+                });
+              }}
             >
               บันทึก
             </Button>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, ReactNode, useEffect } from "react";
+import React, { useState, useRef, ReactNode, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
@@ -14,6 +14,7 @@ import {
   message,
   Checkbox,
   Space,
+  Modal,
 } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
 import { CameraOutlined, UnorderedListOutlined } from "@ant-design/icons";
@@ -48,10 +49,17 @@ import ImgCrop from "../../components/ImgCrop/ImgCrop";
 import { ImageWithDeleteButton, UploadIcon } from "../../components/Image/Image";
 import { RcFile } from "antd/lib/upload";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // import styles
-import axios from "axios";
+import ReactQuill, { Quill } from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { newsTypes } from "../../definitions/news";
+import ImageResize from "quill-image-resize-module-react";
+import { inputNumberValidator } from "../../utility/validator";
+import { createNews, getNewsById, updateNews } from "../../datasource/News";
+import DatePicker, { TimePicker } from "../../components/DatePicker/DatePicker";
+import dayjs from "dayjs";
+import axios from "axios";
+
+Quill.register("modules/imageResize", ImageResize);
 
 const imgCropProps = {
   modalTitle: "ปรับขนาดรูปภาพ",
@@ -60,6 +68,10 @@ const imgCropProps = {
 };
 
 const imageSize = "148px";
+const previewImageStyle = {
+  width: 280,
+  height: 280,
+};
 
 const UploadBox = styled(Upload)`
   .ant-upload,
@@ -82,6 +94,19 @@ const UploadArea = styled.div`
   padding: 32px;
 `;
 
+const QuillContainer = styled.div`
+  .ql-toolbar.ql-snow {
+    border-radius: 4px 4px 0 0 !important;
+  }
+  .ql-container.ql-snow {
+    border-radius: 0 0 4px 4px !important;
+  }
+  .ql-editor {
+    max-height: 80vh;
+    overflow: auto;
+  }
+`;
+
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
   reader.addEventListener("load", () => callback(reader.result as string));
@@ -91,104 +116,77 @@ const getBase64 = (img: RcFile, callback: (url: string) => void) => {
 export const NewsEdit: React.FC = (props: any) => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
-  const isFreebie = pathSplit[2] === "freebies";
+  const isEdit = pathSplit[2] === "edit";
+  const id = pathSplit[3];
+
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company, firstname, lastname } = userProfile;
 
   const [form] = Form.useForm();
+  const [vidForm] = Form.useForm();
 
   const navigate = useNavigate();
 
+  const [newsData, setNewsData] = useState();
+
   const [loading, setLoading] = useState(false);
-  const [dataState, setDataState] = useState<any>();
-  const [categories, setCategories] = useState<Array<ProductCategoryEntity>>();
-  const [file, setFile] = useState<any>();
   const [imgFile, setImgFile] = useState<any>();
   const [imgUrl, setImgUrl] = useState<any>();
   const [uploading, setUploading] = useState(false);
-  const [fileList, setFileList] = useState<UploadFile[]>();
-  const [isRemoved, setRemoved] = useState(false);
   const [topic, setTopic] = useState("หัวข้อข่าว");
-  const [desc, setDesc] = useState("-");
+  const [content, setContent] = useState("-");
+  const [status, setStatus] = useState<string>();
+
+  const [showVideoModal, setVideoModal] = useState(false);
+  const [vidIndex, setVidIndex] = useState();
 
   const quillRef = useRef<any>(null);
   const outputDivRef = useRef<any>(null);
 
-  const videoHandler = () => {
+  const onSubmitVideo = () => {
+    const { width, height, url } = vidForm.getFieldsValue();
+    console.log({ width, height, url });
     const quill = quillRef?.current?.getEditor();
-    const range = quill.getSelection();
-    const url = prompt("Enter iframe URL:");
-    const width = prompt("Enter iframe width:", "400px");
-    const height = prompt("Enter iframe height:", "300px");
-    const iframeStr = `<iframe width="${width}px" height="${height}px" src="${url}" frameborder="0"></iframe>`;
-    quill.clipboard.dangerouslyPasteHTML(range.index, iframeStr);
+    // test url https://www.youtube.com/embed/0utfT0nbuTA?si=Mgq1KHKJypkOdoyD
+    // test url https://www.youtube.com/watch?v=KMoe95BTwew
+    // test url https://youtu.be/KMoe95BTwew?si=RJek2YfcpY-B-njR
+    const src = url?.replace("youtu.be", "www.youtube.com/embed/").replace("watch?v=", "embed/");
+    const iframeStr = `<iframe width="${width}" height="${height}" style="overflow:hidden;" src="${src}" frameborder="0" clipboard-write; encrypted-media; ></iframe>`;
+    quill.clipboard.dangerouslyPasteHTML(vidIndex, iframeStr);
+
+    vidForm.resetFields();
+    setVideoModal(false);
   };
 
-  const imageHandler = () => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/png");
-    input.click();
-
-    input.onchange = async () => {
-      const file = input?.files ? input?.files[0] : undefined;
-      const formData = new FormData();
-
-      formData.append("file", file || "");
-      formData.append("resourceId", "a10a3057-2de6-4638-a226-3cbb5caf9113");
-      formData.append("resource", "DRONER");
-      formData.append("category", "PROFILE_IMAGE");
-      // Save current cursor state
-      const range = quillRef.current.getEditor().getSelection(true);
-
-      // Insert temporary loading placeholder image
-      quillRef.current
-        .getEditor()
-        .insertEmbed(
-          range.index,
-          "image",
-          `${window.location.origin}/images/loaders/placeholder.gif`,
-        );
-
-      // Move cursor to right side of image (easier to continue typing)
-      quillRef.current.getEditor().setSelection(range.index + 1);
-      const width = prompt("Enter image width:", "100");
-      const height = prompt("Enter image height:", "200");
-
-      axios
-        .post("https://api-dnds-dev.iconkaset.com/file/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE5YWYwYzgyLWFhOTYtNDBkOC1iNzk4LTAzMTM4NTk3NzI1MCIsInRlbGVwaG9uZU5vIjoiMDkzNTE5MTUyOSIsImlhdCI6MTY5MjE2MjQ1NywiZXhwIjoxNjk5OTM4NDU3fQ.mBIXdTD-YIT7JyHGMVdArEQ6Rz3GkZR_QxEkfNVaJ2s",
-          },
-        })
-        .then(async (res) => {
-          const image = await axios.get(
-            `https://api-dnds-dev.iconkaset.com/file/geturl?path=${res.data.path}`,
-          );
-          quillRef.current.getEditor().deleteText(range.index, 1);
-          const quill = quillRef.current.getEditor();
-          quill.insertEmbed(range.index, "image", image.data.url);
-          quill.formatText(range.index, 1, { width: `${width}px`, height: `${height}px` });
-        });
+  const videoHandler = useMemo(() => {
+    return () => {
+      const quill = quillRef?.current?.getEditor();
+      const range = quill.getSelection();
+      setVidIndex(range.index);
+      setVideoModal(true);
     };
-  };
+  }, []);
 
   const modules = {
     toolbar: {
       handlers: {
-        image: imageHandler,
         video: videoHandler,
       },
       container: [
         ["bold", "italic", "link", "image", "video"],
+        [{ size: ["small", false, "large", "huge"] }],
         [{ align: "" }, { align: "center" }, { align: "right" }],
         [{ list: "ordered" }, { list: "bullet" }],
       ],
     },
+    imageResize: {
+      parchment: Quill.import("parchment"),
+      modules: ["Resize", "DisplaySize"],
+    },
   };
 
   useEffectOnce(() => {
-    fetchProduct();
+    if (isEdit) fetchData();
   });
 
   useEffect(() => {
@@ -203,51 +201,48 @@ export const NewsEdit: React.FC = (props: any) => {
           //   plugins: [htmlParser],
           // });
           // outputDivRef.current.textContent = prettyHtml;
-          setDesc(quill.root.innerHTML);
+          // setContent(quill.root.innerHTML);
         }
       });
     }
   }, []);
 
-  const fetchProduct = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      let data: any = {};
-      const id = parseInt(pathSplit[4]);
-      if (isFreebie) {
-        data = await getProductFreebiePromotionDetail(id);
-      } else {
-        data = await getProductDetail(parseInt(pathSplit[4]));
-      }
-      const userProfile = JSON.parse(localStorage.getItem("profile")!);
-      const { company } = userProfile;
-      const categories = await getProductCategory(company);
-      setDataState(data);
-      setCategories(categories);
+      const { responseData } = await getNewsById(id);
+      setNewsData(responseData);
+      console.log(responseData);
 
+      const app: string[] = [];
+      if (responseData?.isShowOnSaleApp) app.push("isShowOnSaleApp");
+      if (responseData?.isShowOnShopApp) app.push("isShowOnShopApp");
       form.setFieldsValue({
-        saleUOM: data.qtySaleUnit + " " + (company === "ICPL" ? data.baseUOM : data.packingUOM),
-        unitPrice:
-          priceFormatter(parseFloat(data.unitPrice || "")) +
-          "/" +
-          (company === "ICPL" ? data.baseUOM : data.packingUOM),
-        basePrice:
-          priceFormatter(parseFloat(data.marketPrice || "")) +
-          "/" +
-          (data.saleUOMTH || data.saleUOM),
+        ...responseData,
+        app,
+        startDate: dayjs(responseData?.startDate),
+        endDate: dayjs(responseData?.endDate),
+        startTime: dayjs(responseData?.startDate),
+        endTime: dayjs(responseData?.endDate),
       });
+      setStatus(responseData?.status);
+      setImgUrl(responseData?.imageUrl);
 
-      const url = isFreebie ? data.productFreebies?.productFreebiesImage : data.productImage;
-      if (url) {
-        setFileList([
-          {
-            uid: "-1",
-            name: "image.png",
-            status: "done",
-            url,
-          },
-        ]);
-      }
+      // set Content
+      fetch(responseData?.contentUrl + "&response-content-disposition=attachment")
+        .then((response) => {
+          console.log(responseData?.contentUrl, response);
+          return response.text();
+        })
+        .then((data) => {
+          console.log("test", data);
+          setContent(data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      // await axios.get(responseData?.contentUrl).then((res) => console.log(res))
     } catch (e) {
       console.log(e);
     } finally {
@@ -256,66 +251,60 @@ export const NewsEdit: React.FC = (props: any) => {
   };
 
   const updateData = async () => {
-    const { description, productCategoryId, productStatus } = form.getFieldsValue();
+    const { topic, type, app, startDate, startTime } = form.getFieldsValue();
     const data = new FormData();
-    if (isFreebie) {
-      data.append("productFreebiesId", `${productFreebiesId}`);
-      data.append("productFreebiesStatus", `${productStatus}`);
-    } else {
-      data.append("productId", `${productId}`);
-      data.append("description", description || "");
-      data.append("productCategoryId", productCategoryId);
-    }
 
-    if (!isRemoved && productImage) {
-      data.append("productImage", productImage);
-    }
-    if (!isRemoved && productFreebiesImage) {
-      data.append("productFreebiesImage", productFreebiesImage);
-    }
-    if (file && file.uid !== "-1") {
-      data.append("file", file!);
-    }
+    const quill = quillRef.current.getEditor();
+    console.log(form.getFieldsValue(), quill.root.innerHTML);
+
+    const content = new Blob([quill.root.innerHTML], { type: "text/plain" });
+
+    if (isEdit) data.append("newsId", id);
+
+    data.append("company", company);
+    data.append("topic", topic);
+    data.append("isShowOnSaleApp", app?.includes("isShowOnSaleApp"));
+    data.append("isShowOnShopApp", app?.includes("isShowOnShopApp"));
+    data.append("status", status || "");
+    data.append("type", type);
+    data.append("createdBy", firstname + " " + lastname);
+
+    if (startDate && startTime)
+      data.append(
+        "publishTime",
+        dayjs(
+          `${startDate?.format("YYYY-MM-DD")} ${startTime?.format("HH:mm")}:00.000`,
+        ).toISOString(),
+      );
+
+    if (imgFile) data.append("image", imgFile);
+    if (content) data.append("content", content);
+
+    const cb = (res) => {
+      console.log(res);
+      if (res.success) {
+        message.success("บันทึกข้อมูลสำเร็จ");
+        navigate(`/${pathSplit[1]}/list`);
+      } else {
+        message.error(res.userMessage || "บันทึกข้อมูลไม่สำเร็จ");
+      }
+    };
+    const cbCatch = (e) => console.log(e);
+    const cbFinal = () => setUploading(false);
 
     try {
       setUploading(true);
-      if (isFreebie) {
-        const res = await updateProductFreebie(data);
-        navigate(`/freebies/freebies`);
+      if (isEdit) {
+        await updateNews(data).then(cb).catch(cbCatch).finally(cbFinal);
       } else {
-        const res = await updateProduct(data);
-        navigate(`/PriceListPage/DistributionPage/${productId}`);
+        await createNews(data).then(cb).catch(cbCatch).finally(cbFinal);
       }
-      //message.success('บันทึกข้อมูลสำเร็จ');
     } catch (e) {
       console.log(e);
     } finally {
       setUploading(false);
     }
   };
-
-  const {
-    baseUnitOfMeaEn,
-    baseUnitOfMeaTh,
-    commonName,
-    company,
-    description,
-    productBrand,
-    productCategoryId,
-    productCodeNAV,
-    productGroup,
-    productId,
-    productImage,
-    productLocation,
-    productName,
-    productStatus,
-    productFreebiesId,
-    productFreebiesCodeNAV,
-    productFreebiesImage,
-    productFreebiesStatus,
-    promotionOfProduct,
-    productFreebies,
-  } = dataState || {};
 
   const PageTitle = () => {
     return (
@@ -326,7 +315,7 @@ export const NewsEdit: React.FC = (props: any) => {
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการข่าวสาร", path: `/${pathSplit[1]}/${pathSplit[2]}` },
+              { text: "รายการข่าวสาร", path: `/${pathSplit[1]}/list` },
               { text: "เพิ่มข่าวสาร", path: window.location.pathname },
             ]}
           />
@@ -353,7 +342,7 @@ export const NewsEdit: React.FC = (props: any) => {
                 </Text>
                 <FlexRow style={{ padding: "16px 0px" }}>
                   <FlexCol style={{ marginRight: 16 }}>
-                    <Form.Item noStyle name='horizontalImage' valuePropName='file'>
+                    <Form.Item noStyle name='image' valuePropName='file'>
                       <ImgCrop aspect={1} {...imgCropProps}>
                         <UploadBox
                           listType='picture-card'
@@ -365,9 +354,9 @@ export const NewsEdit: React.FC = (props: any) => {
                               message.error("You can only upload JPG/PNG file!");
                               return true;
                             }
-                            setImgUrl(file);
+                            setImgFile(file);
                             getBase64(file as RcFile, (url) => {
-                              setImgFile(url);
+                              setImgUrl(url);
                             });
                           }}
                           customRequest={() => {
@@ -378,6 +367,7 @@ export const NewsEdit: React.FC = (props: any) => {
                           }}
                           onRemove={() => {
                             setImgFile(undefined);
+                            setImgUrl(undefined);
                           }}
                           showUploadList={false}
                           disabled={!!imgFile || !!imgUrl}
@@ -426,24 +416,30 @@ export const NewsEdit: React.FC = (props: any) => {
                   rules={[
                     {
                       required: true,
-                      message: "*โปรดระบุชื่อโปรโมชัน",
+                      message: "*โปรดระบุหัวข้อข่าว",
                     },
                     {
                       max: 50,
-                      message: "*ชื่อโปรโมชันต้องมีความยาวไม่เกิน 50 ตัวอักษร",
+                      message: "*หัวข้อข่าวต้องมีความยาวไม่เกิน 50 ตัวอักษร",
                     },
                   ]}
                 >
                   <Input
-                    placeholder='ระบุชื่อหัวข้อข่าว'
+                    placeholder='ระบุหัวข้อข่าว'
                     autoComplete='off'
-                    onBlur={(e) => setTopic(e.target.value)}
+                    onChange={(e) => setTopic(e.target.value)}
                   />
                 </Form.Item>
-                <Form.Item label='รายละเอียดข่าว' required>
-                  <ReactQuill ref={quillRef} modules={modules} />
+                <Form.Item name='content' label='รายละเอียดข่าว' required>
+                  <QuillContainer>
+                    <ReactQuill
+                      ref={quillRef}
+                      modules={modules}
+                      onChange={(c) => setContent(c)}
+                      value={content}
+                    />
+                  </QuillContainer>
                 </Form.Item>
-                <br />
                 <Form.Item name='type' label='หมวดหมู่' initialValue={newsTypes.NEWS.key} required>
                   <Radio.Group>
                     <br />
@@ -456,40 +452,87 @@ export const NewsEdit: React.FC = (props: any) => {
                     </Space>
                   </Radio.Group>
                 </Form.Item>
-                <Form.Item name='type' label='แอปพลิเคชัน' required>
+                <Form.Item name='app' label='แอปพลิเคชัน' required>
                   <Checkbox.Group
                     options={[
                       {
                         label: "Shop Application",
-                        value: "1",
+                        value: "isShowOnShopApp",
                       },
                       {
                         label: "Sale Application",
-                        value: "2",
+                        value: "isShowOnSaleApp",
                       },
                     ]}
                   />
                 </Form.Item>
-                <Form.Item name='type' label='สถานะ' required>
-                  <Radio.Group>
-                    <br />
-                    <Space direction='vertical'>
-                      {[
-                        {
-                          name: "ใช้งาน",
-                          key: "1",
-                        },
-                        {
-                          name: "แบบร่าง",
-                          key: "2",
-                        },
-                      ].map(({ key, name }) => (
-                        <Radio value={key} key={key}>
-                          {name}
-                        </Radio>
+                <Form.Item name='status' label='สถานะ' required>
+                  <Radio checked={status !== "DRAFT"} onChange={() => setStatus("PUBLISHED")}>
+                    ใช้งาน
+                  </Radio>
+                  <br />
+                  <FlexCol>
+                    {[
+                      {
+                        name: "เผยแพร่ทันที",
+                        key: "PUBLISHED",
+                        isSub: true,
+                      },
+                      {
+                        name: "ตั้งเวลาเผยแพร่",
+                        key: "WAITING",
+                        isSub: true,
+                        extra: (
+                          <Row gutter={16} style={{ padding: "4px 0" }}>
+                            <Col span={12}>
+                              <Form.Item name='startDate' required>
+                                <DatePicker style={{ width: "100%" }} enablePast />
+                              </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                              <Form.Item name='startTime' initialValue={dayjs("00:00", "HH:mm")}>
+                                <TimePicker allowClear={false} />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        ),
+                      },
+                      {
+                        name: "แบบร่าง",
+                        key: "DRAFT",
+                      },
+                    ]
+                      .filter(({ isSub }) => {
+                        if (status === "DRAFT") {
+                          return !isSub;
+                        }
+                        return true;
+                      })
+                      .map(({ key, name, isSub, extra }) => (
+                        <div
+                          style={{ ...(isSub ? { paddingLeft: 24 } : {}), width: "100%" }}
+                          key={key}
+                        >
+                          <Radio
+                            key={key}
+                            checked={status === key}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setStatus(key);
+                              }
+                            }}
+                          >
+                            {name}
+                          </Radio>
+                          {status === key && (
+                            <>
+                              <br />
+                              {extra}
+                            </>
+                          )}
+                        </div>
                       ))}
-                    </Space>
-                  </Radio.Group>
+                  </FlexCol>
                 </Form.Item>
               </Col>
               <Col style={{ width: "320px" }}>
@@ -502,15 +545,13 @@ export const NewsEdit: React.FC = (props: any) => {
                     border: `1px solid ${color.background2}`,
                     borderRadius: 8,
                     marginTop: 8,
+                    maxHeight: "90vh",
+                    overflowX: "hidden",
+                    overflowY: "auto",
                   }}
                 >
-                  <UploadArea
-                    style={{
-                      width: 280,
-                      height: 280,
-                    }}
-                  >
-                    {UploadIcon}
+                  <UploadArea style={previewImageStyle}>
+                    {imgUrl ? <img src={imgUrl} style={previewImageStyle} /> : UploadIcon}
                   </UploadArea>
                   <br />
                   <Text level={4} fontWeight={700}>
@@ -526,7 +567,15 @@ export const NewsEdit: React.FC = (props: any) => {
                     </Text>
                   </Row>
                   <Divider />
-                  <div dangerouslySetInnerHTML={{ __html: desc }}></div>
+                  <div
+                    className='view ql-editor'
+                    style={{
+                      display: "block",
+                      wordBreak: "break-word",
+                      wordWrap: "break-word",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: content }}
+                  ></div>
                 </div>
               </Col>
             </Row>
@@ -544,6 +593,54 @@ export const NewsEdit: React.FC = (props: any) => {
             </Row>
           </Form>
         </CardContainer>
+        <Modal
+          title='เพิ่มวิดีโอ'
+          open={showVideoModal}
+          onCancel={() => setVideoModal(false)}
+          footer={null}
+        >
+          <Form form={vidForm} layout='vertical' onFinish={onSubmitVideo}>
+            <Form.Item
+              name='width'
+              label='ความกว้าง'
+              required
+              initialValue={280}
+              rules={[
+                {
+                  message: "กรอกตัวเลข",
+                  validator: inputNumberValidator,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name='height'
+              label='ความสูง'
+              required
+              initialValue={168}
+              rules={[
+                {
+                  message: "กรอกตัวเลข",
+                  validator: inputNumberValidator,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item name='url' label='Video URI' required rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <br />
+            <Form.Item>
+              <Row justify='end'>
+                <Button type='primary' htmlType='submit'>
+                  OK
+                </Button>
+              </Row>
+            </Form.Item>
+          </Form>
+        </Modal>
       </Col>
     </Row>
   );

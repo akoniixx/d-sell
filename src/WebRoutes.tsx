@@ -50,7 +50,7 @@ import { DetailConditionCOPage } from "./pages/DiscountPage/ConditionCO/DetailCo
 import { PromotionDetail } from "./pages/promotionPage/promotionDetail";
 import { NewsList } from "./pages/NewsPage/NewsList";
 import { NewsEdit } from "./pages/NewsPage/CreateNewsPage";
-import { PinedNews } from "./pages/NewsPage/PinedNews";
+import { PinedNewsPage } from "./pages/NewsPage/PinedNews";
 import { PromotionNotification } from "./pages/promotionPage/promotionNotification";
 import { HighLightNews } from "./pages/NewsPage/HighLightNews";
 import { CreateHighLightNewsPage } from "./pages/NewsPage/CreateHighLightNews";
@@ -448,8 +448,13 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
+        path: "edit/:id",
+        element: <NewsEdit />,
+        permission: null,
+      },
+      {
         path: "pin",
-        element: <PinedNews />,
+        element: <PinedNewsPage />,
         permission: null,
       },
       {
@@ -459,6 +464,11 @@ export const protectRoutesData: IRoute[] = [
       },
       {
         path: "createhighlight",
+        element: <CreateHighLightNewsPage />,
+        permission: null,
+      },
+      {
+        path: "edithighlight/:id",
         element: <CreateHighLightNewsPage />,
         permission: null,
       },
