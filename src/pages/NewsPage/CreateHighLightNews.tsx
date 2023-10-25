@@ -52,14 +52,14 @@ export const CreateHighLightNewsPage: React.FC = () => {
   return (
     <CardContainer>
       <PageTitleNested
-        title='เพิ่มข่าวสารไฮไลน์'
+        title='เพิ่มข่าวสารไฮไลท์'
         showBack
         onBack={() => navigate(`/news/highlight`)}
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "ข่าวสารไฮไลน์", path: `/news/highlight` },
-              { text: "เพิ่มข่าวสารไฮไลน์", path: window.location.pathname },
+              { text: "ข่าวสารไฮไลท์", path: `/news/highlight` },
+              { text: "เพิ่มข่าวสารไฮไลท์", path: window.location.pathname },
             ]}
           />
         }

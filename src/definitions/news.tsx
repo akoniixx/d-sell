@@ -1,17 +1,18 @@
 import color from "../resource/color";
 
-export type NewsStatus = "PUBBLISHED" | "TO_BE_PUBLISHED" | "DRAFT" | "CLOSED";
+export type NewsStatus = "PUBLISHED" | "WAITING" | "DRAFT" | "INACTIVE";
 export type NewsType = "NEWS" | "INFO";
+export type PinPage = "NEWS_PAGE" | "MAIN_PAGE";
 
 export const newsStatus = {
-  PUBBLISHED: {
-    key: "PUBBLISHED",
+  PUBLISHED: {
+    key: "PUBLISHED",
     name: "เผยแพร่แล้ว",
     nickname: "ใช้งาน",
     color: color.success,
   },
-  TO_BE_PUBLISHED: {
-    key: "TO_BE_PUBLISHED",
+  WAITING: {
+    key: "WAITING",
     name: "รอเวลาเผยแพร่",
     nickname: "ใช้งาน",
     color: color.success,
@@ -22,8 +23,8 @@ export const newsStatus = {
     nickname: "แบบร่าง",
     color: color.warning,
   },
-  CLOSED: {
-    key: "CLOSED",
+  INACTIVE: {
+    key: "INACTIVE",
     name: "ปิดการใช้งาน",
     nickname: "ปิดการใช้งาน",
     color: color.error,
