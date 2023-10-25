@@ -1,6 +1,10 @@
 ## [Version - 0]
 
-## Features [v0.8.1] - Release Date: 2023-10-06
+## Features [v0.8.3] - Release Date: 2023-10-06
+
+- Update Feature: News (API news and pined)
+
+## Features [v0.8.2] - Release Date: 2023-10-06
 
 - fix special request permission
 

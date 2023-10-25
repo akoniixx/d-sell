@@ -416,16 +416,16 @@ export const NewsEdit: React.FC = (props: any) => {
                   rules={[
                     {
                       required: true,
-                      message: "*โปรดระบุชื่อโปรโมชัน",
+                      message: "*โปรดระบุหัวข้อข่าว",
                     },
                     {
                       max: 50,
-                      message: "*ชื่อโปรโมชันต้องมีความยาวไม่เกิน 50 ตัวอักษร",
+                      message: "*หัวข้อข่าวต้องมีความยาวไม่เกิน 50 ตัวอักษร",
                     },
                   ]}
                 >
                   <Input
-                    placeholder='ระบุชื่อหัวข้อข่าว'
+                    placeholder='ระบุหัวข้อข่าว'
                     autoComplete='off'
                     onChange={(e) => setTopic(e.target.value)}
                   />

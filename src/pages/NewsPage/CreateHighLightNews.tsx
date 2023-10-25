@@ -49,6 +49,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
     justify-content: center;
     padding: 32px;
   `;
+
   return (
     <CardContainer>
       <PageTitleNested
@@ -141,6 +142,22 @@ export const CreateHighLightNewsPage: React.FC = () => {
                 </Text>
               </Col>
             </Row>
+            <Form.Item
+              name='topic'
+              label='ชื่อข่าวสาร'
+              rules={[
+                {
+                  required: true,
+                  message: "*โปรดระบุชื่อข่าวสาร",
+                },
+                {
+                  max: 50,
+                  message: "*ชื่อข่าวสารต้องมีความยาวไม่เกิน 50 ตัวอักษร",
+                },
+              ]}
+            >
+              <Input placeholder='ระบุชื่อข่าวสาร' />
+            </Form.Item>
             <Row align='middle' gutter={16}>
               <Col span={6}>
                 <Form.Item
