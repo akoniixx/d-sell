@@ -46,19 +46,6 @@ export const HighLightNews: React.FC = () => {
 
   const resetPage = () => setPage(1);
 
-  const mockData = [
-    {
-      startDate: new Date(),
-      endDate: new Date(),
-      img: image.expHighLight,
-      name: "ร่วมสนุกรับวันสงกรานต์กับ ไอ ซี พี ลัดดาเพียงถ่ายรูปคู่สินค้าชนิดใดก็ได้ พร้อมคำโดนใจ",
-      isShowShopApp: true,
-      isShowSaleApp: true,
-      status: "DONE",
-      updateBy: "รชยา ช่างภักดี",
-    },
-  ];
-
   useEffect(() => {
     if (!loading) fetchData();
   }, [keyword, app, page]);
@@ -306,7 +293,7 @@ export const HighLightNews: React.FC = () => {
                     title: "ต้องการยืนยันการลบ",
                     onOk: async () => {
                       await deleteHighlight({
-                        newsId: row.highlightNewsId,
+                        highlightNewsId: row.highlightNewsId,
                         updateBy: firstname + " " + lastname,
                       })
                         .then((res) => {
