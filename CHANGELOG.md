@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.9.4] - Release Date: 2023-10-31
+
+- fix highlight news
+
 ## Features [v0.9.3] - Release Date: 2023-10-25
 
 - edit News API url
