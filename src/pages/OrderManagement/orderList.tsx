@@ -339,7 +339,10 @@ export const OrderList: React.FC = () => {
               <Col span={12}>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/order/" + row.orderId)}
+                  // onClick={() => navigate("/order/" + row.orderId)}
+                  onClick={() =>
+                    window.open(`${window.location.pathname}/${row.orderId}`, "_blank")
+                  }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />

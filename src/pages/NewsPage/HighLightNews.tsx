@@ -1,5 +1,5 @@
-import { DeleteOutlined, EditOutlined, SearchOutlined } from "@ant-design/icons";
-import { Col, Row, Table, Image, Badge, Modal } from "antd";
+import { DeleteOutlined, EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import { Col, Row, Table, Image, Badge, Modal, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button/Button";
@@ -11,15 +11,40 @@ import Text from "../../components/Text/Text";
 import { color } from "../../resource";
 import image from "../../resource/image";
 import { dateFormatter } from "../../utility/Formatter";
+import { useEffectOnce } from "react-use";
+import Permission from "../../components/Permission/Permission";
+import { deleteHighlight, getHighlightList } from "../../datasource/News";
+
+const appList = [
+  {
+    key: "SHOP",
+    name: "Shop App",
+    icon: <img src={image.iconShopApp} width='20px' height='20px' />,
+  },
+  {
+    key: "SALE",
+    name: "Sale App",
+    icon: <img src={image.iconSaleApp} width='20px' height='20px' />,
+  },
+];
 
 export const HighLightNews: React.FC = () => {
   const navigate = useNavigate();
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
-  const take = 10;
+  const { company, firstname, lastname } = userProfile;
 
+  const pageSize = 10;
+
+  const [loading, setLoading] = useState(false);
+  const [keyword, setKeyword] = useState<string>();
+  const [app, setApp] = useState<string>();
   const [page, setPage] = useState<number>(1);
-  const [isEdit, setEdit] = useState<boolean>(false);
+  const [dataState, setDataState] = useState<{ count: number; data: any[] }>({
+    count: 0,
+    data: [],
+  });
+
+  const resetPage = () => setPage(1);
 
   const mockData = [
     {
@@ -33,6 +58,37 @@ export const HighLightNews: React.FC = () => {
       updateBy: "รชยา ช่างภักดี",
     },
   ];
+
+  useEffect(() => {
+    if (!loading) fetchData();
+  }, [keyword, app, page]);
+
+  useEffectOnce(() => {
+    fetchData();
+  });
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const { responseData } = await getHighlightList({
+        company,
+        take: pageSize,
+        searchText: keyword,
+        application: app,
+        page,
+      });
+      const { data, count } = responseData;
+      console.log(responseData);
+      setDataState({
+        data,
+        count,
+      });
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const ActionBtn = ({ onClick, icon }: any) => {
     return (
@@ -48,39 +104,67 @@ export const HighLightNews: React.FC = () => {
       </Col>
     );
   };
+
   const PageTitle = (
     <Row align='middle' gutter={16}>
-      <Col span={9}>
+      <Col span={12}>
         <Text level={3} fontWeight={700}>
           ข่าวสารไฮไลท์
         </Text>
       </Col>
-      <Col span={6}>
+      <Col span={4}>
         <Input
           placeholder='ค้นหาชื่อข่าวสาร'
-          suffix={<SearchOutlined style={{ color: "grey" }} />}
-          //onChange={(e) => setSearch(e.target.value)}
+          prefix={<SearchOutlined style={{ color: "grey" }} />}
+          defaultValue={keyword}
+          onPressEnter={(e) => {
+            const value = (e.target as HTMLTextAreaElement).value;
+            setKeyword(value);
+            resetPage();
+          }}
+          onChange={(e) => {
+            const value = (e.target as HTMLInputElement).value;
+            if (!value) {
+              setKeyword("");
+              resetPage();
+            }
+          }}
         />
       </Col>
-      <Col span={5}>
+      <Col span={4}>
         <Select
           allowClear
+          onChange={(value: string) => {
+            setApp(value);
+            resetPage();
+          }}
           placeholder='เลือกแอปพลิเคชัน'
-          data={[]}
+          data={appList.map(({ key, name, icon }) => ({
+            key,
+            label: (
+              <span>
+                {icon}&nbsp;{name}
+              </span>
+            ),
+            value: key,
+          }))}
           style={{ width: "100%" }}
-          //onChange={(e) => searchApp(e)}
+          value={app}
         />
       </Col>
-      <Col>
-        <Button
-          type='primary'
-          title='+ เพิ่มข่าวสารไฮไลน์'
-          height={40}
-          onClick={() => navigate("/news/createhighlight")}
-        />
-      </Col>
+      <Permission permission={["newsList", "create"]}>
+        <Col className='gutter-row' span={4}>
+          <Button
+            type='primary'
+            title='+ เพิ่มข่าวสารไฮไลน์'
+            height={40}
+            onClick={() => navigate("/news/createhighlight")}
+          />
+        </Col>
+      </Permission>
     </Row>
   );
+
   const columns: any = [
     {
       title: "วันที่เผยแพร่",
@@ -100,15 +184,20 @@ export const HighLightNews: React.FC = () => {
     },
     {
       title: "ชื่อข่าวสาร",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "topic",
+      key: "topic",
       width: "40%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <Row justify={"start"} gutter={8}>
               <Col span={4}>
-                <Image src={row.img} height={60} width={60} style={{ borderRadius: "5px" }} />
+                <Image
+                  src={row.imageUrl}
+                  height={60}
+                  width={60}
+                  style={{ borderRadius: "5px", objectFit: "cover" }}
+                />
               </Col>
               <Col span={20}>
                 <Text level={5}>{value || "-"}</Text>
@@ -127,7 +216,7 @@ export const HighLightNews: React.FC = () => {
         return {
           children: (
             <Row gutter={16} justify={"space-between"}>
-              {row.isShowSaleApp && (
+              {row.isShowOnSaleApp && (
                 <Col span={24}>
                   <Image src={image.iconSaleApp} height={25} preview={false} />
                   <Text level={5} style={{ paddingLeft: "5px" }}>
@@ -135,7 +224,7 @@ export const HighLightNews: React.FC = () => {
                   </Text>
                 </Col>
               )}
-              {row.isShowShopApp && (
+              {row.isShowOnShopApp && (
                 <Col span={24}>
                   <Image src={image.iconShopApp} height={25} preview={false} />
                   <Text level={5} style={{ paddingLeft: "5px" }}>
@@ -177,18 +266,18 @@ export const HighLightNews: React.FC = () => {
       dataIndex: "status",
       key: "status",
       width: "10%",
-      render: (value: any, row: any, index: number) => {
+      render: (status: any, row: any, index: number) => {
         return {
           children: (
             <>
               <Row gutter={8}>
                 <Col>
-                  <Badge status='success' />
+                  <Badge status={status === "true" ? "success" : "default"} />
                 </Col>
-                <Text level={5}>{"ใช้งาน" || "-"}</Text>
+                <Text level={5}>{status === "true" ? "ใช้งาน" : "ปิดใช้งาน"}</Text>
               </Row>
               <Text level={6} color='Text3'>
-                {row.updateBy}
+                {row.updatedBy}
               </Text>
             </>
           ),
@@ -207,8 +296,7 @@ export const HighLightNews: React.FC = () => {
             <Row justify={"start"} gutter={8}>
               <ActionBtn
                 onClick={() => {
-                  setEdit(false);
-                  navigate(`/news/createhighlight`);
+                  navigate(`/news/edithighlight/${row.highlightNewsId}`);
                 }}
                 icon={<EditOutlined />}
               />
@@ -216,15 +304,16 @@ export const HighLightNews: React.FC = () => {
                 onClick={() =>
                   Modal.confirm({
                     title: "ต้องการยืนยันการลบ",
-                    okText: "",
-                    cancelText: "",
-                    // onOk: async () => {
-                    //   await deletePromotionNoti(row.promotionNotiId)
-                    //     .then((res) => {
-                    //       navigate(0);
-                    //     })
-                    //     .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
-                    // },
+                    onOk: async () => {
+                      await deleteHighlight({
+                        newsId: row.highlightNewsId,
+                        updateBy: firstname + " " + lastname,
+                      })
+                        .then((res) => {
+                          navigate(0);
+                        })
+                        .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                    },
                   })
                 }
                 icon={<DeleteOutlined style={{ color: color.error }} />}
@@ -235,6 +324,7 @@ export const HighLightNews: React.FC = () => {
       },
     },
   ];
+
   return (
     <CardContainer>
       {PageTitle}
@@ -243,14 +333,15 @@ export const HighLightNews: React.FC = () => {
         className='rounded-lg'
         columns={columns}
         scroll={{ x: 1300 }}
-        dataSource={mockData}
+        dataSource={dataState.data}
         size='large'
         tableLayout='fixed'
+        loading={loading}
         pagination={{
           position: ["bottomCenter"],
-          pageSize: take,
+          pageSize,
           current: page,
-          total: 10,
+          total: dataState.count,
           onChange: (p) => setPage(p),
           showSizeChanger: false,
         }}

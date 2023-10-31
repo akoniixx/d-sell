@@ -17,34 +17,13 @@ import {
   Modal,
 } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { CameraOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import {
-  getProductCategory,
-  getProductDetail,
-  updateProduct,
-} from "../../datasource/ProductDatasource";
-import { priceFormatter } from "../../utility/Formatter";
 import Text from "../../components/Text/Text";
-import { BrandEntity } from "../../entities/BrandEntity";
-import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
 import { useEffectOnce } from "react-use";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import PageTitleNested from "../../components/PageTitle/PageTitleNested";
-import { ProductEntity } from "../../entities/PoductEntity";
 import styled from "styled-components";
 import Input from "../../components/Input/Input";
 import color from "../../resource/color";
-import TextArea from "../../components/Input/TextArea";
-import { ProductCategoryEntity } from "../../entities/ProductCategoryEntity";
-import {
-  getProductFreebieDetail,
-  getProductFreebiePromotionDetail,
-  updateProductFreebie,
-} from "../../datasource/PromotionDatasource";
-import Select from "../../components/Select/Select";
-import type { UploadFile } from "antd/es/upload/interface";
-import image from "../../resource/image";
-import CardSection from "../../components/Card/CardSection";
 import ImgCrop from "../../components/ImgCrop/ImgCrop";
 import { ImageWithDeleteButton, UploadIcon } from "../../components/Image/Image";
 import { RcFile } from "antd/lib/upload";
@@ -212,7 +191,6 @@ export const NewsEdit: React.FC = (props: any) => {
       setLoading(true);
       const { responseData } = await getNewsById(id);
       setNewsData(responseData);
-      console.log(responseData);
 
       const app: string[] = [];
       if (responseData?.isShowOnSaleApp) app.push("isShowOnSaleApp");
@@ -229,20 +207,7 @@ export const NewsEdit: React.FC = (props: any) => {
       setImgUrl(responseData?.imageUrl);
 
       // set Content
-      fetch(responseData?.contentUrl + "&response-content-disposition=attachment")
-        .then((response) => {
-          console.log(responseData?.contentUrl, response);
-          return response.text();
-        })
-        .then((data) => {
-          console.log("test", data);
-          setContent(data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-      // await axios.get(responseData?.contentUrl).then((res) => console.log(res))
+      setContent(responseData?.contentFile);
     } catch (e) {
       console.log(e);
     } finally {
@@ -257,7 +222,7 @@ export const NewsEdit: React.FC = (props: any) => {
     const quill = quillRef.current.getEditor();
     console.log(form.getFieldsValue(), quill.root.innerHTML);
 
-    const content = new Blob([quill.root.innerHTML], { type: "text/plain" });
+    const content = new Blob([quill.root.innerHTML], { type: "text/html" });
 
     if (isEdit) data.append("newsId", id);
 

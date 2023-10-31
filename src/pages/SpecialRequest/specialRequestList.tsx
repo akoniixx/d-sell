@@ -287,7 +287,10 @@ export const SpecialRequestList: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/special-request/" + orderId)}
+                  // onClick={() => navigate("/special-request/" + orderId)}
+                  onClick={() =>
+                    window.open(`${window.location.pathname}/${row.orderId}`, "_blank")
+                  }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
