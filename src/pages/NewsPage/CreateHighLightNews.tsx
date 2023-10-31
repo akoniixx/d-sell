@@ -141,6 +141,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
     try {
       setUploading(true);
       if (isEdit) {
+        data.append("highlightNewsId", id);
         await updateHighlight(data).then(cb).catch(cbCatch).finally(cbFinal);
       } else {
         await createHighlight(data).then(cb).catch(cbCatch).finally(cbFinal);
@@ -171,7 +172,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
       <Form
         form={form}
         layout='vertical'
-        initialValues={{ isShowSaleApp: true, isShowShopApp: true }}
+        // initialValues={{ isShowOnSaleApp: true, isShowOnShopApp: true }}
         onFinish={onSave}
       >
         <Row justify={"space-between"} gutter={16}>
@@ -354,10 +355,10 @@ export const CreateHighLightNewsPage: React.FC = () => {
                 <Text level={5} fontWeight={700}>
                   แอปพลิเคชัน
                 </Text>
-                <Form.Item name='isShowSaleApp' valuePropName='checked' noStyle>
+                <Form.Item name='isShowOnSaleApp' valuePropName='checked' noStyle>
                   <Checkbox>Sale App</Checkbox>
                 </Form.Item>
-                <Form.Item name='isShowShopApp' valuePropName='checked' noStyle>
+                <Form.Item name='isShowOnShopApp' valuePropName='checked' noStyle>
                   <Checkbox>Shop App</Checkbox>
                 </Form.Item>
               </Col>

@@ -82,7 +82,7 @@ const updateHighlight = async (data: FormData) => {
     .catch((err) => console.log(err));
 };
 
-const deleteHighlight = async (data: { newsId: string; updateBy: string }) => {
+const deleteHighlight = async (data: { highlightNewsId: string; updateBy: string }) => {
   return await httpClient
     .delete(`${baseUrl}/highlight`, { data })
     .then((res: AxiosResponse) => res.data)
