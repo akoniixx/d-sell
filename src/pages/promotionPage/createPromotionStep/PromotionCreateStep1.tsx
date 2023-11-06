@@ -842,10 +842,39 @@ export const PromotionCreateStep1 = ({
                 <Text level={5} fontWeight={700}>
                   แสดงในแอปพลิเคชัน
                 </Text>
-                <Form.Item name='isShowSaleApp' valuePropName='checked' noStyle>
+                <Form.Item
+                  name='isShowSaleApp'
+                  valuePropName='checked'
+                  rules={[
+                    {
+                      validator: (rule, value, callback) => {
+                        const isShowShopApp = form.getFieldValue("isShowShopApp");
+                        if (!isShowShopApp && !value) {
+                          return Promise.reject("*กรุณาเลือก");
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
                   <Checkbox disabled={!isShowPromotion}>Sale App</Checkbox>
                 </Form.Item>
-                <Form.Item name='isShowShopApp' valuePropName='checked' noStyle>
+                <Form.Item
+                  name='isShowShopApp'
+                  valuePropName='checked'
+                  rules={[
+                    {
+                      validator: (rule, value, callback) => {
+                        const isShowSaleApp = form.getFieldValue("isShowSaleApp");
+                        if (!value && !isShowSaleApp) {
+                          return Promise.reject("*กรุณาเลือก");
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                  style={{ marginTop: "-16px" }}
+                >
                   <Checkbox disabled={!isShowPromotion}>Shop App</Checkbox>
                 </Form.Item>
               </Col>
@@ -940,7 +969,7 @@ export const PromotionCreateStep1 = ({
               </Col>
               <Row gutter={8}>
                 <label>
-                  แจ้งแตือน ก่อนเริ่มโปรโมชัน{" "}
+                  แจ้งเตือน ก่อนเริ่มโปรโมชัน{" "}
                   <span>
                     <Tooltip
                       placement='top'
@@ -971,7 +1000,9 @@ export const PromotionCreateStep1 = ({
                 </Col>
               </Row>
               <Row gutter={8}>
-                <label>แจ้งแตือน วันที่เริ่มโปรโมชัน</label>
+                <Col>
+                  <label>แจ้งเตือน วันที่เริ่มโปรโมชัน</label>
+                </Col>
                 <Col span={12}>
                   <Form.Item name='startDate'>
                     <DatePicker

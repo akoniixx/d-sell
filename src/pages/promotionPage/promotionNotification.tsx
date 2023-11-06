@@ -384,7 +384,17 @@ export const PromotionNotification: React.FC = () => {
                     <ActionBtn
                       onClick={() =>
                         Modal.confirm({
-                          title: "ต้องการยืนยันการลบการแจ้งเตือน",
+                          title: (
+                            <>
+                              <Text>ต้องการยืนยันการลบการแจ้งเตือน</Text>
+                              <br />
+                              <Text fontSize={14}>
+                                โปรดตรวจสอบการแจ้งเตือนโปรโมชันที่คุณต้องการลบ ก่อนกดยืนยัน
+                                เพราะอาจส่งผลต่อการทำงานของผู้ดูแลระบบ
+                              </Text>
+                            </>
+                          ),
+                          width: 500,
                           okText: "",
                           cancelText: "",
                           onOk: async () => {
