@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.9.6] - Release Date: 2023-11-06
+
+- fixed defect promotion noti in promotion menu
+- fixed modal noti promotion list
+
 ## Features [v0.9.5] - Release Date: 2023-10-31
 
 - fix delete & update highlight news

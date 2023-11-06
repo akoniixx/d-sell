@@ -34,6 +34,7 @@ interface Props {
   placeholder?: string;
   style?: React.CSSProperties;
   disabledDate?: (current: Dayjs) => boolean;
+  disableToday?: boolean;
 }
 function DatePicker({
   onChange,
@@ -43,6 +44,7 @@ function DatePicker({
   style,
   placeholder,
   disabledDate,
+  disableToday,
   ...props
 }: Props): JSX.Element {
   return (
@@ -53,6 +55,7 @@ function DatePicker({
       value={value}
       onChange={onChange}
       suffixIcon={false}
+      showToday={false}
       style={{
         height: 40,
         width: "100%",

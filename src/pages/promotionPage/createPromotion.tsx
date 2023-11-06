@@ -338,6 +338,20 @@ export const PromotionCreatePage: React.FC = () => {
 
   const onNext = async () => {
     if (step === 0) {
+      console.log(
+        "f",
+        form1
+          .validateFields()
+          .then((values) => {
+            setPromotionData({
+              ...promotionData,
+              ...values,
+            });
+          })
+          .catch((errInfo) => {
+            console.log("errInfo", errInfo);
+          }),
+      );
       setImgPromotion(file2 || imageUrl2 ? false : true);
       form1
         .validateFields()
@@ -346,15 +360,15 @@ export const PromotionCreatePage: React.FC = () => {
             ...promotionData,
             ...values,
           });
+          if (form1.getFieldValue("isShowPromotion")) {
+            (file2 || imageUrl2) && setStep(step + 1);
+          } else {
+            setStep(step + 1);
+          }
         })
         .catch((errInfo) => {
           console.log("errInfo", errInfo);
         });
-      if (form1.getFieldValue("isShowPromotion")) {
-        (file2 || imageUrl2) && setStep(step + 1);
-      } else {
-        setStep(step + 1);
-      }
     } else if (step === 1) {
       const stores = form2.getFieldValue("stores");
       if (!stores || stores.length <= 0) {
