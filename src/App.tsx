@@ -1,11 +1,34 @@
 import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import "./App.less";
 import WebRoutes from "./WebRoutes";
-import 'antd/dist/antd.min.css';
+import "antd/dist/antd.less";
+import { RecoilRoot } from "recoil";
+import locale_th from "antd/lib/locale-provider/th_TH";
+import { ConfigProvider } from "antd";
+import BuddhaEra from "dayjs/plugin/buddhistEra";
+import dayjs from "dayjs";
+import { QueryClient, QueryClientProvider } from "react-query";
+import "dayjs/locale/th";
+dayjs.extend(BuddhaEra);
 
 function App() {
-  return <WebRoutes />;
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnReconnect: true,
+      },
+    },
+  });
+
+  return (
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <ConfigProvider locale={locale_th}>
+          <WebRoutes />
+        </ConfigProvider>
+      </QueryClientProvider>
+    </RecoilRoot>
+  );
 }
 
 export default App;

@@ -1,33 +1,61 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import Button from "../../components/Button/Button";
+import Text from "../../components/Text/Text";
+import image from "../../resource/image";
+import { profileAtom } from "../../store/ProfileAtom";
+import { roleAtom } from "../../store/RoleAtom";
+import { redirectByRole } from "../../utility/func/RedirectByPermission";
 
 const PageNotFound: React.FC = () => {
+  const profile = useRecoilValue(profileAtom);
+  const roleData = useRecoilValue(roleAtom);
+  const navigate = useNavigate();
   const NoMatch = () => {
-    let location = useLocation();
+    const location = useLocation();
 
     return (
-      <div>
-        <h3>
+      <div
+        style={{
+          width: "100%",
+        }}
+      >
+        <Text fontWeight={700} level={3} align='center'>
           No match for <code>{location.pathname}</code>
-        </h3>
+        </Text>
       </div>
     );
   };
 
   return (
-    <div className="container">
-      <div className="d-flex justify-content-center align-items-center">
-        <img src="/media/images/404.png" width="264px" height="164px" />
-        <h3 className="card-title  mt-5 ">
-          <span className="card-label font-weight-bolder text-dark">
-            ขออภัย ไม่พบหน้าที่ท่านต้องการ
-          </span>
-          {NoMatch()}
-          <br />
-          <span className="text-muted mt-5 font-weight-bold font-size-sm">
-            ไม่พบ URL ที่คุณเรียกโปรดตรวจสอบ URL ให้ถูกต้อง
-          </span>
-        </h3>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "80vh",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
+        <img src={image.error404} width='264px' height='164px' />
+        <Text align='center'>ขออภัย ไม่พบหน้าที่ท่านต้องการ</Text>
+        {NoMatch()}
+        <Text>ไม่พบ URL ที่คุณเรียกโปรดตรวจสอบ URL ให้ถูกต้อง</Text>
+        <Button
+          title='กลับหน้าหลัก'
+          onClick={() => {
+            navigate(!profile ? "/" : `${redirectByRole(roleData?.menus)}`);
+          }}
+        />
       </div>
     </div>
   );

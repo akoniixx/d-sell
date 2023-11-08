@@ -1,0 +1,139 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@primary-color: #1890ff;
+@secondary-color: #1b4586;
+@text3: #babcbe;
+.hide_header {
+  .ant-transfer-list-header {
+    display: none;
+  }
+}
+
+.ant-steps-item-title {
+  font-size: 14px;
+  font-family: "IBM Plex Sans Thai", sans-serif;
+}
+.ant-steps-item-process
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  font-weight: 700;
+  color: @secondary-color !important;
+}
+.ant-steps-item-icon {
+  font-family: "IBM Plex Sans Thai", sans-serif !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding-top: 4px;
+}
+.ant-steps-item-tail {
+  margin-top: 2px !important;
+  padding: 3.5px 16px 0px 20px !important;
+}
+
+.ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-icon {
+  background-color: white !important;
+}
+.ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-icon .ant-steps-icon {
+  color: #0068f4 !important;
+  font-weight: 600 !important;
+}
+
+.ant-steps-item .ant-steps-item-wait {
+  background-color: white !important;
+
+  :hover {
+    color: #0068f4 !important;
+  }
+}
+.ant-steps-item-finish .ant-steps-item-icon {
+  background-color: #0068f4 !important;
+}
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+  color: white !important;
+}
+
+.ant-steps-item-container {
+  .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+    color: @text3 !important;
+    font-weight: 600;
+    background-color: white !important;
+  }
+  :hover {
+    color: @primary-color !important;
+  }
+}
+.ant-steps .ant-steps-item-wait .ant-steps-item-icon {
+  background-color: white !important;
+}
+.ant-steps
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: @text3 !important;
+}
+
+.ant-radio-inner {
+  background-color: #e5eaee !important;
+}
+.ant-radio-checked .ant-radio-inner {
+  background-color: white !important;
+}
+.ant-checkbox-wrapper + .ant-checkbox-wrapper {
+  margin-left: 0 !important;
+}
+.ant-checkbox-wrapper {
+  display: flex !important;
+  align-items: center !important;
+}
+.ant-form-item {
+  margin-bottom: 15px !important;
+}
+.ant-form-no-margin-bottom {
+  margin-bottom: 0 !important;
+}
+.ant-form-vertical .ant-form-item-label {
+  padding: 0px !important;
+}
+.custom-title {
+  color: #464e5f !important;
+  font-family: "Helvetica", "IBM Plex Sans Thai" !important;
+  font-size: 24px !important;
+}
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.ant-switch-checked {
+  background-color: #2ed477 !important;
+}

@@ -1,58 +1,156 @@
+import React from "react";
+import MicrosoftLogin from "react-microsoft-login";
 
-import React from 'react'
-import { Col, Container, Row } from 'react-bootstrap'
-import MicrosoftLogin from 'react-microsoft-login'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
+import { AuthDatasource } from "../../datasource/AuthDatasource";
 
+import color from "../../resource/color";
+import icon from "../../resource/icon";
+import image from "../../resource/image";
+import { useLocalStorage } from "../../hook/useLocalStorage";
+import Text from "../../components/Text/Text";
+import { Col, Row, Spin } from "antd";
+import styled from "styled-components";
+import { useSetRecoilState } from "recoil";
+import { profileAtom } from "../../store/ProfileAtom";
+import { useEffectOnce } from "react-use";
+import { roleAtom } from "../../store/RoleAtom";
+import { redirectByRole } from "../../utility/func/RedirectByPermission";
+import packageJson from "../../../package.json";
+const Container = styled.div``;
+export const AuthPage: React.FC = () => {
+  const [, setPersistedProfile] = useLocalStorage("profile", []);
+  const [, setToken] = useLocalStorage("token", []);
+  const setProfile = useSetRecoilState(profileAtom);
 
+  const setRole = useSetRecoilState(roleAtom);
+  const [loading, setLoading] = React.useState(false);
 
+  const navigate = useNavigate();
+  const version = packageJson.version;
+  const authHandler = async (err: any, data: any) => {
+    setLoading(true);
+    try {
+      await AuthDatasource.login(data.account.userName).then((res: any) => {
+        // console.log("login res", res);
 
-
-export const AuthPage:React.FC = () => {
-  const authHandler = (err: any, data: any) => {
-    console.log(err, data);
+        if (res.accessToken) {
+          setPersistedProfile({
+            ...res.data,
+            roleId: res.rolePermission.roleId,
+          });
+          setToken(res.accessToken);
+          setRole({
+            ...res.rolePermission,
+          });
+          setProfile({
+            ...res.data,
+            roleId: res.rolePermission.roleId,
+          });
+          navigate(`${redirectByRole(res.rolePermission.menus)}`);
+        } else {
+          setLoading(false);
+          return navigate("ErrorLoginPage");
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
+  useEffectOnce(() => {
+    setProfile(null);
+    setRole(null);
+  });
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+        }}
+      >
+        <Spin size='large' />
+      </div>
+    );
+  }
 
   return (
-    <Container fluid className="px-0 vh-100 overflow-auto " >
-      <Row xs={1} md={1} lg={2} className="h-100">
-        <Col  lg={{span:5}} className="height-res d-flex align-item-between">
-          <div className="d-flex flex-column bg-gradient-blue h-100 justify-content-center">
-            <div className="d-flex justify-content-center ">
-              <img src="media/logos/logoSellcoda-1.png" width={'30%'} />
+    <Container>
+      <Row justify={"space-between"}>
+        <Col span={12}>
+          <div
+            style={{
+              background: color.primary,
+              minHeight: "100vh",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexDirection: "column",
+              paddingTop: "10%",
+            }}
+          >
+            <div>
+              <img
+                alt='logo'
+                src={icon.logoSellcoda}
+                style={{
+                  width: "350px",
+                  height: "350px",
+                }}
+              />
             </div>
-            <div className="d-flex justify-content-center">
-              <img src="media/images/bgLoginSellcoda.png" width={'80%'} />
+            <div>
+              <img alt='imageLogin' src={image.login} />
             </div>
           </div>
         </Col>
-
-        <Col className="d-flex align-item-center justify-content-center height-res">
-          <div className="login-content flex-row-fluid d-flex flex-column justify-content-center position-relative overflow-hidden p-7 mx-auto">
-            <div className="d-flex flex-column-fluid flex-center">
-              <div className="form fv-plugins-bootstrap fv-plugins-framework">
-                <div className="pb-5 pt-lg-0 pt-5">
-                  <h3 className="font-weight-bolder text-dark font-size-h4 font-size-h1-lg text-center">
-                    กรุณาเข้าสู่ระบบ
-                  </h3>
-                  <h5 className="text-muted font-weight-bold font-size-h4 text-center">
-                    สามารถเข้าสู่ระบบด้วย บัญชี Microsoft 365
-                  </h5>
-                </div>
-                <div className="text-center">
-                 {/*  <MicrosoftLogin
-                    clientId="87575c83-d0d9-4544-93e5-7cd61636b45c"
-                    authCallback={authHandler}
-                    withUserData={true}
-                    buttonTheme="dark"
-                  /> */}
-                </div>
-              </div>
+        <Col
+          span={12}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <div>
+              <Text fontSize={40} color='primary' fontWeight={700}>
+                กรุณาเข้าสู่ระบบ
+              </Text>
             </div>
+            <Text color='Text2'>สามารถเข้าสู่ระบบด้วย บัญชี Microsoft 365</Text>
+            <div
+              style={{
+                marginTop: 8,
+              }}
+            >
+              <MicrosoftLogin
+                useLocalStorageCache={true}
+                clientId='87575c83-d0d9-4544-93e5-7cd61636b45c'
+                authCallback={authHandler}
+                buttonTheme='dark'
+              />
+            </div>
+            <span>
+              <span>version {version}</span>
+            </span>
           </div>
         </Col>
       </Row>
     </Container>
-  )
-}
+  );
+};

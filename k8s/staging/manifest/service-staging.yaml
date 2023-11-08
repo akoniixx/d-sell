@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bo-sellcoda
+  namespace: staging-bo-sellcoda
+  labels:
+    app: bo-sellcoda
+spec:
+  selector:
+    app: bo-sellcoda
+  ports:
+    - name: bosellcoda
+      port: 80
+      targetPort: 80
+  type: ClusterIP

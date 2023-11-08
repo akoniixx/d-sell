@@ -1,3 +1,19 @@
 export default {
-    primary: '#0068F4'
-}
+  primary: "#0068F4",
+  secondary: "#1B4586",
+  background1: "#F3F6F9",
+  background2: "#E5EAEE",
+  BK: "#2B2B2B",
+  Grey: "#7B7B7B",
+  Disable: "#C6C6C6",
+  Text1: "#464E5F",
+  Text2: "#1B283F",
+  Text3: "#BABCBE",
+  white: "#FFFFFF",
+  success: "#2ED477",
+  warning: "#F2994A",
+  error: "#EB5757",
+  border: "#E8ECF3",
+  placeholder: "#BABCBE",
+  purple: "#9B51E0",
+};
