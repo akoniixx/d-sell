@@ -58,6 +58,8 @@ export const CreateHighLightNewsPage: React.FC = () => {
   const { company, firstname, lastname } = userProfile;
 
   const [form] = useForm();
+  const isShowOnSaleApp = Form.useWatch("isShowOnSaleApp", form);
+  const isShowOnShopApp = Form.useWatch("isShowOnShopApp", form);
 
   const [newsUrl, setNewsUrl] = useState<string>();
   const [file, setFile] = useState<any>();
@@ -129,14 +131,14 @@ export const CreateHighLightNewsPage: React.FC = () => {
       if (res.success) {
         message.success("บันทึกข้อมูลสำเร็จ");
         navigate(`/news/highlight`);
+      } else if (res.developerMessage === "overlap") {
+        message.error("กรุณาตรวจสอบวันที่เผยแพร่อีกครั้ง");
       } else {
         message.error(res.userMessage || "บันทึกข้อมูลไม่สำเร็จ");
       }
     };
     const cbCatch = (e) => console.log(e);
     const cbFinal = () => setUploading(false);
-
-    // console.log(data)
 
     try {
       setUploading(true);
@@ -355,12 +357,47 @@ export const CreateHighLightNewsPage: React.FC = () => {
                 <Text level={5} fontWeight={700}>
                   แอปพลิเคชัน
                 </Text>
-                <Form.Item name='isShowOnSaleApp' valuePropName='checked' noStyle>
+                <Form.Item
+                  name='isShowOnSaleApp'
+                  valuePropName='checked'
+                  noStyle
+                  initialValue={true}
+                  rules={[
+                    {
+                      validator(rule, value, callback) {
+                        if (!value && !form.getFieldValue("isShowOnShopApp")) {
+                          return Promise.reject("กรุณาเลือก");
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
                   <Checkbox>Sale App</Checkbox>
                 </Form.Item>
-                <Form.Item name='isShowOnShopApp' valuePropName='checked' noStyle>
+                <Form.Item
+                  name='isShowOnShopApp'
+                  valuePropName='checked'
+                  noStyle
+                  initialValue={true}
+                  rules={[
+                    {
+                      validator(rule, value, callback) {
+                        if (!value && !form.getFieldValue("isShowOnSaleApp")) {
+                          return Promise.reject("กรุณาเลือก");
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
                   <Checkbox>Shop App</Checkbox>
                 </Form.Item>
+                {!isShowOnSaleApp && !isShowOnShopApp && (
+                  <Text level={6} color='error'>
+                    * กรุณาเลือกอย่างน้อย 1 แอปพลิเคชัน
+                  </Text>
+                )}
               </Col>
             </Row>
             <br />
@@ -418,7 +455,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
           <Col xl={3} sm={6}></Col>
           <Col xl={15} sm={6}></Col>
           <Col xl={3} sm={6}>
-            <Button typeButton='primary' title='บันทึก' htmlType='submit' />
+            <Button typeButton='primary' title='บันทึก' htmlType='submit' loading={uploading} />
           </Col>
         </Row>
       </Form>

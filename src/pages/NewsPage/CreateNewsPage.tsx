@@ -417,7 +417,21 @@ export const NewsEdit: React.FC = (props: any) => {
                     </Space>
                   </Radio.Group>
                 </Form.Item>
-                <Form.Item name='app' label='แอปพลิเคชัน' required>
+                <Form.Item
+                  name='app'
+                  label='แอปพลิเคชัน'
+                  required
+                  rules={[
+                    {
+                      validator(rule, value, callback) {
+                        if (value.length <= 0) {
+                          return Promise.reject("กรุณาเลือกอย่างน้อย 1 แอปพลิเคชัน");
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
                   <Checkbox.Group
                     options={[
                       {

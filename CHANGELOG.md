@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.9.7] - Release Date: 2023-11-06
+
+- fixed defect highlight news (overlap publish time)
+
 ## Resolved [v0.9.6] - Release Date: 2023-11-06
 
 - fixed defect promotion noti in promotion menu
