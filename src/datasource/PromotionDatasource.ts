@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { BASE_URL, httpClient } from "../config/develop-config";
+import { BASE_URL, NAV_URL, httpClient } from "../config/develop-config";
 
 const baseUrl = `${BASE_URL}/master`;
 
@@ -12,7 +12,7 @@ const getProductFreebies = async (params: object) => {
 
 const syncProductFreebie = async (data: { company: string }) => {
   return await httpClient
-    .post(`${BASE_URL}/nav/freebies`, data)
+    .post(`${NAV_URL}/freebies`, data)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };

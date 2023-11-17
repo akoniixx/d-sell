@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { BASE_URL, httpClient } from "../config/develop-config";
+import { BASE_URL, NAV_URL, httpClient } from "../config/develop-config";
 
 const baseUrl = `${BASE_URL}/master`;
 
@@ -47,14 +47,14 @@ const updateProduct = async (data: FormData) => {
 
 const syncProduct = async (data: { company: string }) => {
   return await httpClient
-    .post(`${BASE_URL}/nav/product`, data)
+    .post(`${NAV_URL}/product`, data)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
 
 const getProductUnit = async (company: string, itemNo: string) => {
   return await httpClient
-    .get(`${BASE_URL}/nav/uom-nav?company=${company}&itemNo=${itemNo}`)
+    .get(`${NAV_URL}/uom-nav?company=${company}&itemNo=${itemNo}`)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
