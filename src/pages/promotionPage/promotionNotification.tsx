@@ -169,6 +169,7 @@ export const PromotionNotification: React.FC = () => {
       endDate: dayjs(find?.endDate),
     });
   };
+
   const closeModal = () => {
     form.resetFields();
     setShowModal(!showModal);
@@ -234,7 +235,7 @@ export const PromotionNotification: React.FC = () => {
   );
   const columns: any = [
     {
-      title: "วันที่แจ้งแตือน",
+      title: "วันที่แจ้งเตือน",
       dataIndex: "executeTime",
       key: "executeTime",
       width: "15%",
@@ -361,7 +362,7 @@ export const PromotionNotification: React.FC = () => {
           children: (
             <>
               <Row justify={"start"} gutter={16}>
-                {(row.status === "DONE" || row.isFromPromotionMaster) && (
+                {(row.status !== "WAITING" || row.isFromPromotionMaster) && (
                   <ActionBtn
                     onClick={() => {
                       setTitle("view");
@@ -372,43 +373,43 @@ export const PromotionNotification: React.FC = () => {
                     icon={<UnorderedListOutlined />}
                   />
                 )}
+                {row.status === "WAITING" && (
+                  <ActionBtn
+                    onClick={() => {
+                      setTitle("edit");
+                      editNotiPromotion(row.promotionNotiId, "edit");
+                    }}
+                    icon={<EditOutlined />}
+                  />
+                )}
                 {row.status !== "DONE" && !row.isFromPromotionMaster && (
-                  <>
-                    <ActionBtn
-                      onClick={() => {
-                        setTitle("edit");
-                        editNotiPromotion(row.promotionNotiId, "edit");
-                      }}
-                      icon={<EditOutlined />}
-                    />
-                    <ActionBtn
-                      onClick={() =>
-                        Modal.confirm({
-                          title: (
-                            <>
-                              <Text>ต้องการยืนยันการลบการแจ้งเตือน</Text>
-                              <br />
-                              <Text fontSize={14}>
-                                โปรดตรวจสอบการแจ้งเตือนโปรโมชันที่คุณต้องการลบ ก่อนกดยืนยัน
-                                เพราะอาจส่งผลต่อการทำงานของผู้ดูแลระบบ
-                              </Text>
-                            </>
-                          ),
-                          width: 500,
-                          okText: "",
-                          cancelText: "",
-                          onOk: async () => {
-                            await deletePromotionNoti(row.promotionNotiId)
-                              .then((res) => {
-                                navigate(0);
-                              })
-                              .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
-                          },
-                        })
-                      }
-                      icon={<DeleteOutlined style={{ color: color.error }} />}
-                    />
-                  </>
+                  <ActionBtn
+                    onClick={() =>
+                      Modal.confirm({
+                        title: (
+                          <>
+                            <Text>ต้องการยืนยันการลบการแจ้งเตือน</Text>
+                            <br />
+                            <Text fontSize={14}>
+                              โปรดตรวจสอบการแจ้งเตือนโปรโมชันที่คุณต้องการลบ ก่อนกดยืนยัน
+                              เพราะอาจส่งผลต่อการทำงานของผู้ดูแลระบบ
+                            </Text>
+                          </>
+                        ),
+                        width: 500,
+                        okText: "",
+                        cancelText: "",
+                        onOk: async () => {
+                          await deletePromotionNoti(row.promotionNotiId)
+                            .then((res) => {
+                              navigate(0);
+                            })
+                            .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+                        },
+                      })
+                    }
+                    icon={<DeleteOutlined style={{ color: color.error }} />}
+                  />
                 )}
               </Row>
             </>
@@ -418,8 +419,8 @@ export const PromotionNotification: React.FC = () => {
     },
   ];
   const createNoti = async () => {
-    await form.validateFields();
     const payload = form.getFieldsValue(true);
+    await form.validateFields();
     form.setFieldsValue({
       isSendNow: payload.sendType,
       executeTime:
@@ -444,9 +445,9 @@ export const PromotionNotification: React.FC = () => {
       });
     } else {
       setIsDone(true);
+      closeModal();
       await createPromotionNoti(submit).then((res) => {
         if (res.success) {
-          closeModal();
           getPromotion();
           setIsDone(false);
         }
@@ -491,7 +492,7 @@ export const PromotionNotification: React.FC = () => {
           <Form layout='vertical' form={form}>
             <Col span={24}>
               <Form.Item
-                name='promotionId'
+                name={title === "view" ? "promotionName" : "promotionId"}
                 label='โปรโมชันที่เลือก'
                 rules={[
                   {
@@ -500,16 +501,20 @@ export const PromotionNotification: React.FC = () => {
                   },
                 ]}
               >
-                <Select
-                  placeholder='เลือกโปรโมชัน'
-                  data={(promotionList || [{ key: "", value: "", label: "" }])?.map((i: any) => ({
-                    key: i.promotionId,
-                    value: i.promotionId,
-                    label: i.promotionName,
-                  }))}
-                  onChange={(e) => selectedPromotion(e)}
-                  disabled={isDisable}
-                />
+                {title === "view" ? (
+                  <Input disabled />
+                ) : (
+                  <Select
+                    placeholder='เลือกโปรโมชัน'
+                    data={(promotionList || [{ key: "", value: "", label: "" }])?.map((i: any) => ({
+                      key: i.promotionId,
+                      value: i.promotionId,
+                      label: i.promotionName,
+                    }))}
+                    onChange={(e) => selectedPromotion(e)}
+                    disabled={isDisable}
+                  />
+                )}
               </Form.Item>
             </Col>
             <Col span={24}>
