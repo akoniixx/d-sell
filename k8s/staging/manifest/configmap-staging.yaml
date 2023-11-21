@@ -5,4 +5,6 @@ metadata:
   name: bo-sellcoda-staging
   namespace: staging-bo-sellcoda
 data:
-  BASE_URL: https://api-sellcoda-staging.iconkaset.com/
+  NODE_ENV: staging
+  REACT_APP_NAV_URL_HOST: https://api-staging-sellcoda.iconkaset.com/nav
+  REACT_APP_URL_HOST: https://sellcoda-api-staging.iconkaset.com

@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.9.9] - Release Date: 2023-11-17
+
+- set new API URL
+
 ## Resolved [v0.9.8] - Release Date: 2023-11-15
 
 - fixed defect noti list

@@ -5,4 +5,6 @@ metadata:
   name: bo-sellcoda-dev
   namespace: development-bo-sellcoda
 data:
-  BASE_URL: https://api-sellcoda-dev.iconkaset.com/
+  NODE_ENV: development
+  REACT_APP_NAV_URL_HOST: https://api-dev-sellcoda.iconkaset.com/nav
+  REACT_APP_URL_HOST: https://sellcoda-api-dev.iconkaset.com
