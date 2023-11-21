@@ -131,7 +131,6 @@ export const PromotionNotification: React.FC = () => {
   const selectedPromotion = (e: any) => {
     setIsDisable(false);
     const find = promotionList?.find((x) => x.promotionId === e);
-    console.log(find?.endDate);
     form.setFieldsValue({
       promotionNotiId: "",
       promotionId: find?.promotionId,
@@ -441,23 +440,20 @@ export const PromotionNotification: React.FC = () => {
     });
     const submit = form.getFieldsValue(true);
     if (submit?.promotionNotiId) {
-      closeModal();
       await updatePromotionNoti(submit).then((res) => {
-        console.log(res);
         if (res.success) {
-          setIsDone(false);
           getPromotion();
         }
       });
     } else {
-      closeModal();
       await createPromotionNoti(submit).then((res) => {
         if (res.success) {
-          setIsDone(false);
           getPromotion();
         }
       });
     }
+    closeModal();
+    setIsDone(false);
   };
 
   return (
@@ -660,25 +656,19 @@ export const PromotionNotification: React.FC = () => {
                                     disabledDate={(current: Dayjs) => {
                                       const startDate = getFieldValue("startDate");
                                       const endDate = getFieldValue("endDate");
-                                      // console.log(startDate, endDate);
-                                      // let mapDate: any = "";
-                                      const isBetween = dayjs(current).isBetween(
-                                        dayjs(),
-                                        dayjs(endDate),
-                                      );
-                                      console.log({
-                                        isBetween,
-                                        current: dayjs(current).format("DD/MM"),
-                                      });
 
-                                      // if (current > startDate) {
-                                      //   mapDate = dayjs(endDate).isAfter(dayjs());
-                                      //   console.log("mapDate", mapDate);
-                                      // } else {
-                                      //   mapDate =
-                                      //     current.isAfter(endDate) ||
-                                      //     current.isBefore(dayjs(startDate));
-                                      // }
+                                      let isBetween: any = "";
+                                      if (current > startDate) {
+                                        isBetween = dayjs(current).isBetween(
+                                          dayjs(),
+                                          dayjs(endDate),
+                                        );
+                                      } else {
+                                        isBetween = dayjs(current).isBetween(
+                                          dayjs(startDate),
+                                          dayjs(endDate),
+                                        );
+                                      }
                                       return !isBetween;
                                     }}
                                     disabled={isDisable}
