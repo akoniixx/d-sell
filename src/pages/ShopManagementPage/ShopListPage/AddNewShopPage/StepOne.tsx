@@ -42,6 +42,8 @@ function StepOne({
   form: FormInstance<any>;
   company?: "ICPL" | "ICPI" | "ICPF" | "ICK";
 }) {
+  console.log("f", form.getFieldsValue(true));
+
   const [selectBrand, setSelectBrand] = React.useState<any>();
   const typeCustomer = form.getFieldValue("typeShop");
 
@@ -77,9 +79,9 @@ function StepOne({
     });
     const mapValue = mapBrand.map((el: any, index: number) => {
       return {
-        label: el.product_brand_name,
-        value: el.product_brand_id,
-        key: el.product_brand_id,
+        label: `${el.product_brand_name}`,
+        value: `${el.product_brand_id}`,
+        key: `${el.product_brand_id}`,
       };
     });
     setSelectBrand(mapValue);
@@ -91,7 +93,7 @@ function StepOne({
 
   const renderByCompany = () => {
     switch (company) {
-      case "ICPF": {
+      case "ICPF" && "ICPL": {
         return (
           <Row gutter={16}>
             <Col span={6}>

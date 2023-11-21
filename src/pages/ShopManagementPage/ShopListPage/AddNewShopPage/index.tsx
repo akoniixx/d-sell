@@ -64,7 +64,6 @@ function AddNewShopPage(): JSX.Element {
         });
         setDataDetail(res);
         setBrandData(brandData);
-
         if (res && res.data) {
           const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
           const {
@@ -310,7 +309,6 @@ function AddNewShopPage(): JSX.Element {
             title: "custom-title",
           },
           timer: 2000,
-
           showConfirmButton: false,
         });
       }

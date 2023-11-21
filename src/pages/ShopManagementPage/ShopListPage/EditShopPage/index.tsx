@@ -53,6 +53,7 @@ export default function EditShopPage() {
           company: profile?.company || "",
         });
         setDataDetail(res);
+
         if (res && res?.data) {
           const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
           const {
@@ -90,11 +91,13 @@ export default function EditShopPage() {
                   userShopId: "",
                 };
 
-          const findDataByCompany = (res?.data?.customerCompany || []).find(
+          const findDataByCompany = (res?.data?.customerCompany || []).filter(
             (el: { company: string }) => el.company === profile?.company,
           );
+          console.log("find", findDataByCompany);
+
           const customerCompany =
-            res.data.customerCompany.length > 0 ? res.data.customerCompany[0] : null;
+            res.data.customerCompany.length > 0 ? res.data.customerCompany : null;
 
           const findBrandCompany = (res.data.customerCompany || []).find(
             (el: { company: string }) => el.company === profile?.company,
@@ -130,9 +133,9 @@ export default function EditShopPage() {
             customerCompanyId: findDataByCompany?.customerCompanyId || 0,
             taxId,
             productBrand:
-              profile?.company === "ICPF"
+              profile?.company === "ICPF" || profile?.company === "ICPL"
                 ? findBrandCompany.productBrand.map((x: any) => {
-                    return x.product_brand_id;
+                    return `${x.product_brand_id}`;
                   })
                 : `${findBrandCompany.productBrand[0].product_brand_id}`,
             isHaveDealer,
@@ -207,8 +210,8 @@ export default function EditShopPage() {
 
       let newProductBrand: any = "";
       let stringifyProductBrand: any = "";
-      if (profile?.company === "ICPF") {
-        const mapBrand = await shopDatasource.getBrandList("ICPF" || "").then((res) => {
+      if (profile?.company === "ICPF" || profile?.company === "ICPL") {
+        const mapBrand = await shopDatasource.getBrandList(profile?.company || "").then((res) => {
           const map = res.map((x: any) => {
             return {
               company: x.company,
@@ -232,10 +235,10 @@ export default function EditShopPage() {
         })?.productBrand[0];
         stringifyProductBrand = JSON.stringify([newProductBrand]);
       }
-
       const findCusCom = dataDetail?.data.customerCompany.find(
         (x: any) => x.company === profile?.company,
       );
+
       const payload: PayloadCustomerEntity = {
         customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
         address,
@@ -281,6 +284,7 @@ export default function EditShopPage() {
           userShopId: userShopId ? userShopId : null,
         },
       };
+      console.log(payload);
       try {
         const res = await shopDatasource.updateCustomer(payload);
         if (res && res.success) {

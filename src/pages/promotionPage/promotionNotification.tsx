@@ -67,6 +67,7 @@ export const PromotionNotification: React.FC = () => {
   const [isDisable, setIsDisable] = useState<boolean>(true);
   const [isDone, setIsDone] = useState<boolean>(false);
   const [title, setTitle] = useState("");
+  const [editId, setEditId] = useState("");
   const mapTitle: any = {
     create: "เพิ่มการแจ้งเตือน",
     edit: "แก้ไขการแจ้งเตือน",
@@ -130,6 +131,7 @@ export const PromotionNotification: React.FC = () => {
   const selectedPromotion = (e: any) => {
     setIsDisable(false);
     const find = promotionList?.find((x) => x.promotionId === e);
+    console.log(find?.endDate);
     form.setFieldsValue({
       promotionNotiId: "",
       promotionId: find?.promotionId,
@@ -141,12 +143,14 @@ export const PromotionNotification: React.FC = () => {
       isShowShopApp: find?.isShowShopApp,
       startDate: dayjs(find?.startDate),
       startTime: dayjs(find?.startDate),
-      endDate: find?.endDate,
+      endDate: dayjs(find?.endDate),
+      endTime: dayjs(find?.endDate),
       promotionStatus: find?.promotionStatus,
       isShowPromotion: find?.isShowPromotion,
     });
   };
   const editNotiPromotion = async (id: string, title?: string) => {
+    setEditId(id);
     title === "edit" && setIsDisable(false);
     setShowModal(!showModal);
     const find = await getPromotionNotiById(id).then((res) => {
@@ -419,9 +423,11 @@ export const PromotionNotification: React.FC = () => {
     },
   ];
   const createNoti = async () => {
-    const payload = form.getFieldsValue(true);
+    setIsDone(true);
     await form.validateFields();
+    const payload = form.getFieldsValue(true);
     form.setFieldsValue({
+      promotionNotiId: editId || "",
       isSendNow: payload.sendType,
       executeTime:
         payload.notiDate && payload.notiTime
@@ -435,21 +441,20 @@ export const PromotionNotification: React.FC = () => {
     });
     const submit = form.getFieldsValue(true);
     if (submit?.promotionNotiId) {
-      setIsDone(true);
+      closeModal();
       await updatePromotionNoti(submit).then((res) => {
+        console.log(res);
         if (res.success) {
-          closeModal();
-          getPromotion();
           setIsDone(false);
+          getPromotion();
         }
       });
     } else {
-      setIsDone(true);
       closeModal();
       await createPromotionNoti(submit).then((res) => {
         if (res.success) {
-          getPromotion();
           setIsDone(false);
+          getPromotion();
         }
       });
     }
@@ -492,7 +497,7 @@ export const PromotionNotification: React.FC = () => {
           <Form layout='vertical' form={form}>
             <Col span={24}>
               <Form.Item
-                name={title === "view" ? "promotionName" : "promotionId"}
+                name={title !== "create" ? "promotionName" : "promotionId"}
                 label='โปรโมชันที่เลือก'
                 rules={[
                   {
@@ -501,7 +506,7 @@ export const PromotionNotification: React.FC = () => {
                   },
                 ]}
               >
-                {title === "view" ? (
+                {title !== "create" ? (
                   <Input disabled />
                 ) : (
                   <Select
@@ -549,6 +554,24 @@ export const PromotionNotification: React.FC = () => {
                   <Form.Item
                     label='เวลาเริ่ม'
                     name='startTime'
+                    initialValue={dayjs("00:00", "HH:mm")}
+                  >
+                    <TimePicker allowClear={false} disabled />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Col>
+            <Col span={24}>
+              <Row gutter={8}>
+                <Col span={12}>
+                  <Form.Item label='วันสิ้นสุดโปรโมชัน' name='endDate'>
+                    <DatePicker style={{ width: "100%" }} enablePast disabled />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label='เวลาสิ้นสุด'
+                    name='endTime'
                     initialValue={dayjs("00:00", "HH:mm")}
                   >
                     <TimePicker allowClear={false} disabled />
@@ -637,10 +660,26 @@ export const PromotionNotification: React.FC = () => {
                                     disabledDate={(current: Dayjs) => {
                                       const startDate = getFieldValue("startDate");
                                       const endDate = getFieldValue("endDate");
-                                      return (
-                                        current.isAfter(endDate) ||
-                                        current.isBefore(dayjs(startDate))
+                                      // console.log(startDate, endDate);
+                                      // let mapDate: any = "";
+                                      const isBetween = dayjs(current).isBetween(
+                                        dayjs(),
+                                        dayjs(endDate),
                                       );
+                                      console.log({
+                                        isBetween,
+                                        current: dayjs(current).format("DD/MM"),
+                                      });
+
+                                      // if (current > startDate) {
+                                      //   mapDate = dayjs(endDate).isAfter(dayjs());
+                                      //   console.log("mapDate", mapDate);
+                                      // } else {
+                                      //   mapDate =
+                                      //     current.isAfter(endDate) ||
+                                      //     current.isBefore(dayjs(startDate));
+                                      // }
+                                      return !isBetween;
                                     }}
                                     disabled={isDisable}
                                   />

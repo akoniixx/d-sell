@@ -1,6 +1,11 @@
 import axios from "axios";
 
-export const BASE_URL = "https://api-dev-sellcoda.iconkaset.com";
+export const NAV_DEV_URL = "https://api-dev-sellcoda.iconkaset.com/nav";
+export const NAV_URL =
+  process.env.NODE_ENV === "development" ? NAV_DEV_URL : process.env.REACT_APP_NAV_URL_HOST;
+export const DEV_URL = "https://sellcoda-api-dev.iconkaset.com/";
+export const BASE_URL =
+  process.env.NODE_ENV === "development" ? DEV_URL : process.env.REACT_APP_URL_HOST;
 
 axios.interceptors.request.use(
   async (config) => {

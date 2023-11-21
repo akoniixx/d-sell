@@ -58,7 +58,7 @@ const mappingCustomerType = {
 };
 function DetailTab({ data }: Props): JSX.Element {
   const profile = useRecoilValue(profileAtom);
-  const currentCompany = (data.customerCompany || []).find(
+  const currentCompany = (data.customerCompany || []).filter(
     (item) => item.company === profile?.company,
   );
   const customerCompany = data.customerCompany.length > 0 ? data.customerCompany[0] : null;
@@ -100,7 +100,7 @@ function DetailTab({ data }: Props): JSX.Element {
   const listData = {
     shopName: {
       label: "ชื่อร้าน",
-      value: currentCompany?.customerName || customerCompany?.customerName || "-",
+      value: currentCompany[0]?.customerName || customerCompany?.customerName || "-",
       isApproving: false,
       isActive: true,
     },
@@ -114,12 +114,12 @@ function DetailTab({ data }: Props): JSX.Element {
       isApproving: false,
       isActive: true,
     },
-    zone: {
-      label: "เขต",
-      value: currentCompany?.zone || "-",
-      isApproving: false,
-      isActive: true,
-    },
+    // zone: {
+    //   label: "เขต",
+    //   value: currentCompany.map((x) => x.zone).join(", ") || "-",
+    //   isApproving: false,
+    //   isActive: true,
+    // },
     addressShop: {
       label: "ที่อยู่ร้านค้า",
       value: data.address || "-",
@@ -144,16 +144,16 @@ function DetailTab({ data }: Props): JSX.Element {
       isApproving: false,
       isActive: true,
     },
-    dateStartMember: {
-      label: "วันที่เริ่มเป็นสมาชิก",
-      value: currentCompany
-        ? dayjs(currentCompany?.createDate)
-            .locale("th")
-            .format("D MMM BBBB")
-        : "-",
-      isApproving: false,
-      isActive: true,
-    },
+    // dateStartMember: {
+    //   label: "วันที่เริ่มเป็นสมาชิก",
+    //   value: currentCompany
+    //     ? currentCompany
+    //         .map((x) => dayjs(x.createDate).locale("th").format("D MMM BBBB"))
+    //         .join(", ")
+    //     : "-",
+    //   isApproving: false,
+    //   isActive: true,
+    // },
     email: {
       label: "อีเมล",
       value: userShop?.email || "-",
@@ -189,33 +189,41 @@ function DetailTab({ data }: Props): JSX.Element {
             {getCompanyName(profile?.company || "")}
           </Text>
           <Row gutter={16}>
-            <Col>
-              <Text level={6} fontFamily='Sarabun'>
-                ประเภทคู่ค้า :
-                <Text
-                  level={6}
-                  color='primary'
-                  fontFamily='Sarabun'
-                  style={{
-                    marginLeft: 4,
-                  }}
-                >
-                  {mappingCustomerType[
-                    currentCompany?.customerType as keyof typeof mappingCustomerType
-                  ] || "-"}
-                </Text>
-              </Text>
-            </Col>
-            <Col>
-              <Text level={6} fontFamily='Sarabun'>
-                รหัสร้านค้า : {currentCompany?.customerNo || "-"}
-              </Text>
-            </Col>
-            <Col>
-              <Text level={6} fontFamily='Sarabun'>
-                เขต : {currentCompany?.zone || "-"}
-              </Text>
-            </Col>
+            {currentCompany.map((x, i) => (
+              <>
+                <Col span={currentCompany.length > 1 ? 6 : ""}>
+                  <Text level={6} fontFamily='Sarabun'>
+                    ประเภทคู่ค้า :
+                    <Text
+                      level={6}
+                      color='primary'
+                      fontFamily='Sarabun'
+                      style={{
+                        marginLeft: 4,
+                      }}
+                    >
+                      {mappingCustomerType[x.customerType] || "-"}
+                    </Text>
+                  </Text>
+                </Col>
+                <Col span={currentCompany.length > 1 ? 6 : ""}>
+                  <Text level={6} fontFamily='Sarabun'>
+                    รหัสร้านค้า : {x.customerNo || "-"}
+                  </Text>
+                </Col>
+                <Col span={currentCompany.length > 1 ? 11 : ""}>
+                  <Text level={6} fontFamily='Sarabun'>
+                    เขต : {x.zone || "-"}
+                  </Text>
+                </Col>
+                {/* <Col span={currentCompany.length > 1 ? 9 : ""}>
+                  <Text level={6} fontFamily='Sarabun'>
+                    แบรนด์ : {i} {x?.productBrand[i]?.product_brand_name || "-"}
+                  </Text>
+                </Col> */}
+                <br />
+              </>
+            ))}
           </Row>
         </div>
       </Header>
@@ -339,12 +347,12 @@ function DetailTab({ data }: Props): JSX.Element {
                       </Col>
                       <Col>
                         <Text level={6} fontFamily='Sarabun'>
-                          รหัสร้านค้า : {el.customerNo}
+                          รหัสร้านค้า : {el.customerNo || "-"}
                         </Text>
                       </Col>
                       <Col>
                         <Text level={6} fontFamily='Sarabun'>
-                          เขต : {el.zone}
+                          เขต : {el.zone || "-"}
                         </Text>
                       </Col>
                     </Row>
