@@ -94,8 +94,6 @@ export default function EditShopPage() {
           const findDataByCompany = (res?.data?.customerCompany || []).filter(
             (el: { company: string }) => el.company === profile?.company,
           );
-          console.log("find", findDataByCompany);
-
           const customerCompany =
             res.data.customerCompany.length > 0 ? res.data.customerCompany : null;
 
@@ -139,6 +137,12 @@ export default function EditShopPage() {
                   })
                 : `${findBrandCompany.productBrand[0].product_brand_id}`,
             isHaveDealer,
+            cusList: (findDataByCompany || []).map((el) => {
+              return {
+                ...el,
+                productBrand: el.productBrand.map((el) => el.product_brand_id.toString()),
+              };
+            }),
           });
         }
       } catch (error) {

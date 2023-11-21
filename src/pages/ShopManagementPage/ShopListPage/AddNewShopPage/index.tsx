@@ -134,6 +134,7 @@ function AddNewShopPage(): JSX.Element {
             typeShop: "SD",
             isActiveCustomer: true,
             isHaveDealer,
+            cusList: [],
           });
         } else {
           form.setFieldsValue({
@@ -355,7 +356,7 @@ function AddNewShopPage(): JSX.Element {
         {...defaultPropsForm}
         form={form}
         onFinish={onFinish}
-        initialValues={{ isActive: true }}
+        initialValues={{ isActive: true, cusList: [{}] }}
       >
         {renderStep()}
       </Form>
