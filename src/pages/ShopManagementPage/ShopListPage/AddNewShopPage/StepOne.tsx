@@ -90,109 +90,59 @@ function StepOne({
   }, [dataDetail]);
 
   const renderByCompany = () => {
-    switch (company) {
-      case "ICPF" && "ICPL": {
-        return (
-          <Form.List name='cusList' rules={[]}>
-            {(fields) => {
-              return fields.map(({ name, key }) => {
-                const typeShop = form.getFieldValue("cusList")?.[name]?.customerType || "";
-                return (
-                  <>
-                    {typeShop === "SD" && (
-                      <Form.Item
-                        name='customerType'
-                        label='ประเภทคู่ค้า*'
-                        rules={[
-                          {
-                            required: true,
-                            message: "กรุณาเลือกประเภทคู่ค้า",
-                          },
-                        ]}
-                      >
-                        <Radio items={listRadio.slice(1)} />
-                      </Form.Item>
-                    )}
-                    <Row gutter={16} key={key}>
-                      <Col span={6}>
-                        <Form.Item
-                          name={[name, "productBrand"]}
-                          label='Product Brands*'
-                          rules={[
-                            {
-                              required: true,
-                              message: "กรุณาเลือก Product Brands",
-                            },
-                          ]}
-                        >
-                          <Select data={selectBrand} mode='multiple' />
-                        </Form.Item>
-                      </Col>
-                      <Col span={10}>
-                        <Form.Item name={[name, "customerNo"]} label='รหัสร้านค้า'>
-                          <Input disabled={typeShop === "DL"} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item
-                          name={[name, "zone"]}
-                          label='เขต*'
-                          rules={[
-                            {
-                              required: true,
-                              message: "กรุณาเลือกเขต",
-                            },
-                          ]}
-                        >
-                          <Select
-                            data={zoneList}
-                            style={{
-                              width: "45%",
-                            }}
-                            disabled={typeShop === "DL"}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </>
-                );
-              });
-            }}
-          </Form.List>
-        );
-      }
-      default: {
-        return (
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name='customerNo' label='รหัสร้านค้า'>
-                <Input disabled={typeCustomer === "DL"} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name='zone'
-                label='เขต*'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณาเลือกเขต",
-                  },
-                ]}
-              >
-                <Select
-                  data={zoneList}
-                  style={{
-                    width: "45%",
-                  }}
-                  disabled={typeCustomer === "DL"}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        );
-      }
-    }
+    return (
+      <Form.List name='cusList' rules={[]}>
+        {(fields) => {
+          return fields.map(({ name, key }) => {
+            const typeShop = form.getFieldValue("cusList")?.[name]?.customerType || "";
+            return (
+              <>
+                {typeShop === "SD" && (
+                  <Form.Item name='customerType' label='ประเภทคู่ค้า*' valuePropName='checked'>
+                    <Radio items={listRadio.slice(1)} value={typeShop} />
+                  </Form.Item>
+                )}
+                <Row gutter={16} key={key}>
+                  <Col span={12}>
+                    <Form.Item
+                      name={[name, "productBrand"]}
+                      label='Product Brands*'
+                      rules={[
+                        {
+                          required: true,
+                          message: "กรุณาเลือก Product Brands",
+                        },
+                      ]}
+                    >
+                      <Select data={selectBrand} mode='multiple' disabled={company === "ICPI"} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={6}>
+                    <Form.Item name={[name, "customerNo"]} label='รหัสร้านค้า'>
+                      <Input disabled={typeShop === "DL"} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={6}>
+                    <Form.Item
+                      name={[name, "zone"]}
+                      label='เขต*'
+                      rules={[
+                        {
+                          required: true,
+                          message: "กรุณาเลือกเขต",
+                        },
+                      ]}
+                    >
+                      <Select data={zoneList} disabled={typeShop === "DL"} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </>
+            );
+          });
+        }}
+      </Form.List>
+    );
   };
   return (
     <Fragment>

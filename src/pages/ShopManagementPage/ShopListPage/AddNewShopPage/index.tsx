@@ -134,7 +134,7 @@ function AddNewShopPage(): JSX.Element {
             typeShop: "SD",
             isActiveCustomer: true,
             isHaveDealer,
-            cusList: [],
+            cusList: [{ customerNo: "", zone: "", productBrand: [] }],
           });
         } else {
           form.setFieldsValue({

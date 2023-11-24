@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.9.10] - Release Date: 2023-11-24
+
+- enhanced brand for ladda in shop management
+- enhanced show brand more than one in index shop management
+
 ## Resolved [v0.9.9] - Release Date: 2023-11-17
 
 - set new API URL

@@ -49,7 +49,9 @@ function DetailShopPage(): JSX.Element {
       children: <HistoryTab historyData={data.history || []} />,
     },
   ];
-  const isDisabled = data && data.isPending;
+  const findCompany = data?.customerCompany?.find((c) => c?.company === `${profile?.company}`);
+  const isDisabled = data.isPending || !findCompany ? true : false;
+
   return (
     <CardContainer>
       <PageTitleNested

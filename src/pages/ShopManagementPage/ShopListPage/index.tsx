@@ -24,6 +24,7 @@ import { color } from "../../../resource";
 import { profileAtom } from "../../../store/ProfileAtom";
 import Permission, { checkPermission } from "../../../components/Permission/Permission";
 import { roleAtom } from "../../../store/RoleAtom";
+import { COMPANY_FULLNAME_MAPPING } from "../../../definitions/company";
 
 function ShopListPage(): JSX.Element {
   const [visibleCreate, setVisibleCreate] = React.useState(false);
@@ -517,6 +518,7 @@ function ShopListPage(): JSX.Element {
           minHeight: 150,
           padding: 32,
         }}
+        footer={false}
       >
         <Form form={form} onFinish={onFinish}>
           <div
@@ -561,6 +563,7 @@ function ShopListPage(): JSX.Element {
                   alignItems: "center",
                 }}
                 maxLength={13}
+                autoComplete='off'
               />
             </Form.Item>
           </div>
@@ -596,6 +599,7 @@ function ShopListPage(): JSX.Element {
           minHeight: 150,
           padding: 32,
         }}
+        footer={false}
       >
         <div
           style={{
@@ -607,8 +611,11 @@ function ShopListPage(): JSX.Element {
           }}
         >
           <Text fontWeight={700} align='center' fontSize={20}>
-            ไม่พบหมายเลขประจำตัวผู้เสียภาษีนี้ คุณต้องการสร้างร้านค้าใหม่หรือไม่
+            ไม่พบหมายเลขประจำตัวผู้เสียภาษีนี้ในบริษัท{" "}
+            {COMPANY_FULLNAME_MAPPING[profile?.company?.toLocaleLowerCase() || ""]}{" "}
+            คุณต้องการสร้างร้านค้าใหม่หรือไม่
           </Text>
+          <br />
         </div>
         <div
           style={{
@@ -648,6 +655,7 @@ function ShopListPage(): JSX.Element {
           minHeight: 150,
           padding: 32,
         }}
+        footer={false}
       >
         <div
           style={{

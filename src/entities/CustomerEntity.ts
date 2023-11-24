@@ -151,6 +151,7 @@ export interface FormStepCustomerEntity {
   termPayment: string;
   customerCompanyId?: number;
   customerNo?: string | null;
+  cusList?: any;
 }
 export interface PayloadCustomerEntity {
   customerId?: number | null;
