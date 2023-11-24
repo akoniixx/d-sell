@@ -53,6 +53,20 @@ export default function EditShopPage() {
           company: profile?.company || "",
         });
         setDataDetail(res);
+        setBrandData(
+          await shopDatasource.getBrandList(profile?.company || "").then((res) => {
+            const map = res.map((x: any) => {
+              return {
+                company: x.company,
+                product_brand_id: x.productBrandId,
+                product_brand_logo: x.productBrandLogo,
+                product_brand_name: x.productBrandName,
+              };
+            });
+            return map;
+          }),
+        );
+
         if (res && res?.data) {
           const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
           const {
@@ -90,11 +104,11 @@ export default function EditShopPage() {
                   userShopId: "",
                 };
 
-          const findDataByCompany = (res?.data?.customerCompany || []).find(
+          const findDataByCompany = (res?.data?.customerCompany || []).filter(
             (el: { company: string }) => el.company === profile?.company,
           );
           const customerCompany =
-            res.data.customerCompany.length > 0 ? res.data.customerCompany[0] : null;
+            res.data.customerCompany.length > 0 ? res.data.customerCompany : null;
 
           const findBrandCompany = (res.data.customerCompany || []).find(
             (el: { company: string }) => el.company === profile?.company,
@@ -130,12 +144,18 @@ export default function EditShopPage() {
             customerCompanyId: findDataByCompany?.customerCompanyId || 0,
             taxId,
             productBrand:
-              profile?.company === "ICPF"
-                ? findBrandCompany.productBrand.map((x: any) => {
-                    return x.product_brand_id;
+              profile?.company === "ICPF" || profile?.company === "ICPL"
+                ? findBrandCompany?.productBrand?.map((x: any) => {
+                    return `${x?.product_brand_id}`;
                   })
-                : `${findBrandCompany.productBrand[0].product_brand_id}`,
+                : `${findBrandCompany?.productBrand[0]?.product_brand_id}`,
             isHaveDealer,
+            cusList: (findDataByCompany || []).map((el) => {
+              return {
+                ...el,
+                productBrand: el?.productBrand?.map((el) => el?.product_brand_id?.toString()),
+              };
+            }),
           });
         }
       } catch (error) {
@@ -203,39 +223,8 @@ export default function EditShopPage() {
         zone,
         customerNo,
         productBrand,
+        cusList,
       }: FormStepCustomerEntity = form.getFieldsValue(true);
-
-      let newProductBrand: any = "";
-      let stringifyProductBrand: any = "";
-      if (profile?.company === "ICPF") {
-        const mapBrand = await shopDatasource.getBrandList("ICPF" || "").then((res) => {
-          const map = res.map((x: any) => {
-            return {
-              company: x.company,
-              product_brand_id: x.productBrandId,
-              product_brand_logo: x.productBrandLogo,
-              product_brand_name: x.productBrandName,
-            };
-          });
-          return map;
-        });
-        newProductBrand = mapBrand.map((x: any) => {
-          const find = productBrand.find((y: any) => `${y}` === `${x.product_brand_id}`);
-          if (find) {
-            return x;
-          }
-        });
-        stringifyProductBrand = JSON.stringify(newProductBrand.filter((z: any) => z !== undefined));
-      } else {
-        newProductBrand = dataDetail?.data.customerCompany.find((el: any) => {
-          return el.company === profile?.company;
-        })?.productBrand[0];
-        stringifyProductBrand = JSON.stringify([newProductBrand]);
-      }
-
-      const findCusCom = dataDetail?.data.customerCompany.find(
-        (x: any) => x.company === profile?.company,
-      );
       const payload: PayloadCustomerEntity = {
         customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
         address,
@@ -247,24 +236,31 @@ export default function EditShopPage() {
         subdistrict,
         taxNo: taxId,
         updateBy: `${profile?.firstname} ${profile?.lastname}`,
-        customerCompany: [
-          {
-            customerName: customerName || "",
-            customerCompanyId: (customerCompanyId && +customerCompanyId) || 0,
-            customerNo: customerNo || "",
-            customerId: dataDetail?.data.customerId ? +dataDetail?.data.customerId : 0,
+        customerCompany: cusList.map((c) => {
+          return {
+            customerName: c.customerName || "",
+            customerCompanyId: c.customerCompanyId || 0,
+            customerNo: c.customerNo || "",
+            customerId: c.customerId,
             company: profile?.company || "",
-            customerType: typeShop,
-            zone,
-            isNav: findCusCom ? findCusCom?.isNav : false,
-            termPayment: findCusCom ? findCusCom?.termPayment : "",
-            creditLimit: findCusCom ? findCusCom?.creditLimit : 0,
-            isActive: isActiveCustomer,
-            salePersonCode: findCusCom ? findCusCom.salePersonCode : "",
+            customerType: c.customerType,
+            zone: c.zone,
+            isNav: c.isNav,
+            termPayment: c.termPayment,
+            creditLimit: c.creditLimit,
+            isActive: c.isActive,
+            salePersonCode: c.salePersonCode,
             updateBy: `${profile?.firstname} ${profile?.lastname}`,
-            productBrand: stringifyProductBrand,
-          },
-        ],
+            productBrand: JSON.stringify(
+              c.productBrand.map((b) => {
+                const find = brandData.find((x) => x.product_brand_id === b);
+                if (find) {
+                  return find;
+                }
+              }),
+            ),
+          };
+        }),
         userShop: {
           firstname: firstname || "",
           lastname: lastname || "",
@@ -281,38 +277,39 @@ export default function EditShopPage() {
           userShopId: userShopId ? userShopId : null,
         },
       };
-      try {
-        const res = await shopDatasource.updateCustomer(payload);
-        if (res && res.success) {
-          Swal.fire({
-            title: "บันทึกข้อมูลสำเร็จ",
-            text: "",
-            width: 250,
-            icon: "success",
-            customClass: {
-              title: "custom-title",
-            },
-            timer: 2000,
-            showConfirmButton: false,
-          }).then(() => {
-            navigate("/ShopManagementPage/ShopListPage/DetailPage/" + res.responseData.customerId);
-          });
-        } else {
-          Swal.fire({
-            title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
-            text: "",
-            width: 250,
-            icon: "error",
-            customClass: {
-              title: "custom-title",
-            },
-            timer: 2000,
-            showConfirmButton: false,
-          });
-        }
-      } catch (e) {
-        console.log(e);
-      }
+      console.log(payload);
+      // try {
+      //   const res = await shopDatasource.updateCustomer(payload);
+      //   if (res && res.success) {
+      //     Swal.fire({
+      //       title: "บันทึกข้อมูลสำเร็จ",
+      //       text: "",
+      //       width: 250,
+      //       icon: "success",
+      //       customClass: {
+      //         title: "custom-title",
+      //       },
+      //       timer: 2000,
+      //       showConfirmButton: false,
+      //     }).then(() => {
+      //       navigate("/ShopManagementPage/ShopListPage/DetailPage/" + res.responseData.customerId);
+      //     });
+      //   } else {
+      //     Swal.fire({
+      //       title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
+      //       text: "",
+      //       width: 250,
+      //       icon: "error",
+      //       customClass: {
+      //         title: "custom-title",
+      //       },
+      //       timer: 2000,
+      //       showConfirmButton: false,
+      //     });
+      //   }
+      // } catch (e) {
+      //   console.log(e);
+      // }
     }
   };
 

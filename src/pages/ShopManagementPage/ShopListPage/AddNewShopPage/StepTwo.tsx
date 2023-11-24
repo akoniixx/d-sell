@@ -210,17 +210,17 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
             <Col span={12} style={{ position: "relative" }}>
               <Form.Item
                 name='telephone'
-                label='เบอร์โทรศัพท์ (หลัก)*'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกเบอร์โทรศัพท์",
-                  },
-                  {
-                    pattern: /^[0-9]{10}$/,
-                    message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
-                  },
-                ]}
+                label='เบอร์โทรศัพท์ (หลัก)'
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกเบอร์โทรศัพท์",
+                //   },
+                //   {
+                //     pattern: /^[0-9]{10}$/,
+                //     message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
+                //   },
+                // ]}
               >
                 <Input maxLength={10} disabled={isHaveDealer} />
               </Form.Item>
@@ -246,20 +246,20 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               <Form.Item
                 label='เบอร์โทรศัพท์ (สำรอง)'
                 name='secondtelephone'
-                rules={[
-                  {
-                    pattern: /^[0-9]{10}$/,
-                    message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
-                  },
-                  {
-                    validator: (_, value) => {
-                      if (value !== form.getFieldValue("telephone")) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error("เบอร์โทรศัพท์ซ้ำกัน"));
-                    },
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     pattern: /^[0-9]{10}$/,
+                //     message: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
+                //   },
+                //   {
+                //     validator: (_, value) => {
+                //       if (value !== form.getFieldValue("telephone")) {
+                //         return Promise.resolve();
+                //       }
+                //       return Promise.reject(new Error("เบอร์โทรศัพท์ซ้ำกัน"));
+                //     },
+                //   },
+                // ]}
               >
                 <Input maxLength={10} disabled={isHaveDealer} />
               </Form.Item>
@@ -303,12 +303,12 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               <Form.Item
                 label='ชื่อร้านค้า*'
                 name='customerName'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกชื่อร้านค้า",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกชื่อร้านค้า",
+                //   },
+                // ]}
               >
                 <Input disabled={isHaveDealer} />
               </Form.Item>
@@ -318,10 +318,10 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 label='หมายเลขนิติบุคคล*'
                 name='taxId'
                 rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกหมายเลขนิติบุคคล",
-                  },
+                  // {
+                  //   required: true,
+                  //   message: "กรุณากรอกหมายเลขนิติบุคคล",
+                  // },
                   {
                     pattern: /^[0-9]{13}$/,
                     message: "กรุณากรอกหมายเลขนิติบุคคลให้ถูกต้อง",
@@ -345,12 +345,12 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               <Form.Item
                 label='จังหวัด*'
                 name='province'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกจังหวัด",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกจังหวัด",
+                //   },
+                // ]}
               >
                 <Input disabled={isHaveDealer} placeholder='กรอกจังหวัด' />
               </Form.Item>
@@ -359,12 +359,12 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               <Form.Item
                 label='อำเภอ/เขต*'
                 name='district'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกอำเภอ เขต",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกอำเภอ เขต",
+                //   },
+                // ]}
               >
                 <Input disabled={isHaveDealer} placeholder='กรอกอำเภอ/เขต' />
               </Form.Item>
@@ -373,12 +373,12 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               <Form.Item
                 label='ตำบล/แขวง*'
                 name='subdistrict'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกตำบล/แขวง",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกตำบล/แขวง",
+                //   },
+                // ]}
               >
                 <Input disabled={isHaveDealer} placeholder='กรอกตำบล/แขวง' />
               </Form.Item>
@@ -388,10 +388,10 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
                 label='รหัสไปรษณีย์*'
                 name='postcode'
                 rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกรหัสไปษณีย์",
-                  },
+                  // {
+                  //   required: true,
+                  //   message: "กรุณากรอกรหัสไปษณีย์",
+                  // },
                   {
                     pattern: /^[0-9]{5}$/,
                     message: "กรุณากรอกรหัสไปษณีย์ให้ถูกต้อง",
@@ -407,12 +407,12 @@ function StepTwo({ form, onClickBack }: Props): JSX.Element {
               <Form.Item
                 label='ที่อยู่ (บ้านเลขที่ หมู่ ซอย ชั้น อาคาร )*'
                 name='address'
-                rules={[
-                  {
-                    required: true,
-                    message: "กรุณากรอกที่อยู่",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "กรุณากรอกที่อยู่",
+                //   },
+                // ]}
               >
                 <Input disabled={isHaveDealer} placeholder='ระบุที่อยู่' />
               </Form.Item>

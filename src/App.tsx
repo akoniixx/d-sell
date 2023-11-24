@@ -8,8 +8,10 @@ import { ConfigProvider } from "antd";
 import BuddhaEra from "dayjs/plugin/buddhistEra";
 import dayjs from "dayjs";
 import { QueryClient, QueryClientProvider } from "react-query";
+import isBetween from "dayjs/plugin/isBetween";
 import "dayjs/locale/th";
 dayjs.extend(BuddhaEra);
+dayjs.extend(isBetween);
 
 function App() {
   const queryClient = new QueryClient({
