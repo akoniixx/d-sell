@@ -64,7 +64,6 @@ function AddNewShopPage(): JSX.Element {
         });
         setDataDetail(res);
         setBrandData(brandData);
-
         if (res && res.data) {
           const isHaveDealer = res.data.customerCompany.some((el: any) => el.customerType === "DL");
           const {
@@ -135,6 +134,7 @@ function AddNewShopPage(): JSX.Element {
             typeShop: "SD",
             isActiveCustomer: true,
             isHaveDealer,
+            cusList: [{ customerNo: "", zone: "", productBrand: [] }],
           });
         } else {
           form.setFieldsValue({
@@ -310,7 +310,6 @@ function AddNewShopPage(): JSX.Element {
             title: "custom-title",
           },
           timer: 2000,
-
           showConfirmButton: false,
         });
       }
@@ -357,7 +356,7 @@ function AddNewShopPage(): JSX.Element {
         {...defaultPropsForm}
         form={form}
         onFinish={onFinish}
-        initialValues={{ isActive: true }}
+        initialValues={{ isActive: true, cusList: [{}] }}
       >
         {renderStep()}
       </Form>

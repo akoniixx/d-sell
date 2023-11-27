@@ -24,6 +24,7 @@ import { color } from "../../../resource";
 import { profileAtom } from "../../../store/ProfileAtom";
 import Permission, { checkPermission } from "../../../components/Permission/Permission";
 import { roleAtom } from "../../../store/RoleAtom";
+import { COMPANY_FULLNAME_MAPPING } from "../../../definitions/company";
 
 function ShopListPage(): JSX.Element {
   const [visibleCreate, setVisibleCreate] = React.useState(false);
@@ -139,7 +140,6 @@ function ShopListPage(): JSX.Element {
             title: "custom-title",
           },
           timer: 2000,
-
           showConfirmButton: false,
         });
       }
@@ -254,9 +254,9 @@ function ShopListPage(): JSX.Element {
           };
           const telephone = data?.customerToUserShops[0]?.userShop;
           const isActive = data.customerCompany?.find((el) => el.isActive);
-          const ICPL = data.customerCompany?.find((el) => el.company === "ICPL");
-          const ICPF = data.customerCompany?.find((el) => el.company === "ICPF");
-          const ICPI = data.customerCompany?.find((el) => el.company === "ICPI");
+          const ICPL = data.customerCompany?.filter((el) => el.company === "ICPL");
+          const ICPF = data.customerCompany?.filter((el) => el.company === "ICPF");
+          const ICPI = data.customerCompany?.filter((el) => el.company === "ICPI");
           const customerName = isActive ? isActive : data.customerCompany[0];
           const convertStatus = (status: boolean) => {
             return status ? (
@@ -305,13 +305,20 @@ function ShopListPage(): JSX.Element {
           if (item.key === "ICPL") {
             return (
               <div>
-                <Row>{ICPL ? convertStatus(ICPL.isActive) : <Text>-</Text>}</Row>
-                {ICPL ? (
-                  <Text level={7} color='Text3' fontFamily='Sarabun'>
-                    {`${ICPL.customerType === "DL" ? "Dealer" : "SubDealer"} ・ ${ICPL.zone}`}
-                  </Text>
+                {ICPL.length ? (
+                  ICPL.map((i) => (
+                    <>
+                      <Row>{ICPL ? convertStatus(i?.isActive) : <Text>-</Text>}</Row>
+                      <Text level={7} color='Text3' fontFamily='Sarabun'>
+                        {i.customerNo}
+                      </Text>{" "}
+                      <Text level={7} color='Text3' fontFamily='Sarabun'>
+                        {`${i.customerType === "DL" ? "Dealer" : "SubDealer"} ・ ${i.zone}`}
+                      </Text>
+                    </>
+                  ))
                 ) : (
-                  <Text level={7} color='Text3'>
+                  <Text level={7} color='Text1'>
                     -
                   </Text>
                 )}
@@ -321,13 +328,20 @@ function ShopListPage(): JSX.Element {
           if (item.key === "ICPF") {
             return (
               <div>
-                <Row>{ICPF ? convertStatus(ICPF.isActive) : <Text>-</Text>}</Row>
-                {ICPF ? (
-                  <Text level={7} color='Text3' fontFamily='Sarabun'>
-                    {`${ICPF.customerType === "DL" ? "Dealer" : "SubDealer"} ・ ${ICPF.zone}`}
-                  </Text>
+                {ICPF.length ? (
+                  ICPF.map((i) => (
+                    <>
+                      <Row>{ICPL ? convertStatus(i?.isActive) : <Text>-</Text>}</Row>
+                      <Text level={7} color='Text3' fontFamily='Sarabun'>
+                        {i.customerNo}
+                      </Text>{" "}
+                      <Text level={7} color='Text3' fontFamily='Sarabun'>
+                        {`${i.customerType === "DL" ? "Dealer" : "SubDealer"} ・ ${i.zone}`}
+                      </Text>
+                    </>
+                  ))
                 ) : (
-                  <Text level={7} color='Text3'>
+                  <Text level={7} color='Text1'>
                     -
                   </Text>
                 )}
@@ -337,13 +351,20 @@ function ShopListPage(): JSX.Element {
           if (item.key === "ICPI") {
             return (
               <div>
-                <Row>{ICPI ? convertStatus(ICPI.isActive) : <Text>-</Text>}</Row>
-                {ICPI ? (
-                  <Text level={7} color='Text3' fontFamily='Sarabun'>
-                    {`${ICPI.customerType === "DL" ? "Dealer" : "SubDealer"} ・ ${ICPI.zone}`}
-                  </Text>
+                {ICPI.length ? (
+                  ICPI.map((i) => (
+                    <>
+                      <Row>{ICPL ? convertStatus(i?.isActive) : <Text>-</Text>}</Row>
+                      <Text level={7} color='Text3' fontFamily='Sarabun'>
+                        {i.customerNo}
+                      </Text>{" "}
+                      <Text level={7} color='Text3' fontFamily='Sarabun'>
+                        {`${i.customerType === "DL" ? "Dealer" : "SubDealer"} ・ ${i.zone}`}
+                      </Text>
+                    </>
+                  ))
                 ) : (
-                  <Text level={7} color='Text3'>
+                  <Text level={7} color='Text1'>
                     -
                   </Text>
                 )}
@@ -497,6 +518,7 @@ function ShopListPage(): JSX.Element {
           minHeight: 150,
           padding: 32,
         }}
+        footer={false}
       >
         <Form form={form} onFinish={onFinish}>
           <div
@@ -541,6 +563,7 @@ function ShopListPage(): JSX.Element {
                   alignItems: "center",
                 }}
                 maxLength={13}
+                autoComplete='off'
               />
             </Form.Item>
           </div>
@@ -576,6 +599,7 @@ function ShopListPage(): JSX.Element {
           minHeight: 150,
           padding: 32,
         }}
+        footer={false}
       >
         <div
           style={{
@@ -587,8 +611,11 @@ function ShopListPage(): JSX.Element {
           }}
         >
           <Text fontWeight={700} align='center' fontSize={20}>
-            ไม่พบหมายเลขประจำตัวผู้เสียภาษีนี้ คุณต้องการสร้างร้านค้าใหม่หรือไม่
+            ไม่พบหมายเลขประจำตัวผู้เสียภาษีนี้ในบริษัท{" "}
+            {COMPANY_FULLNAME_MAPPING[profile?.company?.toLocaleLowerCase() || ""]}{" "}
+            คุณต้องการสร้างร้านค้าใหม่หรือไม่
           </Text>
+          <br />
         </div>
         <div
           style={{
@@ -628,6 +655,7 @@ function ShopListPage(): JSX.Element {
           minHeight: 150,
           padding: 32,
         }}
+        footer={false}
       >
         <div
           style={{

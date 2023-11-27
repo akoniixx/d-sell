@@ -11,7 +11,7 @@ export const isNumeric = (value: string) => {
 
 export function validateOnlyNumber(t: string): string {
   const inputValue = t;
-  const convertedNumber = inputValue.replace(/^0+|[^\d]/g, "");
+  const convertedNumber = inputValue.replace(/^[^\d].[^\d]/g, "");
   return convertedNumber;
 }
 

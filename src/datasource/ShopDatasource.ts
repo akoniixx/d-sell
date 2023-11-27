@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { BASE_URL, httpClient } from "../config/develop-config";
+import { BASE_URL, NAV_URL, httpClient } from "../config/develop-config";
 import {
   CustomerEntityByZone,
   PayloadApproveCustomerEntity,
@@ -124,7 +124,7 @@ const updateApproveTel = async ({
 };
 const syncCustomerTel = async (cusCode: string, company?: string) => {
   return await httpClient
-    .post(`${BASE_URL}/nav/customer`, {
+    .post(`${NAV_URL}/customer`, {
       company: company,
       cusNo: cusCode,
     })
@@ -132,7 +132,7 @@ const syncCustomerTel = async (cusCode: string, company?: string) => {
 };
 const syncAllCustomer = async (company?: string, syncBy?: string) => {
   return await httpClient
-    .post(`${BASE_URL}/nav/customer/sync-new-customer`, {
+    .post(`${NAV_URL}/customer/sync-new-customer`, {
       company: company,
       syncBy: syncBy,
     })

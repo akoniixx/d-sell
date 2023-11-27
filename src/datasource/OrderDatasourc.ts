@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { BASE_URL, httpClient } from "../config/develop-config";
+import { BASE_URL, NAV_URL, httpClient } from "../config/develop-config";
 import { OrderPaymentStatusKey, OrderStatusKey } from "../definitions/orderStatus";
 
 const baseUrl = `${BASE_URL}/order-cart`;
@@ -33,7 +33,7 @@ const updateOrderStatus = async (data: {
 
 const submitToNav = async (data: { orderId: string; remark?: string; updateBy?: string }) => {
   return await httpClient
-    .post(`${BASE_URL}/nav/sale-order`, data)
+    .post(`${NAV_URL}/sale-order`, data)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };

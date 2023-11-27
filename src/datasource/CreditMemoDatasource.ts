@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { BASE_URL, httpClient } from "../config/develop-config";
+import { BASE_URL, NAV_URL, httpClient } from "../config/develop-config";
 import { CreateConditionCOEntiry } from "../entities/ConditionCOEntiry";
 import { ProductEntity } from "../entities/PoductEntity";
 import { getProductList } from "./ProductDatasource";
@@ -169,7 +169,7 @@ const updateConditionCO = async (params: CreateConditionCOEntiry) => {
 
 const syncNavision = async (company: string) => {
   return await httpClient
-    .post(`${BASE_URL}/nav/credit-memo`, { company })
+    .post(`${NAV_URL}/credit-memo`, { company })
     .then((res: AxiosResponse) => res)
     .catch((err) => console.log(err));
 };

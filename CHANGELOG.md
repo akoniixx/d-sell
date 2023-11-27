@@ -1,5 +1,34 @@
 ## [Version - 0]
 
+## Resolved [v0.9.13] - Release Date: 2023-11-27
+
+- fixed validate in noti promotion section
+
+## Resolved [v0.9.12] - Release Date: 2023-11-27
+
+- set promotion with float
+
+## Resolved [v0.9.11] - Release Date: 2023-11-27
+
+- set promotion with float
+
+## Resolved [v0.9.10] - Release Date: 2023-11-24
+
+- enhanced brand for ladda in shop management
+- enhanced show brand more than one in index shop management
+
+## Resolved [v0.9.9] - Release Date: 2023-11-17
+
+- set new API URL
+
+## Resolved [v0.9.8] - Release Date: 2023-11-15
+
+- fixed defect noti list
+
+## Resolved [v0.9.7] - Release Date: 2023-11-06
+
+- fixed defect highlight news (overlap publish time)
+
 ## Resolved [v0.9.6] - Release Date: 2023-11-06
 
 - fixed defect promotion noti in promotion menu

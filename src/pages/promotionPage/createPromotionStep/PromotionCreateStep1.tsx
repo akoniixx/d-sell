@@ -848,9 +848,11 @@ export const PromotionCreateStep1 = ({
                   rules={[
                     {
                       validator: (rule, value, callback) => {
-                        const isShowShopApp = form.getFieldValue("isShowShopApp");
-                        if (!isShowShopApp && !value) {
-                          return Promise.reject("*กรุณาเลือก");
+                        if (isShowPromotion) {
+                          const isShowShopApp = form.getFieldValue("isShowShopApp");
+                          if (!isShowShopApp && !value) {
+                            return Promise.reject("*กรุณาเลือก");
+                          }
                         }
                         return Promise.resolve();
                       },
@@ -865,9 +867,11 @@ export const PromotionCreateStep1 = ({
                   rules={[
                     {
                       validator: (rule, value, callback) => {
-                        const isShowSaleApp = form.getFieldValue("isShowSaleApp");
-                        if (!value && !isShowSaleApp) {
-                          return Promise.reject("*กรุณาเลือก");
+                        if (isShowPromotion) {
+                          const isShowSaleApp = form.getFieldValue("isShowSaleApp");
+                          if (!value && !isShowSaleApp) {
+                            return Promise.reject("*กรุณาเลือก");
+                          }
                         }
                         return Promise.resolve();
                       },

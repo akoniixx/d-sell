@@ -314,7 +314,7 @@ export const CollapsePanelItem = ({
                     // message: "จำนวนที่ซื้อครบต้องมากกว่า 0 และไม่ซ้ำกัน",
                     validator(rule, value, callback) {
                       if (!value) callback();
-                      if (parseInt(value) <= 0) {
+                      if (parseFloat(value) <= 0) {
                         callback("จำนวนที่ซื้อครบต้องมากกว่า 0");
                         // throw new Error();
                       }
