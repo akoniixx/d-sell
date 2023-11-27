@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.9.11] - Release Date: 2023-11-27
+
+- set promotion with float
+
 ## Resolved [v0.9.10] - Release Date: 2023-11-24
 
 - enhanced brand for ladda in shop management
