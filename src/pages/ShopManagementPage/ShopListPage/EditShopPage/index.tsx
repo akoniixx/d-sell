@@ -277,39 +277,38 @@ export default function EditShopPage() {
           userShopId: userShopId ? userShopId : null,
         },
       };
-      console.log(payload);
-      // try {
-      //   const res = await shopDatasource.updateCustomer(payload);
-      //   if (res && res.success) {
-      //     Swal.fire({
-      //       title: "บันทึกข้อมูลสำเร็จ",
-      //       text: "",
-      //       width: 250,
-      //       icon: "success",
-      //       customClass: {
-      //         title: "custom-title",
-      //       },
-      //       timer: 2000,
-      //       showConfirmButton: false,
-      //     }).then(() => {
-      //       navigate("/ShopManagementPage/ShopListPage/DetailPage/" + res.responseData.customerId);
-      //     });
-      //   } else {
-      //     Swal.fire({
-      //       title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
-      //       text: "",
-      //       width: 250,
-      //       icon: "error",
-      //       customClass: {
-      //         title: "custom-title",
-      //       },
-      //       timer: 2000,
-      //       showConfirmButton: false,
-      //     });
-      //   }
-      // } catch (e) {
-      //   console.log(e);
-      // }
+      try {
+        const res = await shopDatasource.updateCustomer(payload);
+        if (res && res.success) {
+          Swal.fire({
+            title: "บันทึกข้อมูลสำเร็จ",
+            text: "",
+            width: 250,
+            icon: "success",
+            customClass: {
+              title: "custom-title",
+            },
+            timer: 2000,
+            showConfirmButton: false,
+          }).then(() => {
+            navigate("/ShopManagementPage/ShopListPage/DetailPage/" + res.responseData.customerId);
+          });
+        } else {
+          Swal.fire({
+            title: res.userMessage || "บันทึกข้อมูลไม่สำเร็จ",
+            text: "",
+            width: 250,
+            icon: "error",
+            customClass: {
+              title: "custom-title",
+            },
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 
