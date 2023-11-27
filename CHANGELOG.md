@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.9.13] - Release Date: 2023-11-27
+
+- fixed validate in noti promotion section
+
 ## Resolved [v0.9.12] - Release Date: 2023-11-27
 
 - set promotion with float
