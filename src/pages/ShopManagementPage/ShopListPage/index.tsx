@@ -1,5 +1,5 @@
 import { CheckCircleTwoTone, SyncOutlined } from "@ant-design/icons";
-import { Form, Row, Modal, message } from "antd";
+import { Form, Row, Modal, message, Tooltip } from "antd";
 import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import { createSearchParams, useNavigate } from "react-router-dom";
@@ -477,11 +477,14 @@ function ShopListPage(): JSX.Element {
             </Permission>
             <Permission permission={["storeList", "sync"]}>
               <div>
+                {/* <Tooltip title='ปิดการใช้งานชั่วคราว' placement='top' trigger='hover'> */}
                 <Button
                   title='เชื่อมต่อ Navision'
                   icon={<SyncOutlined style={{ color: "white" }} />}
                   onClick={onSyncCustomer}
+                  disabled
                 />
+                {/* </Tooltip> */}
               </div>
             </Permission>
           </div>
