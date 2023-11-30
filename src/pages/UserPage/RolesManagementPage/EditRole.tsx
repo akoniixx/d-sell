@@ -52,6 +52,7 @@ export default function EditRole(): JSX.Element {
     const getInitialValue = async () => {
       try {
         const result = await roleDatasource.getRoleById(roleId || "", profile?.company);
+        console.log(result);
         if (result) {
           const {
             menus,
@@ -64,6 +65,7 @@ export default function EditRole(): JSX.Element {
           }[] = typeof menus === "string" ? JSON.parse(menus) : menus;
 
           const discountCo = newMenus.find((item) => item.menuName === "discountCo");
+          const news = newMenus.find((item) => item.menuName === "news");
           const freebieList = newMenus.find((item) => item.menuName === "freebieList");
           const manageOrder = newMenus.find((item) => item.menuName === "manageOrder");
           const manageStore = newMenus.find((item) => item.menuName === "manageStore");
@@ -87,6 +89,7 @@ export default function EditRole(): JSX.Element {
             specialRequest: specialRequest?.permission,
             promotionSetting: promotionSetting?.permission,
             discountCo: discountCo?.permission,
+            news: news?.permission,
             saleManagement: saleManagement?.permission,
             roleManagement: roleManagement?.permission,
           });
