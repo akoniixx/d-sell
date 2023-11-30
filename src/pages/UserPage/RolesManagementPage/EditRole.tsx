@@ -53,7 +53,6 @@ export default function EditRole(): JSX.Element {
     const getInitialValue = async () => {
       try {
         const result = await roleDatasource.getRoleById(roleId || "", profile?.company);
-        console.log(result);
         if (result) {
           const {
             menus,

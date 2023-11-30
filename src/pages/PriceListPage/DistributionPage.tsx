@@ -387,9 +387,9 @@ export const DistributionPage: React.FC = () => {
           children: (
             <FlexCol>
               <Text level={5}>{priceFormatter(value)}</Text>
-              <Text level={6} color='Text3'>
+              {/* <Text level={6} color='Text3'>
                 {row.saleUOM}
-              </Text>
+              </Text> */}
             </FlexCol>
           ),
         };
