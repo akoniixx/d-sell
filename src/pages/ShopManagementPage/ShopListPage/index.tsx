@@ -483,6 +483,7 @@ function ShopListPage(): JSX.Element {
                   icon={<SyncOutlined style={{ color: "white" }} />}
                   onClick={onSyncCustomer}
                   disabled
+                  typeButton='disabled'
                 />
                 {/* </Tooltip> */}
               </div>

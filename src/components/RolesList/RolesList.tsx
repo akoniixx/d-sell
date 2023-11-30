@@ -117,7 +117,6 @@ export default function RolesList({ form, disabled }: Props) {
             <Text fontWeight={700}>ทั่วไป</Text>
             {commonCheckList.map((el) => {
               const data: any = el.list;
-
               if (!el.isNested) {
                 return (
                   <Form.Item noStyle name={el.menuName} key={el.menuName}>
