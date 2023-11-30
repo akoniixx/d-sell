@@ -1,5 +1,20 @@
 ## [Version - 0]
 
+## Resolved [v0.9.16] - Release Date: 2023-11-30
+
+- fixed product unit
+- fixed side menu
+
+## Resolved [v0.9.15] - Release Date: 2023-11-30
+
+- fixed permission (news menu)
+- disable shop sync button
+
+## Resolved [v0.9.14] - Release Date: 2023-11-30
+
+- fixed permission (news menu)
+- disable shop sync button
+
 ## Resolved [v0.9.13] - Release Date: 2023-11-27
 
 - fixed validate in noti promotion section
