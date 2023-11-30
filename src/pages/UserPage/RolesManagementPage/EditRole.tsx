@@ -27,6 +27,7 @@ interface FormData {
   specialRequest: string[];
   promotionSetting: string[];
   discountCo: string[];
+  priceSpecialExclusive: any;
   saleManagement: string[];
   roleManagement: string[];
 }

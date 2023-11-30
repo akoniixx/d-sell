@@ -36,6 +36,7 @@ function DetailRole() {
       }[] = typeof data.menues === "string" ? JSON.parse(data.menus) : data.menus;
 
       const discountCo = newMenus.find((item) => item.menuName === "discountCo");
+      const news = newMenus.find((item) => item.menuName === "news");
       const freebieList = newMenus.find((item) => item.menuName === "freebieList");
       const manageOrder = newMenus.find((item) => item.menuName === "manageOrder");
       const manageStore = newMenus.find((item) => item.menuName === "manageStore");
@@ -58,7 +59,7 @@ function DetailRole() {
         productList: productList?.permission,
         specialRequest: specialRequest?.permission,
         promotionSetting: promotionSetting?.permission,
-
+        news: news?.permission,
         discountCo: discountCo?.permission,
         saleManagement: saleManagement?.permission,
         roleManagement: roleManagement?.permission,
