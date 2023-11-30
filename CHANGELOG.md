@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.9.16] - Release Date: 2023-11-30
+
+- fixed product unit
+- fixed side menu
+
 ## Resolved [v0.9.15] - Release Date: 2023-11-30
 
 - fixed permission (news menu)

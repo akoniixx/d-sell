@@ -89,18 +89,11 @@ export const pathLists = [
     ],
   },
   {
-    path: "/price",
+    path: "/price/list",
     name: "price",
-    title: "ราคาสินค้า",
+    title: "ราคาสินค้าเฉพาะร้าน",
     permission: ["priceSpecialExclusive"],
-    subMenu: [
-      {
-        path: "/list",
-        name: "discountList",
-        title: "ราคาสินค้าเฉพาะร้าน",
-        permission: "specialPrice",
-      },
-    ],
+    subMenu: [],
   },
   {
     path: "/Productshop/list",
