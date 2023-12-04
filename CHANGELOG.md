@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.9.17] - Release Date: 2023-12-04
+
+- order: show vat
+
 ## Resolved [v0.9.16] - Release Date: 2023-11-30
 
 - fixed product unit

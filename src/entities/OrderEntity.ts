@@ -42,4 +42,6 @@ export interface OrderEntity {
   userStaffId?: string;
   userStaffName?: string;
   customerZone?: string;
+  vat: number;
+  vatPercentage: number;
 }

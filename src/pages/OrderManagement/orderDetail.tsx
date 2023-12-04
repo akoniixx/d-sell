@@ -887,13 +887,35 @@ export const OrderDetail: React.FC = () => {
                 </DetailBox>
                 <br />
                 <DetailItem
-                  label='รวมส่วนลด'
+                  label='รวมส่วนลดสุทธิ'
                   value={priceFormatter(orderData?.totalDiscount || "0", undefined, true)}
                   fontWeight={700}
                   fontSize={18}
                   alignRight
                   leftSpan={10}
                 />
+                <DetailItem
+                  label={`มูลค่ารวมหลังหักส่วนลด`}
+                  value={priceFormatter(
+                    (orderData?.price || 0) - (orderData?.totalDiscount || 0) || "0",
+                    undefined,
+                    true,
+                  )}
+                  fontWeight={700}
+                  fontSize={18}
+                  alignRight
+                  leftSpan={10}
+                />
+                {!!orderData?.vat && orderData?.vat > 0 && (
+                  <DetailItem
+                    label={`ภาษีมูลค่าเพิ่ม ${orderData?.vatPercentage}%`}
+                    value={priceFormatter(orderData?.vat || "0", undefined, true)}
+                    fontWeight={700}
+                    fontSize={18}
+                    alignRight
+                    leftSpan={10}
+                  />
+                )}
                 <Divider />
                 <DetailItem
                   label='ราคารวม'
