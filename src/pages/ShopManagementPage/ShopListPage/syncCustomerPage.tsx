@@ -109,7 +109,7 @@ function SyncCustomerPage(): JSX.Element {
         </Text>
       </Header>
       <br />
-      <ConfigProvider
+      {/* <ConfigProvider
         theme={{
           components: {
             Table: {
@@ -118,9 +118,9 @@ function SyncCustomerPage(): JSX.Element {
             },
           },
         }}
-      >
-        <Table dataSource={mockData} columns={columns} pagination={false} />
-      </ConfigProvider>
+      > */}
+      <Table dataSource={mockData} columns={columns} pagination={false} />
+      {/* </ConfigProvider> */}
     </CardContainer>
   );
 }
