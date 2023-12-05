@@ -17,7 +17,7 @@
     "@types/prettier": "^3.0.0",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.5",
-    "antd": "4.24.4",
+    "antd": "5.9.4",
     "antd-img-crop": "^4.5.2",
     "axios": "^0.27.2",
     "bootstrap": "^5.1.3",

@@ -1,5 +1,5 @@
 import { CheckCircleTwoTone, SyncOutlined } from "@ant-design/icons";
-import { Form, Row, Modal, message, Tooltip } from "antd";
+import { Form, Row, Modal, message, Tooltip, Col } from "antd";
 import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import { createSearchParams, useNavigate } from "react-router-dom";
@@ -154,16 +154,53 @@ function ShopListPage(): JSX.Element {
     [navigate],
   );
   const syncByCustomerCode = async (value: string) => {
-    await shopDatasource.syncCustomerTel(value, profile?.company).then((res) => {
-      if (res.success) {
-        setTimeout(() => {
-          setIsCreating(false);
-          refetch();
-        }, 2000);
-      } else {
-        setIsCreating(false);
-      }
+    const comList = [
+      {
+        key: 1,
+        name: "ICP International",
+        phone: "089XXXXXXX",
+      },
+      {
+        key: 2,
+        name: "ICP Fertilizer",
+        phone: "089XXXXXXX",
+      },
+      {
+        key: 3,
+        name: "ICP Ladda",
+        phone: "086XXXXXXX",
+      },
+    ];
+    Modal.warning({
+      title: <Text color='warning'>Sync Warning</Text>,
+      okText: "ยกเลิก",
+      content: (
+        <>
+          <Text>กรุณาตรวจสอบความถูกต้องของเบอร์โทรศัพท์</Text>
+          <Text>ตามรายการดังนี้</Text>
+          {comList?.map((c) => (
+            <Row key={c.key}>
+              <Col span={12}>
+                <Text>{c.name}</Text>
+              </Col>
+              <Col span={12}>
+                <Text>{c.phone}</Text>
+              </Col>
+            </Row>
+          ))}
+        </>
+      ),
     });
+    // await shopDatasource.syncCustomerTel(value, profile?.company).then((res) => {
+    //   if (res.success) {
+    //     setTimeout(() => {
+    //       setIsCreating(false);
+    //       refetch();
+    //     }, 2000);
+    //   } else {
+    //     setIsCreating(false);
+    //   }
+    // });
   };
 
   const newZone = useMemo(() => {
@@ -284,7 +321,7 @@ function ShopListPage(): JSX.Element {
                   }}
                   onClickSync={() => {
                     syncByCustomerCode(findCusCode?.customerNo || "");
-                    setIsCreating(!isCreating);
+                    //setIsCreating(!isCreating);
                   }}
                 />
               </>
@@ -407,27 +444,28 @@ function ShopListPage(): JSX.Element {
   }, [onClickDetail]);
 
   const onSyncCustomer = async () => {
-    Modal.confirm({
-      title: "ยืนยันการเชื่อมต่อ Navision",
-      onOk: async () => {
-        await shopDatasource
-          .syncAllCustomer(profile?.company, `${profile?.firstname} ${profile?.lastname}`)
-          .then((res) => {
-            setIsCreating(true);
-            const { success } = res;
-            if (success) {
-              setTimeout(() => {
-                setIsCreating(false);
-                refetch();
-              }, 1000);
-            } else {
-              message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
-            }
-          })
-          .catch((err) => console.log("err", err))
-          .finally(() => console.log("sync customer done"));
-      },
-    });
+    navigate("/ShopManagementPage/SyncCustomer");
+    // Modal.confirm({
+    //   title: "ยืนยันการเชื่อมต่อ Navision",
+    //   onOk: async () => {
+    //     await shopDatasource
+    //       .syncAllCustomer(profile?.company, `${profile?.firstname} ${profile?.lastname}`)
+    //       .then((res) => {
+    //         setIsCreating(true);
+    //         const { success } = res;
+    //         if (success) {
+    //           setTimeout(() => {
+    //             setIsCreating(false);
+    //             refetch();
+    //           }, 1000);
+    //         } else {
+    //           message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
+    //         }
+    //       })
+    //       .catch((err) => console.log("err", err))
+    //       .finally(() => console.log("sync customer done"));
+    //   },
+    // });
   };
 
   return (
@@ -482,8 +520,8 @@ function ShopListPage(): JSX.Element {
                   title='เชื่อมต่อ Navision'
                   icon={<SyncOutlined style={{ color: "white" }} />}
                   onClick={onSyncCustomer}
-                  disabled
-                  typeButton='disabled'
+                  //disabled
+                  //typeButton='disabled'
                 />
                 {/* </Tooltip> */}
               </div>
