@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.9.18] - Release Date: 2023-12-04
+
+- fixed highlight news
+- fixed show vat
+
 ## Resolved [v0.9.17] - Release Date: 2023-12-04
 
 - order: show vat

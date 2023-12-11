@@ -86,7 +86,7 @@ const DetailItem = ({
     <Row gutter={16} style={{ margin: "10px 0px" }}>
       <Col span={leftSpan ? leftSpan : alignRight ? 14 : 9}>
         <Text fontWeight={fontWeight} fontSize={fontSize}>
-          {label} :
+          {label}
         </Text>
         <br />
         {labelEn && (
@@ -841,13 +841,7 @@ export const OrderDetail: React.FC = () => {
                   fontSize={18}
                   leftSpan={10}
                 />
-                <DetailItem
-                  label='ภาษีมูลค่าเพิ่ม'
-                  value={priceFormatter(0, undefined, true)}
-                  alignRight
-                  leftSpan={10}
-                />
-                <DetailItem label='รวมเงิน' value=' ' fontWeight={700} fontSize={18} />
+                <DetailItem label='รายละเอียดส่วนลด' value=' ' fontWeight={700} fontSize={18} />
                 <DetailBox style={{ backgroundColor: "white", padding: 22 }}>
                   <DetailItem
                     label='ส่วนลดรายการ'
