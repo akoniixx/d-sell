@@ -180,16 +180,6 @@ const Layouts: React.FC<any> = ({ children }) => {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
   const [persistedProfile] = useLocalStorage("profile", []);
-
-  const regexPatterns = [/edit$/, /create$/, /update$/];
-  const location = useLocation().pathname;
-  const doesPathMatch = (path: string, patterns: RegExp[]) => {
-    return patterns.some((pattern) => pattern.test(path));
-  };
-  const isMatch = doesPathMatch(location, regexPatterns);
-
-  console.log(isMatch);
-
   const logout = async () => {
     try {
       const token = localStorage.getItem("token");
