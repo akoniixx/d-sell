@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.10.0] - Release Date: 2023-12-12
+
+- added sync customer 3 company
+
 ## Resolved [v0.9.18] - Release Date: 2023-12-04
 
 - fixed highlight news

@@ -1,5 +1,5 @@
 import { CheckCircleTwoTone, SyncOutlined } from "@ant-design/icons";
-import { Form, Row, Modal, message, Tooltip } from "antd";
+import { Form, Row, Modal, message, Tooltip, Col, Divider } from "antd";
 import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import { createSearchParams, useNavigate } from "react-router-dom";
@@ -25,6 +25,20 @@ import { profileAtom } from "../../../store/ProfileAtom";
 import Permission, { checkPermission } from "../../../components/Permission/Permission";
 import { roleAtom } from "../../../store/RoleAtom";
 import { COMPANY_FULLNAME_MAPPING } from "../../../definitions/company";
+import { checkPhoneAllShop, checkPhoneByShop } from "../../../datasource/CustomerDatasource";
+import _ from "lodash";
+import Table from "antd/es/table";
+import TableContainer from "../../../components/Table/TableContainer";
+import styled from "styled-components";
+
+const Header = styled(Row)`
+  border-radius: 8px;
+  background-color: ${color.background1};
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+`;
 
 function ShopListPage(): JSX.Element {
   const [visibleCreate, setVisibleCreate] = React.useState(false);
@@ -153,15 +167,170 @@ function ShopListPage(): JSX.Element {
     },
     [navigate],
   );
-  const syncByCustomerCode = async (value: string) => {
-    await shopDatasource.syncCustomerTel(value, profile?.company).then((res) => {
+  const syncByCustomerCode = async (cusCode: string, taxNo: string) => {
+    const updateBy = profile?.firstname + " " + profile?.lastname;
+    await checkPhoneByShop({
+      taxNo,
+      company: profile?.company || "",
+      updateBy,
+    }).then(async (res) => {
       if (res.success) {
-        setTimeout(() => {
-          setIsCreating(false);
-          refetch();
-        }, 2000);
+        setIsCreating(true);
+        await shopDatasource.syncCustomerTel(cusCode, profile?.company).then((res) => {
+          if (res.success) {
+            setTimeout(() => {
+              setIsCreating(false);
+              refetch();
+            }, 2000);
+          } else {
+            setIsCreating(false);
+          }
+        });
       } else {
-        setIsCreating(false);
+        const config = res.responseData;
+        const groupByCom = _.groupBy(config, "company");
+        const comList: any = Object.keys(groupByCom);
+        const column = [
+          {
+            title: (
+              <Text fontWeight={600} color='white'>
+                บริษัท
+              </Text>
+            ),
+            dataIndex: "company",
+            key: "company",
+            render: (value: string, row: any) => {
+              const find = groupByCom[row][0];
+              return (
+                <>
+                  <Row justify={"space-between"}>
+                    <Col span={12}>
+                      <Text fontSize={14}>{find.company}</Text>
+                    </Col>
+                  </Row>
+                </>
+              );
+            },
+          },
+          {
+            title: (
+              <Text fontWeight={600} color='white'>
+                Customer No.
+              </Text>
+            ),
+            width: "15%",
+            dataIndex: "cusNo",
+            key: "cusNo",
+            render: (value: string, row: any) => {
+              const find = groupByCom[row];
+              return (
+                <>
+                  {find?.map((x, i) => (
+                    <>
+                      <Row justify={"space-between"} key={i}>
+                        <Col span={12}>
+                          <Text fontSize={14}>{x.cusNo}</Text>
+                          <br />
+                          <Text fontSize={14} color='white'>
+                            -
+                          </Text>
+                        </Col>
+                      </Row>
+                      {find.length > 1 && <Divider />}
+                    </>
+                  ))}
+                </>
+              );
+            },
+          },
+          {
+            title: (
+              <Text fontWeight={600} color='white'>
+                Customer Name
+              </Text>
+            ),
+            dataIndex: "cusName",
+            key: "cuaName",
+            width: "30%",
+            render: (value: string, row: any) => {
+              const find = groupByCom[row];
+              return (
+                <>
+                  {find?.map((x, i) => (
+                    <>
+                      <Row justify={"space-between"}>
+                        <Col span={12}>
+                          <Text fontSize={14}>{x.cusName || "-"}</Text>
+                          <br />
+                          <Text fontSize={14} color='white'>
+                            -
+                          </Text>
+                        </Col>
+                      </Row>
+                      {find.length > 1 && <Divider />}
+                    </>
+                  ))}
+                </>
+              );
+            },
+          },
+          {
+            title: (
+              <Text fontWeight={600} color='white'>
+                Contact
+              </Text>
+            ),
+            dataIndex: "sellcodaPhone1",
+            key: "sellcodaPhone1",
+            render: (value: string, row: any) => {
+              const find = groupByCom[row];
+              return (
+                <>
+                  {find?.map((x, i) => (
+                    <>
+                      <Row justify={"space-between"}>
+                        <Col span={12}>
+                          <Text fontSize={14}>Name 1 : {x.contactName1 || "-"}</Text>
+                          <br />
+                          <Text fontSize={14}>Name 2 : {x.contactName2 || "-"}</Text>
+                        </Col>
+                        <Col span={12}>
+                          <Text fontSize={14}>Phone 1 : {x.sellcodaPhone1 || "-"}</Text>
+                          <br />
+                          <Text fontSize={14}>Phone 2 : {x.sellcodaPhone2 || "-"}</Text>
+                        </Col>
+                      </Row>
+                      {find.length > 1 && <Divider />}
+                    </>
+                  ))}
+                </>
+              );
+            },
+          },
+        ];
+        Modal.warning({
+          title: (
+            <Text color='warning' fontWeight={600} fontSize={20}>
+              Sync Warning
+            </Text>
+          ),
+          okText: "ยกเลิก",
+          width: "1400px",
+          content: (
+            <>
+              <Header>
+                <Text color='error' fontWeight={600}>
+                  รายการข้อมูลไม่สามารถ Sync ได้ เนื่องจากข้อมูลไม่ตรงกัน
+                  กรุณาติดต่อเจ้าหน้าที่ที่เกี่ยวข้องเพื่อดำเนินการแก้ไข
+                </Text>
+              </Header>
+              <br />
+              <TableContainer>
+                <Table columns={column || []} dataSource={comList} pagination={false} />
+              </TableContainer>
+            </>
+          ),
+        });
       }
     });
   };
@@ -283,8 +452,8 @@ function ShopListPage(): JSX.Element {
                     onClickDetail(data?.customerId || "");
                   }}
                   onClickSync={() => {
-                    syncByCustomerCode(findCusCode?.customerNo || "");
-                    setIsCreating(!isCreating);
+                    syncByCustomerCode(findCusCode?.customerNo || "", data?.taxNo || "");
+                    //setIsCreating(!isCreating);
                   }}
                 />
               </>
@@ -407,25 +576,35 @@ function ShopListPage(): JSX.Element {
   }, [onClickDetail]);
 
   const onSyncCustomer = async () => {
+    const updateBy = profile?.firstname + " " + profile?.lastname;
     Modal.confirm({
       title: "ยืนยันการเชื่อมต่อ Navision",
       onOk: async () => {
-        await shopDatasource
-          .syncAllCustomer(profile?.company, `${profile?.firstname} ${profile?.lastname}`)
-          .then((res) => {
-            setIsCreating(true);
-            const { success } = res;
-            if (success) {
-              setTimeout(() => {
-                setIsCreating(false);
-                refetch();
-              }, 1000);
-            } else {
-              message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
-            }
-          })
-          .catch((err) => console.log("err", err))
-          .finally(() => console.log("sync customer done"));
+        await checkPhoneAllShop({
+          company: profile?.company || "",
+          updateBy,
+        }).then(async (res) => {
+          if (res.success) {
+            await shopDatasource
+              .syncAllCustomer(profile?.company, `${profile?.firstname} ${profile?.lastname}`)
+              .then((res) => {
+                setIsCreating(true);
+                const { success } = res;
+                if (success) {
+                  setTimeout(() => {
+                    setIsCreating(false);
+                    refetch();
+                  }, 1000);
+                } else {
+                  message.error("เชื่อมต่อ Navision ไม่สำเร็จ");
+                }
+              })
+              .catch((err) => console.log("err", err))
+              .finally(() => console.log("sync customer done"));
+          } else {
+            window.open(`${window.origin}/SyncCustomer`);
+          }
+        });
       },
     });
   };
@@ -482,8 +661,8 @@ function ShopListPage(): JSX.Element {
                   title='เชื่อมต่อ Navision'
                   icon={<SyncOutlined style={{ color: "white" }} />}
                   onClick={onSyncCustomer}
-                  disabled
-                  typeButton='disabled'
+                  //disabled
+                  //typeButton='disabled'
                 />
                 {/* </Tooltip> */}
               </div>
