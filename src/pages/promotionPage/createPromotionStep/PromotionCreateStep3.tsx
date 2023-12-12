@@ -353,8 +353,8 @@ export const CollapsePanelItem = ({
                 promotionGroupOption === PromotionGroupOption.WEIGHT
                   ? "kg / L"
                   : company === "ICPL" && PromotionGroup.MIX.includes(promotionType)
-                  ? "ลัง/กระสอบ"
-                  : item?.saleUOMTH || "หน่วย"
+                    ? "ลัง/กระสอบ"
+                    : item?.saleUOMTH || "หน่วย"
               }
             >
               <Input disabled />
@@ -527,7 +527,7 @@ const FreebieList = ({
 
   const [freebieUnit, setFreebieUnit] = useState<Record<string, any>>({});
 
-  const key = listKey !== undefined ? listKey : productId ? `promotion-${productId}` : "key";
+  const key: any = listKey !== undefined ? listKey : productId ? `promotion-${productId}` : "key";
 
   useEffect(() => {
     if (getValue().length <= 0 && autoFilled) {
@@ -1364,12 +1364,14 @@ export const PromotionCreateStep3 = ({
                                       parseFloat(itemPromo[currentKey][i]?.discountPrice)
                                     } บาท / ${item.saleUOMTH}`
                                   : discountValue &&
-                                    parseFloat(discountValue) > 0 &&
-                                    parseFloat(item.marketPrice || "") >= parseFloat(discountValue)
-                                  ? `ราคาขายหลังหักส่วนลด ${
-                                      parseFloat(item.marketPrice || "") - parseFloat(discountValue)
-                                    } บาท / ${item.saleUOMTH}`
-                                  : undefined;
+                                      parseFloat(discountValue) > 0 &&
+                                      parseFloat(item.marketPrice || "") >=
+                                        parseFloat(discountValue)
+                                    ? `ราคาขายหลังหักส่วนลด ${
+                                        parseFloat(item.marketPrice || "") -
+                                        parseFloat(discountValue)
+                                      } บาท / ${item.saleUOMTH}`
+                                    : undefined;
                             }
                             return (
                               <CollapsePanelItem
