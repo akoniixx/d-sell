@@ -3,7 +3,7 @@ import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
 import React, { useState } from "react";
 import { LogoutOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import icon from "../../resource/icon";
 import { useLocalStorage } from "../../hook/useLocalStorage";
 import { getCompanyName } from "../../utility/CompanyName";
@@ -181,6 +181,15 @@ const Layouts: React.FC<any> = ({ children }) => {
 
   const [persistedProfile] = useLocalStorage("profile", []);
 
+  const regexPatterns = [/edit$/, /create$/, /update$/];
+  const location = useLocation().pathname;
+  const doesPathMatch = (path: string, patterns: RegExp[]) => {
+    return patterns.some((pattern) => pattern.test(path));
+  };
+  const isMatch = doesPathMatch(location, regexPatterns);
+
+  console.log(isMatch);
+
   const logout = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -211,7 +220,7 @@ const Layouts: React.FC<any> = ({ children }) => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh", flex: 1 }}>
       <Header
         style={{
           backgroundColor: "#FFFFFF",
@@ -241,7 +250,6 @@ const Layouts: React.FC<any> = ({ children }) => {
           <Button onClick={() => logout()} icon={<LogoutOutlined />} size='large' />
         </div>
       </Header>
-
       <Layout>
         <Sider width={220} className='site-layout-background' collapsed={!isOpenSidebar}>
           <div
@@ -274,7 +282,7 @@ const Layouts: React.FC<any> = ({ children }) => {
             padding: 24,
             margin: 0,
             height: "100%",
-            width: "100%",
+            width: "fit-content",
             overflow: "auto",
           }}
         >

@@ -287,12 +287,13 @@ export const protectRoutesData: IRoute[] = [
         element: <DetailApproveTelPage />,
         permission: null,
       },
-      {
-        path: "SyncCustomer/*",
-        element: <SyncCustomerPage />,
-        permission: null,
-      },
     ],
+  },
+  {
+    path: "/SyncCustomer",
+    element: <SyncCustomerPage />,
+    permission: null,
+    nestedRoutes: [],
   },
   {
     path: "/UserPage/*",
