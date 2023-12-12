@@ -43,6 +43,7 @@ export const HighLightNews: React.FC = () => {
     count: 0,
     data: [],
   });
+  const [deletingId, setDeletingId] = useState<string>();
 
   const resetPage = () => setPage(1);
 
@@ -288,21 +289,7 @@ export const HighLightNews: React.FC = () => {
                 icon={<EditOutlined />}
               />
               <ActionBtn
-                onClick={() =>
-                  Modal.confirm({
-                    title: "ต้องการยืนยันการลบ",
-                    onOk: async () => {
-                      await deleteHighlight({
-                        highlightNewsId: row.highlightNewsId,
-                        updateBy: firstname + " " + lastname,
-                      })
-                        .then((res) => {
-                          navigate(0);
-                        })
-                        .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
-                    },
-                  })
-                }
+                onClick={() => setDeletingId(row.highlightNewsId)}
                 icon={<DeleteOutlined style={{ color: color.error }} />}
               />
             </Row>
@@ -333,6 +320,34 @@ export const HighLightNews: React.FC = () => {
           showSizeChanger: false,
         }}
       />
+      <Modal
+        open={!!deletingId}
+        closable={false}
+        onOk={async () => {
+          if (deletingId) {
+            await deleteHighlight({
+              highlightNewsId: deletingId,
+              updateBy: firstname + " " + lastname,
+            })
+              .then((res) => {
+                navigate(0);
+              })
+              .catch(() => message.error("ลบโปรโมชั่นไม่สำเร็จ"));
+          }
+        }}
+        onCancel={() => setDeletingId(undefined)}
+        destroyOnClose
+        okText={"ยืนยัน"}
+        cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
+      >
+        <Text level={2}>ต้องการยืนยันการลบ</Text>
+        <br />
+        <Text level={5} color='Text3'>
+          โปรดตรวจสอบข่าวสารที่คุณต้องการลบ ก่อนกดยืนยัน
+          <br />
+          เพราะอาจส่งผลต่อการทำงานของผู้ดูแลระบบ
+        </Text>
+      </Modal>
     </CardContainer>
   );
 };
