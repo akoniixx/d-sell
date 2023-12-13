@@ -117,6 +117,16 @@ export const websiteBackOffice = {
       value: "edit",
     },
   ],
+  oneFinity: [
+    {
+      label: "View Setting",
+      value: "view",
+    },
+    {
+      label: "Edit Setting",
+      value: "edit",
+    },
+  ],
 };
 
 interface NestedList {
@@ -395,6 +405,35 @@ export const staticRolesObject: StaticRoles = {
       },
     ],
   },
+  oneInfinity: {
+    isNested: true,
+    groupName: "ตั้งค่า",
+    groupKey: "oneInfinity",
+    list: [
+      {
+        label: "แบรนด์สินค้า",
+        groupNameNested: "oneInfinity",
+        listNested: [
+          {
+            label: "สร้างรายการส่วนลด",
+            value: "create",
+          },
+          {
+            label: "ดูรายการส่วนลด",
+            value: "view",
+          },
+          {
+            label: "แก้ไขรายการส่วนลด",
+            value: "edit",
+          },
+          {
+            label: "ลบรายการส่วนลด",
+            value: "delete",
+          },
+        ],
+      },
+    ],
+  },
 };
 export const staticManageRoles: StaticRoles = {
   // Manage
@@ -488,6 +527,35 @@ export const staticManageRoles: StaticRoles = {
       },
     ],
   },
+  oneInfinity: {
+    isNested: true,
+    groupName: "ตั้งค่า",
+    groupKey: "oneInfinity",
+    list: [
+      {
+        label: "แบรนด์สินค้า",
+        groupNameNested: "oneInfinity",
+        listNested: [
+          {
+            label: "สร้างรายการส่วนลด",
+            value: "create",
+          },
+          {
+            label: "ดูรายการส่วนลด",
+            value: "view",
+          },
+          {
+            label: "แก้ไขรายการส่วนลด",
+            value: "edit",
+          },
+          {
+            label: "ลบรายการส่วนลด",
+            value: "delete",
+          },
+        ],
+      },
+    ],
+  },
 };
 
 export const mockRoles = [
@@ -543,6 +611,12 @@ export const mockRoles = [
     menu: {
       storeList: ["view", "create", "edit", "sync"],
       approvePhone: ["view", "approve"],
+    },
+  },
+  {
+    menuName: "oneInfinity",
+    menu: {
+      brandSetting: ["view", "create", "edit", "delete"],
     },
   },
 ];

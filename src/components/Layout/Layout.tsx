@@ -175,6 +175,20 @@ export const pathLists = [
       },
     ],
   },
+  {
+    path: "/oneInfinity",
+    name: "oneInfinity",
+    title: "ตั้งค่า",
+    permission: ["oneInfinity"],
+    subMenu: [
+      {
+        path: "/brandSetting",
+        name: "brandSetting",
+        title: "แบรนด์สินค้า",
+        permission: "brandSetting",
+      },
+    ],
+  },
 ];
 const Layouts: React.FC<any> = ({ children }) => {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);

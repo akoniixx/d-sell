@@ -57,6 +57,7 @@ import { CreateHighLightNewsPage } from "./pages/NewsPage/CreateHighLightNews";
 import { IndexProductShop } from "./pages/ProductShop/IndexProductShop";
 import { ProductShopDetail } from "./pages/ProductShop/ProductShopDetail";
 import SyncCustomerPage from "./pages/ShopManagementPage/ShopListPage/syncCustomerPage";
+import { IndexBrandSetting } from "./pages/OneInfinity/BrandSetting/Index";
 
 interface IRoute {
   path: string;
@@ -496,6 +497,23 @@ export const protectRoutesData: IRoute[] = [
         element: <ProductShopDetail />,
         permission: null,
       },
+    ],
+  },
+  {
+    path: "/oneInfinity/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "brandSetting",
+        element: <IndexBrandSetting />,
+        permission: null,
+      },
+      // {
+      //   path: "detail/:id",
+      //   element: <ProductShopDetail />,
+      //   permission: null,
+      // },
     ],
   },
 ];

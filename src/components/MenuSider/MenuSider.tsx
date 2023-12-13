@@ -13,6 +13,7 @@ import {
   ShopOutlined,
   BookOutlined,
   ReconciliationOutlined,
+  SettingFilled,
 } from "@ant-design/icons";
 import CollapseMenu from "./CollapseMenu";
 import { useEffectOnce } from "react-use";
@@ -187,6 +188,13 @@ const iconsInActive = {
   ),
   productshop: (
     <ReconciliationOutlined
+      style={{
+        fontSize: "20px",
+      }}
+    />
+  ),
+  oneInfinity: (
+    <SettingFilled
       style={{
         fontSize: "20px",
       }}
