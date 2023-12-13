@@ -236,12 +236,12 @@ export const HighLightNews: React.FC = () => {
             <Row gutter={16} justify={"space-between"}>
               <Col span={24}>
                 <Text level={5} style={{ paddingLeft: "5px" }}>
-                  10
+                  {row.viewSaleApp}
                 </Text>
               </Col>
               <Col span={24}>
                 <Text level={5} style={{ paddingLeft: "5px" }}>
-                  5
+                  {row.viewShopApp}
                 </Text>
               </Col>
             </Row>
