@@ -4,7 +4,7 @@ import { CardContainer } from "../../components/Card/CardContainer";
 import { SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
 import Input from "../../components/Input/Input";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import moment from "moment";
 import Text from "../../components/Text/Text";
 import color from "../../resource/color";
@@ -72,13 +72,22 @@ export const OrderList: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
-  const [keyword, setKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string[]>();
-  const [zoneFilter, setZoneFilter] = useState<string[]>();
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState<number>(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [zone, setZone] = useState<{ label: string; value: string; key: string }[]>([]);
+  const [keyword, setKeyword] = useState(searchParams.get("keyword") || "");
+  const [statusFilter, setStatusFilter] = useState<string[] | undefined>(
+    searchParams
+      .get("statusFilter")
+      ?.split(",")
+      ?.filter((x) => Object.keys(ORDER_STATUS).includes(x)),
+  );
+  const [zoneFilter, setZoneFilter] = useState<string[] | undefined>(
+    searchParams.get("zoneFilter")?.split(","),
+  );
   const [dateFilter, setDateFilter] = useState<any>();
+  const [page, setPage] = useState<number>(parseInt(searchParams.get("page") || "1"));
+  const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState({
     data: [],
     statusCount: {
@@ -95,13 +104,75 @@ export const OrderList: React.FC = () => {
     count: 0,
   });
 
-  useEffect(() => {
-    if (!loading) fetchData();
-  }, []);
+  const setParams = () => {
+    let sd = "",
+      sm = "",
+      sy = "",
+      ed = "",
+      em = "",
+      ey = "";
+    console.log("setParams");
+    if (dateFilter && dateFilter[0]) {
+      sd = dateFilter[0].date();
+      sm = dateFilter[0].month() + 1;
+      sy = dateFilter[0].year();
+    }
+    if (dateFilter && dateFilter[1]) {
+      ed = dateFilter[1].date();
+      em = dateFilter[1].month() + 1;
+      ey = dateFilter[1].year();
+    }
+
+    setSearchParams({
+      keyword,
+      page: `${page}`,
+      statusFilter: (statusFilter || "").toString(),
+      zoneFilter: (zoneFilter || "").toString(),
+      dateFilter: [
+        sd && sm && sy ? `${sy}-${sm}-${sd}` : "",
+        ed && em && ey ? `${ey}-${em}-${ed}` : "",
+      ].toString(),
+      // sd,
+      // sm,
+      // sy,
+      // ed,
+      // em,
+      // ey,
+    });
+  };
 
   useEffect(() => {
-    fetchData();
-  }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
+    if (!loading) fetchData();
+
+    if (!dateFilter) {
+      console.log("1");
+      const df = searchParams.get("dateFilter") || [];
+      const val: any[] = [];
+      if (df[0]) val[0] = moment(df[0]);
+      if (df[1]) val[1] = moment(df[1]);
+      setDateFilter(val);
+    }
+  }, [
+    searchParams.get("keyword"),
+    searchParams.get("statusFilter"),
+    searchParams.get("zoneFilter"),
+    searchParams.get("dateFilter"),
+    searchParams.get("page"),
+  ]);
+
+  useEffect(() => {
+    //set interval: reload data every 3 mins
+    const interval = 3 * 60 * 1000;
+    const id = setInterval(fetchData, interval);
+    return () => clearInterval(id);
+  }, []);
+
+  // useEffect(() => {
+  //   if (!loading) {
+  //     fetchData();
+  //   }
+  //   setParams();
+  // }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
 
@@ -115,10 +186,16 @@ export const OrderList: React.FC = () => {
       };
     });
     setZone(data);
+
+    const newZoneFilter = zoneFilter?.filter((x) =>
+      res.find((item) => `${item.zoneName}` === `${x}`),
+    );
+    if (newZoneFilter?.length !== zoneFilter?.length) setZoneFilter(newZoneFilter);
   };
 
   const fetchData = async () => {
     try {
+      console.log("fetch data");
       setLoading(true);
       const { data, statusCount, count } = await getOrders({
         company,
@@ -170,6 +247,7 @@ export const OrderList: React.FC = () => {
             value={dateFilter}
             onChange={(dates, dateString) => {
               setDateFilter(dates);
+              setParams();
             }}
           />
         </Col>
@@ -401,9 +479,11 @@ export const OrderList: React.FC = () => {
                 mode='multiple'
                 maxTagCount='responsive'
                 showArrow
+                value={statusFilter}
                 onChange={(value: string[]) => {
                   setStatusFilter(value);
                   resetPage();
+                  setParams();
                 }}
               />
             </Col>
@@ -415,9 +495,11 @@ export const OrderList: React.FC = () => {
                 mode='multiple'
                 maxTagCount='responsive'
                 showArrow
+                value={zoneFilter}
                 onChange={(value: string[]) => {
                   setZoneFilter(value);
                   resetPage();
+                  setParams();
                 }}
               />
             </Col>
@@ -431,12 +513,14 @@ export const OrderList: React.FC = () => {
                   const value = (e.target as HTMLTextAreaElement).value;
                   setKeyword(value);
                   resetPage();
+                  setParams();
                 }}
                 onChange={(e) => {
                   const value = (e.target as HTMLInputElement).value;
                   if (!value) {
                     setKeyword("");
                     resetPage();
+                    setParams();
                   }
                 }}
               />
@@ -453,7 +537,10 @@ export const OrderList: React.FC = () => {
               total: dataState.count,
               showSizeChanger: false,
               position: ["bottomCenter"],
-              onChange: (page) => setPage(page),
+              onChange: (page) => {
+                setPage(page);
+                setParams();
+              },
             }}
             size='large'
             tableLayout='fixed'
