@@ -29,6 +29,7 @@ import { getOrderStatus } from "../../utility/OrderStatus";
 import Permission, { checkPermission } from "../../components/Permission/Permission";
 import { roleAtom } from "../../store/RoleAtom";
 import { useRecoilValue } from "recoil";
+import dayjs from "dayjs";
 
 const SLASH_DMY = "DD/MM/YYYY HH:mm";
 const SummaryBox = ({
@@ -104,61 +105,46 @@ export const OrderList: React.FC = () => {
     count: 0,
   });
 
-  const setParams = () => {
+  const setParams = (sD?: any, eD?: any) => {
     let sd = "",
       sm = "",
       sy = "",
       ed = "",
       em = "",
       ey = "";
-    console.log("setParams");
-    if (dateFilter && dateFilter[0]) {
-      sd = dateFilter[0].date();
-      sm = dateFilter[0].month() + 1;
-      sy = dateFilter[0].year();
-    }
-    if (dateFilter && dateFilter[1]) {
-      ed = dateFilter[1].date();
-      em = dateFilter[1].month() + 1;
-      ey = dateFilter[1].year();
-    }
+    sd = sD && sD?.date();
+    sm = sD && sD?.month() + 1;
+    sy = sD && sD?.year();
+
+    ed = eD && eD?.date();
+    em = eD && eD?.month() + 1;
+    ey = ed && eD?.year();
 
     setSearchParams({
       keyword,
       page: `${page}`,
       statusFilter: (statusFilter || "").toString(),
       zoneFilter: (zoneFilter || "").toString(),
-      dateFilter: [
-        sd && sm && sy ? `${sy}-${sm}-${sd}` : "",
-        ed && em && ey ? `${ey}-${em}-${ed}` : "",
-      ].toString(),
-      // sd,
-      // sm,
-      // sy,
-      // ed,
-      // em,
-      // ey,
+      startDate: sd && sm && sy ? `${sy}-${sm}-${sd}` : "",
+      endDate: ed && em && ey ? `${ey}-${em}-${ed}` : "",
     });
   };
 
   useEffect(() => {
     if (!loading) fetchData();
-
-    if (!dateFilter) {
-      console.log("1");
-      const df = searchParams.get("dateFilter") || [];
-      const val: any[] = [];
-      if (df[0]) val[0] = moment(df[0]);
-      if (df[1]) val[1] = moment(df[1]);
-      setDateFilter(val);
+    if (!!searchParams.get("startDate") || !!searchParams.get("endDate")) {
+      const sd = searchParams.get("startDate") || undefined;
+      const ed = searchParams.get("endDate") || undefined;
+      setDateFilter([dayjs(sd), dayjs(ed)]);
+      setParams(sd && dayjs(sd), ed && dayjs(ed));
+    } else {
+      setParams();
     }
-  }, [
-    searchParams.get("keyword"),
-    searchParams.get("statusFilter"),
-    searchParams.get("zoneFilter"),
-    searchParams.get("dateFilter"),
-    searchParams.get("page"),
-  ]);
+  }, [keyword, statusFilter, zoneFilter, page]);
+
+  useEffect(() => {
+    if (!loading) fetchData();
+  }, [dateFilter]);
 
   useEffect(() => {
     //set interval: reload data every 3 mins
@@ -166,13 +152,6 @@ export const OrderList: React.FC = () => {
     const id = setInterval(fetchData, interval);
     return () => clearInterval(id);
   }, []);
-
-  // useEffect(() => {
-  //   if (!loading) {
-  //     fetchData();
-  //   }
-  //   setParams();
-  // }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
 
   const resetPage = () => setPage(1);
 
@@ -195,7 +174,6 @@ export const OrderList: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      console.log("fetch data");
       setLoading(true);
       const { data, statusCount, count } = await getOrders({
         company,
@@ -204,8 +182,20 @@ export const OrderList: React.FC = () => {
         customerZones: zoneFilter,
         page,
         take: pageSize,
-        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
-        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
+        startDate: dateFilter
+          ? dateFilter[0]
+            ? dateFilter[0].format("YYYY-MM-DD")
+            : undefined
+          : searchParams.get("startDate")
+            ? searchParams.get("startDate")
+            : undefined,
+        endDate: dateFilter
+          ? dateFilter[1]
+            ? dateFilter[1].format("YYYY-MM-DD")
+            : undefined
+          : searchParams.get("endDate")
+            ? searchParams.get("endDate")
+            : undefined,
       });
       setDataState({ data, statusCount, count });
       if (zone.length <= 0) {
@@ -246,8 +236,10 @@ export const OrderList: React.FC = () => {
             enablePast
             value={dateFilter}
             onChange={(dates, dateString) => {
-              setDateFilter(dates);
-              setParams();
+              if (!dates || (dates[0] && dates[1])) {
+                setParams(dates && dates[0], dates && dates[1]);
+                setDateFilter(dates);
+              }
             }}
           />
         </Col>
@@ -417,10 +409,10 @@ export const OrderList: React.FC = () => {
               <Col span={12}>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  // onClick={() => navigate("/order/" + row.orderId)}
-                  onClick={() =>
-                    window.open(`${window.location.pathname}/${row.orderId}`, "_blank")
-                  }
+                  onClick={() => navigate("/order/" + row.orderId)}
+                  // onClick={() =>
+                  //   window.open(`${window.location.pathname}/${row.orderId}`, "_blank")
+                  // }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
@@ -483,7 +475,6 @@ export const OrderList: React.FC = () => {
                 onChange={(value: string[]) => {
                   setStatusFilter(value);
                   resetPage();
-                  setParams();
                 }}
               />
             </Col>
@@ -499,7 +490,6 @@ export const OrderList: React.FC = () => {
                 onChange={(value: string[]) => {
                   setZoneFilter(value);
                   resetPage();
-                  setParams();
                 }}
               />
             </Col>
@@ -513,14 +503,12 @@ export const OrderList: React.FC = () => {
                   const value = (e.target as HTMLTextAreaElement).value;
                   setKeyword(value);
                   resetPage();
-                  setParams();
                 }}
                 onChange={(e) => {
                   const value = (e.target as HTMLInputElement).value;
                   if (!value) {
                     setKeyword("");
                     resetPage();
-                    setParams();
                   }
                 }}
               />
@@ -539,7 +527,6 @@ export const OrderList: React.FC = () => {
               position: ["bottomCenter"],
               onChange: (page) => {
                 setPage(page);
-                setParams();
               },
             }}
             size='large'
