@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Improve [v0.10.2] - Release Date: 2023-12-13
+
+- set interval for order list
+
 ## Resolved [v0.10.1] - Release Date: 2023-12-13
 
 - fixed highlight news view count
