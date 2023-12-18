@@ -178,7 +178,7 @@ export const pathLists = [
   {
     path: "/oneInfinity",
     name: "oneInfinity",
-    title: "ตั้งค่า",
+    title: "1 Infinity",
     permission: ["oneInfinity"],
     subMenu: [
       {
@@ -186,6 +186,12 @@ export const pathLists = [
         name: "brandSetting",
         title: "แบรนด์สินค้า",
         permission: "brandSetting",
+      },
+      {
+        path: "/shopSetting",
+        name: "shopSetting",
+        title: "จัดการร้านค้า",
+        permission: "shopSetting",
       },
     ],
   },

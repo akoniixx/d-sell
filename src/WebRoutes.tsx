@@ -58,6 +58,8 @@ import { IndexProductShop } from "./pages/ProductShop/IndexProductShop";
 import { ProductShopDetail } from "./pages/ProductShop/ProductShopDetail";
 import SyncCustomerPage from "./pages/ShopManagementPage/ShopListPage/syncCustomerPage";
 import { IndexBrandSetting } from "./pages/OneInfinity/BrandSetting/Index";
+import { CreateBrandSetting } from "./pages/OneInfinity/BrandSetting/CreateBrandSetting";
+import { IndexShopSetting } from "./pages/OneInfinity/ShopSetting/Index";
 
 interface IRoute {
   path: string;
@@ -509,11 +511,16 @@ export const protectRoutesData: IRoute[] = [
         element: <IndexBrandSetting />,
         permission: null,
       },
-      // {
-      //   path: "detail/:id",
-      //   element: <ProductShopDetail />,
-      //   permission: null,
-      // },
+      {
+        path: "create/:id",
+        element: <CreateBrandSetting />,
+        permission: null,
+      },
+      {
+        path: "shopSetting",
+        element: <IndexShopSetting />,
+        permission: null,
+      },
     ],
   },
 ];

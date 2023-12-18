@@ -52,13 +52,13 @@ export const IndexBrandSetting: React.FC = () => {
           prefix={<SearchOutlined style={{ color: "grey" }} />}
         />
       </Col>
-      <Permission permission={["newsList", "create"]}>
+      <Permission permission={["oneInfinity", "create"]}>
         <Col className='gutter-row' span={3}>
           <Button
             type='primary'
             title='+ เพิ่มแบรนด์สินค้า'
             height={40}
-            //onClick={() => navigate("/news/createhighlight")}
+            onClick={() => navigate("/oneInfinity/create/create")}
           />
         </Col>
       </Permission>
@@ -133,9 +133,7 @@ export const IndexBrandSetting: React.FC = () => {
           children: (
             <Row justify={"start"} gutter={8}>
               <ActionBtn
-                // onClick={() => {
-                //   navigate(`/news/edithighlight/${row.highlightNewsId}`);
-                // }}
+                onClick={() => navigate(`/oneInfinity/create/${row.id}`)}
                 icon={<EditOutlined />}
               />
             </Row>

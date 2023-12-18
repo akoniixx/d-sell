@@ -432,6 +432,28 @@ export const staticRolesObject: StaticRoles = {
           },
         ],
       },
+      {
+        label: "จัดการร้านค้า",
+        groupNameNested: "oneInfinity",
+        listNested: [
+          {
+            label: "สร้างร้านค้า",
+            value: "create",
+          },
+          {
+            label: "ดูร้านค้า",
+            value: "view",
+          },
+          {
+            label: "แก้ไขร้านค้า",
+            value: "edit",
+          },
+          {
+            label: "ลบร้านค้า",
+            value: "delete",
+          },
+        ],
+      },
     ],
   },
 };
@@ -554,6 +576,28 @@ export const staticManageRoles: StaticRoles = {
           },
         ],
       },
+      {
+        label: "จัดการร้านค้า",
+        groupNameNested: "oneInfinity",
+        listNested: [
+          {
+            label: "สร้างร้านค้า",
+            value: "create",
+          },
+          {
+            label: "ดูร้านค้า",
+            value: "view",
+          },
+          {
+            label: "แก้ไขร้านค้า",
+            value: "edit",
+          },
+          {
+            label: "ลบร้านค้า",
+            value: "delete",
+          },
+        ],
+      },
     ],
   },
 };
@@ -617,6 +661,7 @@ export const mockRoles = [
     menuName: "oneInfinity",
     menu: {
       brandSetting: ["view", "create", "edit", "delete"],
+      shopSetting: ["view", "create", "edit", "delete"],
     },
   },
 ];
