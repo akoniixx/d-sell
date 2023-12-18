@@ -131,6 +131,13 @@ export const OrderList: React.FC = () => {
   };
 
   useEffect(() => {
+    //set interval: reload data every 3 mins
+    const interval = 3 * 60 * 1000;
+    const id = setInterval(fetchData, interval);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
     if (!loading) fetchData();
     if (!!searchParams.get("startDate") || !!searchParams.get("endDate")) {
       const sd = searchParams.get("startDate") || undefined;
