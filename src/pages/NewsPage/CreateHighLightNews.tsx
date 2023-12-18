@@ -1,4 +1,16 @@
-import { Col, Divider, Form, Row, Image, Upload, message, Checkbox, Radio, Space } from "antd";
+import {
+  Col,
+  Divider,
+  Form,
+  Row,
+  Image,
+  Upload,
+  message,
+  Checkbox,
+  Radio,
+  Space,
+  Modal,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
 import { CardContainer } from "../../components/Card/CardContainer";
@@ -66,6 +78,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
   const [imageUrl, setImageUrl] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showModal, setModal] = useState(false);
 
   useEffectOnce(() => {
     if (isEdit) {
@@ -152,6 +165,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
       console.log(e);
     } finally {
       setUploading(false);
+      setModal(false);
     }
   };
 
@@ -175,7 +189,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
         form={form}
         layout='vertical'
         // initialValues={{ isShowOnSaleApp: true, isShowOnShopApp: true }}
-        onFinish={onSave}
+        onFinish={() => setModal(true)}
       >
         <Row justify={"space-between"} gutter={16}>
           <Col span={18}>
@@ -269,7 +283,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
               <Col span={6}>
                 <Form.Item
                   name='startDate'
-                  label='วันที่เริ่มเผยแผ่'
+                  label='วันที่เริ่มเผยแพร่'
                   rules={[
                     {
                       required: true,
@@ -355,7 +369,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
             <Row>
               <Col span={24}>
                 <Text level={5} fontWeight={700}>
-                  แอปพลิเคชัน
+                  <span style={{ color: color.error }}>*</span> แอปพลิเคชัน
                 </Text>
                 <Form.Item
                   name='isShowOnSaleApp'
@@ -418,7 +432,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
                   <Radio.Group style={{ width: "100%" }}>
                     <Space direction='vertical' style={{ width: "100%" }}>
                       <Radio value={true}>ใช้งาน</Radio>
-                      <Radio value={false}>แบบร่าง</Radio>
+                      <Radio value={false}>{isEdit ? "ปิดการใช้งาน" : "แบบร่าง"}</Radio>
                     </Space>
                   </Radio.Group>
                 </Form.Item>
@@ -459,6 +473,28 @@ export const CreateHighLightNewsPage: React.FC = () => {
           </Col>
         </Row>
       </Form>
+      <Modal
+        open={showModal}
+        closable={false}
+        onOk={onSave}
+        onCancel={() => setModal(false)}
+        destroyOnClose
+        okText={"ยืนยัน"}
+        okButtonProps={{ loading: uploading }}
+        cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
+      >
+        <Text level={2}>
+          {isEdit ? "ต้องการยืนยันการแก้ไขข่าวสาร" : "ต้องการยืนยันการสร้างข่าวสารไฮไลท์"}
+        </Text>
+        <br />
+        <Text level={5} color='Text3'>
+          {isEdit
+            ? "โปรดตรวจสอบรายละเอียดที่คุณต้องการแก้ไขที่ก่อนเสมอ"
+            : "โปรดตรวจสอบรายละเอียดที่คุณต้องการสร้างข่าวสารไฮไลน์ก่อนเสมอ"}
+          <br />
+          เพราะอาจต่อการแสดงผลข่าวสารในระบบแอปพลิเคชัน
+        </Text>
+      </Modal>
     </CardContainer>
   );
 };

@@ -1,5 +1,26 @@
 ## [Version - 0]
 
+## Improve [v0.10.2] - Release Date: 2023-12-13
+
+- set interval for order list
+
+## Resolved [v0.10.1] - Release Date: 2023-12-13
+
+- fixed highlight news view count
+
+## Features [v0.10.0] - Release Date: 2023-12-12
+
+- added sync customer 3 company
+
+## Resolved [v0.9.18] - Release Date: 2023-12-04
+
+- fixed highlight news
+- fixed show vat
+
+## Resolved [v0.9.17] - Release Date: 2023-12-04
+
+- order: show vat
+
 ## Resolved [v0.9.16] - Release Date: 2023-11-30
 
 - fixed product unit

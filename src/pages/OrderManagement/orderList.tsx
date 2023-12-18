@@ -29,6 +29,7 @@ import { getOrderStatus } from "../../utility/OrderStatus";
 import Permission, { checkPermission } from "../../components/Permission/Permission";
 import { roleAtom } from "../../store/RoleAtom";
 import { useRecoilValue } from "recoil";
+import { useEffectOnce } from "react-use";
 
 const SLASH_DMY = "DD/MM/YYYY HH:mm";
 const SummaryBox = ({
@@ -98,6 +99,13 @@ export const OrderList: React.FC = () => {
   useEffect(() => {
     if (!loading) fetchData();
   }, []);
+
+  useEffectOnce(() => {
+    //set interval: reload data every 3 mins
+    const interval = 3 * 60 * 1000;
+    const id = setInterval(fetchData, interval);
+    return () => clearInterval(id);
+  });
 
   useEffect(() => {
     fetchData();

@@ -527,7 +527,7 @@ const FreebieList = ({
 
   const [freebieUnit, setFreebieUnit] = useState<Record<string, any>>({});
 
-  const key = listKey !== undefined ? listKey : productId ? `promotion-${productId}` : "key";
+  const key: any = listKey !== undefined ? listKey : productId ? `promotion-${productId}` : "key";
 
   useEffect(() => {
     if (getValue().length <= 0 && autoFilled) {
