@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.10.4] - Release Date: 2023-12-19
+
+- fix api
+
 ## Improve [v0.10.3] - Release Date: 2023-12-18
 
 - added search params in order mangememt menu
