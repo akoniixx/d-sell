@@ -5,8 +5,6 @@ import Text from "../../../components/Text/Text";
 import Input from "../../../components/Input/Input";
 import {
   CaretDownOutlined,
-  DownOutlined,
-  EditOutlined,
   ExperimentOutlined,
   SearchOutlined,
   ShopOutlined,
@@ -151,17 +149,16 @@ export const IndexShopSetting: React.FC = () => {
       dataIndex: "action",
       key: "action",
       fixed: "right",
-      width: "12%",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <Row justify={"start"} gutter={8}>
+            <Row justify={"space-around"} gutter={16}>
               <ActionBtn
-                onClick={() => navigate(`/oneInfinity/create/${row.id}`)}
+                //onClick={() => navigate(`/oneInfinity/create/${row.id}`)}
                 icon={<UnorderedListOutlined />}
               />
               <ActionBtn
-                onClick={() => navigate(`/oneInfinity/create/${row.id}`)}
+                //onClick={() => navigate(`/oneInfinity/create/${row.id}`)}
                 icon={<ExperimentOutlined />}
               />
             </Row>
@@ -174,13 +171,13 @@ export const IndexShopSetting: React.FC = () => {
   const PageTitle = (
     <>
       <Row align='middle' gutter={16}>
-        <Col span={21}>
+        <Col span={20}>
           <Text level={3} fontWeight={700}>
             รายการร้านค้า
           </Text>
         </Col>
         <Permission permission={["oneInfinity", "create"]}>
-          <Col className='gutter-row' span={3}>
+          <Col className='gutter-row' span={4}>
             <Dropdown menu={{ items }}>
               <Button
                 title='+ เพิ่มร้านค้าเข้าระบบ'
@@ -254,6 +251,7 @@ export const IndexShopSetting: React.FC = () => {
           onCancel={() => setShowModal(false)}
           destroyOnClose
           okText={"ยืนยัน"}
+          onOk={() => navigate("/oneInfinity/createShopSetting/create")}
           //okButtonProps={{ loading: uploading }}
           cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
         >

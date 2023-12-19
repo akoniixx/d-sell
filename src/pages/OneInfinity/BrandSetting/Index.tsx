@@ -58,7 +58,7 @@ export const IndexBrandSetting: React.FC = () => {
             type='primary'
             title='+ เพิ่มแบรนด์สินค้า'
             height={40}
-            onClick={() => navigate("/oneInfinity/create/create")}
+            onClick={() => navigate("/oneInfinity/createBrandSetting/create")}
           />
         </Col>
       </Permission>

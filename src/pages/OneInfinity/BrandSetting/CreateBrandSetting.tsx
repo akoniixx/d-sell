@@ -20,9 +20,7 @@ export const CreateBrandSetting: React.FC = () => {
   const [form] = useForm();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
-  console.log(pathSplit);
   const isEdit = pathSplit[3] !== "create";
-  console.log(isEdit);
   const id = pathSplit[3];
 
   const [imageUrl, setImageUrl] = useState<string>();
@@ -199,34 +197,36 @@ export const CreateBrandSetting: React.FC = () => {
           </Col>
         </Row>
       </Form>
-      <Modal
-        open={showModal}
-        closable={false}
-        //onOk={onSave}
-        onCancel={() => setModal(false)}
-        destroyOnClose
-        okText={"ยืนยัน"}
-        okButtonProps={{ loading: uploading }}
-        cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
-      >
-        <Text level={2}>{isEdit ? "ยืนยันบันทึกแบรนด์สินค้า" : "ยืนยันเพิ่มแบรนด์สินค้า"}</Text>
-        <br />
-        {isEdit ? (
-          <>
+      {showModal && (
+        <Modal
+          open={showModal}
+          closable={false}
+          //onOk={onSave}
+          onCancel={() => setModal(false)}
+          destroyOnClose
+          okText={"ยืนยัน"}
+          okButtonProps={{ loading: uploading }}
+          cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
+        >
+          <Text level={2}>{isEdit ? "ยืนยันบันทึกแบรนด์สินค้า" : "ยืนยันเพิ่มแบรนด์สินค้า"}</Text>
+          <br />
+          {isEdit ? (
+            <>
+              <Text level={5} color='Text3'>
+                โปรดตรวจสอบรายละเอียดแบรนด์สินค้าอีกครั้งก่อนกดยืนยัน
+              </Text>
+              <br />
+              <Text level={5} color='Text3'>
+                เพราะอาจส่งผลต่อการแสดงผลข้อมูลในระบบ
+              </Text>
+            </>
+          ) : (
             <Text level={5} color='Text3'>
-              โปรดตรวจสอบรายละเอียดแบรนด์สินค้าอีกครั้งก่อนกดยืนยัน
+              โปรดตรวจสอบรายละเอียดก่อนกดยืนยัน
             </Text>
-            <br />
-            <Text level={5} color='Text3'>
-              เพราะอาจส่งผลต่อการแสดงผลข้อมูลในระบบ
-            </Text>
-          </>
-        ) : (
-          <Text level={5} color='Text3'>
-            โปรดตรวจสอบรายละเอียดก่อนกดยืนยัน
-          </Text>
-        )}
-      </Modal>
+          )}
+        </Modal>
+      )}
     </CardContainer>
   );
 };
