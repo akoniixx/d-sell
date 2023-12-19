@@ -4,7 +4,7 @@ import { CardContainer } from "../../components/Card/CardContainer";
 import { SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { RangePicker } from "../../components/DatePicker/DatePicker";
 import Input from "../../components/Input/Input";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import moment from "moment";
 import Text from "../../components/Text/Text";
 import color from "../../resource/color";
@@ -29,6 +29,7 @@ import { getOrderStatus } from "../../utility/OrderStatus";
 import Permission, { checkPermission } from "../../components/Permission/Permission";
 import { roleAtom } from "../../store/RoleAtom";
 import { useRecoilValue } from "recoil";
+import dayjs from "dayjs";
 
 const SLASH_DMY = "DD/MM/YYYY HH:mm";
 const SummaryBox = ({
@@ -72,13 +73,22 @@ export const OrderList: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const [zone, setZone] = React.useState<{ label: string; value: string; key: string }[]>([]);
-  const [keyword, setKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string[]>();
-  const [zoneFilter, setZoneFilter] = useState<string[]>();
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState<number>(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [zone, setZone] = useState<{ label: string; value: string; key: string }[]>([]);
+  const [keyword, setKeyword] = useState(searchParams.get("keyword") || "");
+  const [statusFilter, setStatusFilter] = useState<string[] | undefined>(
+    searchParams
+      .get("statusFilter")
+      ?.split(",")
+      ?.filter((x) => Object.keys(ORDER_STATUS).includes(x)),
+  );
+  const [zoneFilter, setZoneFilter] = useState<string[] | undefined>(
+    searchParams.get("zoneFilter")?.split(","),
+  );
   const [dateFilter, setDateFilter] = useState<any>();
+  const [page, setPage] = useState<number>(parseInt(searchParams.get("page") || "1"));
+  const [loading, setLoading] = useState(false);
   const [dataState, setDataState] = useState({
     data: [],
     statusCount: {
@@ -95,13 +105,60 @@ export const OrderList: React.FC = () => {
     count: 0,
   });
 
+  const setParams = (sD?: any, eD?: any) => {
+    let sd = "",
+      sm = "",
+      sy = "",
+      ed = "",
+      em = "",
+      ey = "";
+    sd = sD && sD?.date();
+    sm = sD && sD?.month() + 1;
+    sy = sD && sD?.year();
+
+    ed = eD && eD?.date();
+    em = eD && eD?.month() + 1;
+    ey = ed && eD?.year();
+
+    setSearchParams({
+      keyword,
+      page: `${page}`,
+      statusFilter: (statusFilter || "").toString(),
+      zoneFilter: (zoneFilter || "").toString(),
+      startDate: sd && sm && sy ? `${sy}-${sm}-${sd}` : "",
+      endDate: ed && em && ey ? `${ey}-${em}-${ed}` : "",
+    });
+  };
+
   useEffect(() => {
-    if (!loading) fetchData();
+    //set interval: reload data every 3 mins
+    const interval = 3 * 60 * 1000;
+    const id = setInterval(fetchData, interval);
+    return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [keyword, statusFilter, zoneFilter, dateFilter, page]);
+    if (!loading) fetchData();
+    if (!!searchParams.get("startDate") || !!searchParams.get("endDate")) {
+      const sd = searchParams.get("startDate") || undefined;
+      const ed = searchParams.get("endDate") || undefined;
+      setDateFilter([dayjs(sd), dayjs(ed)]);
+      setParams(sd && dayjs(sd), ed && dayjs(ed));
+    } else {
+      setParams();
+    }
+  }, [keyword, statusFilter, zoneFilter, page]);
+
+  useEffect(() => {
+    if (!loading) fetchData();
+  }, [dateFilter]);
+
+  useEffect(() => {
+    //set interval: reload data every 3 mins
+    const interval = 3 * 60 * 1000;
+    const id = setInterval(fetchData, interval);
+    return () => clearInterval(id);
+  }, []);
 
   const resetPage = () => setPage(1);
 
@@ -115,6 +172,11 @@ export const OrderList: React.FC = () => {
       };
     });
     setZone(data);
+
+    const newZoneFilter = zoneFilter?.filter((x) =>
+      res.find((item) => `${item.zoneName}` === `${x}`),
+    );
+    if (newZoneFilter?.length !== zoneFilter?.length) setZoneFilter(newZoneFilter);
   };
 
   const fetchData = async () => {
@@ -127,8 +189,20 @@ export const OrderList: React.FC = () => {
         customerZones: zoneFilter,
         page,
         take: pageSize,
-        startDate: dateFilter && dateFilter[0] ? dateFilter[0].format("YYYY-MM-DD") : undefined,
-        endDate: dateFilter && dateFilter[1] ? dateFilter[1].format("YYYY-MM-DD") : undefined,
+        startDate: dateFilter
+          ? dateFilter[0]
+            ? dateFilter[0].format("YYYY-MM-DD")
+            : undefined
+          : searchParams.get("startDate")
+            ? searchParams.get("startDate")
+            : undefined,
+        endDate: dateFilter
+          ? dateFilter[1]
+            ? dateFilter[1].format("YYYY-MM-DD")
+            : undefined
+          : searchParams.get("endDate")
+            ? searchParams.get("endDate")
+            : undefined,
       });
       setDataState({ data, statusCount, count });
       if (zone.length <= 0) {
@@ -169,7 +243,10 @@ export const OrderList: React.FC = () => {
             enablePast
             value={dateFilter}
             onChange={(dates, dateString) => {
-              setDateFilter(dates);
+              if (!dates || (dates[0] && dates[1])) {
+                setParams(dates && dates[0], dates && dates[1]);
+                setDateFilter(dates);
+              }
             }}
           />
         </Col>
@@ -339,10 +416,10 @@ export const OrderList: React.FC = () => {
               <Col span={12}>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  // onClick={() => navigate("/order/" + row.orderId)}
-                  onClick={() =>
-                    window.open(`${window.location.pathname}/${row.orderId}`, "_blank")
-                  }
+                  onClick={() => navigate("/order/" + row.orderId)}
+                  // onClick={() =>
+                  //   window.open(`${window.location.pathname}/${row.orderId}`, "_blank")
+                  // }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
@@ -401,6 +478,7 @@ export const OrderList: React.FC = () => {
                 mode='multiple'
                 maxTagCount='responsive'
                 showArrow
+                value={statusFilter}
                 onChange={(value: string[]) => {
                   setStatusFilter(value);
                   resetPage();
@@ -415,6 +493,7 @@ export const OrderList: React.FC = () => {
                 mode='multiple'
                 maxTagCount='responsive'
                 showArrow
+                value={zoneFilter}
                 onChange={(value: string[]) => {
                   setZoneFilter(value);
                   resetPage();
@@ -453,7 +532,9 @@ export const OrderList: React.FC = () => {
               total: dataState.count,
               showSizeChanger: false,
               position: ["bottomCenter"],
-              onChange: (page) => setPage(page),
+              onChange: (page) => {
+                setPage(page);
+              },
             }}
             size='large'
             tableLayout='fixed'
