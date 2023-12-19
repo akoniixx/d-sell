@@ -405,14 +405,14 @@ export const staticRolesObject: StaticRoles = {
       },
     ],
   },
-  oneInfinity: {
+  oneFinity: {
     isNested: true,
     groupName: "ตั้งค่า",
-    groupKey: "oneInfinity",
+    groupKey: "oneFinity",
     list: [
       {
         label: "แบรนด์สินค้า",
-        groupNameNested: "oneInfinity",
+        groupNameNested: "oneFinity",
         listNested: [
           {
             label: "สร้างรายการส่วนลด",
@@ -434,7 +434,7 @@ export const staticRolesObject: StaticRoles = {
       },
       {
         label: "จัดการร้านค้า",
-        groupNameNested: "oneInfinity",
+        groupNameNested: "oneFinity",
         listNested: [
           {
             label: "สร้างร้านค้า",
@@ -549,14 +549,14 @@ export const staticManageRoles: StaticRoles = {
       },
     ],
   },
-  oneInfinity: {
+  oneFinity: {
     isNested: true,
     groupName: "ตั้งค่า",
-    groupKey: "oneInfinity",
+    groupKey: "oneFinity",
     list: [
       {
         label: "แบรนด์สินค้า",
-        groupNameNested: "oneInfinity",
+        groupNameNested: "oneFinity",
         listNested: [
           {
             label: "สร้างรายการส่วนลด",
@@ -578,7 +578,7 @@ export const staticManageRoles: StaticRoles = {
       },
       {
         label: "จัดการร้านค้า",
-        groupNameNested: "oneInfinity",
+        groupNameNested: "oneFinity",
         listNested: [
           {
             label: "สร้างร้านค้า",
@@ -658,7 +658,7 @@ export const mockRoles = [
     },
   },
   {
-    menuName: "oneInfinity",
+    menuName: "oneFinity",
     menu: {
       brandSetting: ["view", "create", "edit", "delete"],
       shopSetting: ["view", "create", "edit", "delete"],

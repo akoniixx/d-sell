@@ -60,11 +60,11 @@ export const CreateBrandSetting: React.FC = () => {
       <PageTitleNested
         title={isEdit ? "ข้อมูลแบรนด์สินค้า" : "เพิ่มแบรนด์สินค้า"}
         showBack
-        onBack={() => navigate(`/oneInfinity/brandSetting`)}
+        onBack={() => navigate(`/oneFinity/brandSetting`)}
         customBreadCrumb={
           <BreadCrumb
             data={[
-              { text: "รายการแบรนด์สินค้า", path: `/oneInfinity/brandSetting` },
+              { text: "รายการแบรนด์สินค้า", path: `/oneFinity/brandSetting` },
               {
                 text: isEdit ? "ข้อมูลแบรนด์สินค้า" : "เพิ่มแบรนด์สินค้า",
                 path: window.location.pathname,
@@ -188,7 +188,7 @@ export const CreateBrandSetting: React.FC = () => {
               title='ยกเลิก'
               htmlType='submit'
               loading={uploading}
-              onClick={() => navigate(`/oneInfinity/brandSetting`)}
+              onClick={() => navigate(`/oneFinity/brandSetting`)}
             />
           </Col>
           <Col xl={15} sm={6}></Col>

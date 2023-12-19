@@ -193,7 +193,7 @@ const iconsInActive = {
       }}
     />
   ),
-  oneInfinity: (
+  oneFinity: (
     <SettingFilled
       style={{
         fontSize: "20px",

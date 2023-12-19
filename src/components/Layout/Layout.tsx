@@ -176,10 +176,10 @@ export const pathLists = [
     ],
   },
   {
-    path: "/oneInfinity",
-    name: "oneInfinity",
-    title: "1 Infinity",
-    permission: ["oneInfinity"],
+    path: "/oneFinity",
+    name: "oneFinity",
+    title: "1 Finity",
+    permission: ["oneFinity"],
     subMenu: [
       {
         path: "/brandSetting",

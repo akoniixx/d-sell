@@ -32,7 +32,7 @@ export const IndexShopSetting: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const items: any = [
     {
-      label: <Text>เพิ่มร้านค้าจาก Navision</Text>,
+      label: <Text>เพิ่มร้านค้าจาก Sellcoda</Text>,
       key: "1",
       onClick: () => setShowModal(true),
     },
@@ -154,11 +154,11 @@ export const IndexShopSetting: React.FC = () => {
           children: (
             <Row justify={"space-around"} gutter={16}>
               <ActionBtn
-                //onClick={() => navigate(`/oneInfinity/create/${row.id}`)}
+                //onClick={() => navigate(`/oneFinity/create/${row.id}`)}
                 icon={<UnorderedListOutlined />}
               />
               <ActionBtn
-                //onClick={() => navigate(`/oneInfinity/create/${row.id}`)}
+                //onClick={() => navigate(`/oneFinity/create/${row.id}`)}
                 icon={<ExperimentOutlined />}
               />
             </Row>
@@ -176,7 +176,7 @@ export const IndexShopSetting: React.FC = () => {
             รายการร้านค้า
           </Text>
         </Col>
-        <Permission permission={["oneInfinity", "create"]}>
+        <Permission permission={["oneFinity", "create"]}>
           <Col className='gutter-row' span={4}>
             <Dropdown menu={{ items }}>
               <Button
@@ -246,12 +246,12 @@ export const IndexShopSetting: React.FC = () => {
         <Modal
           open={showModal}
           closable={false}
-          title={<Text fontWeight={600}>เพิ่มร้านค้าจากระบบ Navision</Text>}
+          title={<Text fontWeight={600}>เพิ่มร้านค้าจากระบบ Sellcoda</Text>}
           centered
           onCancel={() => setShowModal(false)}
           destroyOnClose
           okText={"ยืนยัน"}
-          onOk={() => navigate("/oneInfinity/createShopSetting/create")}
+          onOk={() => navigate("/oneFinity/createShopSetting/create")}
           //okButtonProps={{ loading: uploading }}
           cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
         >
