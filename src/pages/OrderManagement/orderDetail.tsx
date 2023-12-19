@@ -237,9 +237,7 @@ export const OrderDetail: React.FC = () => {
       <PageTitleNested
         title={`ORDER NO: ${orderData?.orderNo}`}
         showBack
-        onBack={
-          isSpecialRequestMode ? () => navigate(`/special-request`) : () => navigate(`/order`)
-        }
+        onBack={isSpecialRequestMode ? () => navigate(`/special-request`) : () => navigate(-1)}
         extra={
           <FlexCol align='end'>
             <Text
@@ -271,7 +269,7 @@ export const OrderDetail: React.FC = () => {
             data={[
               {
                 text: isSpecialRequestMode ? "รายการขอโปรโมชันพิเศษเพิ่มเติม" : "รายการคำสั่งซื้อ",
-                path: isSpecialRequestMode ? "/special-request" : "/order",
+                path: isSpecialRequestMode ? "/special-request" : -1,
               },
               { text: "รายละเอียดคำสั่งซื้อ", path: window.location.pathname },
             ]}

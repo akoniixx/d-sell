@@ -19,7 +19,7 @@ const BreadCrumbComponent = styled(BreadCrumbAntd)`
   }
 `;
 interface Props {
-  data: { text?: ReactNode; path: string }[];
+  data: { text?: ReactNode; path: any }[];
 }
 function BreadCrumb({ data = [] }: Props): JSX.Element {
   const navigate = useNavigate();
