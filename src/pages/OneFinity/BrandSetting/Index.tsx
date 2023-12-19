@@ -9,20 +9,28 @@ import Input from "../../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
 import { dateFormatter } from "../../../utility/Formatter";
 import { color } from "../../../resource";
-import image from "../../../resource/image";
+import { getBrandSetting } from "../../../datasource/OneFinity/BrandSettingDatasource";
 
 export const IndexBrandSetting: React.FC = () => {
   const navigate = useNavigate();
+  const [dataState, setDataState] = useState<{ count: number; data: any[] }>({
+    count: 0,
+    data: [],
+  });
+  const pageSize = 10;
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
 
-  const mockData = [
-    {
-      id: 1,
-      logo: image.icp_international,
-      brand: "ท็อปวัน",
-      updateBy: "รชยา ช่างภักดี",
-      updateDate: Date(),
-    },
-  ];
+  const getBrandList = async () => {
+    await getBrandSetting({ page, take: pageSize, search }).then((res) => {
+      console.log(res.responseData);
+      setDataState({ count: res.responseData.count, data: res.responseData.data });
+    });
+  };
+
+  useEffect(() => {
+    getBrandList();
+  }, [search]);
 
   const ActionBtn = ({ onClick, icon }: any) => {
     return (
@@ -50,6 +58,8 @@ export const IndexBrandSetting: React.FC = () => {
         <Input
           placeholder='ค้นหาชื่อแบรนด์สินค้า'
           prefix={<SearchOutlined style={{ color: "grey" }} />}
+          onChange={(e) => setSearch(e.target.value)}
+          autoComplete='off'
         />
       </Col>
       <Permission permission={["oneFinity", "create"]}>
@@ -68,8 +78,8 @@ export const IndexBrandSetting: React.FC = () => {
   const columns: any = [
     {
       title: "ยี่ห้อ/แบรนด์สินค้า",
-      dataIndex: "brand",
-      key: "brand",
+      dataIndex: "productBrandName",
+      key: "productBrandName",
       width: "60%",
       render: (value: any, row: any, index: number) => {
         return {
@@ -77,7 +87,7 @@ export const IndexBrandSetting: React.FC = () => {
             <Row justify={"space-between"}>
               <Col span={4}>
                 <Image
-                  src={row.logo}
+                  src={row?.productBrandLogo}
                   height={60}
                   width={60}
                   style={{ borderRadius: "5px", objectFit: "cover" }}
@@ -93,14 +103,16 @@ export const IndexBrandSetting: React.FC = () => {
     },
     {
       title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "isActive",
+      key: "isActive",
       render: (value: any, row: any, index: number) => {
         return {
           children: (
             <Row justify={"start"} gutter={8}>
-              {" "}
-              <Badge count={"เปิดใช้งาน"} style={{ backgroundColor: color.success }} />
+              <Badge
+                count={value ? "เปิดใช้งาน" : "ปิดการใช้งาน"}
+                style={{ backgroundColor: value ? color.success : color.Grey }}
+              />
             </Row>
           ),
         };
@@ -114,9 +126,9 @@ export const IndexBrandSetting: React.FC = () => {
         return {
           children: (
             <>
-              <Text level={5}>{dateFormatter(row.updateDate, true)}</Text>
+              <Text level={5}>{dateFormatter(row?.updatedAt, true)}</Text>
               <br />
-              <Text level={5}>{value}</Text>
+              <Text level={5}>{value ? value : row.createBy}</Text>
             </>
           ),
         };
@@ -133,7 +145,7 @@ export const IndexBrandSetting: React.FC = () => {
           children: (
             <Row justify={"start"} gutter={8}>
               <ActionBtn
-                onClick={() => navigate(`/oneFinity/create/${row.id}`)}
+                onClick={() => navigate(`/oneFinity/createBrandSetting/${row.productBrandId}`)}
                 icon={<EditOutlined />}
               />
             </Row>
@@ -149,13 +161,13 @@ export const IndexBrandSetting: React.FC = () => {
       <br />
       <Table
         columns={columns}
-        dataSource={mockData}
+        dataSource={dataState?.data || []}
         pagination={{
           position: ["bottomCenter"],
-          // pageSize,
-          // current: page,
-          // total: dataState.count,
-          // onChange: (p) => setPage(p),
+          pageSize,
+          current: page,
+          total: dataState.count,
+          onChange: (p) => setPage(p),
           showSizeChanger: false,
         }}
       />

@@ -1,5 +1,5 @@
-import { ShopOutlined } from "@ant-design/icons";
-import { Col, Divider, Row, Form } from "antd";
+import { DisconnectOutlined, ShopOutlined, UploadOutlined } from "@ant-design/icons";
+import { Col, Divider, Row, Form, Button } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,8 @@ import Permission from "../../../components/Permission/Permission";
 import Select from "../../../components/Select/Select";
 import Text from "../../../components/Text/Text";
 import { color } from "../../../resource";
+import { GoogleMap, MarkerF, useJsApiLoader, useLoadScript } from "@react-google-maps/api";
+import Buttons from "../../../components/Button/Button";
 
 const Header = styled(Col)`
   border-radius: 8px;
@@ -28,6 +30,29 @@ export const CreateShopSetting: React.FC = () => {
   const pathSplit = pathname.split("/") as Array<string>;
   const isEdit = pathSplit[3] !== "create";
   const id = pathSplit[3];
+  const [map, setMap] = React.useState(null);
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyDg4BI3Opn-Bo2Pnr40Z7PKlC6MOv8T598",
+    googleMapsClientId: "427194649680-frihsda5p9jjp6no28ijvoa66vrmq64f.apps.googleusercontent.com",
+  });
+
+  const containerStyle = {
+    width: "100%",
+    height: "350px",
+  };
+
+  const center = {
+    lat: 13.736717,
+    lng: 100.523186,
+  };
+
+  const onLoad = React.useCallback(function callback(map) {
+    // This is just an example of getting and using the map instance!!! don't just blindly copy!
+    const bounds = new window.google.maps.LatLngBounds(center);
+    map.fitBounds(bounds);
+    setMap(map);
+  }, []);
 
   const staticData = [
     {
@@ -425,6 +450,32 @@ export const CreateShopSetting: React.FC = () => {
     </>
   );
 
+  const attachments = (
+    <>
+      <Row gutter={8}>
+        <Col>
+          <Text fontSize={16} fontWeight={600}>
+            อัพโหลดสัญญาเข้าร่วมโครงการ
+          </Text>
+        </Col>
+        <Col>
+          <Text fontSize={16}>(ไฟล์ภาพและไฟล์ pdf)</Text>
+        </Col>
+      </Row>
+      <Row gutter={8}>
+        <Col style={{ color: color.primary }}>
+          <DisconnectOutlined style={{ fontSize: "15px" }} />{" "}
+          <Text color='primary'>ดาวน์โหลดเอกสารสัญญา</Text>
+        </Col>
+      </Row>
+      <Row>
+        <Button type='primary' icon={<UploadOutlined />}>
+          อัพโหลดไฟล์
+        </Button>
+      </Row>
+    </>
+  );
+
   return (
     <CardContainer>
       <PageTitleNested
@@ -448,6 +499,31 @@ export const CreateShopSetting: React.FC = () => {
       <Divider />
       {sectionUserShop}
       {sectionShop}
+      {isLoaded ? (
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={10}
+          onLoad={onLoad}
+          // onUnmount={onUnmount}
+        >
+          <MarkerF position={center} />
+        </GoogleMap>
+      ) : (
+        <></>
+      )}
+      <br />
+      {attachments}
+      <Divider />
+      <Row justify='space-between' gutter={12}>
+        <Col xl={3} sm={6}>
+          <Buttons typeButton='primary-light' title='ยกเลิก' />
+        </Col>
+        <Col xl={18} sm={12}></Col>
+        <Col xl={3} sm={6}>
+          <Buttons typeButton='primary' title='บันทึก' />
+        </Col>
+      </Row>
     </CardContainer>
   );
 };

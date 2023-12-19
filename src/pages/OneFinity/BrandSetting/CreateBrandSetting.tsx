@@ -14,6 +14,33 @@ import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
 import Text from "../../../components/Text/Text";
 import { color } from "../../../resource";
 import { getBase64 } from "../../../utility/uploadHelper";
+import { getBrandById } from "../../../datasource/OneFinity/BrandSettingDatasource";
+
+const UploadVeritical = styled(Upload)`
+  .ant-upload,
+  .ant-upload-list-picture-card-container,
+  .ant-upload-picture-card-wrapper,
+  .ant-upload-list-picture-card .ant-upload-list-item {
+    height: 136px;
+    width: 136px;
+  }
+`;
+const UploadArea = styled.div`
+  background: ${color.background1};
+  border: 1px dashed;
+  border-radius: 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+`;
+
+const imgCropProps = {
+  modalTitle: "ปรับขนาดรูปภาพ",
+  modalOk: "ยืนยัน",
+  modalCancel: "ยกเลิก",
+};
 
 export const CreateBrandSetting: React.FC = () => {
   const navigate = useNavigate();
@@ -21,40 +48,27 @@ export const CreateBrandSetting: React.FC = () => {
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
   const isEdit = pathSplit[3] !== "create";
+  console.log(isEdit);
   const id = pathSplit[3];
 
   const [imageUrl, setImageUrl] = useState<string>();
-  const [newsUrl, setNewsUrl] = useState<string>();
   const [file, setFile] = useState<any>();
-  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showModal, setModal] = useState(false);
 
-  const UploadVeritical = styled(Upload)`
-    .ant-upload,
-    .ant-upload-list-picture-card-container,
-    .ant-upload-picture-card-wrapper,
-    .ant-upload-list-picture-card .ant-upload-list-item {
-      height: 136px;
-      width: 136px;
-    }
-  `;
-  const UploadArea = styled.div`
-    background: ${color.background1};
-    border: 1px dashed;
-    border-radius: 6px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 32px;
-  `;
-
-  const imgCropProps = {
-    modalTitle: "ปรับขนาดรูปภาพ",
-    modalOk: "ยืนยัน",
-    modalCancel: "ยกเลิก",
+  const getById = async () => {
+    const data = await getBrandById(id).then((res) => res.responseData);
+    setImageUrl(data.productBrandLogo);
+    form.setFieldsValue({
+      productBrandName: data.productBrandName,
+      isActive: data.isActive,
+    });
   };
+
+  useEffect(() => {
+    isEdit && getById();
+  }, []);
+
   return (
     <CardContainer>
       <PageTitleNested
@@ -145,7 +159,7 @@ export const CreateBrandSetting: React.FC = () => {
         <br />
         <Col span={10}>
           <Form.Item
-            name='brandName'
+            name='productBrandName'
             label='ชื่อยี่ห้อ/แบรนด์สินค้า (Product Brand) '
             rules={[
               {
@@ -164,7 +178,7 @@ export const CreateBrandSetting: React.FC = () => {
         {isEdit && (
           <Col span={10}>
             <Form.Item
-              name='status'
+              name='isActive'
               label='สถานะสินค้า'
               rules={[
                 {
