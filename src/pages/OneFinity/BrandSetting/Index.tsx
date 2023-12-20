@@ -33,7 +33,6 @@ export const IndexBrandSetting: React.FC = () => {
       sortField: "updatedAt",
       sortDirection: "DESC",
     }).then((res) => {
-      console.log(res.responseData);
       setDataState({ count: res.responseData.count || 0, data: res.responseData.data });
     });
   };
@@ -135,7 +134,7 @@ export const IndexBrandSetting: React.FC = () => {
             <Row justify={"start"} gutter={8}>
               <Badge
                 count={value ? "เปิดใช้งาน" : "ปิดการใช้งาน"}
-                style={{ backgroundColor: value ? color.success : color.Grey }}
+                style={{ backgroundColor: value ? color.success : color.Disable }}
               />
             </Row>
           ),

@@ -61,7 +61,6 @@ export const CreateBrandSetting: React.FC = () => {
 
   const getById = async () => {
     const data = await getBrandById(id).then((res) => res.responseData);
-    console.log("edit", data);
     if (data.productBrandLogo) {
       setFile({
         uid: "-1",
@@ -75,6 +74,7 @@ export const CreateBrandSetting: React.FC = () => {
       productBrandId: data.productBrandId,
       productBrandName: data.productBrandName,
       isActive: data.isActive,
+      productBrandLogo: data.productBrandLogo,
     });
   };
 
@@ -91,12 +91,13 @@ export const CreateBrandSetting: React.FC = () => {
 
   const saveBrand = async () => {
     const payload = form.getFieldsValue(true);
-    console.log("payload", payload);
     const data = new FormData();
     data.append("productBrandName", payload.productBrandName);
     data.append("isActive", payload.isActive);
     data.append("createBy", `${userProfile.firstname} ${userProfile.lastname}`);
     data.append("updateBy", `${userProfile.firstname} ${userProfile.lastname}`);
+    data.append("productBrandLogo", payload.productBrandLogo);
+
     if (file && file.uid !== "-1") {
       data.append("file", file!);
     }
@@ -106,14 +107,18 @@ export const CreateBrandSetting: React.FC = () => {
       await updateBrand(data).then((res) => {
         if (res.success) {
           setModal(false);
-          navigate(-1);
+          setTimeout(() => {
+            navigate(-1);
+          }, 200);
         }
       });
     } else {
       await createBrand(data).then((res) => {
         if (res.success) {
           setModal(false);
-          navigate(-1);
+          setTimeout(() => {
+            navigate(-1);
+          }, 200);
         }
       });
     }
@@ -232,7 +237,7 @@ export const CreateBrandSetting: React.FC = () => {
           <Col span={10}>
             <Form.Item
               name='isActive'
-              label='สถานะสินค้า'
+              label='สถานะแบรนด์'
               rules={[
                 {
                   required: true,
@@ -242,7 +247,7 @@ export const CreateBrandSetting: React.FC = () => {
             >
               <Radio.Group style={{ width: "100%" }}>
                 <Radio value={true}>ใช้งาน</Radio>
-                <Radio value={false}>ปิดการใช้งาน</Radio>
+                <Radio value={false}>ปิดใช้งาน</Radio>
               </Radio.Group>
             </Form.Item>
           </Col>
