@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.11.0] - Release Date: 2023-12-20
+
+- added one finity brand setting
+
 ## Resolved [v0.10.4] - Release Date: 2023-12-19
 
 - fix api

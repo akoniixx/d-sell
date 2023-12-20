@@ -89,12 +89,14 @@ interface Props extends ButtonProps, StyledButton {
   icon?: React.ReactNode;
   level?: 1 | 2 | 3 | 4 | 5 | 6;
   textStyle?: TextType;
+  iconPlacement?: "left" | "right";
 }
 export default function Button({
   title,
   typeButton = "primary",
   icon,
   textStyle,
+  iconPlacement = "left",
   ...props
 }: Props): JSX.Element {
   return (
@@ -108,7 +110,7 @@ export default function Button({
           gap: 6,
         }}
       >
-        {icon && icon}
+        {iconPlacement === "left" && <>{icon && icon}</>}
         {title && (
           <Text
             level={props.level || 5}
@@ -116,16 +118,17 @@ export default function Button({
               typeButton === "primary"
                 ? "white"
                 : typeButton === "primary-light"
-                ? "primary"
-                : typeButton === "disabled" || typeButton === "danger" || typeButton === "success"
-                ? "white"
-                : "Text1"
+                  ? "primary"
+                  : typeButton === "disabled" || typeButton === "danger" || typeButton === "success"
+                    ? "white"
+                    : "Text1"
             }
             {...textStyle}
           >
             {title}
           </Text>
         )}
+        {iconPlacement === "right" && <>{icon && icon}</>}
       </Row>
     </ButtonStyled>
   );

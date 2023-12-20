@@ -8,8 +8,8 @@ import color from "../../resource/color";
 const { Option } = AntSelect;
 interface Props {
   data: {
-    key: string;
-    value?: string;
+    key: any;
+    value?: any;
     label?: string | JSX.Element;
   }[];
   onChange?: (v: any) => void;

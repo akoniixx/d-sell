@@ -57,6 +57,10 @@ import { CreateHighLightNewsPage } from "./pages/NewsPage/CreateHighLightNews";
 import { IndexProductShop } from "./pages/ProductShop/IndexProductShop";
 import { ProductShopDetail } from "./pages/ProductShop/ProductShopDetail";
 import SyncCustomerPage from "./pages/ShopManagementPage/ShopListPage/syncCustomerPage";
+import { IndexBrandSetting } from "./pages/OneFinity/BrandSetting/Index";
+import { CreateBrandSetting } from "./pages/OneFinity/BrandSetting/CreateBrandSetting";
+import { IndexShopSetting } from "./pages/OneFinity/ShopSetting/Index";
+import { CreateShopSetting } from "./pages/OneFinity/ShopSetting/CreateShopSetting";
 
 interface IRoute {
   path: string;
@@ -494,6 +498,33 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "detail/:id",
         element: <ProductShopDetail />,
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/oneFinity/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "brandSetting",
+        element: <IndexBrandSetting />,
+        permission: null,
+      },
+      {
+        path: "createBrandSetting/:id",
+        element: <CreateBrandSetting />,
+        permission: null,
+      },
+      {
+        path: "shopSetting",
+        element: <IndexShopSetting />,
+        permission: null,
+      },
+      {
+        path: "createShopSetting/:id",
+        element: <CreateShopSetting />,
         permission: null,
       },
     ],

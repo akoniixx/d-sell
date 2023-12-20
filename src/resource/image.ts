@@ -19,4 +19,5 @@ export default {
   iconShopApp: require("./media/images/iconShopApp.png"),
   expHighLight: require("./media/images/expHighLight.png"),
   indexHighLightApp: require("./media/images/indexHighLightApp.png"),
+  emptyProductBrand: require("./media/images/EmptyState-ProductBrand.jpg"),
 };
