@@ -2,8 +2,8 @@ import { AxiosResponse } from "axios";
 import { BASE_URL, httpClient } from "../config/develop-config";
 import { PinedNewsEntity } from "../entities/NewsEntity";
 
-// const baseUrl = `${BASE_URL}/news`;
-const baseUrl = `http://localhost:3002`;
+const baseUrl = `${BASE_URL}/news`;
+// const baseUrl = `http://localhost:3002`;
 
 const getNewsList = async (params: object) => {
   return await httpClient
