@@ -57,6 +57,7 @@ import { CreateHighLightNewsPage } from "./pages/NewsPage/CreateHighLightNews";
 import { IndexProductShop } from "./pages/ProductShop/IndexProductShop";
 import { ProductShopDetail } from "./pages/ProductShop/ProductShopDetail";
 import SyncCustomerPage from "./pages/ShopManagementPage/ShopListPage/syncCustomerPage";
+import { IndexShopGroup } from "./pages/ShopManagementPage/ShopGroupPage/Index";
 
 interface IRoute {
   path: string;
@@ -285,6 +286,11 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "ApproveTelPage/DetailApproveTelPage",
         element: <DetailApproveTelPage />,
+        permission: null,
+      },
+      {
+        path: "ShopGroupPage/*",
+        element: <IndexShopGroup />,
         permission: null,
       },
     ],

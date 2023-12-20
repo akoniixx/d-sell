@@ -122,6 +122,12 @@ export const pathLists = [
         permission: "storeList",
       },
       {
+        path: "/ShopGroupPage",
+        name: "shopGroup",
+        title: "จัดกลุ่มร้านค้า",
+        permission: "shopGroup",
+      },
+      {
         path: "/ApproveTelPage",
         name: "approveTel",
         title: "อนุมัติเบอร์โทรศัพท์",
