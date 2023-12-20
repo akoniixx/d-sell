@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { dateFormatter } from "../../../utility/Formatter";
 import { color } from "../../../resource";
 import { getBrandSetting } from "../../../datasource/OneFinity/BrandSettingDatasource";
+import Select from "../../../components/Select/Select";
+import image from "../../../resource/image";
 
 export const IndexBrandSetting: React.FC = () => {
   const navigate = useNavigate();
@@ -17,20 +19,28 @@ export const IndexBrandSetting: React.FC = () => {
     count: 0,
     data: [],
   });
-  const pageSize = 10;
+  const pageSize = 8;
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [isActive, setIsActive] = useState<any>("");
 
   const getBrandList = async () => {
-    await getBrandSetting({ page, take: pageSize, search }).then((res) => {
+    await getBrandSetting({
+      page,
+      take: pageSize,
+      search,
+      isActive,
+      sortField: "updatedAt",
+      sortDirection: "DESC",
+    }).then((res) => {
       console.log(res.responseData);
-      setDataState({ count: res.responseData.count, data: res.responseData.data });
+      setDataState({ count: res.responseData.count || 0, data: res.responseData.data });
     });
   };
 
   useEffect(() => {
     getBrandList();
-  }, [search]);
+  }, [search, isActive]);
 
   const ActionBtn = ({ onClick, icon }: any) => {
     return (
@@ -54,12 +64,26 @@ export const IndexBrandSetting: React.FC = () => {
           แบรนด์สินค้า
         </Text>
       </Col>
-      <Col span={18}>
+      <Col span={15}>
         <Input
           placeholder='ค้นหาชื่อแบรนด์สินค้า'
           prefix={<SearchOutlined style={{ color: "grey" }} />}
           onChange={(e) => setSearch(e.target.value)}
           autoComplete='off'
+        />
+      </Col>
+      <Col span={3}>
+        <Select
+          allowClear
+          placeholder='สถานะทั้งหมด'
+          data={[
+            { key: true, value: true, label: "เปิดใช้งาน" },
+            { key: false, value: false, label: "ปิดใช้งาน" },
+          ]}
+          style={{ width: "100%" }}
+          onChange={(e) => {
+            setIsActive(e);
+          }}
         />
       </Col>
       <Permission permission={["oneFinity", "create"]}>
@@ -87,10 +111,10 @@ export const IndexBrandSetting: React.FC = () => {
             <Row justify={"space-between"}>
               <Col span={4}>
                 <Image
-                  src={row?.productBrandLogo}
+                  src={row?.productBrandLogo || image.emptyProductBrand}
                   height={60}
                   width={60}
-                  style={{ borderRadius: "5px", objectFit: "cover" }}
+                  style={{ borderRadius: "100px", objectFit: "cover" }}
                 />
               </Col>
               <Col span={20}>
@@ -126,9 +150,11 @@ export const IndexBrandSetting: React.FC = () => {
         return {
           children: (
             <>
-              <Text level={5}>{dateFormatter(row?.updatedAt, true)}</Text>
+              <Text level={5}>{dateFormatter(row?.updatedAt || row.createAt, true)}</Text>
               <br />
-              <Text level={5}>{value ? value : row.createBy}</Text>
+              <Text level={6} color='Text3'>
+                {value ? value : row.updateBy || row.createBy}
+              </Text>
             </>
           ),
         };

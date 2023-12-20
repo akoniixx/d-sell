@@ -15,5 +15,18 @@ const getBrandById = async (id: string) => {
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
+const createBrand = async (data: FormData) => {
+  return await httpClient
+    .post(`${baseUrl}/onefinity-product-brand/create-product-brand`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
 
-export { getBrandSetting, getBrandById };
+const updateBrand = async (data: FormData) => {
+  return await httpClient
+    .patch(`${baseUrl}/onefinity-product-brand/update-product-brand`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+export { getBrandSetting, getBrandById, createBrand, updateBrand };

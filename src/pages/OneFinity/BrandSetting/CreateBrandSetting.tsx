@@ -14,7 +14,11 @@ import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
 import Text from "../../../components/Text/Text";
 import { color } from "../../../resource";
 import { getBase64 } from "../../../utility/uploadHelper";
-import { getBrandById } from "../../../datasource/OneFinity/BrandSettingDatasource";
+import {
+  createBrand,
+  getBrandById,
+  updateBrand,
+} from "../../../datasource/OneFinity/BrandSettingDatasource";
 
 const UploadVeritical = styled(Upload)`
   .ant-upload,
@@ -43,31 +47,77 @@ const imgCropProps = {
 };
 
 export const CreateBrandSetting: React.FC = () => {
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const navigate = useNavigate();
   const [form] = useForm();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
   const isEdit = pathSplit[3] !== "create";
-  console.log(isEdit);
   const id = pathSplit[3];
 
   const [imageUrl, setImageUrl] = useState<string>();
   const [file, setFile] = useState<any>();
-  const [uploading, setUploading] = useState(false);
   const [showModal, setModal] = useState(false);
 
   const getById = async () => {
     const data = await getBrandById(id).then((res) => res.responseData);
-    setImageUrl(data.productBrandLogo);
+    console.log("edit", data);
+    if (data.productBrandLogo) {
+      setFile({
+        uid: "-1",
+        name: "image.png",
+        status: "done",
+        url: data.productBrandLogo,
+      });
+      setImageUrl(data.productBrandLogo);
+    }
     form.setFieldsValue({
+      productBrandId: data.productBrandId,
       productBrandName: data.productBrandName,
       isActive: data.isActive,
     });
   };
 
   useEffect(() => {
-    isEdit && getById();
+    if (isEdit) {
+      getById();
+    } else {
+      form.setFieldsValue({
+        productBrandId: "",
+        isActive: true,
+      });
+    }
   }, []);
+
+  const saveBrand = async () => {
+    const payload = form.getFieldsValue(true);
+    console.log("payload", payload);
+    const data = new FormData();
+    data.append("productBrandName", payload.productBrandName);
+    data.append("isActive", payload.isActive);
+    data.append("createBy", `${userProfile.firstname} ${userProfile.lastname}`);
+    data.append("updateBy", `${userProfile.firstname} ${userProfile.lastname}`);
+    if (file && file.uid !== "-1") {
+      data.append("file", file!);
+    }
+
+    if (payload.productBrandId) {
+      data.append("productBrandId", payload.productBrandId);
+      await updateBrand(data).then((res) => {
+        if (res.success) {
+          setModal(false);
+          navigate(-1);
+        }
+      });
+    } else {
+      await createBrand(data).then((res) => {
+        if (res.success) {
+          setModal(false);
+          navigate(-1);
+        }
+      });
+    }
+  };
 
   return (
     <CardContainer>
@@ -93,35 +143,36 @@ export const CreateBrandSetting: React.FC = () => {
           <Col span={24}>
             <Row>
               <Col span={3}>
-                <ImgCrop aspect={1 / 1} {...imgCropProps}>
-                  <UploadVeritical
-                    listType='picture-card'
-                    maxCount={1}
-                    beforeUpload={(file) => {
-                      const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-                      if (!isJpgOrPng) {
-                        message.error("You can only upload JPG/PNG file!");
-                        return true;
-                      }
-                      setFile(file);
-                      getBase64(file as RcFile, (url) => {
-                        setImageUrl(url);
-                      });
-                      return false;
-                    }}
-                    customRequest={({ file }) => {
-                      console.log("customRequest", file);
-                    }}
-                    onChange={({ file }: any) => {
-                      return "success";
-                    }}
-                    onRemove={() => {
-                      setFile(undefined);
-                    }}
-                    showUploadList={false}
-                    //disabled={!!file1 || !!imageUrl1}
-                  >
-                    {!imageUrl ? (
+                {!imageUrl ? (
+                  <ImgCrop aspect={1 / 1} {...imgCropProps}>
+                    <UploadVeritical
+                      listType='picture-card'
+                      maxCount={1}
+                      beforeUpload={(file) => {
+                        const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+                        if (!isJpgOrPng) {
+                          message.error("You can only upload JPG/PNG file!");
+                          return true;
+                        }
+                        setFile(file);
+                        getBase64(file as RcFile, (url) => {
+                          setImageUrl(url);
+                        });
+                        return false;
+                      }}
+                      customRequest={({ file }) => {
+                        setFile(file);
+                        console.log("customRequest", file);
+                      }}
+                      onChange={({ file }: any) => {
+                        setFile(file);
+                        return "success";
+                      }}
+                      onRemove={() => {
+                        setFile(undefined);
+                      }}
+                      showUploadList={false}
+                    >
                       <UploadArea
                         style={{
                           width: "136px",
@@ -130,19 +181,21 @@ export const CreateBrandSetting: React.FC = () => {
                       >
                         {UploadIcon}
                       </UploadArea>
-                    ) : (
-                      <ImageWithDeleteButton
-                        width='136px'
-                        height='136px'
-                        src={imageUrl}
-                        handleDelete={() => {
-                          setFile(undefined);
-                          setImageUrl(undefined);
-                        }}
-                      />
-                    )}
-                  </UploadVeritical>
-                </ImgCrop>
+                    </UploadVeritical>
+                  </ImgCrop>
+                ) : (
+                  <div style={{ width: "138px", height: "138px", overflow: "hidden" }}>
+                    <ImageWithDeleteButton
+                      width='136px'
+                      height='136px'
+                      src={imageUrl}
+                      handleDelete={() => {
+                        setFile(undefined);
+                        setImageUrl(undefined);
+                      }}
+                    />
+                  </div>
+                )}
               </Col>
               <Col span={21}>
                 <Text level={6}>รูปภาพแบรนด์สินค้า</Text>
@@ -172,7 +225,7 @@ export const CreateBrandSetting: React.FC = () => {
               },
             ]}
           >
-            <Input placeholder='ระบุชื่อแบรนด์สินค้า' />
+            <Input placeholder='ระบุชื่อแบรนด์สินค้า' autoComplete='off' />
           </Form.Item>
         </Col>
         {isEdit && (
@@ -201,25 +254,24 @@ export const CreateBrandSetting: React.FC = () => {
               typeButton='primary-light'
               title='ยกเลิก'
               htmlType='submit'
-              loading={uploading}
               onClick={() => navigate(`/oneFinity/brandSetting`)}
             />
           </Col>
           <Col xl={15} sm={6}></Col>
           <Col xl={3} sm={6}>
-            <Button typeButton='primary' title='บันทึก' htmlType='submit' loading={uploading} />
+            <Button typeButton='primary' title='บันทึก' htmlType='submit' />
           </Col>
         </Row>
       </Form>
       {showModal && (
         <Modal
+          centered
           open={showModal}
           closable={false}
-          //onOk={onSave}
+          onOk={saveBrand}
           onCancel={() => setModal(false)}
           destroyOnClose
           okText={"ยืนยัน"}
-          okButtonProps={{ loading: uploading }}
           cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
         >
           <Text level={2}>{isEdit ? "ยืนยันบันทึกแบรนด์สินค้า" : "ยืนยันเพิ่มแบรนด์สินค้า"}</Text>
