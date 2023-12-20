@@ -33,6 +33,7 @@ import { OrderEntity } from "../../entities/OrderEntity";
 import { getOrderStatus } from "../../utility/OrderStatus";
 import TextArea from "../../components/Input/TextArea";
 import Permission from "../../components/Permission/Permission";
+import { FileItem } from "./orderComponent/fileItem";
 
 const SLASH_DMY = "DD/MM/YYYY";
 type FixedType = "left" | "right" | boolean | undefined;
@@ -124,6 +125,7 @@ export const OrderDetail: React.FC = () => {
   const [isSubmitting, setSubmitting] = useState(false);
   const [navSubmitStatus, setNavSubmitStatus] = useState<"success" | "wait" | "failed">("wait");
   const [navSubmitBody, setNavSubmitBody] = useState<any>();
+  const [showFile, setShowFile] = useState(false);
 
   const [form] = Form.useForm();
   const [navForm] = Form.useForm();
@@ -723,7 +725,7 @@ export const OrderDetail: React.FC = () => {
               <Text level={4} fontWeight={700}>
                 รายละเอียดคำสั่งซื้อ
               </Text>
-              <DetailBox style={{ height: 260 }}>
+              <DetailBox style={{ height: 300 }}>
                 <DetailItem label='ชื่อร้านค้า' value={orderData?.customerName} />
                 <DetailItem label='Customer Code' value={orderData?.customerNo} />
                 <DetailItem label='เขต' value={orderData?.customerZone} />
@@ -739,6 +741,20 @@ export const OrderDetail: React.FC = () => {
                     </Text>
                   }
                 />
+                <DetailItem
+                  label='เอกสารที่เกี่ยวข้อง'
+                  value={
+                    <Text
+                      color={"primary"}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setShowFile(true)}
+                    >
+                      <img src={icons.viewFileIcon} />
+                      &nbsp;ดูเอกสาร&nbsp;({orderData?.orderFiles?.length || 0}
+                      &nbsp;ภาพ)
+                    </Text>
+                  }
+                />
               </DetailBox>
             </CardContainer>
           </Col>
@@ -747,7 +763,7 @@ export const OrderDetail: React.FC = () => {
               <Text level={4} fontWeight={700}>
                 รายละเอียดการจัดส่ง
               </Text>
-              <DetailBox style={{ height: 260 }}>
+              <DetailBox style={{ height: 300 }}>
                 {/* TODO */}
                 <DetailItem
                   label='การจัดส่ง'
@@ -973,6 +989,18 @@ export const OrderDetail: React.FC = () => {
             />
           </Col>
         </Row>
+      </Modal>
+      <Modal open={showFile} footer={false} width={420} onCancel={() => setShowFile(false)}>
+        <Text level={5} fontWeight={700}>
+          เอกสารที่เกี่ยวข้อง
+        </Text>
+        <br />
+        <Text level={5} color='Text3'>
+          ทั้งหมด 5 ภาพ
+        </Text>
+        <br />
+        <br />
+        {orderData?.orderFiles?.map((file) => <FileItem key={file.orderFileId} file={file} />)}
       </Modal>
     </>
   );

@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.11.1] - Release Date: 2023-12-20
+
+- added file in order detail
+
 ## Features [v0.11.0] - Release Date: 2023-12-20
 
 - added one finity brand setting
