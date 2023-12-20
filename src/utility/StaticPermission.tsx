@@ -117,6 +117,16 @@ export const websiteBackOffice = {
       value: "edit",
     },
   ],
+  oneFinity: [
+    {
+      label: "View Setting",
+      value: "view",
+    },
+    {
+      label: "Edit Setting",
+      value: "edit",
+    },
+  ],
 };
 
 interface NestedList {
@@ -395,6 +405,57 @@ export const staticRolesObject: StaticRoles = {
       },
     ],
   },
+  oneFinity: {
+    isNested: true,
+    groupName: "ตั้งค่า",
+    groupKey: "oneFinity",
+    list: [
+      {
+        label: "แบรนด์สินค้า",
+        groupNameNested: "oneFinity",
+        listNested: [
+          {
+            label: "สร้างรายการส่วนลด",
+            value: "create",
+          },
+          {
+            label: "ดูรายการส่วนลด",
+            value: "view",
+          },
+          {
+            label: "แก้ไขรายการส่วนลด",
+            value: "edit",
+          },
+          {
+            label: "ลบรายการส่วนลด",
+            value: "delete",
+          },
+        ],
+      },
+      {
+        label: "จัดการร้านค้า",
+        groupNameNested: "oneFinity",
+        listNested: [
+          {
+            label: "สร้างร้านค้า",
+            value: "create",
+          },
+          {
+            label: "ดูร้านค้า",
+            value: "view",
+          },
+          {
+            label: "แก้ไขร้านค้า",
+            value: "edit",
+          },
+          {
+            label: "ลบร้านค้า",
+            value: "delete",
+          },
+        ],
+      },
+    ],
+  },
 };
 export const staticManageRoles: StaticRoles = {
   // Manage
@@ -506,6 +567,57 @@ export const staticManageRoles: StaticRoles = {
       },
     ],
   },
+  oneFinity: {
+    isNested: true,
+    groupName: "ตั้งค่า",
+    groupKey: "oneFinity",
+    list: [
+      {
+        label: "แบรนด์สินค้า",
+        groupNameNested: "oneFinity",
+        listNested: [
+          {
+            label: "สร้างรายการส่วนลด",
+            value: "create",
+          },
+          {
+            label: "ดูรายการส่วนลด",
+            value: "view",
+          },
+          {
+            label: "แก้ไขรายการส่วนลด",
+            value: "edit",
+          },
+          {
+            label: "ลบรายการส่วนลด",
+            value: "delete",
+          },
+        ],
+      },
+      {
+        label: "จัดการร้านค้า",
+        groupNameNested: "oneFinity",
+        listNested: [
+          {
+            label: "สร้างร้านค้า",
+            value: "create",
+          },
+          {
+            label: "ดูร้านค้า",
+            value: "view",
+          },
+          {
+            label: "แก้ไขร้านค้า",
+            value: "edit",
+          },
+          {
+            label: "ลบร้านค้า",
+            value: "delete",
+          },
+        ],
+      },
+    ],
+  },
 };
 
 export const mockRoles = [
@@ -562,6 +674,13 @@ export const mockRoles = [
       storeList: ["view", "create", "edit", "sync"],
       approvePhone: ["view", "approve"],
       shopGroup: ["view", "create", "edit"],
+    },
+  },
+  {
+    menuName: "oneFinity",
+    menu: {
+      brandSetting: ["view", "create", "edit", "delete"],
+      shopSetting: ["view", "create", "edit", "delete"],
     },
   },
 ];
