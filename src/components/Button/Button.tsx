@@ -110,7 +110,7 @@ export default function Button({
           gap: 6,
         }}
       >
-        {iconPlacement === "left" && <>{icon && icon}</>}
+        {iconPlacement === "left" && <>{icon && icon}</>}{" "}
         {title && (
           <Text
             level={props.level || 5}
@@ -127,7 +127,7 @@ export default function Button({
           >
             {title}
           </Text>
-        )}
+        )}{" "}
         {iconPlacement === "right" && <>{icon && icon}</>}
       </Row>
     </ButtonStyled>

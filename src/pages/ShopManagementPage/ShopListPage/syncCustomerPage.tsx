@@ -1,4 +1,6 @@
+import { DownloadOutlined } from "@ant-design/icons";
 import { Col, ConfigProvider, Divider, Row, Table } from "antd";
+import { AxiosRequestConfig } from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -16,8 +18,6 @@ const Header = styled(Row)`
   border-radius: 8px;
   background-color: ${color.background1};
   padding: 20px;
-  display: flex;
-  gap: 16px;
   align-items: center;
 `;
 
@@ -35,7 +35,6 @@ const HeaderSubGroup = styled(Col)`
 `;
 
 function SyncCustomerPage(): JSX.Element {
-  const navigate = useNavigate();
   const profile = useRecoilValue(profileAtom);
   const [data, setData] = useState<any>();
 
@@ -44,6 +43,7 @@ function SyncCustomerPage(): JSX.Element {
       company: profile?.company || "",
       updateBy: profile?.firstname + " " + profile?.lastname,
     }).then((res) => {
+      console.log(res.responseData);
       setData(res.responseData);
     });
   };
@@ -51,6 +51,30 @@ function SyncCustomerPage(): JSX.Element {
   useEffect(() => {
     getData();
   }, []);
+
+  // const onDownloadExcel = async () => {
+  //   const headers = { "Content-Type": "blob" };
+  //   const config: AxiosRequestConfig = {
+  //     method: "POST",
+  //     url: `${BASE_URL}/master/report/report-excel/${promotion?.promotionId}/${company}`,
+  //     responseType: "arraybuffer",
+  //     headers,
+  //   };
+  //   const response = await axios(config);
+
+  //   const file = new Blob([response.data], {
+  //     type: "application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  //   });
+
+  //   const url = window.URL.createObjectURL(file);
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.setAttribute("download", `${promotion?.promotionCode}.xlsx`);
+
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   link.parentNode?.removeChild(link);
+  // };
 
   const columns = [
     {
@@ -224,11 +248,20 @@ function SyncCustomerPage(): JSX.Element {
     <CardContainer>
       <PageTitleNested title='รายละเอียดเบอร์โทรศัพท์' showBack={false} extra={<></>} />
       <Divider />
-      <Header>
-        <Text color='error' fontWeight={700} fontSize={18}>
-          รายการข้อมูลไม่สามารถ Sync ได้ เนื่องจากข้อมูลไม่ตรงกัน
-          กรุณาติดต่อเจ้าหน้าที่ที่เกี่ยวข้องเพื่อดำเนินการแก้ไข
-        </Text>
+      <Header className='row'>
+        <Col span={21}>
+          <Text color='error' fontWeight={700} fontSize={18}>
+            รายการข้อมูลไม่สามารถ Sync ได้ เนื่องจากข้อมูลไม่ตรงกัน
+            กรุณาติดต่อเจ้าหน้าที่ที่เกี่ยวข้องเพื่อดำเนินการแก้ไข
+          </Text>
+        </Col>
+        <Col span={3}>
+          <Button
+            title='ดาวน์โหลด'
+            icon={<DownloadOutlined style={{ color: "white" }} />}
+            //onClick={onDownloadExcel}
+          />
+        </Col>
       </Header>
       <br />
       <TableContainer style={{ overflow: "visible" }}>
