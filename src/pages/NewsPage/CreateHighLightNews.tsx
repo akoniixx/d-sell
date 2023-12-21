@@ -291,7 +291,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
                     },
                   ]}
                 >
-                  <DatePicker style={{ width: "100%" }} enablePast />
+                  <DatePicker style={{ width: "100%" }} />
                 </Form.Item>
               </Col>
               <Col span={6}>
