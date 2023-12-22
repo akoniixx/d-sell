@@ -26,4 +26,5 @@ export default {
   downloadFileIcon: require("./media/icons/downloadFile.png"),
   ribbonBadgeBlue: require("./media/icons/Ribbon_badge_blue.png"),
   ribbonBadgeRed: require("./media/icons/Ribbon_badge_red.png"),
+  viewFileIcon: require("./media/icons/view-doc.png"),
 };

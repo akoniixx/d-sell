@@ -4,6 +4,7 @@ import {
   OrderPaymentStatusKey,
   OrderStatusKey,
 } from "../definitions/orderStatus";
+import { OrderFileEntity } from "./FileEntity";
 import { ProductEntity } from "./PoductEntity";
 
 export interface OrderEntity {
@@ -25,6 +26,7 @@ export interface OrderEntity {
   orderId: string;
   orderNo?: string;
   orderProducts?: ProductEntity[];
+  orderFiles?: OrderFileEntity[];
   paidStatus?: OrderPaymentStatusKey;
   paymentMethod?: OrderPaymentMethodName;
   price?: number;
