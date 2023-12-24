@@ -1,6 +1,6 @@
 import { Checkbox, Col, Divider, Form, Modal, Row, Table } from "antd";
 import { useForm } from "antd/lib/form/Form";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
 import { CardContainer } from "../../../components/Card/CardContainer";
@@ -13,28 +13,52 @@ import { SearchOutlined } from "@ant-design/icons";
 import Button from "../../../components/Button/Button";
 import { ModalSelectStore } from "../../Shared/ModalSelectStore";
 import { StoreEntity } from "../../../entities/StoreEntity";
-import { getCustomers } from "../../../datasource/CustomerDatasource";
 import TableContainer from "../../../components/Table/TableContainer";
+import {
+  createShopGroup,
+  getShopGroupById,
+  updateShopGroup,
+} from "../../../datasource/ShopGroupDatasoure";
 
 export function CreateShopGroup() {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
   const { company } = userProfile;
   const navigate = useNavigate();
   const [form] = useForm();
-  const [isEdit, setIsEdit] = useState<boolean>(true);
-  const [showModal, setModal] = useState(false);
+  const { pathname } = window.location;
+  const pathSplit = pathname.split("/") as Array<string>;
+  const isEdit = pathSplit[3] !== "create";
+  const id = pathSplit[3];
 
+  const [showModal, setShowModal] = useState(false);
   const [showModalShop, setShowModalShop] = useState<boolean>(false);
-  const [selectedShop, setSelectedShop] = useState<StoreEntity[]>([]);
-  const [searchShop, setSearchShop] = useState<StoreEntity[]>([]);
+  const [selectedShop, setSelectedShop] = useState<any>([]);
+  const [searchShop, setSearchShop] = useState<any>([]);
 
-  const callBackShop = (item: StoreEntity[]) => {
-    console.log(item);
-    item = item.map((p: any) => ({ ...p, isChecked: false }));
-    setSelectedShop([...selectedShop, ...item]);
-    setSearchShop([...selectedShop, ...item]);
-    setShowModalShop(!showModalShop);
+  const getShopById = async () => {
+    await getShopGroupById(id).then((res) => {
+      form.setFieldsValue({
+        customerGroupId: res.responseData.customerGroupId,
+        customerGroupName: res.responseData.customerGroupName,
+        isActive: res.responseData.isActive,
+      });
+      const mapShop = res.responseData.customerGroupShop.map((x) => {
+        return {
+          customerGroupId: res.responseData.customerGroupId,
+          customerCompanyId: x.customerCompanyId,
+          customerName: x.customerName,
+          customerNo: x.customerNo,
+          zone: x.zone,
+        };
+      });
+      setSelectedShop(mapShop);
+      setSearchShop(mapShop);
+    });
   };
+
+  useEffect(() => {
+    getShopById();
+  }, []);
 
   const columns: any = [
     {
@@ -102,6 +126,67 @@ export function CreateShopGroup() {
     },
   ];
 
+  const callBackShop = (item: StoreEntity[]) => {
+    item = item.map((p: any) => ({ ...p, isChecked: false }));
+    setSelectedShop([...selectedShop, ...item]);
+    setSearchShop([...selectedShop, ...item]);
+    setShowModalShop(!showModalShop);
+  };
+
+  const saveShopGroup = async () => {
+    let customerGroupShops: any = [];
+    customerGroupShops = selectedShop.map((x) => {
+      if (x.customerGroupId) {
+        return {
+          customerGroupId: x.customerGroupId,
+          customerCompanyId: x.customerCompanyId,
+          customerNo: x.customerNo,
+          customerName: x.customerName,
+          zone: x.zone,
+        };
+      } else {
+        return {
+          customerCompanyId: x.customerCompanyId,
+          customerNo: x.customerNo,
+          customerName: x.customerName,
+          zone: x.zone,
+        };
+      }
+    });
+    form.setFieldsValue({
+      createBy: userProfile.firstname + " " + userProfile.lastname,
+      comapny: company,
+      isActive: true,
+      customerGroupShops: customerGroupShops,
+    });
+
+    const getForm = form.getFieldsValue(true);
+    console.log(getForm);
+    if (isEdit) {
+      await updateShopGroup(getForm).then((res) => {
+        if (res.success) {
+          if (res.success) {
+            setShowModal(false);
+            setTimeout(() => {
+              navigate(-1);
+            }, 200);
+          }
+        }
+      });
+    } else {
+      await createShopGroup(getForm).then((res) => {
+        if (res.success) {
+          if (res.success) {
+            setShowModal(false);
+            setTimeout(() => {
+              navigate(-1);
+            }, 200);
+          }
+        }
+      });
+    }
+  };
+
   return (
     <CardContainer>
       <PageTitleNested
@@ -121,11 +206,11 @@ export function CreateShopGroup() {
         }
       />
       <Divider />
-      <Form form={form} layout='vertical' onFinish={() => setModal(true)}>
+      <Form form={form} layout='vertical'>
         <Row>
           <Col span={10}>
             <Form.Item
-              name='groupname'
+              name='customerGroupName'
               label={<Text fontWeight={600}>ชื่อกลุ่มร้านค้า</Text>}
               rules={[
                 {
@@ -181,16 +266,16 @@ export function CreateShopGroup() {
         </Col>
       </Row>
       <br />
-      <Row justify={"space-between"} gutter={8}>
-        <Col span={21}></Col>
-        <Col span={3}>
+      <Row justify={"end"} gutter={8}>
+        <Col span={20}></Col>
+        <Col span={4} style={{ paddingLeft: "50px" }}>
           <Text>จำนวนร้านค้า {selectedShop.length} ร้าน</Text>
         </Col>
       </Row>
       <br />
       <TableContainer>
         <Table
-          scroll={{ y: 480 }}
+          scroll={{ y: 450 }}
           columns={isEdit ? columns : columns.filter((x: any) => x.dataIndex !== "index")}
           dataSource={searchShop}
           pagination={false}
@@ -209,25 +294,16 @@ export function CreateShopGroup() {
         </Col>
         <Col xl={15} sm={6}></Col>
         <Col xl={3} sm={6}>
-          <Button typeButton='primary' title='บันทึก' htmlType='submit' />
+          <Button typeButton='primary' title='บันทึก' onClick={() => setShowModal(true)} />
         </Col>
       </Row>
-      {setShowModalShop && (
-        <ModalSelectStore
-          company={company}
-          callBackShop={callBackShop}
-          showModalShop={showModalShop}
-          onClose={() => setShowModalShop(!setShowModalShop)}
-          currentSelectShop={selectedShop}
-        />
-      )}
       {showModal && (
         <Modal
           centered
           open={showModal}
           closable={false}
-          //onOk={saveBrand}
-          onCancel={() => setModal(false)}
+          onOk={saveShopGroup}
+          onCancel={() => setShowModal(false)}
           destroyOnClose
           okText={"ยืนยัน"}
           cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
@@ -252,6 +328,15 @@ export function CreateShopGroup() {
             </Text>
           )}
         </Modal>
+      )}
+      {showModalShop && (
+        <ModalSelectStore
+          company={company}
+          callBackShop={callBackShop}
+          showModalShop={showModalShop}
+          onClose={() => setShowModalShop(!setShowModalShop)}
+          currentSelectShop={selectedShop}
+        />
       )}
     </CardContainer>
   );

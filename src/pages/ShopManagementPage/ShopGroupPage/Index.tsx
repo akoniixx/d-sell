@@ -1,5 +1,5 @@
 import { Badge, Col, Row, Table } from "antd";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import Permission from "../../../components/Permission/Permission";
 import Text from "../../../components/Text/Text";
@@ -10,26 +10,38 @@ import Select from "../../../components/Select/Select";
 import Button from "../../../components/Button/Button";
 import { color } from "../../../resource";
 import { dateFormatter } from "../../../utility/Formatter";
+import { getShopGroup } from "../../../datasource/ShopGroupDatasoure";
 
 export function IndexShopGroup() {
   const navigate = useNavigate();
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const { company } = userProfile;
+  const [dataState, setDataState] = useState<{ count: number; data: any[] }>({
+    count: 0,
+    data: [],
+  });
+  const pageSize = 8;
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const [isActive, setIsActive] = useState<any>("");
 
-  const mockData = [
-    {
-      id: 1,
-      groupname: "กลุ่ม VVIP",
-      countShop: 30,
-      updateBy: "รชยา ช่างภักดี",
-      isActive: true,
-    },
-    {
-      id: 2,
-      groupname: "กลุ่มลูกค้าภาคเหนือ",
-      countShop: 20,
-      updateBy: "รชยา ช่างภักดี",
-      isActive: true,
-    },
-  ];
+  const getShopGroupList = async () => {
+    await getShopGroup({
+      company,
+      take: pageSize,
+      page,
+      search,
+      isActive,
+      sortField: "updateDate",
+      sortDirection: "DESC",
+    }).then((res) => {
+      setDataState({ count: res.responseData.count, data: res.responseData.data });
+    });
+  };
+
+  useEffect(() => {
+    getShopGroupList();
+  }, [page, search, isActive]);
 
   const ActionBtn = ({ onClick, icon }: any) => {
     return (
@@ -57,7 +69,7 @@ export function IndexShopGroup() {
         <Input
           placeholder='ค้นหาชื่อกลุ่มร้านค้า'
           prefix={<SearchOutlined style={{ color: "grey" }} />}
-          //onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           autoComplete='off'
         />
       </Col>
@@ -71,7 +83,7 @@ export function IndexShopGroup() {
           ]}
           style={{ width: "100%" }}
           onChange={(e) => {
-            //setIsActive(e);
+            setIsActive(e);
           }}
         />
       </Col>
@@ -101,8 +113,8 @@ export function IndexShopGroup() {
     },
     {
       title: "ชื่อกลุ่ม",
-      dataIndex: "groupname",
-      key: "groupname",
+      dataIndex: "customerGroupName",
+      key: "customerGroupName",
       width: "30%",
       render: (value: any, row: any, index: number) => {
         return {
@@ -112,8 +124,8 @@ export function IndexShopGroup() {
     },
     {
       title: "จำนวนร้านค้า",
-      dataIndex: "countShop",
-      key: "countShop",
+      dataIndex: "totalShop",
+      key: "totalShop",
       render: (value: any, row: any, index: number) => {
         return {
           children: <Text>{value} ร้าน</Text>,
@@ -128,7 +140,7 @@ export function IndexShopGroup() {
         return {
           children: (
             <>
-              <Text level={5}>{dateFormatter(row?.updatedAt || row.createAt, true)}</Text>
+              <Text level={5}>{dateFormatter(row?.updateDate || row.createDate, true)}</Text>
               <br />
               <Text level={6} color='Text3'>
                 {value ? value : row.updateBy || row.createBy}
@@ -166,7 +178,9 @@ export function IndexShopGroup() {
           children: (
             <Row justify={"start"} gutter={8}>
               <ActionBtn
-                onClick={() => navigate(`/ShopManagementPage/CreateShopGroup/1`)}
+                onClick={() =>
+                  navigate(`/ShopManagementPage/CreateShopGroup/${row.customerGroupId}`)
+                }
                 icon={<EditOutlined />}
               />
             </Row>
@@ -182,13 +196,13 @@ export function IndexShopGroup() {
       <br />
       <Table
         columns={columns}
-        dataSource={mockData || []}
+        dataSource={dataState.data || []}
         pagination={{
           position: ["bottomCenter"],
-          // pageSize,
-          // current: page,
-          // total: dataState.count,
-          // onChange: (p) => setPage(p),
+          pageSize,
+          current: page,
+          total: dataState.count,
+          onChange: (p) => setPage(p),
           showSizeChanger: false,
         }}
       />
