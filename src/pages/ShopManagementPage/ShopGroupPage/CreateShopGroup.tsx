@@ -1,4 +1,4 @@
-import { Checkbox, Col, Divider, Form, Modal, Row, Table } from "antd";
+import { Checkbox, Col, Divider, Form, Modal, Radio, Row, Table } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,16 +9,19 @@ import { color } from "../../../resource";
 import Text from "../../../components/Text/Text";
 import Input from "../../../components/Input/Input";
 import Select from "../../../components/Select/Select";
-import { SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import Button from "../../../components/Button/Button";
 import { ModalSelectStore } from "../../Shared/ModalSelectStore";
-import { StoreEntity } from "../../../entities/StoreEntity";
+import { StoreEntity, ZoneEntity } from "../../../entities/StoreEntity";
 import TableContainer from "../../../components/Table/TableContainer";
 import {
   createShopGroup,
   getShopGroupById,
   updateShopGroup,
 } from "../../../datasource/ShopGroupDatasoure";
+import _ from "lodash";
+import { FlexRow } from "../../../components/Container/Container";
+import { getZones } from "../../../datasource/CustomerDatasource";
 
 export function CreateShopGroup() {
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
@@ -30,10 +33,14 @@ export function CreateShopGroup() {
   const isEdit = pathSplit[3] !== "create";
   const id = pathSplit[3];
 
+  const [zoneList, setZoneList] = useState<ZoneEntity[]>([]);
+
   const [showModal, setShowModal] = useState(false);
   const [showModalShop, setShowModalShop] = useState<boolean>(false);
   const [selectedShop, setSelectedShop] = useState<any>([]);
   const [searchShop, setSearchShop] = useState<any>([]);
+  const [searchKeywordShop, setSearchKeywordShop] = useState("");
+  const [searchShopZone, setSearchShopZone] = useState("");
 
   const getShopById = async () => {
     await getShopGroupById(id).then((res) => {
@@ -55,16 +62,89 @@ export function CreateShopGroup() {
       setSearchShop(mapShop);
     });
   };
+  const fetchZone = async () => {
+    const getZone = await getZones(company);
+    setZoneList(getZone.map((d: StoreEntity, i: number) => ({ ...d, key: d.customerCompanyId })));
+  };
 
   useEffect(() => {
-    getShopById();
+    if (isEdit) {
+      getShopById();
+    } else {
+      form.setFieldsValue({
+        isActive: true,
+      });
+    }
+    fetchZone();
   }, []);
+
+  const callBackShop = (item: StoreEntity[]) => {
+    item = item.map((p: any) => ({ ...p, isChecked: false }));
+    setSelectedShop([...selectedShop, ...item]);
+    setSearchShop([...selectedShop, ...item]);
+    setShowModalShop(!showModalShop);
+  };
+  const handleCheckBox = (e: any, cusId: string) => {
+    const checkBoxed = selectedShop.map((item) =>
+      _.set(
+        item,
+        "isChecked",
+        item.customerCompanyId === cusId ? e.target.checked : item.isChecked,
+      ),
+    );
+    setSelectedShop(checkBoxed);
+    setSearchShop(checkBoxed);
+  };
+  const handleAllCheckBox = (e: any) => {
+    const checkBoxed = selectedShop.map((item) => ({ ...item, isChecked: e.target.checked }));
+    const mapData = searchShop.map((item) => {
+      const findObj = checkBoxed.find((el) => el.customerCompanyId === item.customerCompanyId);
+      if (findObj) {
+        return { ...item, isChecked: true };
+      }
+      return { ...item, isChecked: false };
+    });
+    setSelectedShop(checkBoxed);
+    setSearchShop(mapData);
+  };
+  const handleDelete = () => {
+    const deleted = selectedShop.filter((x) => !x.isChecked);
+    setSelectedShop(deleted);
+    setSearchShop(deleted);
+  };
+  const onClearSearchShop = () => {
+    setSearchShopZone("");
+    setSearchKeywordShop("");
+    setSelectedShop(searchShop);
+  };
+  const onSearchShop = (e: any) => {
+    setSearchKeywordShop(e.target.value);
+    const valueUpperCase: string = e.target.value;
+    const find = searchShop.filter((x) => {
+      const searchName =
+        !e.target.value ||
+        x.customerName?.includes(e.target.value) ||
+        x.customerNo?.includes(valueUpperCase.toUpperCase());
+      const searchZone = !searchShopZone || x.zone?.includes(searchShopZone);
+      return searchName && searchZone;
+    });
+    setSelectedShop(find);
+  };
+  const onSearchZone = (e: any) => {
+    setSearchShopZone(e);
+    const find = searchShop.filter((x) => {
+      const searchName = !searchKeywordShop || x.customerName?.includes(searchKeywordShop);
+      const searchZone = !e || x.zone?.includes(e);
+      return searchName && searchZone;
+    });
+    setSelectedShop(find);
+  };
 
   const columns: any = [
     {
       title: isEdit && (
         <Checkbox
-          //onClick={(e) => handleAllCheckBox(e)}
+          onClick={(e) => handleAllCheckBox(e)}
           checked={
             selectedShop.length > 0 || searchShop.length > 0
               ? selectedShop.every((x) => x.isChecked) || searchShop.every((x) => x.isChecked)
@@ -77,7 +157,7 @@ export function CreateShopGroup() {
       render: (text: string, value: any) => (
         <Checkbox
           checked={value.isChecked}
-          // onClick={(e) => handleCheckBox(e, value.productId)}
+          onClick={(e) => handleCheckBox(e, value.customerCompanyId)}
         />
       ),
     },
@@ -126,65 +206,65 @@ export function CreateShopGroup() {
     },
   ];
 
-  const callBackShop = (item: StoreEntity[]) => {
-    item = item.map((p: any) => ({ ...p, isChecked: false }));
-    setSelectedShop([...selectedShop, ...item]);
-    setSearchShop([...selectedShop, ...item]);
-    setShowModalShop(!showModalShop);
-  };
-
   const saveShopGroup = async () => {
-    let customerGroupShops: any = [];
-    customerGroupShops = selectedShop.map((x) => {
-      if (x.customerGroupId) {
-        return {
-          customerGroupId: x.customerGroupId,
-          customerCompanyId: x.customerCompanyId,
-          customerNo: x.customerNo,
-          customerName: x.customerName,
-          zone: x.zone,
-        };
-      } else {
-        return {
-          customerCompanyId: x.customerCompanyId,
-          customerNo: x.customerNo,
-          customerName: x.customerName,
-          zone: x.zone,
-        };
-      }
-    });
-    form.setFieldsValue({
-      createBy: userProfile.firstname + " " + userProfile.lastname,
-      comapny: company,
-      isActive: true,
-      customerGroupShops: customerGroupShops,
-    });
+    await form
+      .validateFields()
+      .then(async (value) => {
+        let customerGroupShops: any = [];
+        customerGroupShops = selectedShop
+          .filter((a) => !a.isChecked)
+          .map((x) => {
+            if (x.customerGroupId) {
+              return {
+                customerGroupId: x.customerGroupId,
+                customerCompanyId: x.customerCompanyId,
+                customerNo: x.customerNo,
+                customerName: x.customerName,
+                zone: x.zone,
+              };
+            } else {
+              return {
+                customerCompanyId: x.customerCompanyId,
+                customerNo: x.customerNo,
+                customerName: x.customerName,
+                zone: x.zone,
+              };
+            }
+          });
+        form.setFieldsValue({
+          createBy: userProfile.firstname + " " + userProfile.lastname,
+          comapny: company,
+          customerGroupShops: customerGroupShops,
+        });
 
-    const getForm = form.getFieldsValue(true);
-    console.log(getForm);
-    if (isEdit) {
-      await updateShopGroup(getForm).then((res) => {
-        if (res.success) {
-          if (res.success) {
-            setShowModal(false);
-            setTimeout(() => {
-              navigate(-1);
-            }, 200);
-          }
+        const getForm = form.getFieldsValue(true);
+        if (isEdit) {
+          await updateShopGroup(getForm).then((res) => {
+            if (res.success) {
+              if (res.success) {
+                setShowModal(false);
+                setTimeout(() => {
+                  navigate(-1);
+                }, 200);
+              }
+            }
+          });
+        } else {
+          await createShopGroup(getForm).then((res) => {
+            if (res.success) {
+              if (res.success) {
+                setShowModal(false);
+                setTimeout(() => {
+                  navigate(-1);
+                }, 200);
+              }
+            }
+          });
         }
+      })
+      .catch((errInfo) => {
+        setShowModal(false);
       });
-    } else {
-      await createShopGroup(getForm).then((res) => {
-        if (res.success) {
-          if (res.success) {
-            setShowModal(false);
-            setTimeout(() => {
-              navigate(-1);
-            }, 200);
-          }
-        }
-      });
-    }
   };
 
   return (
@@ -223,6 +303,27 @@ export function CreateShopGroup() {
             </Form.Item>
           </Col>
         </Row>
+        <Row>
+          {isEdit && (
+            <Col span={10}>
+              <Form.Item
+                name='isActive'
+                label='สถานะกลุ่มร้านค้า'
+                rules={[
+                  {
+                    required: true,
+                    message: "*โปรดระบุสถานะ",
+                  },
+                ]}
+              >
+                <Radio.Group style={{ width: "100%" }}>
+                  <Radio value={true}>ใช้งาน</Radio>
+                  <Radio value={false}>ปิดใช้งาน</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Col>
+          )}
+        </Row>
       </Form>
       <Divider />
       <Row>
@@ -231,36 +332,43 @@ export function CreateShopGroup() {
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={4}>
-          <Select
-            allowClear
-            placeholder='เขตทั้งหมด'
-            data={[
-              { key: true, value: true, label: "เปิดใช้งาน" },
-              { key: false, value: false, label: "ปิดใช้งาน" },
-            ]}
-            style={{ width: "100%" }}
-            onChange={(e) => {
-              //setIsActive(e);
-            }}
-          />
+        {searchShop.length > 0 && (
+          <>
+            <Col span={4}>
+              <Select
+                allowClear
+                placeholder='เขตทั้งหมด'
+                data={[
+                  { label: "ทั้งหมด", key: "" },
+                  ...zoneList.map((z) => ({ label: z.zoneName, key: z.zoneName })),
+                ]}
+                style={{ width: "100%" }}
+                onChange={(e) => onSearchZone(e)}
+                value={searchShopZone}
+              />
+            </Col>
+            <Col span={6}>
+              <Input
+                placeholder='ค้นหาชื่อร้านค้า'
+                prefix={<SearchOutlined style={{ color: "grey" }} />}
+                onPressEnter={(e) => onSearchShop(e)}
+                defaultValue={searchKeywordShop}
+                autoComplete='off'
+              />
+            </Col>
+            <Col span={3}>
+              <Button title='ล้างการค้นหา' typeButton='primary-light' onClick={onClearSearchShop} />
+            </Col>
+          </>
+        )}
+        <Col span={searchShop?.length > 0 ? 6 : 19}></Col>
+        <Col span={2} style={{ paddingRight: "6px" }}>
+          {selectedShop.filter((x) => x.isChecked).length > 0 && (
+            <FlexRow align='center' justify='end' style={{ height: "100%" }}>
+              <DeleteOutlined style={{ fontSize: 20, color: color.error }} onClick={handleDelete} />
+            </FlexRow>
+          )}
         </Col>
-        <Col span={6}>
-          <Input
-            placeholder='ค้นหาชื่อร้านค้า'
-            prefix={<SearchOutlined style={{ color: "grey" }} />}
-            //onChange={(e) => setSearch(e.target.value)}
-            autoComplete='off'
-          />
-        </Col>
-        <Col span={3}>
-          <Button
-            title='ล้างการค้นหา'
-            typeButton='primary-light'
-            //onClick={onClearSearchShop}
-          />
-        </Col>
-        <Col span={8}></Col>
         <Col span={3}>
           <Button title='+ เพิ่มร้านค้า' onClick={() => setShowModalShop(!showModalShop)} />
         </Col>
@@ -277,7 +385,7 @@ export function CreateShopGroup() {
         <Table
           scroll={{ y: 450 }}
           columns={isEdit ? columns : columns.filter((x: any) => x.dataIndex !== "index")}
-          dataSource={searchShop}
+          dataSource={selectedShop}
           pagination={false}
           style={{ height: "450px" }}
         />
@@ -309,7 +417,7 @@ export function CreateShopGroup() {
           cancelButtonProps={{ style: { color: color.primary, borderColor: color.primary } }}
         >
           <Text level={2}>
-            {isEdit ? "ยืนยันบันทึกแบรนด์สินค้า" : "ยืนยันการเพิ่มกลุ่มร้านค้า"}
+            {isEdit ? "ยืนยันบันทึกกลุ่มร้านค้า" : "ยืนยันการเพิ่มกลุ่มร้านค้า"}
           </Text>
           <br />
           {isEdit ? (
