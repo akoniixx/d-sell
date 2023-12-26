@@ -547,6 +547,24 @@ export const staticManageRoles: StaticRoles = {
           },
         ],
       },
+      {
+        label: "จัดกลุ่มร้านค้า",
+        groupNameNested: "shopGroup",
+        listNested: [
+          {
+            label: "ดูกลุ่มร้านค้า",
+            value: "view",
+          },
+          {
+            label: "สร้างกลุ่มร้านค้า",
+            value: "create",
+          },
+          {
+            label: "แก้ไขกลุ่มร้านค้า",
+            value: "edit",
+          },
+        ],
+      },
     ],
   },
   oneFinity: {
@@ -655,6 +673,7 @@ export const mockRoles = [
     menu: {
       storeList: ["view", "create", "edit", "sync"],
       approvePhone: ["view", "approve"],
+      shopGroup: ["view", "create", "edit"],
     },
   },
   {

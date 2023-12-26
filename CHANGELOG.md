@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Features [v0.12.0] - Release Date: 2023-12-25
+
+- added feature customer group shop
+
 ## Resolved [v0.11.2] - Release Date: 2023-12-21
 
 - fixed highlight news date input

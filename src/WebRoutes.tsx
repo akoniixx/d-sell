@@ -61,6 +61,8 @@ import { IndexBrandSetting } from "./pages/OneFinity/BrandSetting/Index";
 import { CreateBrandSetting } from "./pages/OneFinity/BrandSetting/CreateBrandSetting";
 import { IndexShopSetting } from "./pages/OneFinity/ShopSetting/Index";
 import { CreateShopSetting } from "./pages/OneFinity/ShopSetting/CreateShopSetting";
+import { IndexShopGroup } from "./pages/ShopManagementPage/ShopGroupPage/Index";
+import { CreateShopGroup } from "./pages/ShopManagementPage/ShopGroupPage/CreateShopGroup";
 
 interface IRoute {
   path: string;
@@ -289,6 +291,16 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "ApproveTelPage/DetailApproveTelPage",
         element: <DetailApproveTelPage />,
+        permission: null,
+      },
+      {
+        path: "ShopGroupPage/*",
+        element: <IndexShopGroup />,
+        permission: null,
+      },
+      {
+        path: "createShopGroup/:id",
+        element: <CreateShopGroup />,
         permission: null,
       },
     ],
