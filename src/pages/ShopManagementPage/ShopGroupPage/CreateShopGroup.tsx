@@ -142,7 +142,7 @@ export function CreateShopGroup() {
 
   const columns: any = [
     {
-      title: isEdit && (
+      title: (
         <Checkbox
           onClick={(e) => handleAllCheckBox(e)}
           checked={
@@ -384,7 +384,7 @@ export function CreateShopGroup() {
       <TableContainer>
         <Table
           scroll={{ y: 450 }}
-          columns={isEdit ? columns : columns.filter((x: any) => x.dataIndex !== "index")}
+          columns={columns}
           dataSource={selectedShop}
           pagination={false}
           style={{ height: "450px" }}
