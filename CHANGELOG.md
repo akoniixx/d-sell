@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.12.2] - Release Date: 2023-01-04
+
+- fixed special price permission
+
 ## Resolved [v0.12.1] - Release Date: 2023-12-26
 
 - fixed delete shop group with create
