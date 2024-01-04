@@ -160,7 +160,7 @@ export const PriceListX10: React.FC = () => {
             </span>
           </div>
         </Col>
-        <Permission permission={["specialPrice", "create"]} reverse>
+        <Permission permission={["priceSpecialExclusive", "create"]} reverse>
           <Col span={4} />
         </Permission>
         <Col className='gutter-row' xl={4} sm={6}>
@@ -198,7 +198,7 @@ export const PriceListX10: React.FC = () => {
             value={zoneFilter}
           />
         </Col>
-        <Permission permission={["specialPrice", "create"]}>
+        <Permission permission={["priceSpecialExclusive", "create"]}>
           <Col className='gutter-row' xl={4} sm={6}>
             <Button
               type='primary'
