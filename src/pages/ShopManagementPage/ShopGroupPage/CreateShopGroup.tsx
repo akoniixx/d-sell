@@ -233,7 +233,8 @@ export function CreateShopGroup() {
           });
         form.setFieldsValue({
           createBy: userProfile.firstname + " " + userProfile.lastname,
-          comapny: company,
+          updateBy: userProfile.firstname + " " + userProfile.lastname,
+          company: company,
           customerGroupShops: customerGroupShops,
         });
 
@@ -423,7 +424,7 @@ export function CreateShopGroup() {
           {isEdit ? (
             <>
               <Text level={5} color='Text3'>
-                โปรดตรวจสอบรายละเอียดกลุ่มสินค้าอีกครั้งก่อนกดยืนยัน
+                โปรดตรวจสอบรายละเอียดกลุ่มร้านค้าอีกครั้งก่อนกดยืนยัน
               </Text>
               <br />
               <Text level={5} color='Text3'>

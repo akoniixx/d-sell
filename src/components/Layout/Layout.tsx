@@ -181,26 +181,26 @@ export const pathLists = [
       },
     ],
   },
-  {
-    path: "/oneFinity",
-    name: "oneFinity",
-    title: "1 Finity",
-    permission: ["oneFinity"],
-    subMenu: [
-      {
-        path: "/brandSetting",
-        name: "brandSetting",
-        title: "แบรนด์สินค้า",
-        permission: "brandSetting",
-      },
-      {
-        path: "/shopSetting",
-        name: "shopSetting",
-        title: "จัดการร้านค้า",
-        permission: "shopSetting",
-      },
-    ],
-  },
+  // {
+  //   path: "/oneFinity",
+  //   name: "oneFinity",
+  //   title: "1 Finity",
+  //   permission: ["oneFinity"],
+  //   subMenu: [
+  //     {
+  //       path: "/brandSetting",
+  //       name: "brandSetting",
+  //       title: "แบรนด์สินค้า",
+  //       permission: "brandSetting",
+  //     },
+  //     {
+  //       path: "/shopSetting",
+  //       name: "shopSetting",
+  //       title: "จัดการร้านค้า",
+  //       permission: "shopSetting",
+  //     },
+  //   ],
+  // },
 ];
 const Layouts: React.FC<any> = ({ children }) => {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
