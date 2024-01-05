@@ -1,6 +1,6 @@
 {
   "name": "sellcoda-bo-v2.x",
-  "version": "0.12.2",
+  "version": "0.12.3",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.7.0",

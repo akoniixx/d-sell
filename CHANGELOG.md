@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.12.3] - Release Date: 2023-01-05
+
+- fixed wording update in customer group
+- fixed updateBy in customer group
+
 ## Resolved [v0.12.2] - Release Date: 2023-01-04
 
 - fixed special price permission
