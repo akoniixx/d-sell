@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.12.4] - Release Date: 2023-01-12
+
+- fixed freebie unit
+- fixed total document attachment
+
 ## Resolved [v0.12.3] - Release Date: 2023-01-05
 
 - fixed wording update in customer group
