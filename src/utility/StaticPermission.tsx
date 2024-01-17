@@ -534,6 +534,28 @@ export const staticManageRoles: StaticRoles = {
         ],
       },
       {
+        label: "รายชื่อร้านค้า",
+        groupNameNested: "corporateShop",
+        listNested: [
+          {
+            label: "ดูรายชื่อร้านค้า",
+            value: "view",
+          },
+          {
+            label: "สร้างร้านค้า",
+            value: "create",
+          },
+          {
+            label: "แก้ไขร้านค้า",
+            value: "edit",
+          },
+          {
+            label: "เชื่อมต่อ Navision",
+            value: "sync",
+          },
+        ],
+      },
+      {
         label: "อนุมัติเบอร์โทรศัพท์",
         groupNameNested: "approvePhone",
         listNested: [
@@ -674,6 +696,7 @@ export const mockRoles = [
       storeList: ["view", "create", "edit", "sync"],
       approvePhone: ["view", "approve"],
       shopGroup: ["view", "create", "edit"],
+      corporateShop: ["view", "create", "edit"],
     },
   },
   {

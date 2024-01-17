@@ -63,6 +63,9 @@ import { IndexShopSetting } from "./pages/OneFinity/ShopSetting/Index";
 import { CreateShopSetting } from "./pages/OneFinity/ShopSetting/CreateShopSetting";
 import { IndexShopGroup } from "./pages/ShopManagementPage/ShopGroupPage/Index";
 import { CreateShopGroup } from "./pages/ShopManagementPage/ShopGroupPage/CreateShopGroup";
+import IndexCorporateShop from "./pages/ShopManagementPage/CorporateShop/Index";
+import { CreateCorporateShop } from "./pages/ShopManagementPage/CorporateShop/CreateCorporateShop";
+import DetailCorporateShop from "./pages/ShopManagementPage/CorporateShop/DetailCorporateShop";
 
 interface IRoute {
   path: string;
@@ -301,6 +304,21 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "createShopGroup/:id",
         element: <CreateShopGroup />,
+        permission: null,
+      },
+      {
+        path: "CorporateShop/*",
+        element: <IndexCorporateShop />,
+        permission: null,
+      },
+      {
+        path: "createCorporateShop/:id",
+        element: <CreateCorporateShop />,
+        permission: null,
+      },
+      {
+        path: "detailCorporateShop/:id",
+        element: <DetailCorporateShop />,
         permission: null,
       },
     ],
@@ -564,7 +582,6 @@ const WebRoutes: React.FC<any> = () => {
     };
     const getUserData = async () => {
       setLoading(true);
-
       setProfileRecoil(JSON.parse(profile) || null);
       if (JSON.parse(profile)) {
         getRoleData(JSON.parse(profile).roleId);

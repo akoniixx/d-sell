@@ -6,7 +6,7 @@ import { LogoutOutlined } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import icon from "../../resource/icon";
 import { useLocalStorage } from "../../hook/useLocalStorage";
-import { getCompanyName } from "../../utility/CompanyName";
+import { checkCompany, getCompanyName } from "../../utility/CompanyName";
 import styled, { css } from "styled-components";
 import MenuSider from "../MenuSider/MenuSider";
 import Text from "../Text/Text";
@@ -25,7 +25,7 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
           transform: rotate(0deg);
         `}
 `;
-
+const company = JSON.parse(localStorage.getItem("company")!);
 export const pathLists = [
   {
     path: "/order",
@@ -116,7 +116,7 @@ export const pathLists = [
     permission: ["manageStore"],
     subMenu: [
       {
-        path: "/ShopListPage",
+        path: checkCompany(company?.companyCode) ? "/ShopListPage" : "/CorporateShop",
         name: "shopList",
         title: "รายชื่อร้านค้า",
         permission: "storeList",
@@ -181,27 +181,8 @@ export const pathLists = [
       },
     ],
   },
-  // {
-  //   path: "/oneFinity",
-  //   name: "oneFinity",
-  //   title: "1 Finity",
-  //   permission: ["oneFinity"],
-  //   subMenu: [
-  //     {
-  //       path: "/brandSetting",
-  //       name: "brandSetting",
-  //       title: "แบรนด์สินค้า",
-  //       permission: "brandSetting",
-  //     },
-  //     {
-  //       path: "/shopSetting",
-  //       name: "shopSetting",
-  //       title: "จัดการร้านค้า",
-  //       permission: "shopSetting",
-  //     },
-  //   ],
-  // },
 ];
+
 const Layouts: React.FC<any> = ({ children }) => {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
@@ -234,7 +215,6 @@ const Layouts: React.FC<any> = ({ children }) => {
   const toggleButton = () => {
     setIsOpenSidebar(!isOpenSidebar);
   };
-
   return (
     <Layout style={{ minHeight: "100vh", flex: 1 }}>
       <Header
@@ -262,7 +242,7 @@ const Layouts: React.FC<any> = ({ children }) => {
           <Text level={5}>
             {persistedProfile?.firstname} {persistedProfile?.lastname}
           </Text>
-          <Text color='Text3' level={5}>{`, ${getCompanyName(persistedProfile?.company)}`}</Text>
+          <Text color='Text3' level={5}>{`, ${company?.companyNameEn}`}</Text>
           <Button onClick={() => logout()} icon={<LogoutOutlined />} size='large' />
         </div>
       </Header>

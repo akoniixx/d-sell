@@ -10,6 +10,8 @@ export const getCompanyName = (company: string) => {
       return "ICP Fertilizer";
     case "ICK":
       return "Iconkaset";
+    case "MGT":
+      return "มงกุฏทอง";
   }
 };
 export const getCompanyImage = (company: string) => {
@@ -20,5 +22,12 @@ export const getCompanyImage = (company: string) => {
       return image.icp_international;
     case "ICPF":
       return image.icp_fertilizer;
+  }
+};
+export const checkCompany = (company?: string) => {
+  if (company === `ICPL` || company === `ICPI` || company === `ICPF`) {
+    return true;
+  } else {
+    return false;
   }
 };
