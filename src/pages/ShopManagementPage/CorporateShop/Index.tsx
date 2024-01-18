@@ -100,7 +100,7 @@ function IndexCorporateShop(): JSX.Element {
           children: (
             <Row justify={"space-around"} gutter={16}>
               <ActionBtn
-                onClick={() => navigate("/ShopManagementPage/detailCorporateShop/1")}
+                onClick={() => navigate("/ShopManagementPage/detailCorporateShop/1050")}
                 icon={<UnorderedListOutlined />}
               />
             </Row>
