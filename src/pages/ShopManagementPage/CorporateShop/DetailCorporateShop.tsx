@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
@@ -10,6 +10,7 @@ import { Col, Row, Table } from "antd";
 import styled from "styled-components";
 import { color } from "../../../resource";
 import TableContainer from "../../../components/Table/TableContainer";
+import { getCustomersById } from "../../../datasource/CustomerDatasource";
 
 const Header = styled(Row)`
   border-radius: 8px;
@@ -29,6 +30,23 @@ const Image = styled.img`
 function DetailCorporateShop(): JSX.Element {
   const navigate = useNavigate();
   const company = JSON.parse(localStorage.getItem("company")!);
+  const { pathname } = window.location;
+  const pathSplit = pathname.split("/") as Array<string>;
+  const isEditing = pathSplit[3] !== "create";
+  const id = pathSplit[3];
+
+  const [detail, setDetail] = useState<any>();
+
+  const getCusComById = async () => {
+    await getCustomersById(id).then((res) => {
+      console.log(res);
+      setDetail(res);
+    });
+  };
+
+  useEffect(() => {
+    getCusComById();
+  }, []);
 
   const DetailTab = () => {
     return (
@@ -43,7 +61,7 @@ function DetailCorporateShop(): JSX.Element {
             }}
           >
             <Text level={6} fontWeight={700}>
-              {company?.companyNameTh}
+              {detail?.customerName}
             </Text>
             <Row justify={"space-between"} gutter={8}>
               <Col>
@@ -301,7 +319,7 @@ function DetailCorporateShop(): JSX.Element {
             typeButton={"primary"}
             //disabled={isDisabled}
             onClick={() => {
-              navigate("/ShopManagementPage/createCorporateShop/1");
+              navigate(`/ShopManagementPage/createCorporateShop/${id}`);
             }}
             icon={
               <FormOutlined

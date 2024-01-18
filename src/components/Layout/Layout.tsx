@@ -25,168 +25,169 @@ const ImageStyled = styled.img<{ isOpen: boolean }>`
           transform: rotate(0deg);
         `}
 `;
-const company = JSON.parse(localStorage.getItem("company")!);
-export const pathLists = [
-  {
-    path: "/order",
-    name: "order",
-    permission: ["manageOrder"],
-    title: "จัดการคำสั่งซื้อ",
-    subMenu: [],
-  },
-  {
-    path: "/special-request",
-    name: "specialRequest",
-    permission: ["specialRequest"],
-    title: "อนุมัติคำสั่งซื้อ",
-    subMenu: [],
-  },
-  {
-    path: "/PromotionPage/promotion",
-    name: "promotion",
-    title: "ตั้งค่าโปรโมชั่น",
-    permission: ["promotionSetting"],
-    subMenu: [],
-  },
-  {
-    path: "/PromotionPage/promotionNoti",
-    name: "promotionNoti",
-    title: "แจ้งเตือนโปรโมชัน",
-    permission: ["promotionSetting"],
-    subMenu: [],
-  },
-  {
-    path: "/freebies/freebies",
-    name: "freebies",
-    title: "รายการของแถม",
-    subMenu: [],
-    permission: ["freebieList"],
-  },
-  {
-    path: "/discount",
-    name: "discountList",
-    title: "ส่วนลด (CO)",
-    permission: ["discountCo"],
-    subMenu: [
-      {
-        path: "/list",
-        name: "discountList",
-        title: "รายการส่วนลด",
-        permission: "discountList",
-      },
-      {
-        path: "/customerList",
-        name: "customerList",
-        title: "ส่วนลด CO รายร้าน",
-        permission: "manageConditionStore",
-      },
-      {
-        path: "/conditionCo",
-        name: "conditionCo",
-        title: "เงื่อนไข CO",
-        permission: "manageCondition",
-      },
-    ],
-  },
-  {
-    path: "/price/list",
-    name: "price",
-    title: "ราคาสินค้าเฉพาะร้าน",
-    permission: ["priceSpecialExclusive"],
-    subMenu: [],
-  },
-  {
-    path: "/Productshop/list",
-    name: "productshop",
-    title: "สินค้าขายเฉพาะร้าน",
-    permission: ["productshop"],
-    subMenu: [],
-  },
-  {
-    path: "/PriceListPage/DistributionPage",
-    name: "priceList",
-    title: "รายการสินค้า",
-    permission: ["productList"],
-    subMenu: [],
-  },
-  {
-    path: "/ShopManagementPage",
-    name: "shopManagement",
-    title: "จัดการร้านค้า",
-    permission: ["manageStore"],
-    subMenu: [
-      {
-        path: checkCompany(company?.companyCode) ? "/ShopListPage" : "/CorporateShop",
-        name: "shopList",
-        title: "รายชื่อร้านค้า",
-        permission: "storeList",
-      },
-      {
-        path: "/ShopGroupPage",
-        name: "shopGroup",
-        title: "จัดกลุ่มร้านค้า",
-        permission: "shopGroup",
-      },
-      {
-        path: "/ApproveTelPage",
-        name: "approveTel",
-        title: "อนุมัติเบอร์โทรศัพท์",
-        permission: "approvePhone",
-      },
-    ],
-  },
-  {
-    path: "/news",
-    name: "news",
-    title: "ข่าวสาร",
-    permission: ["news"],
-    subMenu: [
-      {
-        path: "/list",
-        name: "newsList",
-        title: "รายการข่าวสาร",
-        permission: "newsList",
-      },
-      {
-        path: "/pin",
-        name: "pinedNews",
-        title: "ปักหมุดข่าวสาร",
-        permission: "pinedNews",
-      },
-      {
-        path: "/highlight",
-        name: "highlightNews",
-        title: "ข่าวสารไฮไลท์",
-        permission: "highlightNews",
-      },
-    ],
-  },
-  {
-    path: "/UserPage",
-    name: "user",
-    title: "จัดการผู้ใช้งาน",
-    permission: ["manageUser"],
-    subMenu: [
-      {
-        path: "/SaleManagementPage?status=all",
-        name: "saleManagement",
-        title: "รายชื่อผู้ใช้งาน",
-        permission: "userList",
-      },
-      {
-        path: "/RoleManagementPage",
-        name: "roleManagement",
-        title: "จัดการสิทธิ",
-        permission: "manageRoles",
-      },
-    ],
-  },
-];
 
 const Layouts: React.FC<any> = ({ children }) => {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
-
   const [persistedProfile] = useLocalStorage("profile", []);
+  const company = JSON.parse(localStorage.getItem("company")!);
+
+  const pathLists = [
+    {
+      path: "/order",
+      name: "order",
+      permission: ["manageOrder"],
+      title: "จัดการคำสั่งซื้อ",
+      subMenu: [],
+    },
+    {
+      path: "/special-request",
+      name: "specialRequest",
+      permission: ["specialRequest"],
+      title: "อนุมัติคำสั่งซื้อ",
+      subMenu: [],
+    },
+    {
+      path: "/PromotionPage/promotion",
+      name: "promotion",
+      title: "ตั้งค่าโปรโมชั่น",
+      permission: ["promotionSetting"],
+      subMenu: [],
+    },
+    {
+      path: "/PromotionPage/promotionNoti",
+      name: "promotionNoti",
+      title: "แจ้งเตือนโปรโมชัน",
+      permission: ["promotionSetting"],
+      subMenu: [],
+    },
+    {
+      path: "/freebies/freebies",
+      name: "freebies",
+      title: "รายการของแถม",
+      subMenu: [],
+      permission: ["freebieList"],
+    },
+    {
+      path: "/discount",
+      name: "discountList",
+      title: "ส่วนลด (CO)",
+      permission: ["discountCo"],
+      subMenu: [
+        {
+          path: "/list",
+          name: "discountList",
+          title: "รายการส่วนลด",
+          permission: "discountList",
+        },
+        {
+          path: "/customerList",
+          name: "customerList",
+          title: "ส่วนลด CO รายร้าน",
+          permission: "manageConditionStore",
+        },
+        {
+          path: "/conditionCo",
+          name: "conditionCo",
+          title: "เงื่อนไข CO",
+          permission: "manageCondition",
+        },
+      ],
+    },
+    {
+      path: "/price/list",
+      name: "price",
+      title: "ราคาสินค้าเฉพาะร้าน",
+      permission: ["priceSpecialExclusive"],
+      subMenu: [],
+    },
+    {
+      path: "/Productshop/list",
+      name: "productshop",
+      title: "สินค้าขายเฉพาะร้าน",
+      permission: ["productshop"],
+      subMenu: [],
+    },
+    {
+      path: "/PriceListPage/DistributionPage",
+      name: "priceList",
+      title: "รายการสินค้า",
+      permission: ["productList"],
+      subMenu: [],
+    },
+    {
+      path: "/ShopManagementPage",
+      name: "shopManagement",
+      title: "จัดการร้านค้า",
+      permission: ["manageStore"],
+      subMenu: [
+        {
+          path: checkCompany(company?.companyCode) ? "/ShopListPage" : "/CorporateShop",
+          name: "shopList",
+          title: "รายชื่อร้านค้า",
+          permission: "storeList",
+        },
+        {
+          path: "/ShopGroupPage",
+          name: "shopGroup",
+          title: "จัดกลุ่มร้านค้า",
+          permission: "shopGroup",
+        },
+        {
+          path: "/ApproveTelPage",
+          name: "approveTel",
+          title: "อนุมัติเบอร์โทรศัพท์",
+          permission: "approvePhone",
+        },
+      ],
+    },
+    {
+      path: "/news",
+      name: "news",
+      title: "ข่าวสาร",
+      permission: ["news"],
+      subMenu: [
+        {
+          path: "/list",
+          name: "newsList",
+          title: "รายการข่าวสาร",
+          permission: "newsList",
+        },
+        {
+          path: "/pin",
+          name: "pinedNews",
+          title: "ปักหมุดข่าวสาร",
+          permission: "pinedNews",
+        },
+        {
+          path: "/highlight",
+          name: "highlightNews",
+          title: "ข่าวสารไฮไลท์",
+          permission: "highlightNews",
+        },
+      ],
+    },
+    {
+      path: "/UserPage",
+      name: "user",
+      title: "จัดการผู้ใช้งาน",
+      permission: ["manageUser"],
+      subMenu: [
+        {
+          path: "/SaleManagementPage?status=all",
+          name: "saleManagement",
+          title: "รายชื่อผู้ใช้งาน",
+          permission: "userList",
+        },
+        {
+          path: "/RoleManagementPage",
+          name: "roleManagement",
+          title: "จัดการสิทธิ",
+          permission: "manageRoles",
+        },
+      ],
+    },
+  ];
+
   const logout = async () => {
     try {
       const token = localStorage.getItem("token");

@@ -36,12 +36,12 @@ function IndexCorporateShop(): JSX.Element {
 
   const dataMock = [
     {
-      shopNo: "",
-      shopName: "",
-      userName: "",
-      telephone: "",
-      province: "",
-      status: "",
+      shopNo: "CN000001",
+      shopName: "ไหมการเกษตรกรรม",
+      userName: "รชยา ช่างภักดี",
+      telephone: "0938355808",
+      province: "สมุทรปราการ",
+      status: "ใช้งาน",
     },
   ];
 
@@ -98,7 +98,7 @@ function IndexCorporateShop(): JSX.Element {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <Row justify={"space-around"} gutter={16}>
+            <Row justify={"center"} gutter={16}>
               <ActionBtn
                 onClick={() => navigate("/ShopManagementPage/detailCorporateShop/1050")}
                 icon={<UnorderedListOutlined />}
