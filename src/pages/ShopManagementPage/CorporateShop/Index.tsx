@@ -1,11 +1,11 @@
 import {
-  ExperimentOutlined,
+  PlusOutlined,
   SearchOutlined,
   ShopOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import { Col, Modal, Row, Table } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
 import SearchInput from "../../../components/Input/SearchInput";
@@ -16,6 +16,7 @@ import Text from "../../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../components/Input/Input";
 import styled from "styled-components";
+import { getCusCorporate } from "../../../datasource/CustomerDatasource";
 
 const Header = styled(Col)`
   border-radius: 8px;
@@ -29,21 +30,35 @@ const Header = styled(Col)`
 
 function IndexCorporateShop(): JSX.Element {
   const navigate = useNavigate();
+  const company = JSON.parse(localStorage.getItem("company")!);
+
+  const [dataState, setDataState] = useState<{ count: number; data: any[] }>({
+    count: 0,
+    data: [],
+  });
+  const pageSize = 8;
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const [isActive, setIsActive] = useState<any>("");
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [dataUser, setDataUser] = useState<any>({});
   const [checkDup, setCheckDup] = useState<boolean>(true);
 
-  const dataMock = [
-    {
-      shopNo: "CN000001",
-      shopName: "ไหมการเกษตรกรรม",
-      userName: "รชยา ช่างภักดี",
-      telephone: "0938355808",
-      province: "สมุทรปราการ",
-      status: "ใช้งาน",
-    },
-  ];
+  const getCusList = async () => {
+    await getCusCorporate({
+      page: page,
+      take: pageSize,
+      companyCode: `${company.companyCode}`,
+      search,
+    }).then((res) => {
+      setDataState({ count: res.count_total || 0, data: res.data });
+    });
+  };
+
+  useEffect(() => {
+    getCusList();
+  }, [search, page]);
 
   const ActionBtn = ({ onClick, icon }: any) => {
     return (
@@ -62,28 +77,53 @@ function IndexCorporateShop(): JSX.Element {
   const columns: any = [
     {
       title: "รหัสร้านค้า",
-      dataIndex: "shopNo",
-      key: "shopNo",
+      dataIndex: "customerNo",
+      key: "customerNo",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: <Text>{value}</Text>,
+        };
+      },
     },
     {
       title: "ชื่อร้านค้า",
-      dataIndex: "shopName",
-      key: "shopName",
+      dataIndex: "customerName",
+      key: "customerName",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: <Text>{value}</Text>,
+        };
+      },
     },
     {
       title: "ชื่อเจ้าของร้าน",
       dataIndex: "userName",
       key: "userName",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: <Text>{value}</Text>,
+        };
+      },
     },
     {
       title: "เบอร์โทร",
       dataIndex: "telephone",
       key: "telephone",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: <Text>{row.customer.telephone}</Text>,
+        };
+      },
     },
     {
       title: "จังหวัด",
       dataIndex: "province",
       key: "province",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: <Text>{row.customer.province}</Text>,
+        };
+      },
     },
     {
       title: "สถานะ",
@@ -119,12 +159,11 @@ function IndexCorporateShop(): JSX.Element {
             <Row justify={"space-between"} gutter={16}>
               <Col>
                 <SearchInput
-                  // onChange={(e) => {
-                  //   setKeyword(e.target.value);
-                  //   setPage(1);
-                  // }}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
                   placeholder='ค้นหาร้านค้า, รายชื่อ...'
-                  //value={keyword}
                 />
               </Col>
               <Col>
@@ -140,8 +179,9 @@ function IndexCorporateShop(): JSX.Element {
               <Col>
                 <Button
                   onClick={() => setShowModal(!showModal)}
-                  title=' + เพิ่มร้านค้า'
+                  title='เพิ่มร้านค้า'
                   typeButton='primary'
+                  icon={<PlusOutlined style={{ color: color.white }} />}
                 />
               </Col>
             </Row>
@@ -152,16 +192,16 @@ function IndexCorporateShop(): JSX.Element {
           scroll={{
             x: "max-content",
           }}
-          dataSource={dataMock || []}
+          dataSource={dataState.data || []}
           columns={columns || []}
-          //   pagination={{
-          //     current: page,
-          //     total: data?.count_total || 0,
-          //     pageSize: 8,
-          //     onChange: (page) => {
-          //       setPage(page);
-          //     },
-          //   }}
+          pagination={{
+            current: page,
+            total: dataState?.count || 0,
+            pageSize: 8,
+            onChange: (page) => {
+              setPage(page);
+            },
+          }}
         />
       </CardContainer>
       {showModal && (
