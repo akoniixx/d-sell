@@ -411,244 +411,242 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     </div>
   ) : (
     <>
-      <div className='container '>
-        <CardContainer>
-          <PageTitle />
-          <br />
-          <Tabs
-            items={tabsItems}
-            onChange={(key: string) => {
-              setSelectedTab((key as "product" | "shop") || "product");
-            }}
-            defaultValue={selectedTab}
-          />
-          {selectedTab === "product" ? (
-            <>
-              <Container>
-                <Row gutter={8} justify={"space-between"}>
-                  <Col>
-                    <Image
-                      src={
-                        (isFreebie ? productFreebiesImage : productImage) || image.product_no_image
+      <CardContainer>
+        <PageTitle />
+        <br />
+        <Tabs
+          items={tabsItems}
+          onChange={(key: string) => {
+            setSelectedTab((key as "product" | "shop") || "product");
+          }}
+          defaultValue={selectedTab}
+        />
+        {selectedTab === "product" ? (
+          <>
+            <Container>
+              <Row gutter={8} justify={"space-between"}>
+                <Col>
+                  <Image
+                    src={
+                      (isFreebie ? productFreebiesImage : productImage) || image.product_no_image
+                    }
+                    style={{
+                      width: "136px",
+                      height: "136px",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Col>
+                <Col>
+                  <Permission permission={["productList", "edit"]}>
+                    <Button
+                      type='primary'
+                      onClick={() =>
+                        navigate(
+                          `/${pathSplit[1]}/${pathSplit[2]}/edit/${
+                            isFreebie ? productFreebiesId : productId
+                          }`,
+                        )
                       }
-                      style={{
-                        width: "136px",
-                        height: "136px",
-                        objectFit: "contain",
-                      }}
-                    />
-                  </Col>
-                  <Col>
-                    <Permission permission={["productList", "edit"]}>
-                      <Button
-                        type='primary'
-                        onClick={() =>
-                          navigate(
-                            `/${pathSplit[1]}/${pathSplit[2]}/edit/${
-                              isFreebie ? productFreebiesId : productId
-                            }`,
-                          )
-                        }
-                      >
-                        <EditOutlined />
-                        แก้ไขรายละเอียด
-                      </Button>
-                    </Permission>
-                  </Col>
-                </Row>
-              </Container>
-              <Container>
-                {dataGroup1
-                  .filter((e) => !isFreebie || !e.freebieHide)
-                  .map((p: DescProps, i) => (
+                    >
+                      <EditOutlined />
+                      แก้ไขรายละเอียด
+                    </Button>
+                  </Permission>
+                </Col>
+              </Row>
+            </Container>
+            <Container>
+              {dataGroup1
+                .filter((e) => !isFreebie || !e.freebieHide)
+                .map((p: DescProps, i) => (
+                  <ProdDesc {...p} key={i} />
+                ))}
+            </Container>
+            {!isFreebie && (
+              <>
+                <Container>
+                  <Text color='primary' fontWeight={700}>
+                    UNIT SIZE
+                  </Text>
+                  {dataGroup2.map((p: DescProps, i) => (
                     <ProdDesc {...p} key={i} />
                   ))}
-              </Container>
-              {!isFreebie && (
-                <>
-                  <Container>
-                    <Text color='primary' fontWeight={700}>
-                      UNIT SIZE
-                    </Text>
-                    {dataGroup2.map((p: DescProps, i) => (
-                      <ProdDesc {...p} key={i} />
-                    ))}
-                  </Container>
-                  <Container>
-                    <Text color='primary' fontWeight={700}>
-                      PACKAGE SIZE
-                    </Text>
-                    {dataGroup3.map((p: DescProps, i) => (
-                      <ProdDesc {...p} key={i} />
-                    ))}
-                  </Container>
-                </>
-              )}
-              <Container>
-                <Row align='middle' style={{ padding: "8px 0px" }}>
-                  <Col xl={6} sm={8}>
-                    <Text level={5} color='Text3'>
-                      คุณสมบัติและประโยชน์
-                    </Text>
-                  </Col>
-                  <Col xl={18} sm={16}>
-                    <TextArea
-                      rows={description?.length ? 5 : 0}
-                      value={description || "-"}
-                      bordered={false}
-                      style={{ fontFamily: "Sarabun", fontSize: "16px", padding: 0 }}
-                    />
-                  </Col>
-                </Row>
-              </Container>
-            </>
-          ) : (
-            <>
-              <Row gutter={8} justify={"space-between"}>
-                <Col span={4} className='pt-2'>
-                  <Text level={6}>จำนวนร้านทั้งหมด :</Text>
+                </Container>
+                <Container>
+                  <Text color='primary' fontWeight={700}>
+                    PACKAGE SIZE
+                  </Text>
+                  {dataGroup3.map((p: DescProps, i) => (
+                    <ProdDesc {...p} key={i} />
+                  ))}
+                </Container>
+              </>
+            )}
+            <Container>
+              <Row align='middle' style={{ padding: "8px 0px" }}>
+                <Col xl={6} sm={8}>
+                  <Text level={5} color='Text3'>
+                    คุณสมบัติและประโยชน์
+                  </Text>
                 </Col>
-                <Col span={isEdit ? 6 : 9} className='pt-2'>
-                  <Text level={6}>{selectedShop.length} ร้านค้า</Text>
+                <Col xl={18} sm={16}>
+                  <TextArea
+                    rows={description?.length ? 5 : 0}
+                    value={description || "-"}
+                    bordered={false}
+                    style={{ fontFamily: "Sarabun", fontSize: "16px", padding: 0 }}
+                  />
                 </Col>
+              </Row>
+            </Container>
+          </>
+        ) : (
+          <>
+            <Row gutter={8} justify={"space-between"}>
+              <Col span={4} className='pt-2'>
+                <Text level={6}>จำนวนร้านทั้งหมด :</Text>
+              </Col>
+              <Col span={isEdit ? 6 : 9} className='pt-2'>
+                <Text level={6}>{selectedShop.length} ร้านค้า</Text>
+              </Col>
+              <Col span={3}>
+                <Select
+                  allowClear
+                  placeholder='เขต : ทั้งหมด'
+                  data={zone}
+                  style={{ width: "100%" }}
+                  onChange={(e) => {
+                    setSearchZone(e);
+                    handleSearchZone(e);
+                  }}
+                />
+              </Col>
+              <Col span={5}>
+                <Input
+                  allowClear
+                  placeholder='ค้นหาร้านค้า...'
+                  suffix={<SearchOutlined style={{ color: "grey" }} />}
+                  onChange={(e) => {
+                    setSearchText(e.target.value);
+                    handleSearchText(e.target.value);
+                  }}
+                />
+              </Col>
+              {!isEdit && (
                 <Col span={3}>
-                  <Select
-                    allowClear
-                    placeholder='เขต : ทั้งหมด'
-                    data={zone}
-                    style={{ width: "100%" }}
-                    onChange={(e) => {
-                      setSearchZone(e);
-                      handleSearchZone(e);
-                    }}
-                  />
+                  <Button
+                    type='primary'
+                    style={{ height: "38px" }}
+                    onClick={() => setIsEdit(!isEdit)}
+                  >
+                    <EditOutlined />
+                    แก้ไขร้านค้า
+                  </Button>
                 </Col>
-                <Col span={5}>
-                  <Input
-                    allowClear
-                    placeholder='ค้นหาร้านค้า...'
-                    suffix={<SearchOutlined style={{ color: "grey" }} />}
-                    onChange={(e) => {
-                      setSearchText(e.target.value);
-                      handleSearchText(e.target.value);
-                    }}
-                  />
-                </Col>
-                {!isEdit && (
-                  <Col span={3}>
+              )}
+              {isEdit && (
+                <>
+                  <Col>
                     <Button
                       type='primary'
                       style={{ height: "38px" }}
-                      onClick={() => setIsEdit(!isEdit)}
+                      onClick={() => setShowModalShop(!showModalShop)}
                     >
-                      <EditOutlined />
-                      แก้ไขร้านค้า
+                      <PlusOutlined />
+                      เพิ่มร้านค้า
                     </Button>
                   </Col>
-                )}
-                {isEdit && (
-                  <>
-                    <Col>
-                      <Button
-                        type='primary'
-                        style={{ height: "38px" }}
-                        onClick={() => setShowModalShop(!showModalShop)}
-                      >
-                        <PlusOutlined />
-                        เพิ่มร้านค้า
-                      </Button>
-                    </Col>
-                    <Col>
-                      <Button
-                        style={{
-                          height: "39px",
-                          backgroundColor: selectedShop.filter((x) => x.isChecked).length
-                            ? color.error
-                            : color.Disable,
-                          color: color.white,
-                        }}
-                        onClick={() => handleDelete()}
-                      >
-                        <DeleteOutlined style={{ color: "white" }} />
-                        {`ลบรายการ (${selectedShop.filter((x) => x.isChecked).length})`}
-                      </Button>
-                    </Col>
-                  </>
-                )}
-              </Row>
-              <br />
-              <TableContainer>
-                <Table
-                  scroll={{ y: 480 }}
-                  columns={isEdit ? columns : columns.filter((x: any) => x.dataIndex !== "index")}
-                  dataSource={searchShop}
-                  pagination={false}
-                />
-              </TableContainer>
-            </>
-          )}
-          <Divider />
-          {isEdit && (
-            <Row justify='space-between' gutter={12}>
-              <Col xl={3} sm={6}>
-                <Buttons
-                  typeButton='danger'
-                  title='ยกเลิกการแก้ไข'
-                  onClick={() => {
-                    Modal.confirm({
-                      title: (
-                        <>
-                          <Text fontWeight={700} level={4}>
-                            ยืนยันการยกเลิก
-                          </Text>
-                          <br />
-                          <Text level={6}>
-                            โปรดตรวจสอบรายละเอียดร้านค้าอีกครั้ง ก่อนการกดยืนยันยกเลิกการแก้ไข
-                          </Text>
-                        </>
-                      ),
-                      okText: "",
-                      cancelText: "",
-                      onOk: async () => {
-                        getShopProduct();
-                        setIsEdit(!isEdit);
-                      },
-                    });
-                  }}
-                />
-              </Col>
-              <Col xl={18} sm={12}></Col>
-              <Col xl={3} sm={6}>
-                <Buttons
-                  typeButton='primary'
-                  title='บันทึก'
-                  onClick={() => {
-                    Modal.confirm({
-                      title: (
-                        <>
-                          <Text fontWeight={700} level={4}>
-                            ต้องการยืนยันการบันทึกรายการร้านค้า
-                          </Text>
-                          <br />
-                          <Text level={6}>
-                            โปรดตรวจสอบรายละเอียดร้านค้าอีกครั้งก่อนกดยืนยัน
-                            เพราะอาจส่งผลต่อการแสดงผลในระบบแอปพลิเคชัน
-                          </Text>
-                        </>
-                      ),
-                      okText: "",
-                      cancelText: "",
-                      onOk: async () => {
-                        submit();
-                      },
-                    });
-                  }}
-                />
-              </Col>
+                  <Col>
+                    <Button
+                      style={{
+                        height: "39px",
+                        backgroundColor: selectedShop.filter((x) => x.isChecked).length
+                          ? color.error
+                          : color.Disable,
+                        color: color.white,
+                      }}
+                      onClick={() => handleDelete()}
+                    >
+                      <DeleteOutlined style={{ color: "white" }} />
+                      {`ลบรายการ (${selectedShop.filter((x) => x.isChecked).length})`}
+                    </Button>
+                  </Col>
+                </>
+              )}
             </Row>
-          )}
-        </CardContainer>
-      </div>
+            <br />
+            <TableContainer>
+              <Table
+                scroll={{ y: 480 }}
+                columns={isEdit ? columns : columns.filter((x: any) => x.dataIndex !== "index")}
+                dataSource={searchShop}
+                pagination={false}
+              />
+            </TableContainer>
+          </>
+        )}
+        <Divider />
+        {isEdit && (
+          <Row justify='space-between' gutter={12}>
+            <Col xl={3} sm={6}>
+              <Buttons
+                typeButton='danger'
+                title='ยกเลิกการแก้ไข'
+                onClick={() => {
+                  Modal.confirm({
+                    title: (
+                      <>
+                        <Text fontWeight={700} level={4}>
+                          ยืนยันการยกเลิก
+                        </Text>
+                        <br />
+                        <Text level={6}>
+                          โปรดตรวจสอบรายละเอียดร้านค้าอีกครั้ง ก่อนการกดยืนยันยกเลิกการแก้ไข
+                        </Text>
+                      </>
+                    ),
+                    okText: "",
+                    cancelText: "",
+                    onOk: async () => {
+                      getShopProduct();
+                      setIsEdit(!isEdit);
+                    },
+                  });
+                }}
+              />
+            </Col>
+            <Col xl={18} sm={12}></Col>
+            <Col xl={3} sm={6}>
+              <Buttons
+                typeButton='primary'
+                title='บันทึก'
+                onClick={() => {
+                  Modal.confirm({
+                    title: (
+                      <>
+                        <Text fontWeight={700} level={4}>
+                          ต้องการยืนยันการบันทึกรายการร้านค้า
+                        </Text>
+                        <br />
+                        <Text level={6}>
+                          โปรดตรวจสอบรายละเอียดร้านค้าอีกครั้งก่อนกดยืนยัน
+                          เพราะอาจส่งผลต่อการแสดงผลในระบบแอปพลิเคชัน
+                        </Text>
+                      </>
+                    ),
+                    okText: "",
+                    cancelText: "",
+                    onOk: async () => {
+                      submit();
+                    },
+                  });
+                }}
+              />
+            </Col>
+          </Row>
+        )}
+      </CardContainer>
       {showModalShop && (
         <ModalSelectStore
           company={company}

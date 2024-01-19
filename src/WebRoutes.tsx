@@ -66,6 +66,8 @@ import { CreateShopGroup } from "./pages/ShopManagementPage/ShopGroupPage/Create
 import IndexCorporateShop from "./pages/ShopManagementPage/CorporateShop/Index";
 import { CreateCorporateShop } from "./pages/ShopManagementPage/CorporateShop/CreateCorporateShop";
 import DetailCorporateShop from "./pages/ShopManagementPage/CorporateShop/DetailCorporateShop";
+import { CreatePriceList } from "./pages/PriceListPage/PriceListCorporateShop/CreatePriceList";
+import { DetailPriceList } from "./pages/PriceListPage/PriceListCorporateShop/DetailPriceList";
 
 interface IRoute {
   path: string;
@@ -246,6 +248,16 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "DistributionPage/edit/:i",
         element: <DistributionPageEdit />,
+        permission: null,
+      },
+      {
+        path: "CreatePriceList/:id",
+        element: <CreatePriceList />,
+        permission: null,
+      },
+      {
+        path: "DetailPriceList/:id",
+        element: <DetailPriceList />,
         permission: null,
       },
     ],
