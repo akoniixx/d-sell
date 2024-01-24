@@ -63,6 +63,10 @@ import { IndexShopSetting } from "./pages/OneFinity/ShopSetting/Index";
 import { CreateShopSetting } from "./pages/OneFinity/ShopSetting/CreateShopSetting";
 import { IndexShopGroup } from "./pages/ShopManagementPage/ShopGroupPage/Index";
 import { CreateShopGroup } from "./pages/ShopManagementPage/ShopGroupPage/CreateShopGroup";
+import { ZoneSettingPage } from "./pages/GeneralSettingPage/zoneSetting";
+import { ProductBrandSettingPage } from "./pages/GeneralSettingPage/brandProductSetting";
+import { CreateProductBrand } from "./pages/GeneralSettingPage/brandProductSetting/createProductBrand";
+import { CreateZone } from "./pages/GeneralSettingPage/zoneSetting/createZone";
 
 interface IRoute {
   path: string;
@@ -510,6 +514,33 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "detail/:id",
         element: <ProductShopDetail />,
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/generalSettings/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "productBrandSetting",
+        element: <ProductBrandSettingPage />,
+        permission: null,
+      },
+      {
+        path: "createBrandSetting/:id",
+        element: <CreateProductBrand />,
+        permission: null,
+      },
+      {
+        path: "zoneSetting",
+        element: <ZoneSettingPage />,
+        permission: null,
+      },
+      {
+        path: "createZoneSetting/:id",
+        element: <CreateZone />,
         permission: null,
       },
     ],

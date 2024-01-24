@@ -181,6 +181,26 @@ export const pathLists = [
       },
     ],
   },
+  {
+     path: "/generalSettings",
+    name: "generalSettings",
+    title: "ตั้งค่า",
+     permission: ["generalSettings"],
+     subMenu: [
+      {
+        path: "/productBrandSetting",
+        name: "productBrandSetting",
+       title: "แบรนด์สินค้า",
+         permission: "newsList",
+       },
+       {
+         path: "/zoneSetting",
+        name: "zoneSetting",
+       title: "เขต",
+        permission: "newsList",
+      },
+    ],
+   },
   // {
   //   path: "/oneFinity",
   //   name: "oneFinity",
