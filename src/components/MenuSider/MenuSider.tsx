@@ -193,6 +193,13 @@ const iconsInActive = {
       }}
     />
   ),
+  generalSettings:(
+    <SettingFilled
+    style={{
+      fontSize: "20px",
+    }}
+  />
+  ),
   oneFinity: (
     <SettingFilled
       style={{
