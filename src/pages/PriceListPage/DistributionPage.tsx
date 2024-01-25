@@ -388,7 +388,7 @@ export const DistributionPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{LOCATION_FULLNAME_MAPPING[value] || "-"}</Text>
+              <Text level={5}>{LOCATION_FULLNAME_MAPPING[value] || value || "-"}</Text>
             </FlexCol>
           ),
         };
@@ -419,8 +419,13 @@ export const DistributionPage: React.FC = () => {
       key: "productStatus",
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
+        const STATUS_NAME_MAPPING: any = {
+          ACTIVE: "เปิดใช้งาน",
+          INACTIVE: "ปิดใช้งาน",
+          HOLD: "ปิดการใช้งานชั่วคราว",
+        };
         return {
-          children: <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>,
+          children: <Tag color={STATUS_COLOR_MAPPING[value]}>{STATUS_NAME_MAPPING[value]}</Tag>,
         };
       },
     },
@@ -438,7 +443,7 @@ export const DistributionPage: React.FC = () => {
                 {priceFormatter(value || "")}
               </Text>
               <Text level={6} color='Text3'>
-                {row.saleUOM}
+                {row.saleUOM || row.saleUOMTH}
               </Text>
             </FlexCol>
           ),

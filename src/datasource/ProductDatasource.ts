@@ -59,6 +59,19 @@ const getProductUnit = async (company: string, itemNo: string) => {
     .catch((err) => console.log(err));
 };
 
+const createPriceListCorporate = async (data: FormData) => {
+  return await httpClient
+    .post(`${baseUrl}/product/create-product`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+const updatePriceListCorporate = async (data: FormData) => {
+  return await httpClient
+    .post(`${baseUrl}/product/update-product-ex`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductList,
   getProductGroup,
@@ -68,4 +81,6 @@ export {
   updateProduct,
   syncProduct,
   getProductUnit,
+  createPriceListCorporate,
+  updatePriceListCorporate,
 };
