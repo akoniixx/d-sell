@@ -20,4 +20,5 @@ export default {
   expHighLight: require("./media/images/expHighLight.png"),
   indexHighLightApp: require("./media/images/indexHighLightApp.png"),
   emptyProductBrand: require("./media/images/EmptyState-ProductBrand.jpg"),
+  emptyTableBrand: require("./media/images/EmtryTableBrand.png"),
 };

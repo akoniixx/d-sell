@@ -68,6 +68,10 @@ import { CreateCorporateShop } from "./pages/ShopManagementPage/CorporateShop/Cr
 import DetailCorporateShop from "./pages/ShopManagementPage/CorporateShop/DetailCorporateShop";
 import { CreatePriceList } from "./pages/PriceListPage/PriceListCorporateShop/CreatePriceList";
 import { DetailPriceList } from "./pages/PriceListPage/PriceListCorporateShop/DetailPriceList";
+import { ZoneSettingPage } from "./pages/GeneralSettingPage/zoneSetting";
+import { ProductBrandSettingPage } from "./pages/GeneralSettingPage/brandProductSetting";
+import { CreateProductBrand } from "./pages/GeneralSettingPage/brandProductSetting/createProductBrand";
+import { CreateZone } from "./pages/GeneralSettingPage/zoneSetting/createZone";
 
 interface IRoute {
   path: string;
@@ -540,6 +544,33 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "detail/:id",
         element: <ProductShopDetail />,
+        permission: null,
+      },
+    ],
+  },
+  {
+    path: "/generalSettings/*",
+    element: <RedirectPathPage />,
+    permission: null,
+    nestedRoutes: [
+      {
+        path: "productBrandSetting",
+        element: <ProductBrandSettingPage />,
+        permission: null,
+      },
+      {
+        path: "createBrandSetting/:id",
+        element: <CreateProductBrand />,
+        permission: null,
+      },
+      {
+        path: "zoneSetting",
+        element: <ZoneSettingPage />,
+        permission: null,
+      },
+      {
+        path: "createZoneSetting/:id",
+        element: <CreateZone />,
         permission: null,
       },
     ],

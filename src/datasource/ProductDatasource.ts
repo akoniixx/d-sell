@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import { BASE_URL, NAV_URL, httpClient } from "../config/develop-config";
+import { payloadProductBrand } from "../entities/ProductBrandEntity";
 
 const baseUrl = `${BASE_URL}/master`;
 
@@ -27,6 +28,34 @@ const getProductCategory = async (company: string) => {
 const getProductBrand = async (company: string) => {
   return await httpClient
     .get(`${baseUrl}/product-brand`, { params: { company } })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const getProductBrandEx = async (payload: payloadProductBrand) => {
+  return await httpClient
+    .get(`${baseUrl}/product-brand/ex`, { params: payload })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const getProductBrandById = async (id: string) => {
+  return await httpClient
+    .get(`${baseUrl}/product-brand/${id}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const postProductBrand = async (data: FormData) => {
+  return await httpClient
+    .post(`${baseUrl}/product-brand/create-product-brand`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const patchProductBrand = async (data: FormData) => {
+  return await httpClient
+    .patch(`${baseUrl}/product-brand/update-product-brand`, data)
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
@@ -83,4 +112,8 @@ export {
   getProductUnit,
   createPriceListCorporate,
   updatePriceListCorporate,
+  getProductBrandEx,
+  getProductBrandById,
+  postProductBrand,
+  patchProductBrand,
 };
