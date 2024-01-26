@@ -8,7 +8,11 @@ export class AuthDatasource {
         email: email,
       })
       .then((response) => {
-        localStorage.setItem("profile", response.data);
+        console.log("auth", response.data);
+        localStorage.setItem("profile", response.data.data);
+        localStorage.setItem("company", JSON.stringify(response.data.company));
+        //const userProfile = JSON.parse(localStorage.getItem("profile");
+        //console.log("final", userProfile);
         return response.data;
       })
       .catch((error) => {

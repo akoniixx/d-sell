@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Table, Tabs, Row, Col, Tag, Modal, message, Image } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { UnorderedListOutlined, SearchOutlined, SyncOutlined } from "@ant-design/icons";
+import {
+  UnorderedListOutlined,
+  SearchOutlined,
+  SyncOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import {
   getProductBrand,
   getProductCategory,
@@ -26,6 +31,7 @@ import { getBrandByCompany } from "../../datasource/BrandDatasource";
 import Permission, { checkPermission } from "../../components/Permission/Permission";
 import { useRecoilValue } from "recoil";
 import { roleAtom } from "../../store/RoleAtom";
+import { checkCompany } from "../../utility/CompanyName";
 
 type FixedType = "left" | "right" | boolean;
 const SLASH_DMY = "DD/MM/YYYY";
@@ -37,6 +43,7 @@ export const DistributionPage: React.FC = () => {
 
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const userCompany = JSON.parse(localStorage.getItem("company")!);
   const { company } = userProfile;
 
   const roleData = useRecoilValue(roleAtom);
@@ -140,16 +147,27 @@ export const DistributionPage: React.FC = () => {
               </span>
             </div>
           </Col>
-          <Permission permission={["productList", "sync"]}>
+          {checkCompany(userCompany?.companyCode) ? (
+            <Permission permission={["productList", "sync"]}>
+              <Col className='gutter-row' span={4}>
+                <Button
+                  title='เชื่อมต่อ Navision'
+                  icon={<SyncOutlined />}
+                  onClick={onSyncProduct}
+                  loading={loadingSyncProduct}
+                />
+              </Col>
+            </Permission>
+          ) : (
             <Col className='gutter-row' span={4}>
               <Button
-                title='เชื่อมต่อ Navision'
-                icon={<SyncOutlined />}
-                onClick={onSyncProduct}
+                title='เพิ่มสินค้า'
+                icon={<PlusOutlined style={{ color: color.white }} />}
+                onClick={() => navigate("/PriceListPage/CreatePriceList/create")}
                 loading={loadingSyncProduct}
               />
             </Col>
-          </Permission>
+          )}
         </Row>
         <br />
         <Row justify={"space-between"} gutter={8}>
@@ -370,7 +388,7 @@ export const DistributionPage: React.FC = () => {
         return {
           children: (
             <FlexCol>
-              <Text level={5}>{LOCATION_FULLNAME_MAPPING[value] || "-"}</Text>
+              <Text level={5}>{LOCATION_FULLNAME_MAPPING[value] || value || "-"}</Text>
             </FlexCol>
           ),
         };
@@ -401,8 +419,13 @@ export const DistributionPage: React.FC = () => {
       key: "productStatus",
       fixed: "right" as FixedType | undefined,
       render: (value: any, row: any, index: number) => {
+        const STATUS_NAME_MAPPING: any = {
+          ACTIVE: "เปิดใช้งาน",
+          INACTIVE: "ปิดใช้งาน",
+          HOLD: "ปิดการใช้งานชั่วคราว",
+        };
         return {
-          children: <Tag color={STATUS_COLOR_MAPPING[value]}>{nameFormatter(value)}</Tag>,
+          children: <Tag color={STATUS_COLOR_MAPPING[value]}>{STATUS_NAME_MAPPING[value]}</Tag>,
         };
       },
     },
@@ -420,7 +443,7 @@ export const DistributionPage: React.FC = () => {
                 {priceFormatter(value || "")}
               </Text>
               <Text level={6} color='Text3'>
-                {row.saleUOM}
+                {row.saleUOM || row.saleUOMTH}
               </Text>
             </FlexCol>
           ),
@@ -441,7 +464,11 @@ export const DistributionPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/PriceListPage/DistributionPage/" + row.productId)}
+                  onClick={() =>
+                    checkCompany()
+                      ? navigate("/PriceListPage/DistributionPage/" + row.productId)
+                      : navigate("/PriceListPage/DetailPriceList/" + row.productId)
+                  }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />
@@ -462,32 +489,30 @@ export const DistributionPage: React.FC = () => {
 
   return (
     <>
-      <div className='container '>
-        <CardContainer>
-          <PageTitle />
-          <br />
-          <Tabs items={tabsItems} onChange={changeTeb} />
-          <Table
-            className='rounded-lg'
-            columns={
-              company === "ICPL" ? columns : columns.filter((x) => x.dataIndex !== "unitPrice")
-            }
-            scroll={{ x: "max-content" }}
-            dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i }))}
-            pagination={{
-              position: ["bottomCenter"],
-              pageSize,
-              current: page,
-              total: dataState?.count,
-              onChange: (p) => setPage(p),
-              showSizeChanger: false,
-            }}
-            loading={loading}
-            size='large'
-            tableLayout='fixed'
-          />
-        </CardContainer>
-      </div>
+      <CardContainer>
+        <PageTitle />
+        <br />
+        {checkCompany(userCompany?.companyCode) && <Tabs items={tabsItems} onChange={changeTeb} />}
+        <Table
+          className='rounded-lg'
+          columns={
+            company === "ICPL" ? columns : columns.filter((x) => x.dataIndex !== "unitPrice")
+          }
+          scroll={{ x: "max-content" }}
+          dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i }))}
+          pagination={{
+            position: ["bottomCenter"],
+            pageSize,
+            current: page,
+            total: dataState?.count,
+            onChange: (p) => setPage(p),
+            showSizeChanger: false,
+          }}
+          loading={loading}
+          size='large'
+          tableLayout='fixed'
+        />
+      </CardContainer>
     </>
   );
 };

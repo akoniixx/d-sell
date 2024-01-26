@@ -34,10 +34,10 @@ const getProductBrand = async (company: string) => {
 
 const getProductBrandEx = async (payload: payloadProductBrand) => {
   return await httpClient
-  .get(`${baseUrl}/product-brand/ex`, { params:  payload  })
-  .then((res: AxiosResponse) => res.data)
-  .catch((err) => console.log(err));
-}
+    .get(`${baseUrl}/product-brand/ex`, { params: payload })
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
 
 const getProductBrandById = async (id: string) => {
   return await httpClient
@@ -46,19 +46,19 @@ const getProductBrandById = async (id: string) => {
     .catch((err) => console.log(err));
 };
 
-const postProductBrand = async(data:FormData)=> {
+const postProductBrand = async (data: FormData) => {
   return await httpClient
-  .post(`${baseUrl}/product-brand/create-product-brand`,data)
-  .then((res: AxiosResponse) => res.data)
-  .catch((err) => console.log(err));
-}
+    .post(`${baseUrl}/product-brand/create-product-brand`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
 
-const patchProductBrand = async(data:FormData)=> {
+const patchProductBrand = async (data: FormData) => {
   return await httpClient
-  .patch(`${baseUrl}/product-brand/update-product-brand`,data)
-  .then((res: AxiosResponse) => res.data)
-  .catch((err) => console.log(err));
-}
+    .patch(`${baseUrl}/product-brand/update-product-brand`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
 
 const getProductDetail = async (productId: number) => {
   return await httpClient
@@ -88,6 +88,19 @@ const getProductUnit = async (company: string, itemNo: string) => {
     .catch((err) => console.log(err));
 };
 
+const createPriceListCorporate = async (data: FormData) => {
+  return await httpClient
+    .post(`${baseUrl}/product/create-product`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+const updatePriceListCorporate = async (data: FormData) => {
+  return await httpClient
+    .post(`${baseUrl}/product/update-product-ex`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
 export {
   getProductList,
   getProductGroup,
@@ -97,8 +110,10 @@ export {
   updateProduct,
   syncProduct,
   getProductUnit,
+  createPriceListCorporate,
+  updatePriceListCorporate,
   getProductBrandEx,
   getProductBrandById,
   postProductBrand,
-  patchProductBrand
+  patchProductBrand,
 };
