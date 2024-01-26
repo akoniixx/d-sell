@@ -50,7 +50,9 @@ export const CreateProductBrand: React.FC = () => {
   const pathSplit = pathname.split("/") as Array<string>;
   const isEdit = pathSplit[3] !== "create";
   const id = pathSplit[3];
-
+  const [imageIsErr,setImageIsErr] = useState<boolean>(false)
+  const [errMessege,setErrMessege] = useState<string>('')
+  const [isErr,setIserr] = useState<boolean>(false)
   const [imageUrl, setImageUrl] = useState<string>();
   const [file, setFile] = useState<any>();
   const [showModal, setModal] = useState(false);
@@ -85,6 +87,22 @@ export const CreateProductBrand: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (isErr) {
+      form.validateFields(['productBrandName']);
+    }
+  }, [isErr, form]);
+
+  const onsubmit = () => {
+   if(!file){
+    setImageIsErr(true)
+
+   }else{
+    setImageIsErr(false)
+    setModal(true)
+   }
+  }
+
   const saveBrand = async () => {
     const payload = form.getFieldsValue(true);
     const data = new FormData();
@@ -100,7 +118,6 @@ export const CreateProductBrand: React.FC = () => {
     } else if (file && file?.uid === "-1") {
       data.append("productBrandLogo", payload.productBrandLogo);
     }
-
     if (payload.productBrandId) {
       data.append("productBrandId", payload.productBrandId);
       await patchProductBrand(data).then((res) => {
@@ -109,6 +126,10 @@ export const CreateProductBrand: React.FC = () => {
           setTimeout(() => {
             navigate(-1);
           }, 200);
+        }else{
+          setIserr(true)
+          setErrMessege(res.developerMessage)
+          setModal(false);
         }
       });
     } else {
@@ -118,10 +139,35 @@ export const CreateProductBrand: React.FC = () => {
           setTimeout(() => {
             navigate(-1);
           }, 200);
+        }else{
+          setIserr(true)
+          setErrMessege(res.developerMessage)
+          setModal(false);
         }
       });
     }
   };
+  const getRules = () => {
+  const rules = [
+    {
+      required: true,
+      message: "กรุณาระบุชื่อแบรนด์สินค้า",
+    },
+    {
+      max: 50,
+      message: "*ชื่อข่าวสารต้องมีความยาวไม่เกิน 50 ตัวอักษร",
+    },
+    
+    isErr ? {
+      validator: async (_, value) => {
+        if ( isErr) {
+          throw new Error(errMessege);
+        }
+      }
+    } : {}
+  ];
+  return rules;
+}
 
   return (
     <CardContainer>
@@ -142,7 +188,7 @@ export const CreateProductBrand: React.FC = () => {
         }
       />
       <Divider />
-      <Form form={form} layout='vertical' onFinish={() => setModal(true)}>
+      <Form form={form} layout='vertical' onFinish={() => onsubmit()}>
         <Row justify={"space-between"} gutter={16}>
           <Col span={24}>
             <Row>
@@ -191,9 +237,11 @@ export const CreateProductBrand: React.FC = () => {
                         setImageUrl(undefined);
                       }}
                     />
+                  
                   </div>
                 )}
               </Col>
+          
               <Col span={21}>
                 <Text level={6}>รูปภาพแบรนด์สินค้า</Text>
                 <br />
@@ -204,6 +252,8 @@ export const CreateProductBrand: React.FC = () => {
                 </Text>
               </Col>
             </Row>
+            
+            {imageIsErr&&<Text level={6} color='error'>กรุณาอัพโหลดรูปภาพแบรนด์สินค้า</Text>}
           </Col>
         </Row>
         <br />
@@ -211,18 +261,11 @@ export const CreateProductBrand: React.FC = () => {
           <Form.Item
             name='productBrandName'
             label='ชื่อยี่ห้อ/แบรนด์สินค้า (Product Brand) '
-            rules={[
-              {
-                required: true,
-                message: "*โปรดระบุชื่อยี่ห้อ/แบรนด์สินค้า",
-              },
-              {
-                max: 50,
-                message: "*ชื่อข่าวสารต้องมีความยาวไม่เกิน 50 ตัวอักษร",
-              },
-            ]}
+            rules={
+              getRules()
+            }  
           >
-            <Input placeholder='ระบุชื่อแบรนด์สินค้า' autoComplete='off' />
+            <Input placeholder='ระบุชื่อแบรนด์สินค้า' autoComplete='off' onChange={()=> setIserr(false)} />
           </Form.Item>
         </Col>
         {isEdit && (
@@ -238,8 +281,8 @@ export const CreateProductBrand: React.FC = () => {
               ]}
             >
               <Radio.Group style={{ width: "100%" }}>
-                <Radio value={true}>ใช้งาน</Radio>
-                <Radio value={false}>ปิดใช้งาน</Radio>
+                <Radio value={true}>เปิดใช้งาน</Radio>
+                <Radio value={false}>ปิดการใช้งาน</Radio>
               </Radio.Group>
             </Form.Item>
           </Col>
@@ -251,7 +294,7 @@ export const CreateProductBrand: React.FC = () => {
               typeButton='primary-light'
               title='ยกเลิก'
               htmlType='submit'
-              onClick={() => navigate(`/brandSetting`)}
+              onClick={() => navigate(`/generalSettings/productBrandSetting`)}
             />
           </Col>
           <Col xl={15} sm={6}></Col>

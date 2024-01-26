@@ -1,5 +1,9 @@
 ## [Version - 0]
 
+## Resolved [v0.13.1] - Release Date: 2023-01-26
+
+- fixed zone setting
+- fixed product brand setting
 ## Features [v0.13.0] - Release Date: 2024-01-25
 
 - product list for corporate shop
