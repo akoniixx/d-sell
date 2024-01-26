@@ -37,4 +37,20 @@ const checkPhoneAllShop = async (params: object) => {
     .catch((err) => console.log(err));
 };
 
-export { getCustomers, getCustomersById, getZones, checkPhoneByShop, checkPhoneAllShop };
+const getCusCorporate = async (params: object) => {
+  return await httpClient
+    .get(`${baseUrl}/customer-company/ex`, { params })
+    .then((res: AxiosResponse) => {
+      return res.data;
+    })
+    .catch((err) => console.log(err));
+};
+
+export {
+  getCustomers,
+  getCustomersById,
+  getZones,
+  checkPhoneByShop,
+  checkPhoneAllShop,
+  getCusCorporate,
+};

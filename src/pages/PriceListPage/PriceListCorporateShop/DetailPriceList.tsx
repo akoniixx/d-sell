@@ -1,115 +1,48 @@
-import React, { useState, ReactNode, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Row, Col, Tag, Card, Button, Image, Tabs, Table, Checkbox, Divider, Modal } from "antd";
-import { CardContainer } from "../../components/Card/CardContainer";
 import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { getProductDetail } from "../../datasource/ProductDatasource";
-import { nameFormatter, priceFormatter } from "../../utility/Formatter";
-import Text from "../../components/Text/Text";
-import { BrandEntity } from "../../entities/BrandEntity";
-import { LOCATION_FULLNAME_MAPPING } from "../../definitions/location";
-import { STATUS_COLOR_MAPPING } from "../../definitions/product";
-import { useEffectOnce } from "react-use";
-import BreadCrumb from "../../components/BreadCrumb/BreadCrumb";
-import image from "../../resource/image";
-import PageTitleNested from "../../components/PageTitle/PageTitleNested";
-import { ProductEntity } from "../../entities/PoductEntity";
-import styled from "styled-components";
-import { ProductCategoryEntity } from "../../entities/ProductCategoryEntity";
-import { getProductFreebieDetail } from "../../datasource/PromotionDatasource";
+import { Col, Row, Image, Divider, Table, Checkbox, Tabs, Modal } from "antd";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb";
+import { CardContainer } from "../../../components/Card/CardContainer";
+import PageTitleNested from "../../../components/PageTitle/PageTitleNested";
+import { getProductDetail } from "../../../datasource/ProductDatasource";
+import color from "../../../resource/color";
+import Text from "../../../components/Text/Text";
 import TextArea from "antd/lib/input/TextArea";
-import Permission from "../../components/Permission/Permission";
-import { zoneDatasource } from "../../datasource/ZoneDatasource";
-import Select from "../../components/Select/Select";
-import Input from "../../components/Input/Input";
-import { ModalSelectStore } from "../Shared/ModalSelectStore";
-import { StoreEntity } from "../../entities/StoreEntity";
-import TableContainer from "../../components/Table/TableContainer";
-import { color } from "../../resource";
-import Buttons from "../../components/Button/Button";
-import { createShopProduct, getProductShop } from "../../datasource/ProductShopDatasource";
-import { CreateShopProductEntity } from "../../entities/ProductShopEntity";
+import { image } from "../../../resource";
+import Button from "../../../components/Button/Button";
+import Select from "../../../components/Select/Select";
+import Input from "../../../components/Input/Input";
+import TableContainer from "../../../components/Table/TableContainer";
+import { StoreEntity } from "../../../entities/StoreEntity";
+import { ModalSelectStore } from "../../Shared/ModalSelectStore";
+import { zoneDatasource } from "../../../datasource/ZoneDatasource";
+import { CreateShopProductEntity } from "../../../entities/ProductShopEntity";
+import { createShopProduct, getProductShop } from "../../../datasource/ProductShopDatasource";
 
-const Container = styled.div`
-  margin: 32px 0px 10px 0px;
-`;
-
-const ProdImage = styled.img`
-  width: 136px;
-  height: 136px;
-  border-radius: 12px;
-  object-fit: contain;
-`;
-
-interface DescProps {
-  label: string;
-  value: ReactNode;
-}
-
-const ProdDesc = ({ label, value }: DescProps) => {
-  return (
-    <Row align='middle' style={{ padding: "8px 0px" }}>
-      <Col xl={6} sm={8}>
-        <Text level={5} color='Text3'>
-          {label}
-        </Text>
-      </Col>
-      <Col xl={18} sm={16}>
-        <Text level={5} color='Text1'>
-          {value || "-"}
-        </Text>
-      </Col>
-    </Row>
-  );
-};
-
-export const DistributionPageDetail: React.FC = (props: any) => {
+export const DetailPriceList: React.FC = () => {
+  const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const company = JSON.parse(localStorage.getItem("company")!);
+  const navigate = useNavigate();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
-  const isFreebie = pathSplit[2] === "freebies";
-  const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
   const id = parseInt(pathSplit[3]);
-  const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(false);
-  const [dataState, setDataState] = useState<ProductEntity>();
-  const [selectedTab, setSelectedTab] = useState<"product" | "shop">("product");
+  const [data, setData] = useState<any>();
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [searchText, setSearchText] = useState("");
+  const [searchZone, setSearchZone] = useState("");
   const [zone, setZone] = useState<{ label: string; value: string; key: string }[]>([]);
   const [showModalShop, setShowModalShop] = useState<boolean>(false);
   const [selectedShop, setSelectedShop] = useState<StoreEntity[]>([]);
   const [searchShop, setSearchShop] = useState<StoreEntity[]>([]);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState("");
-  const [searchZone, setSearchZone] = useState("");
+  const [selectedTab, setSelectedTab] = useState<"product" | "shop">("product");
 
-  useEffect(() => {
-    getShopProduct();
-  }, []);
-
-  useEffectOnce(() => {
-    fetchProduct();
-    getZoneByCompany();
-  });
-
-  const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      let data;
-      if (isFreebie) {
-        data = await getProductFreebieDetail(id);
-      } else {
-        data = await getProductDetail(id);
-      }
-      setDataState(data);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
+  const getProductById = async () => {
+    const res = await getProductDetail(id);
+    setData(res);
   };
   const getZoneByCompany = async () => {
-    const res = await zoneDatasource.getAllZoneByCompany(company);
+    const res = await zoneDatasource.getAllZoneByCompany(company.companyCode);
     const data = res.map((item: any) => {
       return {
         label: item.zoneName,
@@ -119,6 +52,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     });
     setZone(data);
   };
+
   const getShopProduct = async () => {
     await getProductShop({
       company,
@@ -133,127 +67,75 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     });
   };
 
-  const {
-    baseUOM,
-    commonName,
-    //company,
-    createDate,
-    description,
-    inventoryGroup,
-    marketPrice,
-    packSize,
-    packingUOM,
-    productBrand,
-    productBrandId,
-    productCategory,
-    productCategoryId,
-    productCodeNAV,
-    productGroup,
-    productId,
-    productImage,
-    productLocation,
-    productName,
-    productStatus,
-    productStrategy,
-    qtySaleUnit,
-    saleUOM,
-    saleUOMTH,
-    unitPrice,
-    updateBy,
-    updateDate,
-    productFreebiesId,
-    productFreebiesCodeNAV,
-    productFreebiesImage,
-  } = dataState || {};
+  useEffect(() => {
+    getProductById();
+    getZoneByCompany();
+    getShopProduct();
+  }, []);
 
-  const dataGroup1 = [
+  const dataGroup1: any = [
     {
-      label: "Product Brands",
-      value: (productBrand as BrandEntity)?.productBrandName,
-      freebieHide: true,
+      label: "รหัสสินค้า :",
+      value: data?.productCodeNAV,
     },
     {
-      label: "โรงงาน",
-      value: LOCATION_FULLNAME_MAPPING[productLocation as string],
-      freebieHide: true,
+      label: "โรงงาน :",
+      value: data?.productLocation,
     },
     {
-      label: "รหัสสินค้า",
-      value: isFreebie ? productFreebiesCodeNAV : productCodeNAV,
-      freebieHide: true,
+      label: "ชื่อทางการค้า (Trade Name) :",
+      value: data?.productName,
     },
     {
-      label: "ชื่อทางการค้า (Tradename)",
-      value: productName,
-      freebieHide: true,
+      label: "ชื่อสามัญ (Common Name) :",
+      value: data?.commonName,
     },
     {
-      label: "ชื่อสามัญ",
-      value: commonName,
-      freebieHide: true,
+      label: "ชื่อแบรนด์สินค้า (Product Brands) :",
+      value: data?.productBrand?.productBrandName,
     },
     {
-      label: "กลุ่มสินค้า (Product Group)",
-      value: productGroup,
+      label: "กลุ่มสินค้า (Product Group) :",
+      value: data?.productGroup,
     },
     {
-      label: "หมวดสินค้า (Product Category)",
-      value: (productCategory as ProductCategoryEntity)?.productCategoryName,
-      freebieHide: true,
+      label: "หมวดสินค้า (Product Categoty):",
+      value: data?.productCategory?.productCategoryName,
     },
   ];
-  const dataGroup2 = [
+  const dataGroup2: any = [
     {
-      label: "ปริมาณสินค้า / หน่วย",
-      value: qtySaleUnit + " " + (company === "ICPL" ? baseUOM || "Unit" : packingUOM),
+      label: "ปริมาณ/หน่วย :",
+      value: `${data?.packingQtyUnit} ${data?.baseUOM}`,
     },
     {
-      label: "ราคากลาง (Base price)",
-      value:
-        priceFormatter(parseFloat(unitPrice || "")) +
-        "/" +
-        (company === "ICPL" ? baseUOM || "Unit" : packingUOM),
+      label: "จำนวนบรรจุ :",
+      value: `${data?.qtySaleUnit} ${data?.packingUOM}`,
     },
   ];
-  const dataGroup3 = [
+  const dataGroup3: any = [
     {
-      label: "ราคากลาง (Base price)",
-      value: priceFormatter(parseFloat(marketPrice || "")) + "/" + (saleUOM || "Unit"),
+      label: "ราคาสินค้า/หน่วย :",
+      value: `${data?.unitPrice} บาท`,
+    },
+    {
+      label: "ราคาสินค้า/แพ็ค :",
+      value: `${data?.marketPrice} บาท`,
+    },
+    {
+      label: "ภาษีข้อมูลเพิ่ม (VAT) :",
+      value: `${data?.vat} %`,
+    },
+    {
+      label: "ราคาสินค้า/หน่วย + VAT :",
+      value: `${(Number(data?.unitPrice) + Number(data?.unitPrice * 0.07)).toFixed(2)} บาท`,
+    },
+    {
+      label: "ราคาสินค้า/แพ็ค + VAT :",
+      value: `${(Number(data?.marketPrice) + Number(data?.marketPrice * 0.07)).toFixed(2)} บาท`,
     },
   ];
 
-  const PageTitle = () => {
-    return (
-      <PageTitleNested
-        title='รายละเอียดสินค้า'
-        showBack
-        onBack={() => navigate(`/${pathSplit[1]}/${pathSplit[2]}`)}
-        extraTitle={
-          productStatus && (
-            <Tag color={STATUS_COLOR_MAPPING[productStatus]}>{nameFormatter(productStatus)}</Tag>
-          )
-        }
-        customBreadCrumb={
-          <BreadCrumb
-            data={[
-              { text: "รายชื่อสินค้า", path: `/${pathSplit[1]}/${pathSplit[2]}` },
-              { text: "รายละเอียดสินค้า", path: window.location.pathname },
-            ]}
-          />
-        }
-      />
-    );
-  };
-  const tabsItems = [
-    {
-      label: "รายละเอียดสินค้า ",
-      key: "product",
-    },
-    {
-      label: "ร้านค้าที่มีสินค้า ",
-      key: "shop",
-    },
-  ];
   const callBackShop = (item: StoreEntity[]) => {
     item = item.map((p: any) => ({ ...p, isChecked: false }));
     setSelectedShop([...selectedShop, ...item]);
@@ -382,6 +264,18 @@ export const DistributionPageDetail: React.FC = (props: any) => {
       },
     },
   ];
+
+  const tabsItems = [
+    {
+      label: "รายละเอียดสินค้า ",
+      key: "product",
+    },
+    {
+      label: "ร้านค้าที่มีสินค้า ",
+      key: "shop",
+    },
+  ];
+
   const submit = async () => {
     const mapCus: any = selectedShop.map((x) => {
       return {
@@ -405,14 +299,27 @@ export const DistributionPageDetail: React.FC = (props: any) => {
     });
   };
 
-  return loading ? (
-    <div className='container '>
-      <Card loading />
-    </div>
-  ) : (
+  return (
     <>
       <CardContainer>
-        <PageTitle />
+        <PageTitleNested
+          title='รายละเอียดสินค้า'
+          showBack
+          onBack={() => navigate(`/PriceListPage/DistributionPage`)}
+          //extraTitle={
+          //   productStatus && (
+          //     <Tag color={STATUS_COLOR_MAPPING[productStatus]}>{nameFormatter(productStatus)}</Tag>
+          //   )
+          //}
+          customBreadCrumb={
+            <BreadCrumb
+              data={[
+                { text: "รายชื่อสินค้า", path: `/PriceListPage/DistributionPage` },
+                { text: "รายละเอียดสินค้า", path: window.location.pathname },
+              ]}
+            />
+          }
+        />
         <br />
         <Tabs
           items={tabsItems}
@@ -422,85 +329,102 @@ export const DistributionPageDetail: React.FC = (props: any) => {
           defaultValue={selectedTab}
         />
         {selectedTab === "product" ? (
-          <>
-            <Container>
-              <Row gutter={8} justify={"space-between"}>
-                <Col>
-                  <Image
-                    src={
-                      (isFreebie ? productFreebiesImage : productImage) || image.product_no_image
-                    }
-                    style={{
-                      width: "136px",
-                      height: "136px",
-                      objectFit: "contain",
-                    }}
-                  />
-                </Col>
-                <Col>
-                  <Permission permission={["productList", "edit"]}>
+          <Row justify={"space-between"} gutter={8}>
+            <Col span={24}>
+              <CardContainer>
+                <Row gutter={8} justify={"space-between"}>
+                  <Col>
+                    <Image
+                      src={data?.productImage || image.product_no_image}
+                      style={{
+                        width: "136px",
+                        height: "136px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  </Col>
+                  <Col>
                     <Button
-                      type='primary'
-                      onClick={() =>
-                        navigate(
-                          `/${pathSplit[1]}/${pathSplit[2]}/edit/${
-                            isFreebie ? productFreebiesId : productId
-                          }`,
-                        )
-                      }
-                    >
-                      <EditOutlined />
-                      แก้ไขรายละเอียด
-                    </Button>
-                  </Permission>
-                </Col>
-              </Row>
-            </Container>
-            <Container>
-              {dataGroup1
-                .filter((e) => !isFreebie || !e.freebieHide)
-                .map((p: DescProps, i) => (
-                  <ProdDesc {...p} key={i} />
+                      typeButton='primary-light'
+                      onClick={() => navigate("/PriceListPage/CreatePriceList/" + data?.productId)}
+                      icon={<EditOutlined />}
+                      title=' แก้ไขสินค้า'
+                    />
+                  </Col>
+                </Row>
+                <br />
+                {dataGroup1.map((d: any, i) => (
+                  <Row align='middle' style={{ padding: "8px 0px" }} key={i}>
+                    <Col xl={6} sm={8}>
+                      <Text level={5} color='Text3'>
+                        {d.label}
+                      </Text>
+                    </Col>
+                    <Col xl={18} sm={16}>
+                      <Text level={5} color='Text1'>
+                        {d.value}
+                      </Text>
+                    </Col>
+                  </Row>
                 ))}
-            </Container>
-            {!isFreebie && (
-              <>
-                <Container>
-                  <Text color='primary' fontWeight={700}>
-                    UNIT SIZE
-                  </Text>
-                  {dataGroup2.map((p: DescProps, i) => (
-                    <ProdDesc {...p} key={i} />
-                  ))}
-                </Container>
-                <Container>
-                  <Text color='primary' fontWeight={700}>
-                    PACKAGE SIZE
-                  </Text>
-                  {dataGroup3.map((p: DescProps, i) => (
-                    <ProdDesc {...p} key={i} />
-                  ))}
-                </Container>
-              </>
-            )}
-            <Container>
-              <Row align='middle' style={{ padding: "8px 0px" }}>
-                <Col xl={6} sm={8}>
-                  <Text level={5} color='Text3'>
-                    คุณสมบัติและประโยชน์
-                  </Text>
-                </Col>
-                <Col xl={18} sm={16}>
-                  <TextArea
-                    rows={description?.length ? 5 : 0}
-                    value={description || "-"}
-                    bordered={false}
-                    style={{ fontFamily: "Sarabun", fontSize: "16px", padding: 0 }}
-                  />
-                </Col>
-              </Row>
-            </Container>
-          </>
+                <Text color='primary' fontWeight={700}>
+                  ปริมาณและจำนวนสินค้า
+                </Text>
+                {dataGroup2.map((d: any, i) => (
+                  <Row align='middle' style={{ padding: "8px 0px" }} key={i}>
+                    <Col xl={6} sm={8}>
+                      <Text level={5} color='Text3'>
+                        {d.label}
+                      </Text>
+                    </Col>
+                    <Col xl={18} sm={16}>
+                      <Text level={5} color='Text1'>
+                        {d.value}
+                      </Text>
+                    </Col>
+                  </Row>
+                ))}
+                <Text color='primary' fontWeight={700}>
+                  ราคา
+                </Text>
+                {dataGroup3.map((d: any, i) => (
+                  <Row align='middle' style={{ padding: "8px 0px" }} key={i}>
+                    <Col xl={6} sm={8}>
+                      <Text level={5} color='Text3'>
+                        {d.label}
+                      </Text>
+                    </Col>
+                    <Col xl={18} sm={16}>
+                      <Text level={5} color='Text1'>
+                        {d.value}
+                      </Text>
+                    </Col>
+                  </Row>
+                ))}
+                <Row>
+                  <Col xl={6} sm={8}>
+                    <Text level={5} color='Text3'>
+                      คุณสมบัติและประโยชน์ :
+                    </Text>
+                  </Col>
+                  <Col xl={18} sm={16}>
+                    <TextArea
+                      rows={4}
+                      value={data?.description}
+                      bordered={false}
+                      style={{
+                        fontFamily: "Sarabun",
+                        fontSize: "16px",
+                        padding: 0,
+                        color: color.BK,
+                      }}
+                      disabled
+                    />
+                  </Col>
+                </Row>
+              </CardContainer>
+            </Col>
+          </Row>
         ) : (
           <>
             <Row gutter={8} justify={"space-between"}>
@@ -524,6 +448,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
               </Col>
               <Col span={5}>
                 <Input
+                  defaultValue={searchText}
                   allowClear
                   placeholder='ค้นหาร้านค้า...'
                   suffix={<SearchOutlined style={{ color: "grey" }} />}
@@ -536,41 +461,37 @@ export const DistributionPageDetail: React.FC = (props: any) => {
               {!isEdit && (
                 <Col span={3}>
                   <Button
-                    type='primary'
+                    typeButton='primary-light'
                     style={{ height: "38px" }}
                     onClick={() => setIsEdit(!isEdit)}
-                  >
-                    <EditOutlined />
-                    แก้ไขร้านค้า
-                  </Button>
+                    title='แก้ไขร้านค้า'
+                    icon={<EditOutlined />}
+                  />
                 </Col>
               )}
               {isEdit && (
                 <>
                   <Col>
                     <Button
-                      type='primary'
+                      typeButton='primary-light'
                       style={{ height: "38px" }}
                       onClick={() => setShowModalShop(!showModalShop)}
-                    >
-                      <PlusOutlined />
-                      เพิ่มร้านค้า
-                    </Button>
+                      title='เพิ่มร้านค้า'
+                      icon={<PlusOutlined />}
+                    />
                   </Col>
                   <Col>
                     <Button
+                      typeButton={
+                        selectedShop?.filter((x) => x.isChecked).length ? "danger" : "disabled"
+                      }
                       style={{
                         height: "39px",
-                        backgroundColor: selectedShop.filter((x) => x.isChecked).length
-                          ? color.error
-                          : color.Disable,
-                        color: color.white,
                       }}
                       onClick={() => handleDelete()}
-                    >
-                      <DeleteOutlined style={{ color: "white" }} />
-                      {`ลบรายการ (${selectedShop.filter((x) => x.isChecked).length})`}
-                    </Button>
+                      title={`ลบรายการ (${selectedShop.filter((x) => x.isChecked).length})`}
+                      icon={<DeleteOutlined style={{ color: "white" }} />}
+                    />
                   </Col>
                 </>
               )}
@@ -590,7 +511,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
         {isEdit && (
           <Row justify='space-between' gutter={12}>
             <Col xl={3} sm={6}>
-              <Buttons
+              <Button
                 typeButton='danger'
                 title='ยกเลิกการแก้ไข'
                 onClick={() => {
@@ -609,7 +530,6 @@ export const DistributionPageDetail: React.FC = (props: any) => {
                     okText: "",
                     cancelText: "",
                     onOk: async () => {
-                      getShopProduct();
                       setIsEdit(!isEdit);
                     },
                   });
@@ -618,7 +538,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
             </Col>
             <Col xl={18} sm={12}></Col>
             <Col xl={3} sm={6}>
-              <Buttons
+              <Button
                 typeButton='primary'
                 title='บันทึก'
                 onClick={() => {
@@ -649,7 +569,7 @@ export const DistributionPageDetail: React.FC = (props: any) => {
       </CardContainer>
       {showModalShop && (
         <ModalSelectStore
-          company={company}
+          company={company.companyCode}
           callBackShop={callBackShop}
           showModalShop={showModalShop}
           onClose={() => setShowModalShop(!setShowModalShop)}

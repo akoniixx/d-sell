@@ -33,8 +33,6 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
     try {
       await AuthDatasource.login(data.account.userName).then((res: any) => {
-        // console.log("login res", res);
-
         if (res.accessToken) {
           setPersistedProfile({
             ...res.data,
