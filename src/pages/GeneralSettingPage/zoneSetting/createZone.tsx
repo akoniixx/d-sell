@@ -1,4 +1,4 @@
-import { Col, Divider,Form, Modal, Row } from "antd"
+import { Col, Divider,Form, Modal, Radio, Row } from "antd"
 import BreadCrumb from "../../../components/BreadCrumb/BreadCrumb"
 import { CardContainer } from "../../../components/Card/CardContainer"
 import PageTitleNested from "../../../components/PageTitle/PageTitleNested"
@@ -22,6 +22,8 @@ export const CreateZone:React.FC = () => {
     const location = useLocation();
     const  data = location?.state?.row
     const userProfile = JSON.parse(localStorage.getItem("profile")!);
+    const [errMessege,setErrMessege] = useState<string>('')
+    const [isErr,setIserr] = useState<boolean>(false)
 
 const onSubmit = async() => {
     const formValue = form.getFieldsValue(true);
@@ -31,7 +33,7 @@ const onSubmit = async() => {
             zoneId: data.zoneId,
             company: data.company,
             zoneName: formValue.zoneName,
-            isActive: true,
+            isActive: formValue.isActive,
             updateBy: `${userProfile.firstname} ${userProfile.lastname}`
         }
         try {
@@ -42,6 +44,10 @@ const onSubmit = async() => {
                 setTimeout(() => {
                   navigate(-1);
                 }, 200);
+              }else{
+                setIserr(true)
+          setErrMessege(res.developerMessage)
+          setModal(false);
               }
         } catch (error) {
             console.log(error)
@@ -61,6 +67,10 @@ const onSubmit = async() => {
                 setTimeout(() => {
                   navigate(-1);
                 }, 200);
+              }else{
+                setIserr(true)
+                setErrMessege(res.developerMessage)
+                setModal(false);
               }
         } catch (error) {
             console.log(error)
@@ -72,6 +82,7 @@ const onSubmit = async() => {
 const getValue = () =>{
     form.setFieldsValue({
         zoneName: data?.zoneName,
+        isActive: data?.isActive
        
       });
 }
@@ -88,6 +99,34 @@ useEffect(()=>{
     }
    
 },[])
+
+useEffect(() => {
+  if (isErr) {
+    form.validateFields(['zoneName']);
+  }
+}, [isErr, form]);
+
+const getRules = () => {
+  const rules = [
+    {
+      required: true,
+      message: "*โปรดระบุชื่อเขต",
+    },
+    {
+      max: 50,
+      message: "*ชื่อข่าวสารต้องมีความยาวไม่เกิน 50 ตัวอักษร",
+    },
+    
+    isErr ? {
+      validator: async (_, value) => {
+        if ( isErr) {
+          throw new Error(errMessege);
+        }
+      }
+    } : {}
+  ];
+  return rules;
+}
 
     return (
         <CardContainer>
@@ -113,21 +152,36 @@ useEffect(()=>{
             <Form.Item
             name='zoneName'
             label='ชื่อเขต '
-            rules={[
-              {
-                required: true,
-                message: "*โปรดระบุชื่อยเขต",
-              },
-              {
-                max: 50,
-                message: "*ชื่อข่าวสารต้องมีความยาวไม่เกิน 50 ตัวอักษร",
-              },
-            ]}
+            rules={getRules()}
           >
             <Input placeholder='ระบุชื่อเขต' autoComplete='off' />
           </Form.Item>
             </Col>
-       
+       {isEdit && (
+          <Col span={10}>
+            <Form.Item
+              name='isActive'
+              label='สถานะ'
+              rules={[
+                {
+                  required: true,
+                  message: "*โปรดระบุสถานะ",
+                },
+              ]}
+            >
+              <Radio.Group style={{ width: "100%" }}>
+                <Row>
+                <Radio value={true}>เปิดใช้งาน</Radio>
+                </Row>
+                <Row>
+                <Radio value={false}>ปิดการใช้งาน</Radio>
+                </Row>
+               
+               
+              </Radio.Group>
+            </Form.Item>
+          </Col>
+        )}
       
             <Divider />
         <Row justify='space-between' gutter={12}>

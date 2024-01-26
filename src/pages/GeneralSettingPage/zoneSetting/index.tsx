@@ -142,7 +142,7 @@ const ActionBtn = ({ onClick, icon }: any) => {
                 </Text>
                
                 <br />
-                <Text level={5} color='Text3'>{row.updateBy}</Text>
+                <Text level={5} color='Text3'>{row.updateBy?row.updateBy:row.createBy}</Text>
               </>
             ),
           };
@@ -190,7 +190,7 @@ const ActionBtn = ({ onClick, icon }: any) => {
       </Row>
       <br />
       <Row align='middle' gutter={16}>
-        <Col span={18} style={{ paddingTop: "8px" }}>
+        <Col span={18}>
           <Input
             allowClear
             placeholder='ค้นหาชื่อเขต'

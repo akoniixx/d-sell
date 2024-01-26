@@ -1,5 +1,10 @@
 ## [Version - 0]
 
+## Resolved [v0.13.1] - Release Date: 2023-01-26
+
+- fixed zone setting
+- fixed product brand setting
+
 ## Resolved [v0.12.4] - Release Date: 2023-01-12
 
 - fixed freebie unit
