@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Table, Tabs, Row, Col, Badge, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { SearchOutlined, PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
 import color from "../../resource/color";
@@ -176,13 +182,21 @@ export const NewsList: React.FC = () => {
       key: "date",
       // width: "12%",
       render: (value: any, row: any, index: number) => {
-        return {
-          children: (
-            <FlexRow align='center'>
-              <Text level={5}>{moment(row.updateAt).format("DD/MM/YYYY, HH:mm")}</Text>
-            </FlexRow>
-          ),
-        };
+        return (
+          <FlexCol>
+            <Text level={5}>
+              {row.status === "DRAFT" ? "-" : moment(row.publishTime).format("DD/MM/YYYY, HH:mm")}
+            </Text>
+            {row.status === "WAITING" ? (
+              <Text level={5} color='warning'>
+                <ClockCircleOutlined />
+                &nbsp;ตั้งเวลา
+              </Text>
+            ) : (
+              <></>
+            )}
+          </FlexCol>
+        );
       },
     },
     {
@@ -285,7 +299,17 @@ export const NewsList: React.FC = () => {
       render: (newsId: any, row: any, index: number) => {
         const onClickDelete = () => {
           Modal.confirm({
-            title: "ยืนยันการลบ",
+            icon: <></>,
+            title: <Text level={2}>ต้องการยืนยันการลบข่าวสาร</Text>,
+            content: (
+              <Text level={5} color='Text3'>
+                โปรดตรวจสอบข่าวสารที่คุณต้องการลบ ก่อนกดยืนยัน
+                เพราะอาจส่งผลต่อการทำงานของผู้ดูแลระบบ
+              </Text>
+            ),
+            width: 524,
+            cancelText: "ยกเลิก",
+            okText: "ยืนยัน",
             onOk: async () => {
               try {
                 await deleteNews({ newsId, updateBy: firstname + " " + lastname }).then(() => {

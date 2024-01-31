@@ -116,6 +116,8 @@ export const NewsEdit: React.FC = (props: any) => {
   const [content, setContent] = useState("-");
   const [status, setStatus] = useState<string>();
 
+  const [hasPublished, setHasPublished] = useState(false);
+
   const [showVideoModal, setVideoModal] = useState(false);
   const [vidIndex, setVidIndex] = useState();
 
@@ -195,6 +197,9 @@ export const NewsEdit: React.FC = (props: any) => {
       const app: string[] = [];
       if (responseData?.isShowOnSaleApp) app.push("isShowOnSaleApp");
       if (responseData?.isShowOnShopApp) app.push("isShowOnShopApp");
+      if (responseData?.status === "PUBLISHED" || responseData?.status === "INACTIVE") {
+        setHasPublished(true);
+      }
       form.setFieldsValue({
         ...responseData,
         app,
@@ -299,7 +304,26 @@ export const NewsEdit: React.FC = (props: any) => {
         <CardContainer>
           <PageTitle />
           <Divider />
-          <Form form={form} layout='vertical' onFinish={updateData}>
+          <Form
+            form={form}
+            layout='vertical'
+            onFinish={() => {
+              Modal.confirm({
+                icon: <></>,
+                title: <Text level={2}>ต้องการยืนยันการ{isEdit ? "แก้ไข" : "สร้าง"}ข่าวสาร</Text>,
+                content: (
+                  <Text level={5} color='Text3'>
+                    โปรดตรวจสอบรายละเอียดที่คุณต้องการ{isEdit ? "แก้ไข" : "สร้าง"}
+                    ข่าวสารก่อนเสมอเพราะอาจส่งผลต่อการแสดงผลข่าวสารในระบบแอปพลิเคชัน
+                  </Text>
+                ),
+                width: 524,
+                cancelText: "ยกเลิก",
+                okText: "ยืนยัน",
+                onOk: updateData,
+              });
+            }}
+          >
             <Row gutter={16}>
               <Col style={{ width: "calc(100% - 320px)" }}>
                 <Text level={5} fontWeight={700}>
@@ -364,7 +388,9 @@ export const NewsEdit: React.FC = (props: any) => {
                     </Form.Item>
                   </FlexCol>
                   <FlexCol>
-                    <Text level={6}>รูปภาพประกอบข่าวสาร</Text>
+                    <Text level={6}>
+                      <span style={{ color: color.error }}>*</span>&nbsp;รูปภาพประกอบข่าวสาร
+                    </Text>
                     <Text level={6} color='Text3'>
                       JPG, GIF or PNG. Size of
                       <br />
@@ -465,7 +491,12 @@ export const NewsEdit: React.FC = (props: any) => {
                           <Row gutter={16} style={{ padding: "4px 0" }}>
                             <Col span={12}>
                               <Form.Item name='startDate' required>
-                                <DatePicker style={{ width: "100%" }} enablePast />
+                                <DatePicker
+                                  style={{ width: "100%" }}
+                                  disabledDate={(current) => {
+                                    return current && current.isBefore(dayjs().subtract(0, "day"));
+                                  }}
+                                />
                               </Form.Item>
                             </Col>
                             <Col span={12}>
@@ -480,11 +511,22 @@ export const NewsEdit: React.FC = (props: any) => {
                         name: "แบบร่าง",
                         key: "DRAFT",
                       },
+                      {
+                        name: "ปิดการใช้งาน",
+                        key: "INACTIVE",
+                      },
                     ]
-                      .filter(({ isSub }) => {
+                      .filter(({ isSub, key }) => {
+                        if ((isEdit && key === "DRAFT") || (!isEdit && key === "INACTIVE")) {
+                          return false;
+                        }
+                        if (hasPublished && key === "WAITING") {
+                          return false;
+                        }
                         if (status === "DRAFT") {
                           return !isSub;
                         }
+
                         return true;
                       })
                       .map(({ key, name, isSub, extra }) => (
