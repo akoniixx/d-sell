@@ -6,6 +6,11 @@ export const NAV_URL =
 export const DEV_URL = "https://sellcoda-api-dev.iconkaset.com";
 export const BASE_URL =
   process.env.NODE_ENV === "development" ? DEV_URL : process.env.REACT_APP_URL_HOST;
+export const DEV_ICONKASET_URL = "https://iconkasetshop-api-dev.iconkaset.com";
+export const BASE_ICONKASET_URL =
+  process.env.NODE_ENV === "development"
+    ? DEV_ICONKASET_URL
+    : process.env.REACT_APP_ICONKASET_URL_HOST;
 
 axios.interceptors.request.use(
   async (config) => {

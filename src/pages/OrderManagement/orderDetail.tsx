@@ -990,13 +990,19 @@ export const OrderDetail: React.FC = () => {
           </Col>
         </Row>
       </Modal>
-      <Modal open={showFile} footer={false} width={420} onCancel={() => setShowFile(false)}>
+      <Modal
+        open={showFile}
+        footer={false}
+        width={420}
+        onCancel={() => setShowFile(false)}
+        centered
+      >
         <Text level={5} fontWeight={700}>
           เอกสารที่เกี่ยวข้อง
         </Text>
         <br />
         <Text level={5} color='Text3'>
-          ทั้งหมด 5 ภาพ
+          ทั้งหมด {orderData?.orderFiles?.length} ภาพ
         </Text>
         <br />
         <br />

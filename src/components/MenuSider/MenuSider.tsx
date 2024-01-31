@@ -193,6 +193,13 @@ const iconsInActive = {
       }}
     />
   ),
+  generalSettings:(
+    <SettingFilled
+    style={{
+      fontSize: "20px",
+    }}
+  />
+  ),
   oneFinity: (
     <SettingFilled
       style={{
@@ -235,6 +242,7 @@ function MenuSider({ style, lists = [], isOpenSidebar = false }: Props): JSX.Ele
       permission: isArray(el.menu) ? [] : Object.keys(el.menu),
     };
   });
+
   const permissionList: string[] = [];
   (roleData?.menus || []).forEach((el: { permission: any; menuName: string }) => {
     if (isArray(el?.permission) && el?.permission.length > 0) {

@@ -2,6 +2,24 @@
 
 - fixed news
 
+## Resolved [v0.13.1] - Release Date: 2023-01-26
+
+- fixed zone setting
+- fixed product brand setting
+## Features [v0.13.0] - Release Date: 2024-01-25
+
+- product list for corporate shop
+
+## Resolved [v0.12.4] - Release Date: 2023-01-12
+
+- fixed freebie unit
+- fixed total document attachment
+
+## Resolved [v0.12.3] - Release Date: 2023-01-05
+
+- fixed wording update in customer group
+- fixed updateBy in customer group
+
 ## Resolved [v0.12.2] - Release Date: 2023-01-04
 
 - fixed special price permission
