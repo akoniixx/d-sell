@@ -338,7 +338,7 @@ export const OrderDetail: React.FC = () => {
             <FlexCol>
               <Text level={5}>{quantity}</Text>
               <Text level={6} color='Text3'>
-                {product?.saleUOMTH || product?.saleUOM || product?.baseUnitOfMeaTh}
+                {product?.baseUnitOfMeaTh || product?.saleUOMTH || product?.saleUOM}
               </Text>
             </FlexCol>
           ),

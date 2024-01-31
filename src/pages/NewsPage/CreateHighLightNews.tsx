@@ -59,6 +59,8 @@ const imgCropProps = {
   modalCancel: "ยกเลิก",
 };
 
+const previewSize = 360; //270;
+
 export const CreateHighLightNewsPage: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = window.location;
@@ -191,15 +193,18 @@ export const CreateHighLightNewsPage: React.FC = () => {
         // initialValues={{ isShowOnSaleApp: true, isShowOnShopApp: true }}
         onFinish={() => setModal(true)}
       >
-        <Row justify={"space-between"} gutter={16}>
-          <Col span={18}>
-            <Col span={6}>
-              <Text level={5} fontWeight={700}>
-                รายละเอียดข้อมูลข่าวสาร
-              </Text>
-            </Col>
+        <Row justify='start'>
+          <Col span={15}>
             <Row>
-              <Col span={4}>
+              <Col span={6}>
+                <Text level={5} fontWeight={700}>
+                  รายละเอียดข้อมูลข่าวสาร
+                </Text>
+              </Col>
+            </Row>
+            <br />
+            <Row>
+              <Col span={5}>
                 <ImgCrop aspect={4 / 5} {...imgCropProps}>
                   <UploadVeritical
                     listType='picture-card'
@@ -251,7 +256,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
                   </UploadVeritical>
                 </ImgCrop>
               </Col>
-              <Col span={20}>
+              <Col span={18}>
                 <Text level={6}>รูปภาพประกอบโปรโมชัน</Text>
                 <br />
                 <Text level={6} color='Text3'>
@@ -263,6 +268,7 @@ export const CreateHighLightNewsPage: React.FC = () => {
                 </Text>
               </Col>
             </Row>
+            <br />
             <Form.Item
               name='topic'
               label='ชื่อข่าวสาร'
@@ -439,26 +445,27 @@ export const CreateHighLightNewsPage: React.FC = () => {
               </Col>
             </Row>
           </Col>
-          <Col span={6}>
+          <Col>
             <div
               style={{
                 position: "absolute",
                 margin: "108px 9px 0px",
-                width: 270,
-                height: 336,
+                width: previewSize,
+                height: previewSize * 1.25,
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
                 backgroundImage: `url(${imageUrl})`,
                 backgroundColor: "#FFFFFF40",
+                borderRadius: 4,
               }}
             />
             <div
               style={{
-                width: 288,
-                height: 600,
+                width: previewSize + 18,
+                height: 740,
                 backgroundRepeat: "no-repeat",
-                backgroundSize: "288px 600px",
+                backgroundSize: `${previewSize + 18}px 740px`,
                 backgroundImage: `url(${image.indexHighLightApp})`,
               }}
             />

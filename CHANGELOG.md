@@ -1,4 +1,6 @@
-## [Version - 0]
+## Resolved [v0.12.3] - Release Date: 2023-01-31
+
+- fixed news
 
 ## Resolved [v0.12.2] - Release Date: 2023-01-04
 
