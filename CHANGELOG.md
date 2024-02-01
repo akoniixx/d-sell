@@ -1,3 +1,7 @@
+## Resolved [v0.13.3] - Release Date: 2023-02-01
+
+- fixed order product sorting
+
 ## Resolved [v0.13.2] - Release Date: 2023-01-31
 
 - fixed news

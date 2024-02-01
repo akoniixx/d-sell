@@ -393,11 +393,11 @@ export const OrderDetail: React.FC = () => {
         };
       },
     },
-    {
-      title: "ลำดับการขน",
-      dataIndex: "shipmentOrder",
-      key: "shipmentOrder",
-    },
+    // {
+    //   title: "ลำดับการขน",
+    //   dataIndex: "shipmentOrder",
+    //   key: "shipmentOrder",
+    // },
     {
       title: "ส่วนลด",
       dataIndex: "discount",
@@ -802,9 +802,12 @@ export const OrderDetail: React.FC = () => {
             columns={columns}
             dataSource={
               orderData?.orderProducts?.sort((a, b) =>
-                ("" + (a.productCodeNAV || a.productFreebiesCodeNAV)).localeCompare(
-                  b.productCodeNAV || b.productFreebiesCodeNAV || "",
-                ),
+                company === "ICPL"
+                  ? ("" + (a.productCodeNAV || a.productFreebiesCodeNAV)).localeCompare(
+                      b.productCodeNAV || b.productFreebiesCodeNAV || "",
+                    )
+                  : (a?.shipmentOrder || a?.shipmentOrder === 0 ? a?.shipmentOrder : 10000) -
+                    (b?.shipmentOrder || b?.shipmentOrder === 0 ? b?.shipmentOrder : 10000),
               ) || []
             }
             pagination={false}
