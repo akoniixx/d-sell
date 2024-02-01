@@ -45,6 +45,19 @@ const getCusCorporate = async (params: object) => {
     })
     .catch((err) => console.log(err));
 };
+const checkTaxNo = async (taxNo: string) => {
+  return await httpClient
+    .get(`${baseUrl}/customer/get-customer-tax/${taxNo}`)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
+
+const createCustomerEx = async (params: object) => {
+  return await httpClient
+    .post(`${baseUrl}/customer/create-customer-ex`, params)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
 
 export {
   getCustomers,
@@ -53,4 +66,6 @@ export {
   checkPhoneByShop,
   checkPhoneAllShop,
   getCusCorporate,
+  checkTaxNo,
+  createCustomerEx,
 };

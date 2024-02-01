@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { color } from "../../../resource";
 import TableContainer from "../../../components/Table/TableContainer";
 import { getCustomersById } from "../../../datasource/CustomerDatasource";
+import image from "../../../resource/image";
 
 const Header = styled(Row)`
   border-radius: 8px;
@@ -52,7 +53,7 @@ function DetailCorporateShop(): JSX.Element {
     return (
       <>
         <Header>
-          <Image src={company?.companyLogo || ""} />
+          <Image src={image.empty_shop || ""} width={40} height={40} />
           <div
             style={{
               display: "flex",
@@ -65,16 +66,21 @@ function DetailCorporateShop(): JSX.Element {
             </Text>
             <Row justify={"space-between"} gutter={8}>
               <Col>
-                <Text level={6}>ประเภทคู่ค้า : {company?.companyNameTh}</Text>
+                <Text level={6}>
+                  ประเภทคู่ค้า :{" "}
+                  <Text color='primary' level={6}>
+                    {detail?.customerType === "DL" ? "Dealer" : "Subdealer"}
+                  </Text>
+                </Text>
               </Col>
               <Col>
-                <Text level={6}>รหัสร้านค้า : -</Text>
+                <Text level={6}>รหัสร้านค้า : {detail?.customerNo}</Text>
               </Col>
               <Col>
-                <Text level={6}>เขต : M01</Text>
+                <Text level={6}>เขต : {detail?.zone}</Text>
               </Col>
             </Row>
-            <Row justify={"space-between"} gutter={8}>
+            {/* <Row justify={"space-between"} gutter={8}>
               <Col>
                 <Text level={6}>Product Brands :</Text>
               </Col>
@@ -86,7 +92,7 @@ function DetailCorporateShop(): JSX.Element {
                 <img src='' />
                 <Text level={6}>ตราม้าบิน</Text>
               </Col>
-            </Row>
+            </Row> */}
           </div>
         </Header>
         <br />
@@ -288,11 +294,11 @@ function DetailCorporateShop(): JSX.Element {
       label: "รายละเอียดร้านค้า",
       children: <DetailTab />,
     },
-    {
-      key: "history",
-      label: "ประวัติการบันทึกข้อมูล",
-      children: <HistoryTab />,
-    },
+    // {
+    //   key: "history",
+    //   label: "ประวัติการบันทึกข้อมูล",
+    //   children: <HistoryTab />,
+    // },
   ];
 
   return (
@@ -303,23 +309,13 @@ function DetailCorporateShop(): JSX.Element {
         onBack={() => {
           navigate("/ShopManagementPage/CorporateShop");
         }}
-        description={
-          <Text
-            fontWeight={500}
-            level={6}
-            style={{
-              marginTop: 8,
-            }}
-          >
-            รหัสสมาชิก:
-          </Text>
-        }
+        description={""}
         extra={
           <Button
             typeButton={"primary"}
             //disabled={isDisabled}
             onClick={() => {
-              navigate(`/ShopManagementPage/createCorporateShop/${id}`);
+              navigate(`/ShopManagementPage/createCorporateShop/${id}/edit`);
             }}
             icon={
               <FormOutlined

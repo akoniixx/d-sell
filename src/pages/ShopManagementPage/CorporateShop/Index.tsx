@@ -4,7 +4,7 @@ import {
   ShopOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
-import { Col, Modal, Row, Table } from "antd";
+import { Col, Modal, Row, Table, Tag, Form } from "antd";
 import React, { useEffect, useState } from "react";
 import Button from "../../../components/Button/Button";
 import { CardContainer } from "../../../components/Card/CardContainer";
@@ -16,7 +16,7 @@ import Text from "../../../components/Text/Text";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../components/Input/Input";
 import styled from "styled-components";
-import { getCusCorporate } from "../../../datasource/CustomerDatasource";
+import { checkTaxNo, getCusCorporate } from "../../../datasource/CustomerDatasource";
 
 const Header = styled(Col)`
   border-radius: 8px;
@@ -31,7 +31,7 @@ const Header = styled(Col)`
 function IndexCorporateShop(): JSX.Element {
   const navigate = useNavigate();
   const company = JSON.parse(localStorage.getItem("company")!);
-
+  const [form] = Form.useForm();
   const [dataState, setDataState] = useState<{ count: number; data: any[] }>({
     count: 0,
     data: [],
@@ -39,11 +39,11 @@ function IndexCorporateShop(): JSX.Element {
   const pageSize = 8;
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
-  const [isActive, setIsActive] = useState<any>("");
+  const [cusComId, setCusComId] = useState<string>("");
 
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [dataUser, setDataUser] = useState<any>({});
-  const [checkDup, setCheckDup] = useState<boolean>(true);
+  const [checkTaxId, setCheckTaxId] = useState<boolean>(false);
+  const [cusId, setCusId] = useState<string>("");
 
   const getCusList = async () => {
     await getCusCorporate({
@@ -52,6 +52,7 @@ function IndexCorporateShop(): JSX.Element {
       companyCode: `${company.companyCode}`,
       search,
     }).then((res) => {
+      console.log(res.data);
       setDataState({ count: res.count_total || 0, data: res.data });
     });
   };
@@ -74,6 +75,7 @@ function IndexCorporateShop(): JSX.Element {
       </Col>
     );
   };
+
   const columns: any = [
     {
       title: "รหัสร้านค้า",
@@ -101,7 +103,11 @@ function IndexCorporateShop(): JSX.Element {
       key: "userName",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Text>{value}</Text>,
+          children: (
+            <Text>
+              {row.customer.ownerFirstname || "-"} {row.customer.ownerLastname}
+            </Text>
+          ),
         };
       },
     },
@@ -127,8 +133,17 @@ function IndexCorporateShop(): JSX.Element {
     },
     {
       title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "isActive",
+      key: "isActive",
+      render: (value: any, row: any, index: number) => {
+        return {
+          children: (
+            <Tag color={value ? color.success : color.error}>
+              {value ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+            </Tag>
+          ),
+        };
+      },
     },
     {
       title: "จัดการ",
@@ -140,7 +155,9 @@ function IndexCorporateShop(): JSX.Element {
           children: (
             <Row justify={"center"} gutter={16}>
               <ActionBtn
-                onClick={() => navigate("/ShopManagementPage/detailCorporateShop/1050")}
+                onClick={() =>
+                  navigate(`/ShopManagementPage/detailCorporateShop/${row.customerCompanyId}`)
+                }
                 icon={<UnorderedListOutlined />}
               />
             </Row>
@@ -149,6 +166,19 @@ function IndexCorporateShop(): JSX.Element {
       },
     },
   ];
+
+  const checkTax = async (e: string) => {
+    const payload = await checkTaxNo(e).then((res) => {
+      console.log(res);
+      setCusId(res.responseData ? res.responseData.customerId : "0");
+      const isCreate = res?.responseData?.customerCompany?.find(
+        (c) => c.company === company.companyCode,
+      );
+      setCusComId(isCreate && isCreate.customerCompanyId);
+      return isCreate ? true : false;
+    });
+    return payload;
+  };
 
   return (
     <>
@@ -215,9 +245,8 @@ function IndexCorporateShop(): JSX.Element {
           }
           centered
           onCancel={() => {
-            //setCheckDup(true);
+            form.setFieldValue("taxNo", "");
             setShowModal(false);
-            setDataUser("");
           }}
           destroyOnClose
           cancelText={"ยกเลิก"}
@@ -225,87 +254,66 @@ function IndexCorporateShop(): JSX.Element {
           okButtonProps={{
             style: {
               color: color.white,
-              borderColor: color.primary,
-              //checkDup && Object.keys(dataUser).length > 0 ? color.primary : color.Disable,
-              backgroundColor: color.primary,
-              //checkDup && Object.keys(dataUser).length > 0 ? color.primary : color.Disable,
+              borderColor: checkTaxId ? color.primary : color.Disable,
+              backgroundColor: checkTaxId ? color.primary : color.Disable,
             },
           }}
-          onOk={() => navigate("/ShopManagementPage/createCorporateShop/create")}
+          onOk={() =>
+            cusComId
+              ? navigate(`/ShopManagementPage/createCorporateShop/${cusComId}/edit`)
+              : navigate(`/ShopManagementPage/createCorporateShop/create/${cusId}`)
+          }
           cancelButtonProps={{
             style: { color: color.primary, borderColor: color.primary },
           }}
         >
-          <Text fontWeight={600}>หมายเลขประจำตัวผู้เสียภาษี (ร้านค้า)</Text>
-          <Row>
-            <Col span={24}>
-              <Input
-                prefix={<SearchOutlined style={{ color: color.Disable }} />}
-                placeholder='ระบุหมายเลขประจำตัวผู้เสียภาษี'
-                onChange={async (e: any) => {
-                  if (!e) {
-                    setDataUser("");
-                    setCheckDup(true);
-                  } else {
-                    console.log(2);
-                  }
-                }}
-              />
-            </Col>
-          </Row>
-          <br />
-          {Object.keys(dataUser).length > 0 && checkDup ? (
-            <Header>
-              <Row gutter={16}>
-                <Col span={2}>
-                  <ShopOutlined style={{ fontSize: "20px" }} />
-                </Col>
-                <Col span={22}>
-                  <Text fontSize={16} color='primary' fontWeight={600}>
-                    {dataUser.customerName}
-                  </Text>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Text fontSize={14} fontWeight={500}>
-                    หมายเลขนิติบุคคล
-                  </Text>
-                  <br />
-                  <Text fontSize={14}>{dataUser.taxId}</Text>
-                </Col>
-                <Col span={12}>
-                  <Text fontSize={14} fontWeight={500}>
-                    เบอร์โทรศัพท์
-                  </Text>
-                  <br />
-                  <Text fontSize={14}>{dataUser.telephone}</Text>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Text fontSize={14} fontWeight={500}>
-                    เจ้าของร้าน
-                  </Text>
-                  <br />
-                  <Text fontSize={14}>{dataUser.userName}</Text>
-                </Col>
-                <Col span={12}>
-                  <Text fontSize={14} fontWeight={500}>
-                    จังหวัด
-                  </Text>
-                  <br />
-                  <Text fontSize={14}>{dataUser.province}</Text>
-                </Col>
-              </Row>
-            </Header>
-          ) : Object.keys(dataUser).length === 0 && !checkDup ? (
-            <Text color='error' fontSize={16}>
-              ร้านค้าที่เลือกมีข้อมูลแล้วในระบบ กรุณาตรวจสอบข้อมูลใหม่อีกครั้ง
-            </Text>
-          ) : (
-            <></>
-          )}
+          <Form form={form}>
+            <Text fontWeight={600}>หมายเลขประจำตัวผู้เสียภาษี (ร้านค้า)</Text>
+            <Row>
+              <Col span={24}>
+                <Form.Item
+                  name='taxNo'
+                  style={{
+                    width: "100%",
+                    marginBottom: 0,
+                  }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "กรุณากรอกเลขประจำตัวผู้เสียภาษี",
+                    },
+                    {
+                      pattern: /^[0-9]{13}$/,
+                      message: "กรุณากรอกเลขประจำตัวผู้เสียภาษีให้ถูกต้อง",
+                    },
+                    {
+                      async validator(_, value) {
+                        if (value.length === 13) {
+                          const tax = await checkTax(value);
+                          setCheckTaxId(true);
+                          return tax
+                            ? Promise.reject(
+                                "หมายเลขร้านค้าที่ระบุมีข้อมูลอยู่แล้วในระบบ กรุณาตรวจสอบข้อมูลใหม่อีกครั้ง",
+                              )
+                            : Promise.resolve();
+                        } else {
+                          setCheckTaxId(false);
+                          return Promise.reject();
+                        }
+                      },
+                    },
+                  ]}
+                >
+                  <Input
+                    prefix={<SearchOutlined style={{ color: color.Disable }} />}
+                    placeholder='ระบุหมายเลขประจำตัวผู้เสียภาษี'
+                    autoComplete='off'
+                    maxLength={13}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
         </Modal>
       )}
     </>

@@ -328,7 +328,7 @@ export const protectRoutesData: IRoute[] = [
         permission: null,
       },
       {
-        path: "createCorporateShop/:id",
+        path: "createCorporateShop/:id/:cusId",
         element: <CreateCorporateShop />,
         permission: null,
       },

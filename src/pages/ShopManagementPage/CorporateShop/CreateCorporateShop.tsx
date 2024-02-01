@@ -18,6 +18,12 @@ import Button from "../../../components/Button/Button";
 import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 import { getMasterAddress, getProvince } from "../../../datasource/AddressDatasource";
 import _ from "lodash";
+import { createCustomerEx, getCustomersById } from "../../../datasource/CustomerDatasource";
+import { getProductBrand } from "../../../datasource/ProductDatasource";
+import { zoneDatasource } from "../../../datasource/ZoneDatasource";
+import DatePicker from "../../../components/DatePicker/DatePicker";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const UploadVeritical = styled(Upload)`
   .ant-upload,
@@ -66,12 +72,15 @@ export const AntSelectCustom = styled(Select)`
 `;
 
 export const CreateCorporateShop: React.FC = () => {
+  const navigate = useNavigate();
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
+  const company = JSON.parse(localStorage.getItem("company")!);
   const [form1] = useForm();
   const [form2] = useForm();
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
   const isEditing = pathSplit[3] !== "create";
+  const id = isEditing ? pathSplit[3] : pathSplit[4];
 
   const [current, setCurrent] = useState(0);
   const [imageUrl, setImageUrl] = useState<string>();
@@ -82,6 +91,9 @@ export const CreateCorporateShop: React.FC = () => {
   const [provinceList, setProvinceList] = useState<any>([]);
   const [districtList, setDistrictList] = useState<any>([]);
   const [subdistrictList, setSubdistrictList] = useState<any>([]);
+
+  const [brand, setBrand] = useState<any>([]);
+  const [zone, setZone] = useState<any>([]);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyDg4BI3Opn-Bo2Pnr40Z7PKlC6MOv8T598",
@@ -101,6 +113,146 @@ export const CreateCorporateShop: React.FC = () => {
     },
     [center],
   );
+
+  const getCusComById = async () => {
+    if (isEditing) {
+      console.log(id);
+
+      await getCustomersById(id).then(async (res) => {
+        console.log("1", res);
+        await form1.setFieldsValue({
+          customerId: res.customerId,
+          customerType: res.customerType,
+          customerNo: res.customerNo,
+          zone: res.zone,
+          productBrand: res.productBrand,
+        });
+        await form2.setFieldsValue({
+          title: res.customer.title,
+          ownerFirstname: res.customer.ownerFirstname,
+          ownerLastname: res.customer.ownerLastname,
+          termPayment: res.termPayment,
+          lat: res.customer.lat,
+          lag: res.customer.lag,
+          address: res.customer.address,
+          postcode: res.customer.postcode,
+        });
+      });
+    } else {
+      id !== "0" &&
+        (await getCustomersById(id).then(async (res) => {
+          console.log("2", res);
+          let masterAddress: any = "";
+          let masterProvince: any = "";
+          if (res?.customer?.province) {
+            masterProvince = await getMasterProvince(res?.customer?.province).then((res) => res);
+            masterAddress = await getAddress(
+              masterProvince?.provinceId,
+              res?.customer?.district || "",
+              res?.customer?.subdistrict || "",
+            ).then((res) => res);
+          }
+          await form2.setFieldsValue({
+            customerId: id,
+            title: res.customer.title,
+            ownerFirstname: res.customer.ownerFirstname,
+            ownerLastname: res.customer.ownerLastname,
+            taxNo: res.customer.taxNo,
+            telephone: res.customer.telephone,
+            email: res.customer.email,
+            createDate: dayjs(res.customer.createDate),
+            customerName: res.customerName,
+            address: res.customer.address,
+            lat: res.customer.lat,
+            lag: res.customer.lag,
+            provinceId: masterProvince.provinceId,
+            provinceName: masterProvince.provinceName,
+            districtName: masterAddress?.districtId?.districtName || "",
+            subdistrictName: masterAddress?.subdistrictId?.subdistrictName || "",
+            postcode: masterAddress?.subdistrictId?.postCode,
+            isActive: res.isActive,
+            masterAddress: masterAddress,
+          });
+        }));
+    }
+  };
+  const getMasterProvince = async (proNav?: string) => {
+    const province = await getProvince().then((res) => {
+      return res.responseData;
+    });
+    setProvinceList(province || []);
+    const provinceId = province.find((y: any) => {
+      const map = proNav?.endsWith(y.provinceName);
+      if (map) {
+        return { provinceId: y.provinceId, provinceName: y.provinceName };
+      }
+    });
+    return provinceId;
+  };
+  const getAddress = async (proId: number, dis: string, sub: string) => {
+    const getAddr = await getMasterAddress(proId).then((res) => {
+      return res.responseData;
+    });
+    setMasterAddr(getAddr);
+    const groupsDistrict = _.groupBy(getAddr || [], "districtName");
+    const objDistrict = _.map(groupsDistrict, (items, disName) => {
+      return {
+        districtId: items.find((item: any) => item.districtName === disName).districtId,
+        districtName: disName,
+      };
+    });
+    setDistrictList(objDistrict);
+    const districtId = await objDistrict.find((y: any) => {
+      const map = dis.endsWith(y.districtName);
+      if (map) {
+        return y.districtId;
+      }
+    });
+
+    const groupsSubdistrict = _.groupBy(
+      getAddr.filter((y: any) => dis.endsWith(y.districtName)) || [],
+      "subdistrictName",
+    );
+    const objSubdistrict = _.map(groupsSubdistrict, (items, disName) => {
+      return {
+        masterAddressId: items.find((item: any) => item.subdistrictName === disName)
+          .masterAddressId,
+        subdistrictId: items.find((item: any) => item.subdistrictName === disName).subdistrictId,
+        subdistrictName: disName,
+        postCode: items.find((item: any) => item.subdistrictName === disName).postcode,
+      };
+    });
+    setSubdistrictList(objSubdistrict);
+    const subdistrictId = await objSubdistrict.find((y: any) => {
+      const map = sub.endsWith(y.subdistrictName);
+      if (map) {
+        return y.subdistrictId;
+      }
+    });
+    return { districtId: districtId, subdistrictId: subdistrictId };
+  };
+  const getBrand = async () => {
+    await getProductBrand(company?.companyCode).then((res) => {
+      setBrand(res);
+    });
+  };
+  const getZone = async () => {
+    await zoneDatasource.getAllZoneByCompany(company?.companyCode).then((res) => {
+      setZone(res);
+    });
+  };
+  const onChangeMap = () => {
+    const payload = form2.getFieldsValue(true);
+    console.log("c", payload);
+    setCenter({ lat: Number(payload.lat), lng: Number(payload.lag) });
+  };
+
+  useEffect(() => {
+    getMasterProvince();
+    getBrand();
+    getZone();
+    getCusComById();
+  }, []);
 
   const staticData = [
     {
@@ -125,16 +277,30 @@ export const CreateCorporateShop: React.FC = () => {
     },
   ];
 
-  const getMasterProvince = async () => {
-    const province = await getProvince().then((res) => {
+  const onChangeProvince = async () => {
+    const payload = form2.getFieldsValue(true);
+    const getAddr = await getMasterAddress(payload.provinceId).then((res) => {
       return res.responseData;
     });
-    setProvinceList(province || []);
+    setMasterAddr(getAddr);
+    const groupsDistrict = _.groupBy(getAddr || [], "districtName");
+    const objDistrict = _.map(groupsDistrict, (items, disName) => {
+      return {
+        districtId: items.find((item: any) => item.districtName === disName).districtId,
+        districtName: disName,
+      };
+    });
+    form2.setFieldsValue({
+      districtId: "",
+      subdistrictId: "",
+      postcode: "",
+    });
+    setDistrictList(objDistrict);
   };
   const onChangeDistrict = async () => {
     const payload = form2.getFieldsValue(true);
     const groupsSubdistrict = _.groupBy(
-      masterAddr.filter((y: any) => payload.districtId.endsWith(y.districtName)) || [],
+      masterAddr.filter((y: any) => payload.districtName.endsWith(y.districtName)) || [],
       "subdistrictName",
     );
     const objSubdistrict = _.map(groupsSubdistrict, (items, disName) => {
@@ -152,33 +318,18 @@ export const CreateCorporateShop: React.FC = () => {
   const onChangeSubdistrict = async () => {
     const payload = form2.getFieldsValue(true);
     const getSubdistrict = masterAddr.find((x: any) =>
-      payload.subdistrictId.endsWith(x.subdistrictName),
+      payload.subdistrictName.endsWith(x.subdistrictName),
     );
     form2.setFieldsValue({
       masterAddressId: getSubdistrict.masterAddressId,
+      provinceId: getSubdistrict.provinceId,
+      provinceName: getSubdistrict.provinceName,
+      districtId: getSubdistrict.districtId,
+      districtName: getSubdistrict.districtName,
+      subdistrictId: getSubdistrict.subdistrictId,
+      subdistrictName: getSubdistrict.subdistrictName,
       postcode: getSubdistrict ? getSubdistrict.postcode || "" : "",
     });
-  };
-
-  useEffect(() => {
-    getMasterProvince();
-  }, []);
-
-  const onChangeProvince = async () => {
-    const payload = form2.getFieldsValue(true);
-    const getAddr = await getMasterAddress(payload.provinceId).then((res) => {
-      return res.responseData;
-    });
-    setMasterAddr(getAddr);
-    const groupsDistrict = _.groupBy(getAddr || [], "districtName");
-    const objDistrict = _.map(groupsDistrict, (items, disName) => {
-      return {
-        districtId: items.find((item: any) => item.districtName === disName).districtId,
-        districtName: disName,
-      };
-    });
-    form2.setFieldsValue({ districtId: "", subdistrictId: "", postcode: "" });
-    setDistrictList(objDistrict);
   };
 
   const PageTitle = () => {
@@ -219,14 +370,14 @@ export const CreateCorporateShop: React.FC = () => {
         return <StepOne />;
       }
       case 1: {
-        return <StepTwo />;
+        return StepTwo();
       }
     }
   };
   const StepOne = () => {
     return (
       <Form form={form1} layout='vertical'>
-        <Row justify={"space-between"} gutter={16}>
+        {/* <Row justify={"space-between"} gutter={16}>
           <Col span={24}>
             <Row>
               <Col span={3}>
@@ -299,11 +450,11 @@ export const CreateCorporateShop: React.FC = () => {
             </Row>
           </Col>
         </Row>
-        <br />
+        <br /> */}
         <Row>
           <Col span={10}>
             <Form.Item
-              name='type'
+              name='customerType'
               label='ประเภทคู่ค้า'
               rules={[
                 {
@@ -314,8 +465,8 @@ export const CreateCorporateShop: React.FC = () => {
             >
               <Radio.Group style={{ width: "100%" }}>
                 <Space direction='vertical'>
-                  <Radio value='Dealer'>Dealer</Radio>
-                  <Radio value='Sub-Dealer'>Sub-Dealer</Radio>
+                  <Radio value='DL'>Dealer</Radio>
+                  <Radio value='SD'>Sub-Dealer</Radio>
                 </Space>
               </Radio.Group>
             </Form.Item>
@@ -324,20 +475,41 @@ export const CreateCorporateShop: React.FC = () => {
         <br />
         <Row justify={"space-between"} gutter={16}>
           <Col span={12}>
-            <Form.Item name='shopNo' label='รหัสร้านค้า'>
+            <Form.Item name='customerNo' label='รหัสร้านค้า'>
               <Input placeholder='ระบุรหัสร้านค้า' autoComplete='off' />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item name='zone' label='เขต'>
-              <Selects placeholder='เลือกเขต' data={[]} />
+              <Selects
+                allowClear
+                placeholder='เลือกเขต'
+                data={
+                  zone.map((z) => ({
+                    label: z.zoneName,
+                    key: z.zoneId,
+                    value: z.zoneName,
+                  })) || []
+                }
+              />
             </Form.Item>
           </Col>
         </Row>
         <Row justify={"space-between"} gutter={16}>
           <Col span={12}>
             <Form.Item name='brand' label='แบรนด์สินค้า (Product Brands)'>
-              <Selects placeholder='เลือก Product Brands' data={[]} />
+              <Selects
+                mode='multiple'
+                allowClear
+                placeholder='เลือก Product Brands'
+                data={
+                  brand.map((z) => ({
+                    label: z.productBrandName,
+                    key: z.productBrandId,
+                    value: z.productBrandName,
+                  })) || []
+                }
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -375,7 +547,7 @@ export const CreateCorporateShop: React.FC = () => {
         </Col>
         <Col span={6}>
           <Form.Item
-            name='firstname'
+            name='ownerFirstname'
             label='ชื่อจริง'
             rules={[
               {
@@ -389,7 +561,7 @@ export const CreateCorporateShop: React.FC = () => {
         </Col>
         <Col span={6}>
           <Form.Item
-            name='lastname'
+            name='ownerLastname'
             label='นามสกุล'
             rules={[
               {
@@ -415,7 +587,7 @@ export const CreateCorporateShop: React.FC = () => {
       >
         <Col span={12}>
           <Form.Item
-            name='telephoneFirst'
+            name='telephone'
             label='เบอร์โทรศัพท์'
             rules={[
               {
@@ -444,8 +616,8 @@ export const CreateCorporateShop: React.FC = () => {
         }}
       >
         <Col span={12}>
-          <Form.Item name='startDate' label='วันที่เริ่มเป็นสมาชิก'>
-            <Input autoComplete='off' />
+          <Form.Item name='createDate' label='วันที่เริ่มเป็นสมาชิก'>
+            <DatePicker style={{ width: "100%" }} enablePast />
           </Form.Item>
         </Col>
       </Row>
@@ -468,7 +640,7 @@ export const CreateCorporateShop: React.FC = () => {
       >
         <Col span={12}>
           <Form.Item
-            name='shopName'
+            name='customerName'
             label='ชื่อร้านค้า'
             rules={[
               {
@@ -569,7 +741,7 @@ export const CreateCorporateShop: React.FC = () => {
         </Col>
         <Col span={6}>
           <Form.Item
-            name='districtId'
+            name='districtName'
             label='อำเภอ/เขต'
             rules={[
               {
@@ -603,7 +775,7 @@ export const CreateCorporateShop: React.FC = () => {
         </Col>
         <Col span={6}>
           <Form.Item
-            name='subdistrictId'
+            name='subdistrictName'
             label='ตำบล/แขวง'
             rules={[
               {
@@ -658,7 +830,7 @@ export const CreateCorporateShop: React.FC = () => {
       >
         <Col span={12}>
           <Form.Item
-            name='addressDesc'
+            name='address'
             label='ที่อยู่ (บ้านเลขที่ หมู่ ซอย ชั้น อาคาร)'
             rules={[
               {
@@ -679,7 +851,7 @@ export const CreateCorporateShop: React.FC = () => {
       >
         <Col span={12}>
           <Form.Item
-            name='latitude'
+            name='lat'
             label='ตำแหน่ง Latitude'
             rules={[
               {
@@ -692,12 +864,12 @@ export const CreateCorporateShop: React.FC = () => {
               },
             ]}
           >
-            <Input autoComplete='off' />
+            <Input autoComplete='off' onChange={onChangeMap} />
           </Form.Item>
         </Col>
         <Col span={12}>
           <Form.Item
-            name='longitude'
+            name='lag'
             label='ตำแหน่ง Longitude'
             rules={[
               {
@@ -710,7 +882,7 @@ export const CreateCorporateShop: React.FC = () => {
               },
             ]}
           >
-            <Input autoComplete='off' />
+            <Input autoComplete='off' onChange={onChangeMap} />
           </Form.Item>
         </Col>
       </Row>
@@ -733,7 +905,6 @@ export const CreateCorporateShop: React.FC = () => {
       </Form>
     );
   };
-
   const footer = () => {
     return (
       <Row justify='space-between' gutter={12}>
@@ -760,10 +931,70 @@ export const CreateCorporateShop: React.FC = () => {
     );
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (current === 0) {
-      setCurrent(current + 1);
+      await form1
+        .validateFields()
+        .then((f1) => {
+          setCurrent(current + 1);
+        })
+        .catch((errInfo) => {
+          console.log("form1 errInfo", errInfo);
+        });
     } else {
+      form2
+        .validateFields()
+        .then(async (f) => {
+          const f1 = form1.getFieldsValue(true);
+          const f2 = form2.getFieldsValue(true);
+          console.log(f2);
+          const payload: any = {};
+          const cusCom: any = {};
+
+          cusCom.customerId = id;
+          cusCom.isNav = id !== "0" ? true : false;
+          cusCom.customerName = f2.customerName;
+          cusCom.customerNo = f1.customerNo;
+          cusCom.company = company.companyCode;
+          cusCom.customerType = f1.customerType;
+          cusCom.zone = f1.zone;
+          cusCom.termPayment = f2.termPayment;
+          cusCom.creditLimit = 0;
+          cusCom.isActive = f2.isActive;
+          cusCom.salePersonCode = "";
+          cusCom.updateBy = userProfile.firstname + " " + userProfile.lastname;
+          cusCom.productBrand = [];
+
+          payload.customerId = f2.customerId;
+          payload.address = f2.address;
+          payload.masterAddressId =
+            f2.masterAddressId || f2.masterAddress.subdistrictId.masterAddressId;
+          payload.provinceId = f2.provinceId;
+          payload.districtId = f2.districtId || f2.masterAddress.districtId.districtId;
+          payload.subdistrictId = f2.subdistrictId || f2.masterAddress.subdistrictId.subdistrictId;
+          payload.province = f2.provinceName;
+          payload.district = f2.districtId;
+          payload.subdistrict = f2.subdistrictId;
+          payload.postcode = f2.postcode;
+          payload.telephone = f2.telephone;
+          payload.taxNo = f2.taxNo;
+          payload.updateBy = userProfile.firstname + " " + userProfile.lastname;
+          payload.lat = f2.lat;
+          payload.lag = f2.lag;
+          payload.statusMainTel = true;
+          payload.statusSecondTel = true;
+          payload.customerCompany = cusCom;
+          console.log("pay", payload);
+          await createCustomerEx(payload).then((res) => {
+            console.log(res);
+            if (res.success) {
+              navigate("/ShopManagementPage/CorporateShop");
+            }
+          });
+        })
+        .catch((errInfo) => {
+          console.log("form2 errInfo", errInfo);
+        });
       console.log(1);
     }
   };
