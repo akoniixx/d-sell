@@ -73,6 +73,7 @@ import { ProductBrandSettingPage } from "./pages/GeneralSettingPage/brandProduct
 import { CreateProductBrand } from "./pages/GeneralSettingPage/brandProductSetting/createProductBrand";
 import { CreateZone } from "./pages/GeneralSettingPage/zoneSetting/createZone";
 import { CreateFreebieCorporate } from "./pages/FreebiePage/CreateFreebieCorporate";
+import UserCorporateShop from "./pages/ShopManagementPage/CorporateShop/UserManageCorporate";
 
 interface IRoute {
   path: string;
@@ -336,6 +337,11 @@ export const protectRoutesData: IRoute[] = [
       {
         path: "detailCorporateShop/:id",
         element: <DetailCorporateShop />,
+        permission: null,
+      },
+      {
+        path: "userCorporateShop/:id",
+        element: <UserCorporateShop />,
         permission: null,
       },
     ],

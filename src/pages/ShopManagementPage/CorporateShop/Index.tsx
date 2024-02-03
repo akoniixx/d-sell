@@ -1,4 +1,9 @@
-import { PlusOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  SearchOutlined,
+  TeamOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import { Col, Modal, Row, Table, Tag, Form } from "antd";
 import React, { useEffect, useState } from "react";
 import Button from "../../../components/Button/Button";
@@ -180,6 +185,10 @@ function IndexCorporateShop(): JSX.Element {
                   navigate(`/ShopManagementPage/detailCorporateShop/${row.customerCompanyId}`)
                 }
                 icon={<UnorderedListOutlined />}
+              />
+              <ActionBtn
+                onClick={() => navigate(`/ShopManagementPage/userCorporateShop/1`)}
+                icon={<TeamOutlined />}
               />
             </Row>
           ),

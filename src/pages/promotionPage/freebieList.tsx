@@ -29,6 +29,7 @@ import Button from "../../components/Button/Button";
 import Permission, { checkPermission } from "../../components/Permission/Permission";
 import { useRecoilValue } from "recoil";
 import { roleAtom } from "../../store/RoleAtom";
+import PageTitle from "../../components/PageTitle/PageTitle";
 const SLASH_DMY = "DD/MM/YYYY";
 
 export const FreebieListPage: React.FC = () => {
@@ -106,78 +107,6 @@ export const FreebieListPage: React.FC = () => {
           .finally(() => console.log("sync product done"));
       },
     });
-  };
-
-  const PageTitle = () => {
-    return (
-      <Row gutter={16}>
-        <Col className='gutter-row' span={11}>
-          <div>
-            <span
-              className='card-label font-weight-bolder text-dark'
-              style={{ fontSize: 20, fontWeight: "bold" }}
-            >
-              รายการของแถม
-            </span>
-          </div>
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <Select
-            defaultValue={prodGroup}
-            style={style}
-            allowClear
-            onChange={(value: string) => {
-              setProdGroup(value);
-              resetPage();
-            }}
-            placeholder='หมวดของแถมทั้งหมด'
-            data={dataState.groups.map((group: ProductGroupEntity) => ({
-              key: group.product_group,
-              label: group.product_group,
-              value: group.product_group,
-            }))}
-          />
-        </Col>
-        <Col className='gutter-row' span={4}>
-          <div style={style}>
-            <Input
-              placeholder='ค้นหาของแถม'
-              prefix={<SearchOutlined style={{ color: "grey" }} />}
-              defaultValue={keyword}
-              onPressEnter={(e) => {
-                const value = (e.target as HTMLTextAreaElement).value;
-                setKeyword(value);
-                resetPage();
-              }}
-              onChange={(e) => {
-                const value = (e.target as HTMLTextAreaElement).value;
-                if (!value) {
-                  setKeyword("");
-                  resetPage();
-                }
-              }}
-            />
-          </div>
-        </Col>
-        {company.companyCode === "ICPL" ||
-        company.companyCode === "ICPI" ||
-        company.companyCode === "ICPF" ? (
-          <Permission permission={["freebieList", "sync"]}>
-            <Col className='gutter-row' span={5}>
-              <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
-            </Col>
-          </Permission>
-        ) : (
-          <Col className='gutter-row' span={5}>
-            <Button
-              title='เพิ่มของแถม'
-              icon={<PlusOutlined />}
-              onClick={() => navigate("/freebies/freebiesCorporate/create")}
-            />
-          </Col>
-        )}
-      </Row>
-    );
   };
 
   const tabsItems = [
@@ -302,7 +231,72 @@ export const FreebieListPage: React.FC = () => {
   return (
     <>
       <CardContainer>
-        <PageTitle />
+        <PageTitle
+          title='รายชื่อร้านค้า'
+          extra={
+            <Row justify={"space-between"} gutter={16}>
+              <Col>
+                <Select
+                  defaultValue={prodGroup}
+                  style={style}
+                  allowClear
+                  onChange={(value: string) => {
+                    setProdGroup(value);
+                    resetPage();
+                  }}
+                  placeholder='หมวดของแถมทั้งหมด'
+                  data={dataState.groups.map((group: ProductGroupEntity) => ({
+                    key: group.product_group,
+                    label: group.product_group,
+                    value: group.product_group,
+                  }))}
+                />
+              </Col>
+              <Col>
+                <div style={style}>
+                  <Input
+                    placeholder='ค้นหาของแถม'
+                    prefix={<SearchOutlined style={{ color: "grey" }} />}
+                    defaultValue={keyword}
+                    onPressEnter={(e) => {
+                      const value = (e.target as HTMLTextAreaElement).value;
+                      setKeyword(value);
+                      resetPage();
+                    }}
+                    onChange={(e) => {
+                      const value = (e.target as HTMLTextAreaElement).value;
+                      if (!value) {
+                        setKeyword("");
+                        resetPage();
+                      }
+                    }}
+                  />
+                </div>
+              </Col>
+              {company.companyCode === "ICPL" ||
+              company.companyCode === "ICPI" ||
+              company.companyCode === "ICPF" ? (
+                <Permission permission={["freebieList", "sync"]}>
+                  <Col>
+                    <Button
+                      title='เชื่อมต่อ Navision'
+                      icon={<SyncOutlined />}
+                      onClick={onSyncProduct}
+                    />
+                  </Col>
+                </Permission>
+              ) : (
+                <Col>
+                  <Button
+                    title='เพิ่มของแถม'
+                    icon={<PlusOutlined />}
+                    onClick={() => navigate("/freebies/freebiesCorporate/create")}
+                  />
+                </Col>
+              )}
+            </Row>
+          }
+        />
         <br />
         <Tabs
           items={tabsItems}
