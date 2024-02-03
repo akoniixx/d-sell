@@ -58,6 +58,12 @@ const createCustomerEx = async (params: object) => {
     .then((res: AxiosResponse) => res.data)
     .catch((err) => console.log(err));
 };
+const updateCustomerEx = async (data: object) => {
+  return await httpClient
+    .patch(`${baseUrl}/customer/update-customer-ex`, data)
+    .then((res: AxiosResponse) => res.data)
+    .catch((err) => console.log(err));
+};
 
 export {
   getCustomers,
@@ -68,4 +74,5 @@ export {
   getCusCorporate,
   checkTaxNo,
   createCustomerEx,
+  updateCustomerEx,
 };

@@ -1,9 +1,4 @@
-import {
-  PlusOutlined,
-  SearchOutlined,
-  ShopOutlined,
-  UnorderedListOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Col, Modal, Row, Table, Tag, Form } from "antd";
 import React, { useEffect, useState } from "react";
 import Button from "../../../components/Button/Button";
@@ -17,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../../components/Input/Input";
 import styled from "styled-components";
 import { checkTaxNo, getCusCorporate } from "../../../datasource/CustomerDatasource";
+import { zoneDatasource } from "../../../datasource/ZoneDatasource";
 
 const Header = styled(Col)`
   border-radius: 8px;
@@ -36,14 +32,17 @@ function IndexCorporateShop(): JSX.Element {
     count: 0,
     data: [],
   });
-  const pageSize = 8;
+  const pageSize = 10;
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [searchZone, setSearchZone] = useState<string>("");
   const [cusComId, setCusComId] = useState<string>("");
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [checkTaxId, setCheckTaxId] = useState<boolean>(false);
   const [cusId, setCusId] = useState<string>("");
+
+  const [zone, setZone] = useState<any>([]);
 
   const getCusList = async () => {
     await getCusCorporate({
@@ -51,15 +50,23 @@ function IndexCorporateShop(): JSX.Element {
       take: pageSize,
       companyCode: `${company.companyCode}`,
       search,
+      sortField: "updateDate",
+      sortDirection: "DESC",
+      zone: searchZone,
     }).then((res) => {
-      console.log(res.data);
       setDataState({ count: res.count_total || 0, data: res.data });
+    });
+  };
+  const getZone = async () => {
+    await zoneDatasource.getAllZoneByCompany(company?.companyCode).then((res) => {
+      setZone(res);
     });
   };
 
   useEffect(() => {
     getCusList();
-  }, [search, page]);
+    getZone();
+  }, [search, page, searchZone]);
 
   const ActionBtn = ({ onClick, icon }: any) => {
     return (
@@ -93,7 +100,15 @@ function IndexCorporateShop(): JSX.Element {
       key: "customerName",
       render: (value: any, row: any, index: number) => {
         return {
-          children: <Text>{value}</Text>,
+          children: (
+            <>
+              <Text>{value}</Text>
+              <br />
+              <Text level={6} color='Text3'>
+                {row?.customer?.taxNo}
+              </Text>
+            </>
+          ),
         };
       },
     },
@@ -138,9 +153,15 @@ function IndexCorporateShop(): JSX.Element {
       render: (value: any, row: any, index: number) => {
         return {
           children: (
-            <Tag color={value ? color.success : color.error}>
-              {value ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-            </Tag>
+            <>
+              <Tag color={value ? color.success : color.error}>
+                {value ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+              </Tag>
+              <br />
+              <Text level={6} color='Text3'>
+                ● {row?.zone}
+              </Text>
+            </>
           ),
         };
       },
@@ -169,7 +190,6 @@ function IndexCorporateShop(): JSX.Element {
 
   const checkTax = async (e: string) => {
     const payload = await checkTaxNo(e).then((res) => {
-      console.log(res);
       setCusId(res.responseData ? res.responseData.customerId : "0");
       const isCreate = res?.responseData?.customerCompany?.find(
         (c) => c.company === company.companyCode,
@@ -198,14 +218,44 @@ function IndexCorporateShop(): JSX.Element {
               </Col>
               <Col>
                 <Select
-                  placeholder='เขต : ทั้งหมด'
-                  data={[]}
+                  allowClear
+                  placeholder='เขตทั้งหมด'
+                  data={
+                    zone.map((z) => ({
+                      label: z.zoneName,
+                      key: z.zoneId,
+                      value: z.zoneName,
+                    })) || []
+                  }
                   style={{
                     width: 180,
                     fontFamily: "Sarabun",
                   }}
+                  onChange={(e) => {
+                    setSearchZone(e);
+                    setPage(1);
+                  }}
                 />
               </Col>
+              {/* <Col>
+                <Select
+                  allowClear
+                  placeholder='สถานะทั้งหมด'
+                  data={
+                    [
+                      //
+                    ]
+                  }
+                  style={{
+                    width: 180,
+                    fontFamily: "Sarabun",
+                  }}
+                  onChange={(e) => {
+                    setSearchZone(e);
+                    setPage(1);
+                  }}
+                />
+              </Col> */}
               <Col>
                 <Button
                   onClick={() => setShowModal(!showModal)}
@@ -225,9 +275,10 @@ function IndexCorporateShop(): JSX.Element {
           dataSource={dataState.data || []}
           columns={columns || []}
           pagination={{
+            position: ["bottomCenter"],
             current: page,
             total: dataState?.count || 0,
-            pageSize: 8,
+            pageSize: pageSize,
             onChange: (page) => {
               setPage(page);
             },
