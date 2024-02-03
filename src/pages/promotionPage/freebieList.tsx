@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Table, Tabs, Row, Col, Image, Tag, Modal, message } from "antd";
 import { CardContainer } from "../../components/Card/CardContainer";
-import { SearchOutlined, SyncOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  SearchOutlined,
+  SyncOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import { nameFormatter } from "../../utility/Formatter";
 import { FlexCol, FlexRow } from "../../components/Container/Container";
 import Text from "../../components/Text/Text";
@@ -33,7 +38,7 @@ export const FreebieListPage: React.FC = () => {
 
   const pageSize = 8;
   const userProfile = JSON.parse(localStorage.getItem("profile")!);
-  const { company } = userProfile;
+  const company = JSON.parse(localStorage.getItem("company")!);
 
   const roleData = useRecoilValue(roleAtom);
 
@@ -62,7 +67,7 @@ export const FreebieListPage: React.FC = () => {
     try {
       setLoading(true);
       const { data, count, count_status } = await getProductFreebies({
-        company,
+        company: company.companyCode,
         take: pageSize,
         productGroup: prodGroup,
         searchText: keyword,
@@ -154,11 +159,23 @@ export const FreebieListPage: React.FC = () => {
             />
           </div>
         </Col>
-        <Permission permission={["freebieList", "sync"]}>
+        {company.companyCode === "ICPL" ||
+        company.companyCode === "ICPI" ||
+        company.companyCode === "ICPF" ? (
+          <Permission permission={["freebieList", "sync"]}>
+            <Col className='gutter-row' span={5}>
+              <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
+            </Col>
+          </Permission>
+        ) : (
           <Col className='gutter-row' span={5}>
-            <Button title='เชื่อมต่อ Navision' icon={<SyncOutlined />} onClick={onSyncProduct} />
+            <Button
+              title='เพิ่มของแถม'
+              icon={<PlusOutlined />}
+              onClick={() => navigate("/freebies/freebiesCorporate/create")}
+            />
           </Col>
-        </Permission>
+        )}
       </Row>
     );
   };
@@ -284,36 +301,34 @@ export const FreebieListPage: React.FC = () => {
 
   return (
     <>
-      <div className='container '>
-        <CardContainer>
-          <PageTitle />
-          <br />
-          <Tabs
-            items={tabsItems}
-            onChange={(key: string) => {
-              setStatusFilter(key === "ALL" ? undefined : key);
-              resetPage();
-            }}
-          />
-          <Table
-            className='rounded-lg'
-            columns={columns}
-            scroll={{ x: "max-content" }}
-            dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i }))}
-            pagination={{
-              position: ["bottomCenter"],
-              pageSize,
-              current: page,
-              total: dataState?.count,
-              onChange: (p) => setPage(p),
-              showSizeChanger: false,
-            }}
-            loading={loading}
-            size='large'
-            tableLayout='fixed'
-          />
-        </CardContainer>
-      </div>
+      <CardContainer>
+        <PageTitle />
+        <br />
+        <Tabs
+          items={tabsItems}
+          onChange={(key: string) => {
+            setStatusFilter(key === "ALL" ? undefined : key);
+            resetPage();
+          }}
+        />
+        <Table
+          className='rounded-lg'
+          columns={columns}
+          scroll={{ x: "max-content" }}
+          dataSource={dataState?.data?.map((d: object, i) => ({ ...d, key: i }))}
+          pagination={{
+            position: ["bottomCenter"],
+            pageSize,
+            current: page,
+            total: dataState?.count,
+            onChange: (p) => setPage(p),
+            showSizeChanger: false,
+          }}
+          loading={loading}
+          size='large'
+          tableLayout='fixed'
+        />
+      </CardContainer>
     </>
   );
 };
