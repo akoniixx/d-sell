@@ -6,11 +6,13 @@ import Text from "../../../components/Text/Text";
 import { FormOutlined } from "@ant-design/icons";
 import AntdTabs from "../../../components/AntdTabs/AntdTabs";
 import { useNavigate } from "react-router-dom";
-import { Col, Row, Table } from "antd";
+import { Avatar, Col, Row, Table } from "antd";
 import styled from "styled-components";
 import { color } from "../../../resource";
 import TableContainer from "../../../components/Table/TableContainer";
 import { getCustomersById } from "../../../datasource/CustomerDatasource";
+import image from "../../../resource/image";
+import dayjs from "dayjs";
 
 const Header = styled(Row)`
   border-radius: 8px;
@@ -32,14 +34,13 @@ function DetailCorporateShop(): JSX.Element {
   const company = JSON.parse(localStorage.getItem("company")!);
   const { pathname } = window.location;
   const pathSplit = pathname.split("/") as Array<string>;
-  const isEditing = pathSplit[3] !== "create";
   const id = pathSplit[3];
 
   const [detail, setDetail] = useState<any>();
 
   const getCusComById = async () => {
     await getCustomersById(id).then((res) => {
-      console.log(res);
+      console.log("detail", res);
       setDetail(res);
     });
   };
@@ -52,7 +53,7 @@ function DetailCorporateShop(): JSX.Element {
     return (
       <>
         <Header>
-          <Image src={company?.companyLogo || ""} />
+          <Image src={image.empty_shop || ""} width={40} height={40} />
           <div
             style={{
               display: "flex",
@@ -65,26 +66,18 @@ function DetailCorporateShop(): JSX.Element {
             </Text>
             <Row justify={"space-between"} gutter={8}>
               <Col>
-                <Text level={6}>ประเภทคู่ค้า : {company?.companyNameTh}</Text>
+                <Text level={6}>
+                  ประเภทคู่ค้า :{" "}
+                  <Text color='primary' level={6}>
+                    {detail?.customerType === "DL" ? "Dealer" : "Subdealer"}
+                  </Text>
+                </Text>
               </Col>
               <Col>
-                <Text level={6}>รหัสร้านค้า : -</Text>
+                <Text level={6}>รหัสร้านค้า : {detail?.customerNo || "-"}</Text>
               </Col>
               <Col>
-                <Text level={6}>เขต : M01</Text>
-              </Col>
-            </Row>
-            <Row justify={"space-between"} gutter={8}>
-              <Col>
-                <Text level={6}>Product Brands :</Text>
-              </Col>
-              <Col>
-                <img src='' />
-                <Text level={6}>ลัดดา</Text>
-              </Col>
-              <Col>
-                <img src='' />
-                <Text level={6}>ตราม้าบิน</Text>
+                <Text level={6}>เขต : {detail?.zone || "-"}</Text>
               </Col>
             </Row>
           </div>
@@ -108,7 +101,10 @@ function DetailCorporateShop(): JSX.Element {
               <Text color='Text3'>ชื่อเจ้าของร้าน :</Text>
             </Col>
             <Col span={19}>
-              <Text>นาย วรนิษฐ พิศักดิ์ศิริ</Text>
+              <Text>
+                {detail?.customer?.title || "-"} {detail?.customer?.ownerFirstname || ""}{" "}
+                {detail?.customer?.ownerLastname || ""}
+              </Text>
             </Col>
           </Row>
           <Row
@@ -118,10 +114,10 @@ function DetailCorporateShop(): JSX.Element {
             }}
           >
             <Col span={5}>
-              <Text color='Text3'>หมายเลขบัตรประชาชน :</Text>
+              <Text color='Text3'>ชื่อเล่น :</Text>
             </Col>
             <Col span={19}>
-              <Text>4854701245280</Text>
+              <Text>{detail?.customer?.nickname || "-"}</Text>
             </Col>
           </Row>
           <Row
@@ -134,7 +130,11 @@ function DetailCorporateShop(): JSX.Element {
               <Text color='Text3'>วันที่เริ่มเป็นสมาชิก :</Text>
             </Col>
             <Col span={19}>
-              <Text>1 ก.ย. 2565</Text>
+              <Text>
+                {dayjs(detail?.createDate || "")
+                  .locale("th")
+                  .format("D MMM BBBB")}
+              </Text>
             </Col>
           </Row>
           <Row
@@ -147,10 +147,24 @@ function DetailCorporateShop(): JSX.Element {
               <Text color='Text3'>เบอร์โทรศัพท์ :</Text>
             </Col>
             <Col span={19}>
-              <Text>0897778888</Text>
+              <Text>{detail?.customer?.telephone}</Text>
+            </Col>
+          </Row>
+          <Row
+            style={{
+              marginBottom: 8,
+              padding: "8px 0",
+            }}
+          >
+            <Col span={5}>
+              <Text color='Text3'>อีเมล์ :</Text>
+            </Col>
+            <Col span={19}>
+              <Text>{detail?.customer?.email || "-"}</Text>
             </Col>
           </Row>
         </div>
+
         <br />
         <Col>
           <Text fontWeight={700}>ข้อมูลร้านค้า</Text>
@@ -165,7 +179,24 @@ function DetailCorporateShop(): JSX.Element {
             <Text color='Text3'>ชื่อร้านค้า :</Text>
           </Col>
           <Col span={19}>
-            <Text>วรนิษฐ พิศักดิ์ศิริ</Text>
+            <Text>{detail?.customerName}</Text>
+          </Col>
+        </Row>
+        <Row
+          style={{
+            marginBottom: 8,
+            padding: "8px 0",
+          }}
+        >
+          <Col span={5}>
+            <Text color='Text3'>รูปแบบการชำระเงิน :</Text>
+          </Col>
+          <Col span={19}>
+            <Text>
+              {detail?.termPayment === "COD"
+                ? "เงินสด"
+                : `เครดิต (ระยะเวลาชำระ ${detail?.termPayment?.split("N")[1]} วัน)`}
+            </Text>
           </Col>
         </Row>
         <Row
@@ -178,7 +209,7 @@ function DetailCorporateShop(): JSX.Element {
             <Text color='Text3'>หมายเลขนิติบุคคล :</Text>
           </Col>
           <Col span={19}>
-            <Text>1854701245280</Text>
+            <Text>{detail?.customer?.taxNo}</Text>
           </Col>
         </Row>
         <Row
@@ -191,7 +222,7 @@ function DetailCorporateShop(): JSX.Element {
             <Text color='Text3'>เขต :</Text>
           </Col>
           <Col span={19}>
-            <Text>M1</Text>
+            <Text>{detail?.zone}</Text>
           </Col>
         </Row>
         <Row
@@ -204,7 +235,11 @@ function DetailCorporateShop(): JSX.Element {
             <Text color='Text3'>ที่อยู่ร้านค้า :</Text>
           </Col>
           <Col span={19}>
-            <Text>5 หมู่ 2 ตำบล/แขวง บางตะเคียน อำเภอ/เขต สองพี่น้อง จังหวัด สุพรรณบุรี 72110</Text>
+            <Text>
+              {detail?.customer?.address} ตำบล/แขวง {detail?.customer?.subdistrict || "-"} อำเภอ/เขต{" "}
+              {detail?.customer?.district || "-"} จังหวัด {detail?.customer?.province || "-"}{" "}
+              {detail?.customer?.postcode || ""}
+            </Text>
           </Col>
         </Row>
         <Row
@@ -217,7 +252,9 @@ function DetailCorporateShop(): JSX.Element {
             <Text color='Text3'>ตำแหน่ง ละติจูด / ลองจิจูด :</Text>
           </Col>
           <Col span={19}>
-            <Text>3.7279273 / 100.5219195</Text>
+            <Text>
+              {detail?.customer?.lat} / {detail?.customer?.lag}
+            </Text>
           </Col>
         </Row>
       </>
@@ -282,6 +319,55 @@ function DetailCorporateShop(): JSX.Element {
     );
   };
 
+  const BrandTab = () => {
+    return (
+      <>
+        <div style={{ paddingLeft: "12px" }}>
+          <Text fontWeight={700}>แบรนด์สินค้าในร้าน</Text>
+        </div>
+        <br />
+        {detail?.productBrand?.length ? (
+          <Row justify={"start"} gutter={16} style={{ padding: "5px" }}>
+            {detail?.productBrand?.map((b) => (
+              <Col
+                span={6}
+                key={b?.product_brand_id}
+                style={{ height: "100%", paddingBottom: "10px" }}
+              >
+                <Row
+                  style={{
+                    borderStyle: "solid",
+                    borderRadius: "8px",
+                    borderColor: "#EFF2F9",
+                    borderWidth: "1px",
+                    padding: "5px",
+                  }}
+                >
+                  <Col span={5}>
+                    <Avatar src={b?.product_brand_logo} size={50} />
+                  </Col>
+                  <Col className='pt-3'>{b?.product_brand_name}</Col>
+                </Row>
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <div style={{ padding: "100px" }}>
+            <Row justify={"center"}>
+              <Col>
+                <img src={image.emptyTableBrand} />
+              </Col>
+              <br />
+            </Row>
+            <Row justify={"center"}>
+              <Text color='Text3'>ไม่มีรายการแบรนด์สินค้า</Text>
+            </Row>
+          </div>
+        )}
+      </>
+    );
+  };
+
   const dataTabs: { key: string; label: React.ReactNode; children?: JSX.Element | undefined }[] = [
     {
       key: "detail",
@@ -289,10 +375,15 @@ function DetailCorporateShop(): JSX.Element {
       children: <DetailTab />,
     },
     {
-      key: "history",
-      label: "ประวัติการบันทึกข้อมูล",
-      children: <HistoryTab />,
+      key: "brand",
+      label: `แบรนด์สินค้าในร้าน (${detail?.productBrand?.length})`,
+      children: <BrandTab />,
     },
+    // {
+    //   key: "history",
+    //   label: "ประวัติการบันทึกข้อมูล",
+    //   children: <HistoryTab />,
+    // },
   ];
 
   return (
@@ -303,23 +394,13 @@ function DetailCorporateShop(): JSX.Element {
         onBack={() => {
           navigate("/ShopManagementPage/CorporateShop");
         }}
-        description={
-          <Text
-            fontWeight={500}
-            level={6}
-            style={{
-              marginTop: 8,
-            }}
-          >
-            รหัสสมาชิก:
-          </Text>
-        }
+        description={""}
         extra={
           <Button
             typeButton={"primary"}
             //disabled={isDisabled}
             onClick={() => {
-              navigate(`/ShopManagementPage/createCorporateShop/${id}`);
+              navigate(`/ShopManagementPage/createCorporateShop/${id}/edit`);
             }}
             icon={
               <FormOutlined

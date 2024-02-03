@@ -1,8 +1,12 @@
-## Resolved [v0.13.3] - Release Date: 2023-02-01
+## Features [v0.14.0] - Release Date: 2024-02-03
+
+- added shop setting for corporate ship (MGT)
+
+## Resolved [v0.13.3] - Release Date: 2024-02-01
 
 - fixed order product sorting
 
-## Resolved [v0.13.2] - Release Date: 2023-01-31
+## Resolved [v0.13.2] - Release Date: 2024-01-31
 
 - fixed news
 

@@ -6,6 +6,7 @@ import { getCompanyName } from "../../utility/CompanyName";
 export default class HomePage extends Component<any> {
   render() {
     const profile = JSON.parse(localStorage.getItem("profile") || "{}");
+    const userProfile = JSON.parse(localStorage.getItem("company") || "{}");
     const { company, firstname, lastname, role } = profile;
 
     return (
@@ -168,7 +169,7 @@ export default class HomePage extends Component<any> {
             สวัสดี,&nbsp;{firstname}&nbsp;{lastname}
           </Text>
           <Text level={5} color='Text3'>
-            {role},&nbsp;{getCompanyName(company)}
+            {role},&nbsp;{userProfile?.companyNameEn}
           </Text>
         </div>
       </CardContainer>
