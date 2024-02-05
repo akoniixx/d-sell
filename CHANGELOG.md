@@ -1,6 +1,10 @@
+## Features [v0.15.0] - Release Date: 2024-02-05
+
+- added freebies setting for corporate shop (MGT)
+
 ## Features [v0.14.0] - Release Date: 2024-02-03
 
-- added shop setting for corporate ship (MGT)
+- added shop setting for corporate shop (MGT)
 
 ## Resolved [v0.13.3] - Release Date: 2024-02-01
 

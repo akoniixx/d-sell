@@ -75,7 +75,7 @@ export const FreebieListPage: React.FC = () => {
         productFreebiesStatus: statusFilter,
         page,
       });
-      const { responseData } = await getProductFreebieGroup(company);
+      const { responseData } = await getProductFreebieGroup(company.companyCode);
       setDataState({
         data,
         count,
