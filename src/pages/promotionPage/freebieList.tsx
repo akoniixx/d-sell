@@ -214,7 +214,13 @@ export const FreebieListPage: React.FC = () => {
               <div className='d-flex flex-row justify-content-between'>
                 <div
                   className='btn btn-icon btn-light btn-hover-primary btn-sm'
-                  onClick={() => navigate("/freebies/freebies/edit/" + row.productFreebiesId)}
+                  onClick={() =>
+                    company.companyCode === "ICPL" ||
+                    company.companyCode === "ICPI" ||
+                    company.companyCode === "ICPF"
+                      ? navigate("/freebies/freebies/edit/" + row.productFreebiesId)
+                      : navigate("/freebies/freebiesCorporate/" + row.productFreebiesId)
+                  }
                 >
                   <span className='svg-icon svg-icon-primary svg-icon-2x'>
                     <UnorderedListOutlined style={{ color: color["primary"] }} />

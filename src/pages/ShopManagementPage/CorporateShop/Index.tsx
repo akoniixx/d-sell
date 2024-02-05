@@ -37,7 +37,7 @@ function IndexCorporateShop(): JSX.Element {
     count: 0,
     data: [],
   });
-  const pageSize = 10;
+  const pageSize = 8;
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [searchZone, setSearchZone] = useState<string>("");
@@ -247,24 +247,24 @@ function IndexCorporateShop(): JSX.Element {
                 />
               </Col>
               {/* <Col>
-                <Select
-                  allowClear
-                  placeholder='สถานะทั้งหมด'
-                  data={
-                    [
-                      //
-                    ]
-                  }
-                  style={{
-                    width: 180,
-                    fontFamily: "Sarabun",
-                  }}
-                  onChange={(e) => {
-                    setSearchZone(e);
-                    setPage(1);
-                  }}
-                />
-              </Col> */}
+                  <Select
+                    allowClear
+                    placeholder='สถานะทั้งหมด'
+                    data={
+                      [
+                        //
+                      ]
+                    }
+                    style={{
+                      width: 180,
+                      fontFamily: "Sarabun",
+                    }}
+                    onChange={(e) => {
+                      setSearchZone(e);
+                      setPage(1);
+                    }}
+                  />
+                </Col> */}
               <Col>
                 <Button
                   onClick={() => setShowModal(!showModal)}

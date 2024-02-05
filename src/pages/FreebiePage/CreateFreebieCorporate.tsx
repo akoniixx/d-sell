@@ -13,6 +13,8 @@ import color from "../../resource/color";
 import Text from "../../components/Text/Text";
 import { createFreebieCorporate, updateFreebieCorporate } from "../../datasource/FreebieDatasource";
 import { getProductFreebiePromotionDetail } from "../../datasource/PromotionDatasource";
+import { getUnitMea } from "../../datasource/UnitMeaDatasource";
+import Select from "../../components/Select/Select";
 
 const ProdImage = styled.div`
   width: 100%;
@@ -40,16 +42,50 @@ export const CreateFreebieCorporate: React.FC = () => {
   const [isRemoved, setRemoved] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showCancel, setShowCancel] = useState<boolean>(false);
+  const [unitMea, setUnitMea] = useState<any>();
 
   const getFreebieById = async () => {
     await getProductFreebiePromotionDetail(id).then((res) => {
-      console.log(res);
+      const url = res.productFreebies.productFreebiesImage;
+      if (url) {
+        setFile({
+          uid: "-1",
+          name: "image.png",
+          status: "done",
+          url,
+        });
+        setFileList([
+          {
+            uid: "-1",
+            name: "image.png",
+            status: "done",
+            url,
+          },
+        ]);
+      }
+      form.setFieldsValue({
+        productFreebiesId: res.productFreebies?.productFreebiesId,
+        productName: res?.productFreebies?.productName,
+        productFreebiesStatus: res?.productFreebies?.productFreebiesStatus,
+        productFreebiesCodeNAV: res?.productFreebies?.productFreebiesCodeNAV,
+        productGroup: res?.productFreebies?.productGroup,
+        //baseUnitOfMeaEn: res?.productFreebies?.baseUnitOfMeaEn,
+        baseUnitOfMeaTh: res?.productFreebies?.baseUnitOfMeaTh,
+        description: res?.productFreebies?.description,
+        productFreebiesImage: res.productFreebies.productFreebiesImage,
+      });
+    });
+  };
+  const getUnit = async () => {
+    await getUnitMea(company?.companyCode).then((res) => {
+      setUnitMea(res);
     });
   };
 
   useEffect(() => {
     isEdit && getFreebieById();
     form.setFieldValue("productFreebiesStatus", "ACTIVE");
+    getUnit();
   }, []);
 
   const PageTitle = () => {
@@ -72,7 +108,6 @@ export const CreateFreebieCorporate: React.FC = () => {
 
   const createFreebie = async () => {
     const payload = form.getFieldsValue(true);
-    console.log("p", payload);
     form
       .validateFields()
       .then(async (f) => {
@@ -82,29 +117,26 @@ export const CreateFreebieCorporate: React.FC = () => {
         data.append("company", company.companyCode);
         data.append("productFreebiesCodeNAV", payload.productFreebiesCodeNAV);
         data.append("productGroup", payload.productGroup);
-        data.append("baseUnitOfMeaEn", payload.baseUnitOfMeaEn);
+        //data.append("baseUnitOfMeaEn", payload.baseUnitOfMeaEn);
         data.append("baseUnitOfMeaTh", payload.baseUnitOfMeaTh);
         data.append("description", payload.description);
         data.append("updateBy", `${userProfile.firstname} ${userProfile.lastname}`);
 
-        if (!isRemoved && payload.productImage) {
-          data.append("productFreebiesImage", payload.productImage);
+        if (!isRemoved && payload.productFreebiesImage) {
+          data.append("productFreebiesImage", payload.productFreebiesImage);
         }
         if (file && file.uid !== "-1") {
           data.append("file", file!);
         }
         if (payload.productFreebiesId) {
-          console.log(2);
-          data.append("productFreebiesId", payload.productId);
+          data.append("productFreebiesId", payload.productFreebiesId);
           await updateFreebieCorporate(data).then((res) => {
             if (res.success) {
               navigate("/freebies/freebies");
             }
           });
         } else {
-          console.log(1);
           await createFreebieCorporate(data).then((res) => {
-            console.log("res", res);
             if (res.success) {
               navigate("/freebies/freebies");
             }
@@ -180,14 +212,23 @@ export const CreateFreebieCorporate: React.FC = () => {
                 <Input placeholder='ระบุชื่อหมวด' autoComplete='off' />
               </Form.Item>
             </Col>
-            <Col span={6}>
+            {/* <Col span={6}>
               <Form.Item name='baseUnitOfMeaEn' label='ขนาด'>
                 <Input placeholder='ระบุขนาด' autoComplete='off' />
               </Form.Item>
-            </Col>
-            <Col span={6}>
+            </Col> */}
+            <Col span={12}>
               <Form.Item name='baseUnitOfMeaTh' label='หน่วยสินค้า'>
-                <Input placeholder='ระบุหน่อย' autoComplete='off' />
+                <Select
+                  placeholder='ระบุหน่วย'
+                  data={
+                    unitMea?.map((z: any) => ({
+                      label: z.unitMeasureName,
+                      key: z.unitMeasureId,
+                      value: z.unitMeasureName,
+                    })) || []
+                  }
+                />
               </Form.Item>
             </Col>
           </Row>
