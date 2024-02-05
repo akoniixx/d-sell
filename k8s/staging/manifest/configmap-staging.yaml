@@ -8,3 +8,4 @@ data:
   NODE_ENV: staging
   REACT_APP_NAV_URL_HOST: https://api-staging-sellcoda.iconkaset.com/nav
   REACT_APP_URL_HOST: https://sellcoda-api-staging.iconkaset.com
+  REACT_APP_ICONKASET_URL_HOST: "https://iconkasetshop-api-staging.iconkaset.com"

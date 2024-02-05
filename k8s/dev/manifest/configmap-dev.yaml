@@ -8,3 +8,4 @@ data:
   NODE_ENV: development
   REACT_APP_NAV_URL_HOST: https://api-dev-sellcoda.iconkaset.com/nav
   REACT_APP_URL_HOST: https://sellcoda-api-dev.iconkaset.com
+  REACT_APP_ICONKASET_URL_HOST: "https://iconkasetshop-api-dev.iconkaset.com"
