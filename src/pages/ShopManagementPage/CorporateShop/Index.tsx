@@ -1,4 +1,9 @@
-import { PlusOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  SearchOutlined,
+  TeamOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import { Col, Modal, Row, Table, Tag, Form } from "antd";
 import React, { useEffect, useState } from "react";
 import Button from "../../../components/Button/Button";
@@ -32,7 +37,7 @@ function IndexCorporateShop(): JSX.Element {
     count: 0,
     data: [],
   });
-  const pageSize = 10;
+  const pageSize = 8;
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [searchZone, setSearchZone] = useState<string>("");
@@ -181,6 +186,10 @@ function IndexCorporateShop(): JSX.Element {
                 }
                 icon={<UnorderedListOutlined />}
               />
+              <ActionBtn
+                onClick={() => navigate(`/ShopManagementPage/userCorporateShop/1`)}
+                icon={<TeamOutlined />}
+              />
             </Row>
           ),
         };
@@ -238,24 +247,24 @@ function IndexCorporateShop(): JSX.Element {
                 />
               </Col>
               {/* <Col>
-                <Select
-                  allowClear
-                  placeholder='สถานะทั้งหมด'
-                  data={
-                    [
-                      //
-                    ]
-                  }
-                  style={{
-                    width: 180,
-                    fontFamily: "Sarabun",
-                  }}
-                  onChange={(e) => {
-                    setSearchZone(e);
-                    setPage(1);
-                  }}
-                />
-              </Col> */}
+                  <Select
+                    allowClear
+                    placeholder='สถานะทั้งหมด'
+                    data={
+                      [
+                        //
+                      ]
+                    }
+                    style={{
+                      width: 180,
+                      fontFamily: "Sarabun",
+                    }}
+                    onChange={(e) => {
+                      setSearchZone(e);
+                      setPage(1);
+                    }}
+                  />
+                </Col> */}
               <Col>
                 <Button
                   onClick={() => setShowModal(!showModal)}
